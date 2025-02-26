@@ -1,0 +1,7 @@
+response.data[0].embedding is used to:
+Access the embedding data from the first (and only) item in the data list.
+Retrieve the actual embedding vector for the single text input provided to the function
+
+turn embeddings in batches -> memory usage, api limits
+
+
