@@ -145,5 +145,5 @@ def chatbot_response(user_query, temperature=0.2):
         return f"Error generating response: {str(e)}"
 
 # Test the chatbot
-test_query = "in usa Energy in Food how much energy will be needed in 2025?"
+test_query = "how much energy will be needed in the Agricultural Demand sector in 2040?"
 print(chatbot_response(test_query))
