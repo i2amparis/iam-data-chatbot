@@ -14,6 +14,8 @@ pip install openai pandas openpyxl faiss-cpu numpy
 save them
 pip freeze > requirements.txt
 
+install packages
+pip install -r requirements.txt
 
 run the bot to get answers
 python final.py
