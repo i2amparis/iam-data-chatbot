@@ -161,5 +161,19 @@ def chatbot_response(user_query, temperature=0.2):
         return f"Oops, something went wrong: {str(e)}"
     
 # Test the chatbot
-test_query = "In the US, how much energy will the crop industry need in 2045?"
-print(chatbot_response(test_query))
+# test_query = "How much crops for feed we will need globally in 2050? Are there different results per model and per scenario?"
+# print(chatbot_response(test_query))
+
+if __name__ == "__main__":
+    print("Welcome to the Climate and Energy Dataset Explorer!")
+    print("Type your question and press Enter. Type 'exit' to quit.")
+    while True:
+        user_input = input("\nYou: ")
+        if user_input.lower() in ["exit", "quit"]:
+            print("Exiting. Goodbye!")
+            break
+        try:
+            response = chatbot_response(user_input) 
+            print(f"Bot: {response}")
+        except Exception as e:
+            print(f"Error: {e}")
