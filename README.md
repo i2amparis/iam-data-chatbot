@@ -9,7 +9,7 @@ conda activation
 conda activate botenv
 
 install required packages
-pip install openai pandas openpyxl faiss-cpu numpy
+pip install openai pandas openpyxl faiss-cpu numpy requests
 
 save them
 pip freeze > requirements.txt
@@ -17,5 +17,8 @@ pip freeze > requirements.txt
 install packages
 pip install -r requirements.txt
 
-run the bot to get answers
-python final.py
+run the bot to get answers from data
+python bot_data.py
+
+run the bot to get answers from api
+python bot_api.py
