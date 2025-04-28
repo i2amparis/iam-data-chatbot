@@ -85,6 +85,7 @@ def parse_query(query):
     workspace_set = False
     variable_set = False
 
+    # Workspace detection
     if "usa" in query or "us" in query:
         filters["workspace_code"] = ["us-headed"]
         workspace_set = True
@@ -92,11 +93,9 @@ def parse_query(query):
         filters["workspace_code"] = ["world-headed"]
         workspace_set = True
 
-    if "energy in food" in query:
+    # Smart variable detection
+    if any(word in query for word in ["energy in food", "food energy"]):
         filters["variable"].append("Crops|Food")
-        variable_set = True
-    elif "energy" in query:
-        filters["variable"].append("Final Energy")
         variable_set = True
     elif "food" in query:
         filters["variable"].append("Crops|Food")
@@ -104,20 +103,30 @@ def parse_query(query):
     elif "feed" in query:
         filters["variable"].append("Crops|Feed")
         variable_set = True
-    elif "emissions" in query or "co2" in query:
+    elif any(word in query for word in ["energy", "energy demand", "energy use", "final energy"]):
+        filters["variable"].append("Final Energy")
+        variable_set = True
+    elif any(word in query for word in ["emissions", "co2", "carbon"]):
         filters["variable"].append("Emissions|CO2|Energy|Supply|Other Sector")
         variable_set = True
 
+    # Scenario detection
     if "pr_wwh_cp" in query:
         filters["scenario"].append("PR_WWH_CP")
     if "ref" in query:
         filters["scenario"].append("REF")
 
-    # NEW: if no variable matched, set default
+    # 🚀 If no variable is detected, default intelligently
     if not variable_set:
-        filters["variable"].append("Final Energy")  # You can choose to default to "Emissions" if you prefer
+        if "emissions" in query or "co2" in query or "carbon" in query:
+            filters["variable"].append("Emissions|CO2|Energy|Supply|Other Sector")
+        elif "food" in query or "crops" in query:
+            filters["variable"].append("Crops|Food")
+        else:
+            filters["variable"].append("Final Energy")  # General fallback
 
     return filters
+
 
 
 # Search for best matching text entries
