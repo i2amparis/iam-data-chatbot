@@ -9,7 +9,7 @@ conda activation
 conda activate botenv
 
 install required packages
-pip install openai pandas openpyxl faiss-cpu numpy requests
+pip install openai pandas openpyxl faiss-cpu numpy requests matplotlib
 
 save them
 pip freeze > requirements.txt
@@ -22,3 +22,6 @@ python bot_data.py
 
 run the bot to get answers from api
 python bot_api.py
+
+run the bot to get answers with graph
+python bot_api_graph.py
