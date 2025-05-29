@@ -1,0 +1,16 @@
+Short overview
+HEB (High Efficiency Buildings) model analyses building energy use and CO2 emissions. This model is novel in its methodology as compared to earlier global energy analyses and reflects the emerging new paradigm – the performance-oriented approach to buildings energy analysis. As opposed to component-oriented methods, a systemic perspective is taken: the performance of whole systems (e.g. whole buildings) is studied and these performance values are used as inputs in the scenarios. This model calculates with the overall energy performance levels of buildings regardless of the measures applied to achieve it. Moreover, this model also captures the diversity of solutions required in each region by having region-specific assumptions about advanced and sub-optimal technology mixes. The elaborated model is in the framework of the bottom-up approach, as it includes rather detailed technological information for one sector of economy, however, it also benefits from certain macroeconomic (GDP) and sociodemographic data (population, urbanization rate, floor area per capita, etc.). This model consider three different scenarios namely Deep Efficiency Scenario, Moderate Efficiency Scenario and Frozen Efficiency Scenario to investigate the potential of building sector to mitigate climate change through the various opportunities.
+
+Key features of the HEB model
+The purpose of this model is to assess energy and CO2 emission scenarios that estimate the contribution of the building sector to achieve ambitious climate change mitigation goals on global and regional scales between now and 2050.
+
+Climate module & emissions granularity
+This model calculates CO2 due to specific end-use and also total CO2 emission from the building sector under different scenarios.
+
+Key parameters
+Specific energy consumption intensity (for space heating & cooling)
+Retrofit rates
+Regions
+Final energy consumption
+CO2 emission
+Scenario (Deep Efficiency Scenario, Moderate Efficiency Scenario, Frozen Efficiency Scenario)

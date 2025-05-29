@@ -1,0 +1,34 @@
+Short overview
+The Climate, Land, Energy, Water systems (CLEWs) methodology is a model-based methodology to assess the implications of policy and investment decisions in one sector (e.g., the energy sector) on the other sectors (e.g., land use). The case study of Sri Lanka uses the Open-Source Modelling Tool (OSeMOSYS), a technologically-detailed techno-economic optimisation tool, which enabled to create a techno-economic representation of the climate, land, energy and water systems, where the parts of these systems are represented as a number of processes with certain transfer functions and exchanging between them different commodities. CLEWs-Sri Lanka model has been developed using OSeMOSYS’s graphical user interface.
+
+The time domain of the model goes from 2020 upto 2050. Sri Lanka has three distinct seasons: Dry, High Wind and Wet. Three day-types; day peak, night peak and off-peak are considered distinguishing between weekdays and weekends. Totally there are 18 times slices representing a year taking into account of seasonal, weekly and intra-day variations.
+
+The energy sector involves all   petroleum fuels and renewable fuels in use. The demand for petroleum products is met by importing refined products as well as imported crude oil refined indigenous. Energy use from residential, commercial, industrial and transport sectors are modelled. The power sector particularly is modelled in detailed considering all major power stations individually, , and options for the expansion of capacity in a more aggregate fashion, including solar and wind power plants.
+
+The model divides the country's land cover into six types: agricultural, forest, grassland, built-up, water bodies, and barren. Agricultural land is further divided into major crops in Sri Lanka; rice-paddy, tea, coconut, maize, and rubber, which must all meet exogenously defined demands. Crop imports are also considered. Built-up land is lower-bound by growing urban areas (due to an increase in population) and also includes an endogenous representation of the land used for energy infrastructure.
+
+The emissions are represented as CO2 equivalent. The optimization seeks to minimize the Net Present Value of all costs incurred across the energy and land sectors in the whole-time domain analysed, while meeting an increasing demand for commodities and resource availability constraints. Finally, the energy and land systems are interlinked by considering the land used for energy infrastructure.
+
+Key features
+The CLEWs Sri Lanka model is developed using the OSeMOSYS's  graphical user interface. All input data used are fully open source  and accessible including data pre/post processing codes. Teaching material and documentation available on GitHub and on the Open University's OpenLearn platform for CLEWs in general. Specifics documentation on data, data processing and model development for CLEWs Sri Lanka will be added separately.
+
+Mitigation/adaptation measures and technologies
+Mitigation and adaptation measure and technologies are not currently modelled explicitly. CLEWs Sri lanka considers these in the exogenous data going as input data to the model (e.g. electrification of transport will be represented in a decline in current trend of petroleum fuel use, and increase in electricity demand for the transport sector). Explicit modelling of mitigation/adaptation measures and technologies will be added where possible later on.
+
+Economic rationale and model solution
+The model computes dynamically (year-by-year over the whole time domain) the investment and operation mix across the energy, land use and water sectors that minimizes the Net Present Cost of all sectors together while meeting commodity demands and other user-definedconstraints. The rationale is the same as for any energy system optimization model, but here land and water are included.
+
+Key parameters
+Key inputs are:
+
+commodity demands for the energy sector, as well as the agricultural sector (crop) and the water sector (water demands for public uses, industry, residential and energy);
+techno-economic characteristics of energy supply technologies;
+commodity import prices (fuels, crops, water);
+detailed costs of crop production per crop and per mechanization level;
+geospatial information of land covers and agricultural land uses in the base year;
+geospatial information on precipitation, evapotranspiration, surface water run off and groundwater recharge for the base year and for various climate scenarios;
+Key policies that can be addressed
+Energy and climate policies (e.g. renewable targets, emission targets, emission penalties, targets of production of energy commodities or carriers such as hydrogen), agricultural policies (e.g. food security targets aiming at capping crop imports, incentives to domestic crop production, targets of increased water efficiency, targets of modernization of agricultural practices). Land-use implications of these policies implemented in each different sectors.
+
+Implications for SDGs
+Focuses on SDGs 7,8, 10, 12, and 15.

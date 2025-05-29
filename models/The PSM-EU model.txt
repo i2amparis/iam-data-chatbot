@@ -1,0 +1,60 @@
+Short overview
+PSM-EU provides instances of a power system simulation models for (parts of) EU27 plus United Kingdom, Norway, and Switzerland. PSM-EU contains data at a country basis and can be used to perform capacity expansion (i.e. building new generation and transmission infrastructure) and UCED calculations, considering power plant flexibility limitations and flexible loads. The objective function of the capacity expansion is to minimise the total net present value (NPV) of build costs, fixed operation and maintenance (FOM) costs, and variable operating and maintenance (VOM) costs, while the objective function of UCED is to minimise variable generation costs. Current instances are mostly implemented in PLEXOS, a mixed-integer linear programming (MILP) model which has been used in many studies on RES integration and system adequacy, but also in a custom-made C#-software package.
+
+PSM-EU has been used among others to assess the system adequacy of power systems with high penetration of solar and wind energy taking into account climate variability, to evaluate different electricity market designs, and to identify cost-effective trajectories to reach Paris targets
+
+Key features of the PSM-EU model
+PSM-EU provide instances of power system simulation models for the EU27 plus United Kingdom, Norway, and Switzerland.
+
+Temporal resolution of instances is hourly, and spatial resolution varies from country level to regions within Europe.
+
+PSM-EU can be used to assess the system adequacy of power systems with high penetration of solar and wind energy taking into account climate variability, to evaluate different electricity market designs, and to identify cost-effective trajectories to reach Paris targets.
+
+Instances contain knowledge and data of:
+1. A broad portfolio of conventional and low carbon electricity generation technologies, storage technologies, and negative CO2 emission technologies. Per technology, techno-economic parameters are provided including investment costs, fixed operating and maintenance costs, variable operating and maintenance costs, efficiency, ramping rates, minimum up and down, and minimum load.
+2. Transmission lines between countries.
+3. Hourly electricity demand patterns are based on historical electricity demand patterns for each country. Additionally, all patterns are adapted based on electrification of the heating and transport.
+4. Demand response options, also known as demand side management (DSM): to what extent electricity demand can be shifted or curtailed during times of peak residual load. Demand options are assessed for industry, and residential and tertiary appliances. Volumes and activation times are limited depending on the application and season.
+5. Operating reserves (both up and down regulation) can be included that can cope with mismatches between demand and generation due to (i) demand forecast errors, (ii) vRES generation forecast errors, and (iii) unplanned generator outages.
+6. Supply patterns of solar and wind energy are based on historical time series or climate simulations for future weather years.
+Climate module & emissions granularity
+CO2 emissions can be an output, or CO2 emissions can be capped (during a specific period e.g. for a year)
+
+Socioeconomic dimensions
+Electricity demand is an exogenous input based on GDP and population developments, and technological developments such as electrification of heating and transport
+
+Mitigation/adaptation measures and technologies
+Many mitigation technologies are available from wind turbines to direct air capture of CO2
+
+Economic rationale and model solution
+Minimisation of total system costs in the capacity expansion mode and minimisation of all variable costs in the UCED mode. Thus, a perfect market is modelled based on perfect information and rationale stakeholders.
+
+Key parameters
+Instances contain knowledge and data of:
+1. A broad portfolio of conventional and low carbon electricity generation technologies, storage technologies, and negative CO2 emission technologies. Per technology, techno-economic parameters are provided including investment costs, fixed operating and maintenance costs, variable operating and maintenance costs, efficiency, ramping rates, minimum up and down, and minimum load.
+2. Transmission lines between countries.
+3. Hourly electricity demand patterns are based on historical electricity demand patterns for each country. Additionally, all patterns are adapted based on electrification of the heating and transport.
+4. Demand response options, also known as demand side management (DSM): to what extent electricity demand can be shifted or curtailed during times of peak residual load. Demand options are assessed for industry, and residential and tertiary appliances. Volumes and activation times are limited depending on the application and season.
+5. Operating reserves (both up and down regulation) can be included that can cope with mismatches between demand and generation due to (i) demand forecast errors, (ii) vRES generation forecast errors, and (iii) unplanned generator outages.
+6. Supply patterns of solar and wind energy are based on historical time series or climate simulations for future weather years.
+Policy questions and SDGs
+Key policies that can be addressed
+PSM-EU can be used to support policy making and decision making among others, in the field of energy security, power system reliability, emission reduction policies, electrcitity market designs, any regulation in the electricity sector, electrification strategies, cooperation between countries with regard to the energy system across Europe, investment decisions, tax regimes, and R&D of technologies.
+
+Implications for other SDGs
+PSM-EU calculates the cost implications and power system reliability of the climate SDG. With respect to the SDG7, it provides insights into total system costs (+ split into investment costs and variable costs), electricity prices, system adequacy, share of each electricity generation technology (also all renewables).
+
+Recent use cases
+Paper DOI	Paper Title	Key findings
+DOI Badge	Is a 100% renewable European power system feasible by 2050?	
+Seven scenarios for a 100% renewable European power system are modelled for 2050. A 100% renewable system could operate with the same level of adequacy as today. Mass mobilisation of Europe’s solid biomass and biogas resources would be required. 90% more generation and 240% more transmission capacity would be needed than today. Costs would be ?530?€billion per year, 30% more than a system with nuclear or CCS.
+
+DOI Badge	Cost-optimal reliable power generation in a deep decarbonisation future	A detailed model of the 2050 Western Europe power system is developed. Variable system costs differ up to 25% with interannual weather variability. In most scenarios firm low-carbon capacity is above 75% of the peak demand. The role of green hydrogen as electricity storage is limited.
+DOI Badge	Least-cost options for integrating intermittent renewables in low-carbon power systems	Simulated the 2050 West-European power system with 40%, 60% and 80% RES penetration. Assessed if 5 options can complement intermittent RES and lower total system costs. 3 options lower costs: demand response, gas-fired generators(+CCS) and curtailment. Power storage is too expensive and extra interconnectors are valuable at RES ?60%. Virtually all generators encounter a revenue gap in the current energy-only market.
+Recent publications using the PSM-EU model
+References
+van Zuijlen, B., Zappa, W., Turkenburg, W., van der Schrier, G., & van den Broek, M. (2019). Cost-optimal reliable power generation in a deep decarbonisation future. Applied Energy, 253, [113587]. https://doi.org/(...)apenergy.2019.113587
+
+Zappa, W., Junginger, M., & van den Broek, M. (2019). Is a 100% renewable European power system feasible by 2050? Applied Energy, 233-234, 1027-1050. https://doi.org/(...)apenergy.2018.08.109
+
+Brouwer, A. S., van den Broek, M., Zappa, W., Turkenburg, W. C., & Faaij, A. (2016). Least-cost options for integrating intermittent renewables in low-carbon power systems. Applied Energy, 161, 48-74. https://doi.org/(...)apenergy.2015.09.090

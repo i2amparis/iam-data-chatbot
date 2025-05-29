@@ -5,11 +5,42 @@ import requests
 import faiss
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 # OpenAI API client
 client = openai.OpenAI(
     api_key='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'
 )
+
+#load and index files
+def load_model_descriptions(folder="models"):
+    descriptions = {}
+    if not os.path.exists(folder):
+        print(f"Warning: folder '{folder}' not found. No model descriptions loaded.")
+        return descriptions
+    for filename in os.listdir(folder):
+        if filename.endswith(".txt"):
+            model_name = filename.replace(".txt", "").upper()
+            file_path = os.path.join(folder, filename)
+            try:
+                with open(file_path, "r", encoding="utf-8-sig", errors="replace") as f:
+                    descriptions[model_name] = f.read()
+            except Exception as e:
+                print(f"⚠️ Failed to load {filename}: {e}")
+    return descriptions
+
+
+MODEL_DESCRIPTIONS= load_model_descriptions()
+
+#detect model query
+def get_requested_model_name(query):
+    for model in MODEL_DESCRIPTIONS:
+        if model.lower() in query.lower():
+            return model
+    return None
+
+
+
 
 # Global conversation memory
 conversation = [
@@ -138,6 +169,30 @@ def parse_query(query):
 
 # Main chatbot logic
 def chatbot_response(user_query, temperature=0.2):
+    model_name = get_requested_model_name(user_query)
+
+    # ✅ Handle model listing
+    if "which models" in user_query.lower() or "what models" in user_query.lower():
+        available_models = ", ".join(sorted(MODEL_DESCRIPTIONS.keys()))
+        return f"I use the following models: {available_models}"
+
+    # ✅ Handle specific model description
+    if model_name:
+        summary_prompt = (
+            f"Please summarize the following description of the {model_name} model:\n\n"
+            f"{MODEL_DESCRIPTIONS[model_name]}"
+        )
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4",
+                messages=[{"role": "user", "content": summary_prompt}],
+                temperature=0.4
+            )
+            return f"📘 Summary for **{model_name}**:\n\n{response.choices[0].message.content}"
+        except Exception as e:
+            return f"Found description for model {model_name}, but failed to summarize it: {str(e)}"
+
+    # ✅ Plotting logic
     def plot_data(df, user_query=None):
         year_columns = [col for col in df.columns if str(col).isdigit()]
         if not year_columns:
@@ -173,7 +228,6 @@ def chatbot_response(user_query, temperature=0.2):
 
         plt.grid(True)
         plt.tight_layout()
-        #plt.savefig("plot.png")
         plt.show()
 
     wants_plot = any(kw in user_query.lower() for kw in ["plot", "graph", "chart", "visualize"])
@@ -203,8 +257,6 @@ def chatbot_response(user_query, temperature=0.2):
         "Answer:"
     )
 
-
-
     conversation.append({"role": "user", "content": user_prompt})
 
     try:
@@ -218,6 +270,7 @@ def chatbot_response(user_query, temperature=0.2):
         return reply
     except Exception as e:
         return f"Oops, something went wrong: {str(e)}"
+
 
 # CLI interface
 if __name__ == "__main__":

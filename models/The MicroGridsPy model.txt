@@ -1,0 +1,54 @@
+Short overview
+MicroGridsPy is a fully opensource tool designed to optimize rural microgrids, coupling the estimated load demand of the study area, with available VRES, battery storage system and back-up conventional gensets. In its "Multi Year Capacity Expansion" version it is able to take into account evolving electrical load through the years and perform multi-step investments. In its "MicroEnergySystem" version it takes into account also Domestic Hot Water Demand and possibility to install thermal solar collectors.
+
+Key features of the MicroGridsPy model
+Geographic coverage:
+
+Village
+
+Time resolution and horizon:
+
+From 1-min to 1-hour resolution, 20 years time horizon
+
+Technological Characterization:
+
+PV, Wind Turbines, Battery Storage, Diesel or Gas genset, Thermal Solar Collector, Hot Water Storage, Electric Water Boiler.
+
+Climate module & emissions granularity
+None
+
+Socioeconomic dimensions
+None
+
+Mitigation/adaptation measures and technologies
+None
+
+Economic rationale and model solution
+The core operating principle of MicroGridsPy is the Power and Energy balance at system level and per each timestep.
+
+The objective of the model is to estimate the lowest net present value (NPV) cost of a rural microgrid to meet given demand(s) for energy or energy services.
+
+Key parameters
+Key Scenario assumptions for MicroGridsPy include: Load Demand, Available VRES and Energy Conversion Technologies Characterization (Capital Cost, Operative Costs, Efficiency, Lifetime).
+
+Key Scenario results (outputs) consist in the sizing of the rural microgrid to cover the estimated demand at the lowest NPC.
+
+Policy questions and SDGs
+Key policies that can be addressed
+Access to Energy
+
+Implications for other SDGs
+SDG7
+
+Recent use cases
+Paper DOI	Paper Title	Key findings
+10.1016/j.energy.2019.116073	A two-stage linear programming optimization framework for isolated hybrid microgrids in a rural context: The case study of the “El Espino” community	Overall, the optimal system results from a compromise between the Net Present Cost, the peak capacity installed and the flexibility (to balance variable generation). Different approaches to size isolated microgrids are tested, with the conclusion that methods accounting for the uncertainty in both demand and renewable generation may lead to a more robust configuration with little impacts on the final cost for the community.
+10.1109/PTC.2019.8810571	Two-Stage Stochastic Sizing of a Rural Micro-Grid Based on Stochastic Load Generation	This study couples a stochastic load generation model with a two-stage stochastic micro-grid sizing model to take into account multiple probabilistic load scenarios within a single optimisation problem. As a result, the stochastic-optimal sizing of the system ensures an increased robustness to shocks in the expected load compared to a best-case (lowest-demand) sizing, though with a lower cost and better dispatch flexibility compared to a worst-case (highest-demand) sizing. What is more, allowing just a 1% unmet demand enables to significantly improve the cost-competitiveness and the renewables penetration as all the not supplied energy is located in a negligible fraction of the unlikeliest highest demand scenarios.
+10.1016/j.esd.2020.02.009	Incorporating high-resolution demand and techno-economic optimization to evaluate micro-grids into the Open Source Spatial Electrification Tool (OnSSET)	We propose a methodology consisting of three steps to estimate the LCOE and to size micro-grids for large-scale geo-spatial electrification modelling. In the first step, stochastic load demand profiles are generated for a wide range of settlement archetypes using the open-source RAMP model. In the second step, stochastic optimization is carried by the open-source MicroGridsPy model for combinations of settlement size, load demand profiles and other important techno-economic parameters influencing the LCOE. In the third step, surrogate models are generated to automatically evaluate the LCOE using a multivariate regression of micro-grid optimization results as a function of influencing parameters defining each scenario instance. Our developments coupled to the OnSSET electrification tool reveal an important increase in the cost-competitiveness of micro-grids compared to previous analyses.
+Recent publications using the MicroGridsPy model
+References
+Balderrama, S., Lombardi, F., Riva, F., Canedo, W., Colombo, E., & Quoilin, S. (2019). A two-stage linear programming optimization framework for isolated hybrid microgrids in a rural context: the case study of the “El Espino” community. Energy, (188).
+
+Stevanato, N., Lombardi, F., Colmbo, E., Balderrama, S., & Quoilin, S. (2019). Two-stage stochastic sizing of a rural micro-grid based on stochastic load generation. In 2019 IEEE Milan PowerTech, PowerTech 2019.DOI Badge
+
+Pe?a Balderrama, J. G., Balderrama Subieta, S., Lombardi, F., Stevanato, N., Sahlberg, A., Howells, M., … Quoilin, S. (2020). Incorporating high-resolution demand and techno-economic optimization to evaluate micro-grids into the Open Source Spatial Electrification Tool (OnSSET). Energy for Sustainable Development, 56, 98–118.

@@ -1,0 +1,53 @@
+hort overview
+MARIO is a Python-based model generator designed for handling input-output (IO) tables and models. It aims to provide a simple and intuitive API for common IO tasks without needing in-depth programming knowledge. MARIO supports automatic parsing of different structured tables such EXIOBASE, EORA, EUROSTAT, and FIGARO in different formats namely:
+Single region
+Multi region
+Hybrid tables
+Monetary tables
+Symmetric Input-Output tables (IOTs)
+Supply-Use tables (SUTs)
+When databases are not structured, MARIO supports parsing data from .xlsx, .csv, .txt files or as pandas DataFrames.
+Key features
+More than parsing data, MARIO includes some other basic-to-advanced functionalities widely adopted in the input-output and industrial ecology fields:
+Aggregation of databases
+SUT-to-IOT transformation
+Modifying database, in terms of:
+Adding new sectors, activities or commodities to the database
+Adding new environmental extensions as satellite account
+Scenario and shock analysis
+Backward and forward linkages calculations
+Extracting single-region from multi-region databases
+Balance and productivity tests
+Exporting the databases into different formats for scenarios analyzed
+Climate module & emissions granularity
+MARIO, being a model generator, do not have specific climate modules or emissions accounts per se, but these depends on the underlying database adopted for a certain purpose. An example of MARIO application for environmental analysis is provided at the following link (DOI Badge" target="_blank" rel="noopener">DOI Badge) where MARIO was coupled to the Exiobase database. In this case, the emission granularity reflects, of course, the one of Exiobase (available here:DOI Badge" target="_blank" rel="noopener">DOI Badge). 
+
+Socioeconomic dimensions
+As all IO-based models, basic calculations methods in MARIO allow to assess the economic impact of implemented scenarios in terms of sectoral GDP, labor and employment rates variation from a baseline database.
+
+Mitigation/adaptation measures and technologies
+Technological coverage depends again on the underlying database adopted. However, MARIO also allows for extending database to new technologies or supply-chains that are not represented in the original database: in this application (https://zenodo.org/records/11215808) MARIO was used to parse the EXIOBASE database, which was extended to capture the production of hydrogen and new green steel production routes. 
+
+Economic rationale and model solution
+MARIO is mostly used in a comparative-static approach, where a perturbated configuration of the economic system represented in the underlying database is compared to the baseline one. The perturbation may simulate technological changes/macroscopic trends implemented and computes the level of production of commodity and services required via the application of the Leontief Production Model.
+
+Key parameters
+The main exogenous parameter requested is a input-output database, which can be virtually any database existing provided that is in MARIO-readable formats (as mentioned above). Specifically, an IO database would require:
+final demand accounts by sector and region
+intermediate transaction flows or coefficients(i.e. input-output coefficients)
+imports flows or coefficients
+value added accounts or coefficients
+environmental accounts or coefficients
+The database is then complemented with other data reflecting scenarios assumptions that may be modelled as variations of coefficients or final demand of the baseline database (e.g. population growth, penetration rate of selected technologies, fuel switches).
+Key policies that can be addressed
+MARIO is adopted to compare the same economic system in two or more different configurations. This implies it is possible to model any policy envisaging technological changes (i.e. switch of industries from fuel to electricity consumption, penetration of clean technologies…) or changes of trades relationships between two or more countries. It is possible also to model behavioural policies such as change of the basket of consumption of households (e.g. reduction of transport need due to remote working, meat-to-vegetable-based diets…). The impact of such policies can be assessed in terms of variations of environmental indicators (direct emissions, carbon footprints..) or socioeconomic indicators (sectoral GDP, labour intensity…).
+
+Implications for SDGs
+MARIO does not assess the impact on SDGs but it is possible to derive indicators that may partially indicate an impact on some of the dimensions of several SDGs.
+
+Recent use cases 
+Paper DOI	Paper Title	Key findings
+https://doi.org/10.1088/1748-9326/ad5bf1" target="_blank" rel="noopener noreferrer">DOI Badgehttps://doi.org/10.1088/1748-9326/ad5bf1-blue">  	Assessing environmental and market implications of steel decarbonisation strategies: a hybrid input-output model for the European Union	Innovative steel technologies have the potential to reduce emissions significantly, with reductions of up to 26% by 2030 and 60% by 2050, though these results depend heavily on decarbonizing the electricity supply. However, this progress comes with economic challenges, as steel prices are expected to rise by 25% by 2030 and 40% by 2050 in EU, potentially impacting global competitiveness. Hydrogen- and charcoal-based methods, alongside carbon capture and storage (CCUS), offer promising pathways, though hydrogen technologies face cost and scalability hurdles. Policies like the Carbon Border Adjustment Mechanism (CBAM) and Emission Trading System (ETS) are crucial to balancing economic and environmental goals while fostering global cooperation. Although European steel is already cleaner than its global competitors, maintaining leadership will require strategic investments to address rising costs and technological advancement.
+https://doi.org/10.1016/j.energy.2024.130254" target="_blank" rel="noopener noreferrer">DOI Badgehttps://doi.org/10.1016/j.energy.2024.130254-blue">  	Three different directions in which the European Union could replace Russian natural gas	Russia’s invasion of Ukraine triggered an energy crisis that exposed Europe’s dependence on Russian natural gas imports. This study examines three strategies to eliminate reliance on Russian gas: increasing imports from other suppliers, expanding domestic renewable energy production, and reducing demand through accelerated energy efficiency. While all three pathways can achieve EU climate targets, they involve trade-offs. Relying on alternative gas imports risks fossil-fuel lock-ins, offering short-term cost stability but missing opportunities for decarbonization. Expanding domestic renewables supports end-use emissions reductions but demands significant investments, potentially increasing consumer costs. Prioritizing energy efficiency could minimize power-sector investments and save millions annually in electricity costs but may also lead to the relocation of energy-intensive industries. Notably, Southern Europe remains most vulnerable to high electricity prices across all scenarios.
+References
+Tahavori, M.A., Golinucci, N., Rinaldi, L., Rocco, M.V. and Colombo, E. (2023) ‘MARIO: A Versatile and User-Friendly Software for Building Input-Output Models’, Journal of Open Research Software, 11(1), p. 14. Available at:

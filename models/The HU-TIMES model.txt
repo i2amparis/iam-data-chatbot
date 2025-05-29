@@ -1,0 +1,42 @@
+Short overview
+The HU-TIMES is a partial equilibrium model, which during the optimization process satisfies the end-use energy consumption needs in Hungary at a minimum social-welfare cost considering the different types of costs and capacity constraints of the available technologies and theirs other limiting constraints (e.g. GHG emission).
+
+The model simultaneously optimizes all energy sectors that are the following: electricity and district heat production, industry, transport, commercial and residential and agriculture sectors over a year that is represented by 96 time slices. The model is used for long-run (over several decades) time horizon. As a result it determines the optimal overall and sector specific energy mix, the pool of the different current and future technologies to be used and the GHG associated with each technologies in the different sectors. It is a national model for Hungary. The main exogeneous parameters for the model are: technology characteristics, GDP, population, fuel prices and CO2 quota prices.
+
+Key features of the HU-TIMES model
+Supply side representation in the model
+
+In case of electricity and district heat production, power plants are represented at the unit/block level . All generation units are characterised by the following inputs: installed capacity, overall efficiency energy carrier used. In case of end-use technologies, the following characteristics are defined: installation and operation and maintenance costs, technology specific energy efficiencies, installed capacities (existing technologies), available factors.
+
+Demand side representation in the model
+
+The power demand is an exogenous input to the optimisation of the energy system. The annual demands are determined based on exogeneous variables, such as GDP, population, fuel prices.
+
+Climate module & emissions granularity
+Calculation of greenhouse gas (CO2, CH4 and N2O) emissions based on the production technology and fuel type. Emission targets can also be set as exogenous parameters.
+
+Socioeconomic dimensions
+Being a partial equilibrium model, the model has limited socioeconomic dimension, as final end-use consumptions are determined exogenously.
+
+Mitigation/adaptation measures and technologies
+Energy sector specific mitigation policies are feasible in the model.
+
+Economic rationale and model solution
+The model finds partial equilibrium in the energy sector with exogenously determined end-use demands and very detailed representation of the supply (technology) side. It simultaneously optimises the different end-use sectors, while the similar economic environment (GDP, fuel prices, population) is being provided to all of these sectors. The sectors modelled using top-down approach (i.e. no technology described in the model) are based on equimarginal principle.
+
+Key parameters
+The model is based on yearly bases and can be used to analyze long-run (up to several decades) policy measures;
+The optimisation has the objective to minimize social welfare cost;
+The model considers the energy flow in the following transformation and end-use sectors: electricity and district heat production, industry, transport, commercial and residential sectors, agriculture;
+The model is technology rich (bottom-up approach is used in most end-use sectors).The technologies applies the following characteristics: fuel type, fuel efficiency, and investment and operation and maintenance costs, available factors;
+HU-TIMES covers the area of Hungary and treats the outside world as rest-of-the-world.
+Policy questions and SDGs
+Key policies that can be addressed
+Mitigation policies affecting the analyzed energy sectors. Energy efficiency target. Renewable energy consumption in the analyzed sectors.
+
+Implications for other SDGs
+Not applicable
+
+Recent use cases
+Paper DOI	Paper Title	Key findings
+https://ec.europa.eu/energy/sites/ener/files/documents/ec_courtesy_translation_hu_necp.pdf	National Energy and Climate Plan of Hungary	The HU-TIMES model played a crucial role in the background calculation for the Hungarian NECP. Using the model 2 different policy scenarios have been identified: the with existing measures (WEM) and with additional measures (WAM) scenarios. The model is applied to analyze the impact of the different policy measures on the 2016-2030 time horizon for the energy mix and greenhouse gas emission levels and cost associated with the energy use in the power and district heat production, transport, industry, residential, commercial and agriculture sectors

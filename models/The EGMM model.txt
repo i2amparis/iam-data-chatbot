@@ -1,0 +1,39 @@
+Short overview
+EGMM is a dynamic, multi-market sectoral equilibrium model, simulating the intricate workings of the European natural gas markets. EGMM modelling has proved exceptionally useful in: Effects of major global developments on the European gas markets (e.g. LNG supply); Cost-Benefit Analysis (CBA) of new infrastructure;
+
+Identifying main risks affecting the realisation of infrastructure projects; Cross-Border Cost Allocation (CBCA) of infrastructure projects; Effects of various tariff regimes on the European gas market; Effects of major infrastructure projects and long-term contract delivery point changes on the European gas market (e.g. Nord Stream 2)
+
+Our model is primarily suited for scenario analysis, not forecasting.
+
+Key features of the EGMM model
+Infrastructure evaluation, CBA, CBCA, regulatory policies' evaluation (e.g. tariff change on major infrastructure)
+
+Climate module & emissions granularity
+None
+
+Socioeconomic dimensions
+Consumer surplus, producer surplus, gas traders profit, gas infrastructure operators revenue
+
+Mitigation/adaptation measures and technologies
+None
+
+Economic rationale and model solution
+Perfect competition constrained by long-term gas contracts and infrastructure
+
+Key parameters
+Gas production, gas consumption, gas infrastructure (pipeline, storage, LNG)
+
+Policy questions and SDGs
+Key policies that can be addressed
+None
+
+Implications for other SDGs
+None
+
+Recent use cases
+ 
+
+Paper DOI	Paper Title	Key findings
+DOI Badge	How far is mitigation of Russian gas dependency possible through energy efficiency and renewable policies assuming different gas market structures?	This paper presents the results of a coordinated modelling assessment that incorporates European energy efficiency and renewable policies with two potential gas market scenarios. First, the impact of EU energy efficiency and renewable policies on natural gas demand is calculated using the PRIMES model 2014 Baseline projection, the Fraunhofer ISI Low Policy Intensity Energy Efficiency scenario, and the Green-X model for renewable deployment. Next, the effect of these policies on the natural gas markets is assessed, using the European Gas Market Model. The model tests scenarios for different positions on long-term gas contracts with Russia assuming different stages of European gas infrastructure development. The findings show that dependency on Russian natural gas can be reduced to low levels without triggering a significant increase in natural gas prices for any single EU member country. In an extreme scenario whereby energy efficiency savings, higher renewable energy sources deployment and the assumed positive gas market developments take place simultaneously, gas cost savings can reach as high as 37%. Benefits arise not only in the most recent round of EU Member States (12 MS) targeted in the study, but are visible across most EU gas markets. This underlines the interlinkages of the whole EU gas market, and the results suggest that security of gas supply is not only a challenge for new Member States, but in the broader European markets.
+DOI Badge	A Top-Down Approach to Evaluating Cross-Border Natural Gas Infrastructure Projects in Europe	There is an ongoing policy debate in Europe about how to select natural gas infrastructure projects for an EU-wide investment support scheme. We contribute to this debate by introducing a model-based project evaluation method that addresses several shortcomings of the current approach and demonstrate its application on a set of shortlisted investment proposals in Central and South Eastern Europe. Importantly, our selection mechanism deals with the complementarity and the substitutability of new pipelines. We find that a small number of projects are sufficient to maximize the net gain in regional welfare, but different baseline assumptions favor different project combinations. We also explore the consequences of Russian gas permanently delivered at the EU border from northern and southern routes that bypass Ukraine and find modest negative welfare effects.
+Recent publications using the EGMM model

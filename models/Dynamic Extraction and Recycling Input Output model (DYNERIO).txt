@@ -1,0 +1,57 @@
+Short overview
+DYNERIO is a simulation model able to assess impact of implemented macroscopic trends and scenarios from an economic and environmental perspectives. With respect to the traditional input-output models, it is able to quantitatively assess the extraction of raw materials for selected technologies driven by the regional production of commodities provided by the Leontief Production Model
+
+Key features of the DYNERIO model
+Input-Output simulation and impact evaluation model with global geographical scope and fully characterized industrial sectors.
+
+Impact evaluation of desired policies via economic and environmental indicators such as gross value added, production levels of commodities and services, critical raw materials extraction and recycling assessment, GHG emissions, water consumption, land use, primary energy use.
+
+The model can be provided of year-by-year exogneous variation of final consumption of commodities and technological mode of production.
+
+Climate module & emissions granularity
+The model considers CO2 emissions as a direct consequence of the endogenous production of the sectors and regions considered in the model. These emissions are expressed with respect to the sector, region and type of pollutant or greenhouse gas. Thanks to the input-output structure of the model, it is possible to consider various mechanisms for assigning responsibility for emissions (e.g. Production-Based Approach, Consumption-Based Approach).
+
+Socioeconomic dimensions
+The model assess the economic impact of the implemented scenarios in terms of sectoral GDP, labor and employment rates variation
+
+Mitigation/adaptation measures and technologies
+The existing technology is determined by the multiregional input-output database adopted as input to the model. Sectoral interrelationships, characterizing the technology mix of each region, are exogenously determined. The model can react to exogenously provided technology changes such as fuel switches and efficiency improvements.
+
+Economic rationale and model solution
+The model capture a yearly picture of the global economy and intersectoral relationships. The model simulates the technological changes/macroscopic trends implemented and computes the level of production of commodity and services required via the application of the Leontief Production Model. Treating such production levels as a driving force for materials extraction, the model solution also quantifies the amount of materials which are extracted regionally and yearly.
+
+Key parameters
+The main exogenous parameters requested are:
+
+final demand by sector and region
+technology (i.e. input-output coefficients)
+macroscopic pathways (population growth, penetration rate of selected technologies, fuel switches)
+raw materials data (localization of extraction and recycling processes, material intensity of selected technologies, recycling rates)
+The endogenous parameters provided by the model concern:
+
+sectoral production (which determines the sectoral GDP, cost of deployed capacities, CO2 emissions...)
+net extraction of critical materials
+recycled materials
+Policy questions and SDGs
+Key policies that can be addressed
+DYNERIO can be used to assess the impact of different future policies. There are a number of types of policies that can be easily modelled in DYNERIO:
+
+Technological change
+
+Through this model it is possible to implement a perturbation in the starting economic system configuration in order to simulate a change in the way goods and services are produced and/or consumed. From the environmental perspective, it is possible to couple a technological change with a change in consumption of environmental resources and production of emissions.
+
+Behavioural policies
+
+In principle it is possible to assess the impact of changes in behaviour, translated as a change in consumption preferences of the final demand category of households (e.g. impact of teleworking).
+
+Implications for SDGs
+DYNERIO does not independently assess the impact on SDGs but it is possible to derive indicators that may partially indicate an impact on some of the dimensions of several SDGs.
+
+References
+Rinaldi, L., Rocco, M. V., & Colombo, E. (2023). Assessing critical materials demand in global energy transition scenarios based on the Dynamic Extraction and Recycling Input-Output framework (DYNERIO). Resources, Conservation and Recycling, 191, 106900.DOI Badge
+
+Nakamura, S., & Kondo, Y. (2018). Toward an integrated model of the circular economy: Dynamic waste input–output. Resources, Conservation and Recycling, 139, 326–332.DOI Badge
+
+Wiebe, K. S., Harsdorff, M., Montt, G., Simas, M. S., & Wood, R. (2019). Global Circular Economy Scenario in a Multiregional Input-Output Framework. Environmental Science & Technology, 53(11), 6362–6373.DOI Badge
+
+Valero, A., Valero, A., Calvo, G., & Ortego, A. (2018). Material bottlenecks in the future development of green technologies. Renewable and Sustainable Energy Reviews, 93, 178–200.

@@ -1,0 +1,35 @@
+Short overview
+WILIAM will be a multi-regional policy-simulation dynamic-recursive model sharing the same conceptual modeling approach which have been designed applying system dynamics. It will be at three different geographical scales (global, region and national for the 28 EU member states). In particular, it will be composed of 8 regions (some of them are aggregated of countries and others are a country in it-self): EU-28, China, EASOC (East-Asia & Oceania), India, LATAM (Latin America excepting Mexico), Russia, USMCA (US, Mexico & Canada) and LROW (Locomotion Rest of the World).
+
+WILIAM will be built on the existing MEDEAS models that were developed in the context of the EU-funded MEDEAS project. For the study of the highly complex interactions between humans and their environment, the project draws on different techniques and methods, such as System Dynamics (SD) modelling with Vensim software, Input-Output Analysis (IOA), Energy Return On Investment (EROI) calculations, Life Cycle Analysis (LCA), land and carbon footprinting, microsimulation, and many others.
+
+Key features of the WILIAM model
+WILIAM will be structured in seven modules for flexibly testing, improving and expanding: 1. Economy and finance, 2. Renewable and non-renewable energy (potentials and availability taking into account biophysical and temporal constraints), 3. Non-fuel materials ( availability of materials (e.g. rare earths, lithium, silver, cobalt, indium, etc.) needed by the economy and demanded for the development of the energy infrastructures), 4.Energy infrastructure and technologies(infrastructures needed to extract, transport and convert primary energy sources into final energy in the form of electricity, heat, liquids, gaseous or solid fuels usable for the end user), 5. Environment (including land use competition between energy generation and other land uses, and water cycle) , 6. Climate change (including impacts), 7. Population and society.
+
+WILIAM will focus on:
+
+The careful modelling of the complex human-nature system that is governed by dynamic, tightly coupled, nonlinear, self-organising, adaptive and evolving feedbacks
+ The proper representation of biophysical and temporal constraints to renewable and non-renewable energy production
+ the declining Energy Return on Energy Investment (EROI) with increasing shares of renewable energy
+the consistent integration of climate change damage feedbacks
+the dominance of conventional economic equilibrium and optimisation approaches, which suffer significant limitations when it comes to capturing socioeconomic system dynamics and the role of macroeconomic policies for sustainability governance
+The main methodological innovations are:
+
+The endogenous and dynamic integration of economic, financial, energy-related, social, demographic and environmental variables into the models.
+The use of a wide array of methods, such as System Dynamics, Input-Output Analysis, Energy Return On Energy Investment (EROEI) calculations, Life Cycle Analysis (LCA), land and carbon footprinting, microsimulation, etc.;
+The adoption of relevant functionalities from other models (World6, TIMES, LEAP, GCAM, C-Roads, …
+The consistent quantification and representation of uncertainty in model results.
+Climate module & emissions granularity
+The module projects the levels of climate change as a function of the GHG emissions from human activity, which also feeds back through a damage function to capture the effect of a global temperature increase on human activity. It is will be based based on the simple climate model C-ROADS, adding different improvements as the endogenously calculation of land use associated emissions. In includes:
+
+The carbon cycle, which represents the dynamics between the carbon in the atmosphere, the biosphere (humus and biomass) and the ocean, including temperature feedbacks. The CO2 emissions from fossil fuel combustion and land use changes are endogenously calculated in WILIAM.
+Other GHGs cycles (simpler structure) : (CH4, N2O, PFCs, SF6 and HFCs) are also explicitly modeled. The emissions of the rest of the GHGs will be mostly exogenous, except for CH4 and N2O, for which the share of its emissions associated to the extraction, distribution and combustion of natural gas (in the case of CH4), and also LULUCF associated emissions (CH4 and N2O) will be endogenously calculated.
+Socioeconomic dimensions
+The module that covers "population and society" focuses on the various feedbacks between energy, environment, climate change and human society and well-being. It considers how transitions in the energy system impact society in terms of inequality, migration and health, differentiating between gender and age cohorts, but also how demographic change alters energy demand. Several UN Sustainable Development Goals (SDGs) are modelled to assess the attainment of the SDGs under different scenarios. In addition, population is modelled dynamically in WILIAM and will evolve in line with key endogenous socioeconomic and environmental variables. WILIAM will consider inequality and health, migration, planetary boundaries, and climate and gender.
+
+On the other hand, the economic module covers the estimation of final demand for goods and services from around 50 different economic sectors, including households, and their linkages, based on input-output tables and multi-regional input-output models. The final energy demand is calculated for any primary energy source based on each economic sector’s energy intensity. The energy demand of the energy and non-energy economic sectors will be contrasted with different technology developments, energy availability and fossil fuels reduction scenarios.
+
+Economic rationale and model solution
+The economy is modelled following a post-Keynesian approach assuming disequilibrium (i.e. non-clearing markets), demand-led growth and supply constraints.
+
+In addition, the development of a financial sub-module will enable a better understanding of the constraints in the economic and energy system due to financial assets and public and private debt.

@@ -1,0 +1,33 @@
+Short overview
+DIVA is an integrated, state-of the-art research modelling framework for coastal systems that assesses biophysical and socio-economic consequences of sea-level rise and socio-economic development. It takes into account coastal erosion (both direct and indirect), coastal flooding (including river mouths) and  wetland change. Adaptation and associated cost is a crucial part of the model. 
+
+Spatially, DIVA works on a database of linear coastline-segments. A polygon of the global coastline is divided into segments of coast with a homogeneous socio-economic and bio-physical characteristics. To do so, the polygon is cut at all positions where one of the underlying raster layers (coastal morphology, tidal type, population density, etc.) or polygon layers (country, administrative unit) change. The global default database of DIVA contains more than 140,00 coastal floodplains. This technology can be downscaled to a finer resolution. On regional or national level often more detailed versions of the digital coastline as well as of the underlying bio-physical or socio-economic layers are available. Thus, local versions of the DIVA database can be developed. Downscaling has been applied for several countries and regions (Croatia, Tunisia, China, Maldives, German Baltic Sea coast, Emilia Romagna coast). 
+
+Key features
+SLR and coastal hazard impact, adaptation to SLR and coastal extreme events, coastal migration, optimal adaptation strategies, adaptation with hard  infrastructures and with green infrastructures.
+
+Climate module & emissions granularity
+SLR based on RCPs scenarios
+
+Socioeconomic dimensions
+GDP and population growth based on SSPs scenarios, coastal assets (based on GDP and population)
+
+Mitigation/adaptation measures and technologies
+Seadykes and coastal wetlands (mangroves, salt marshes and tidal flats), coastal retreat 
+
+Economic rationale and model solution
+Cost-benefit criteria (economically optimal solutions)
+
+Key parameters
+Initial dyke height, dyke maintenance costs, dyke investment costs, migration cost, wetland attenuation rates
+
+Key policies that can be addressed
+Optimal adaptation in the face of rising sea level, trade-offs between protection and retreat, trade-offs between hard protection and green protection
+
+Use cases
+Publication	Abstract
+Lincke, D., & Hinkel, J. (2021). Coastal migration due to 21st century sea?level rise. Earth's Future, 9(5), e2020EF001965.DOI Badge	Rising mean and extreme sea-levels and induced increased coastal flooding are expected to lead to massive coastal migration if coasts are not protected. Using a wide range of sea-level rise (SLR) scenarios, socioeconomic pathways and discount rate assumptions, 21st century coastal migration is assessed at global scale assuming local cost-benefit optimal protection decisions for about 12,000 coastal segments with homogeneous coastal and socioeconomic characteristics. Costs considered include investment and maintenance cost for protection, migration cost in the case of no protection, and expected annual damage to assets by extreme sea-level events that over-top existing protection. Robust decisions in favor of protection over all scenarios are found for about 3% of the global coastline, covering 78% of global coastal population and 92% of global coastal floodplain assets. For the remaining 97% of global coastline cumulative 21st century land loss ranges from 60,000 to 415,000 km2 and coastal migration ranges from 17 to 72 million people. Big countries with long uninhabited coastlines suffer the biggest land losses. In absolute terms big countries in South and South-east Asia account for the highest coastal migration, while in relative terms small island nations suffer most. Global cost of 21st century SLR can be lowered by factor two to four if local cost-benefit decisions also consider, next to protection, coastal migration as an adaptation option. 
+V?lz, V., Hinkel, J., Kupfer, S., MacPherson, L. R., & Wulff Norrby, C. J. (2024). Learning about sea level rise uncertainty improves coastal adaptation decisions. Earth's Future, 12(10), e2024EF004704.DOI Badge	Adaptive decision-making allows decision-makers to plan long-term coastal infrastructure under uncertain sea level rise projections. To date, economic assessments of adaptive decision-making that take into account future learning about sea level rise uncertainty are rare and the existing ones have relied on simple quantification of future learning not validated against sea level science. To address this gap, we develop an economic adaptive decision-making framework that takes into account future learning about sea level rise uncertainty and apply it to a coastal case study in L?beck, Germany, to answer the question of how adaptation to sea level rise can be improved through adaptive adaptation pathways as opposed to non-adaptive pathways. To address this question, we use a Markov decision process to formulate the stochastic optimization problem. We quantify future learning about sea level rise uncertainty through sea level rise learning scenarios based on and validated against the latest scenarios of the Intergovernmental Panel on Climate Change. Our case study results show that the city of L?beck is currently under-protected against storm surges and that immediate adaptation actions are advisable in the face of future sea level rise. We find that adaptive adaptation pathways, in contrast to non-adaptive pathways, generate sea level rise thresholds for adaptation actions that are similar across climate change scenarios and can reduce expected costs up to 1.8%. 
+References
+Hinkel, J., Lincke, D., Vafeidis, A. T., Perrette, M., Nicholls, R. J., Tol, R. S., ... & Levermann, A. (2014). Coastal flood damage and adaptation costs under 21st century sea-level rise. Proceedings of the National Academy of Sciences, 111(9), 3292-3297.  
+Lincke, D., & Hinkel, J. (2021). Coastal migration due to 21st century sea?level rise. Earth's Future, 9(5), e2020EF001965.

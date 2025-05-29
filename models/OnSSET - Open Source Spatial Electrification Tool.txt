@@ -1,0 +1,56 @@
+Short overview 
+The Open Source Spatial Electrification Tool – OnSSET is a bottom-up medium to long-term least-cost energy modelling tool, that estimates, analyzes and visualizes the most cost effective electrification strategy, taking into account spatially explicit characteristics related to energy. OnSSET code basis is flexible and modular. That is, resolution of analysis, GIS input data, technology types & costs as well as electrification policies can all be customized as needed.
+
+OnSSET is designed to complement existing energy planning models which do not consider geographical characteristics related to energy and aims to provide invaluable support to policy and decision makers on least-cost electrification strategies. It focuses on the assessment and deployment of conventional and renewable energy technologies aiming at ensuring access to affordable, reliable, sustainable and modern energy for all. Currently OnSSET accounts only the residential electricity demand.
+
+Its principle is simple. Using population settlements together with different geospatial characteristics and socio- and tecno-economic data the tool tries to identify the least-cost supply option in order to reach universial electrification in each location.
+
+Key features
+Geographic coverage
+Currently models at national and sub-national scales.
+
+Spatial resolution
+OnSSET uses population clusters derived from 100m resolution population dataset. It also incorporates several datastes related to electricity distribution, proximity to transmission and road network, nighttime lights, local renewable energy potential etc.
+
+Socioeconomic dimensions
+The energy demand targets can be defined from a top-down approach based on the Tiers of access, or from a bottom-up approach based on gis information of poverty and GDP. Moreover, the urban and rural split also take an important role in calibrating who has access to electricity.
+
+Mitigation/adaptation measures and technologies
+Three main technology groups are modelled, electricity from the national grid, electricity from mini-grids and stand-alone thecnologies. Mini-grids can be hybrid combining two technologies as wind and diesel, mini-hydro, or pv and diesel. Stand-alone technologies are often pv with storage. The model should choose the least-cost option to electrify each settlement.
+
+Economic rationale and model solution
+The core economic metric is minimization of LCOE, in which 'it calculates the cost of generating electricity at each cell for different electrification configurations based on the local specificities and cost related parameters'. 
+
+Key parameters
+Key parameteres include, apart from the GIS-based resources, electricity demand, techno-economic characteristics - efficeicncies, capacity factors, costs, etc., distance between a settlement and closest electricity grid, distance from closest transformer, population density and its brightness index at night (night-time light from satellite imagery), etc.
+
+Key results include electricity demand and population (millions of people) and the technology capacities in KWh of the feasible configurations among the seven possible configrations to meet (electricity demand target and population density).
+
+Key policies that can be addressed
+Policies that can be addressed using OnSSET include:
+
+Universal electricity access target (grid extension; mini-grids - solar PV, mini/small hydro, wind, DG sets; standalone - solar PV, DG sets.)
+Role of off-grid renewables (PV, hydro, wind) vs diesel
+Implications for SDGs
+OnSSET primarily focuses on SDG 7 (access to clean, affordable, and reliable energy).
+
+Recent use cases
+Paper DOI	Paper Title	Key findings
+10.1016/j.esr.2023.101292	Electrification pathways for Tanzania: Implications for the economy and the environment	A spatial grid extension suitability map is developed to display areas that are most suitable, semi-suitable, and less suitable for grid extension. Results show that terrain slope is the most significant contributor to grid extension suitability, accounting for 40.8 % of the total score. The findings reveal that the geospatial factors studied, aggregately, might increase the total investment cost of grid extension by 2.3 %–29 % across Ethiopia. The results also show that 45 % and 85 % of Ethiopia's population live within 10 km distance from high-voltage and projected medium-voltage lines, respectively. The study underscores that rather than focusing exclusively on distances from existing grid infrastructures, it is important to take into account the aforementioned geospatial factors affecting investment costs for grid extension planning.
+10.3390/en12071395	The Role of Open Access Data in Geospatial Electrification Planning and the Achievement of SDG7. An OnSSET-Based Case Study for Malawi	This paper provides an overview of open access geospatial data and GIS based electrification models aiming to support SDG7, while discussing their role in answering difficult policy questions. Upon those, an updated version of the Open Source Spatial Electrification Toolkit (OnSSET-2018) is introduced and tested against the case study of Malawi. At a cost of $1.83 billion the baseline scenario indicates that off-grid PV is the least cost electrification option for 67.4% Malawians, while grid extension can connect about 32.6% of population in 2030. Sensitivity analysis however, indicates that the electricity demand projection determines significantly both the least cost technology mix and the investment required, with the latter ranging between $1.65–7.78 billion.
+DOI Badge" target="_blank" rel="noopener">10.1088/1748-9326/aa7e18	Electrification pathways for Kenya–linking spatial electrification analysis and medium to long term energy planning	This paper analyses hypothetical scenarios, and selected implications, investigating pathways that would allow the country to reach its electrification targets by 2030. Two modelling tools were used for the purposes of this study, namely OnSSET and OSeMOSYS. The tools were soft-linked in order to capture both the spatial and temporal dynamics of their nature. Two electricity demand scenarios were developed representing low and high end user consumption goals respectively. Indicatively, results show that geothermal, coal, hydro and natural gas would consist the optimal energy mix for the centralized national grid. However, in the case of the low demand scenario a high penetration of stand-alone systems is evident in the country, reaching out to approximately 47% of the electrified population. Increasing end user consumption leads to a shift in the optimal technology mix, with higher penetration of mini-grid technologies and grid extension.
+References
+Mentis, D., Howells, M., Rogner, H., Korkovelos, A., Arderne, C., Zepeda, E., Siyal, S., Taliotis, C., Bazilian, M., de Roo, A., Tanvez, Y., Oudalov, A., & Scholtz, E. (2017). Lighting the World: the first application of an open source, spatial electrification tool (OnSSET) on Sub-Saharan Africa. Environmental Research Letters, 12(8), 085003.DOI Badge
+
+Moksnes, N., Korkovelos, A., Mentis, D., & Howells, M. (2017). Electrification pathways for Kenya–linking spatial electrification analysis and medium to long term energy planning. Environmental Research Letters, 12(9), 095008.DOI Badge 
+ 
+Korkovelos, A.; Khavari, B.; Sahlberg, A.; Howells, M.; Arderne, C. The Role of Open Access Data in Geospatial Electrification Planning and the Achievement of SDG7. An OnSSET-Based Case Study for Malawi. Energies 2019, 12, 1395.DOI Badge 
+ 
+Pe?a Balderrama, J. G., Balderrama Subieta, S., Lombardi, F., Stevanato, N., Sahlberg, A., Howells, M., Colombo, E., & Quoilin, S. (2020). Incorporating high-resolution demand and techno-economic optimization to evaluate micro-grids into the Open Source Spatial Electrification Tool (OnSSET). Energy for Sustainable Development, 56, 98–118.DOI Badge
+
+Sahlberg, A., Khavari, B., Korkovelos, A., Fuso Nerini, F., & Howells, M. (2021). A scenario discovery approach to least-cost electrification modelling in Burkina Faso. Energy Strategy Reviews, 38, 100714.DOI Badge 
+
+Salisu R. Isihak, Achieving universal electricity access in line with SDG7 using GIS-based Model: An application of OnSSET for rural electrification planning in Nigeria, Energy Strategy Reviews, Volume 45, 2023, 101021, ISSN 2211-467X,DOI Badge
+
+Temesgen, A. L., Wassie, Y. T., Ahlgren, E. O., Analyzing grid extension suitability: A case study of Ethiopia using OnSSET, Energy Strategy Reviews, Volume 52, 2024,
+101292, ISSN 2211-467X,

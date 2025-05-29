@@ -1,0 +1,35 @@
+Short overview
+IMACLIM-China model is a global dynamic recursive CGE model based on the MPSGE language written in GAMS. In the IMACLIM-China model, China’s economy is divided into 18 sectors, including 6 energy sectors and 12 non-energy sectors. The bottom dataset in the IMACLIM-China model is a hybrid dataset based on China's input-output table 2015, energy balance table 2015, and market price investigation. To construct the hybrid dataset, we aggregate the IO table and energy balance table to 18 sectors. We get the original price matrix through dividing the value matrix by the volume matrix, then adjust the original price matrix with the market price information, and get a new energy value matrix using the adjusted price times the volume. Finally, we replace the matrix with adjusted energy value matrix and rebalance it.
+
+Key features of the IMACLIM-China model
+IMACLIM-China is a single region recursive dynamic computable general equilibrium model in China. The model is constructed based on IMACLIM-S framework developed by Centre International de Recherchesur l' Environnement et le Developpement (CIRED). IMACLIM-China aims to study the medium and long term effects of energy and climate policies on China's macro economy through the equilibrium framework of physical quantity, price quantity and value quantity. The main feature of IMACLIM-CHN model is to ensure the technical authenticity of the model's simulation of energy systems and major innovations in energy systems by coupling the technical details of energy supply and energy consumption in the bottom-up model.
+
+Climate module & emissions granularity
+No climate module
+
+Socioeconomic dimensions
+The model uses a multi-layer nested structure to portray the relationship between inputs and outputs of each sector, with the total output of each sector as a function of labor input, capital input, energy input, and intermediate input. In addition to these conventional inputs, the IMACLIM-CHN model also introduces CO2 and non-CO2 greenhouse gas emission rights in the nested structure of the production function to facilitate CO2 and non-CO2 greenhouse gas emission reduction analysis. Final consumption includes both residential consumption and government consumption, and the government consumption expenditure as a percentage of GDP is exogenously given. Imports and exports of energy are given by the China-MORE 2.0 model, and imports of non-energy goods are assumed to be perfectly substitutable between domestic and foreign products in the same sector according to the Armington assumption, and there is some elasticity of substitution between them.
+
+Mitigation/adaptation measures and technologies
+The IMACLIM-CHN model introduces CO2 and non-CO2 GHG emission rights in the nested structure of the production function to facilitate CO2 and non-CO2 GHG emission reduction analysis.
+
+Economic rationale and model solution
+The model adopts a Johansen closure, similar to the neoclassical closure, assuming full employment of labor and full utilization of capital factors in China in the future, and the prices of labor and capital factors are endogenously determined by the model.
+
+Key parameters
+Hybrid SAM Matrix; Substitution elasticity; Base price
+
+Key policies that can be addressed
+IMACLIM-CHINA projects the structure of our energy economy in the future, evaluates the economic costs of climate policies such as carbon neutrality, and studies the impact of climate policies on important socio-economic factors such as sector output, GDP, imports and exports, and household consumption.
+
+Model presentation
+Video
+
+
+Slides
+Download slides in pdf 
+Recent use cases
+ 
+
+Paper DOI	Topic	Key findings
+https://doi.org/10.1007/s11027-021-09979-w" target="_blank" rel="noopener noreferrer">DOI Badgehttps://doi.org/10.1007/s11027-021-09979-w-blue">	The economic impact of a deep decarbonisation pathway for China: a hybrid model analysis through bottom-up and top-down linking	Our results indicate that deep decarbonisation increases the energy expenses of Chinese households in the mid-run due to the higher cost of electricity. However, firms will benefit from moderate decarbonisation as a result of a reduction in coal and oil consumption. As a result, energy-efficiency improvements lead to a reduction in firms’ total energy costs, partially compensating the crowding-out effect of low-carbon investments on general productive capital. Our mitigation scenario has therefore a small macroeconomic cost compared to business as usual, equal to a lag in the growth of less than one year in 2050.

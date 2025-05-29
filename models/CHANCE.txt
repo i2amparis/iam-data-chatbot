@@ -1,0 +1,75 @@
+Short overview
+Multi-sectoral and multi-regional CGE based models and macro models provide an economy-wide analysis, allowing to analysis the economy as whole and report on, for example, GDP, prices, sector production and competitiveness. However, on the consumption side, this type models often only include a single representative agent, limiting the distributional analysis and missing the social impacts of environmental policies. CHANCE solves this limitation by integrating a large amount of household’s microdata (around 200,000 households covering all EU regions). The main advantage this approach is that environmental protection can be analysed from different perspectives, in particular, equity and efficiency. The integration of microdata allows CHANCE to investigate climate protection in greater depth from both perspectives and help identify measures that have progressive effects with a reasonable loss of efficiency. On the other hand, multi-sectoral and multi-regional macro models linked with microdata provide an appropriate tool for undertaking multi-regional distributional analysis. In this way, this methodology enables to conduct multi-regional distributional analysis, allowing a level of analysis not previously reported.
+
+Furthermore, linking macro models with household microdata is an appropriate approach for evaluating the trade-off between equity and efficiency. Household micro data provide detailed information about households and the heterogeneity of different economic agents. They, thereby, enable to widen the distributional analysis and to focus on the sectors and households most affected by policies. On the other hand, macro models enable the impacts of environmental policies to be assessed from efficiency-based and macro-economic perspectives.
+
+Micro-data sources
+The main strength of CHANCE leads on the large amount of micro-household data that are integrated on the macro model. To integrated microdata on a macro model setting, this data should need to observe micro-data on households’ income, consumption, saving, and wealth, along with other relevant socio-economic variables in a unique dataset. Nevertheless, to date, in most European Union (EU) countries these data are collected through three separate surveys: Household Budget Survey (HBS); Statistics on Income and Living Conditions (SILC) and Household Finance and Consumption Survey (HFCS), which limits or even prevents further developments in the afore-mentioned lines of research. To solve this limitation, we design a matching strategy to merge SILC, HBS and HFCS. The strategy is based on a mixed-mode matching procedure implemented through a flexible nearest neighbour distance method that considers reliable proxies of the variables of interest among the matching variables and optimises the matching outcomes. It also allows us to fuse households’ total consumption, disposable income, and net wealth variables into the same dataset and their respective components consistently for all EU countries with available information
+
+Household Budget Survey (HBS). The first micro-data source is the latest harmonised data wave of Eurostat’s HBS (Eurostat, 2021e). This survey collects data on household consumption expenditure on goods and services in monetary units (for all items) and in physical units (only for food categories in some countries) following the classification of individual consumption by purpose (COICOP) and includes different socio-demographic variables of households and individuals. The most recent information available covers all EU countries except AT (Austria) and NL (the Netherlands) for the years “around” 20101. Although the data are not fully comparable across countries due to differences in data collection approaches, Eurostat’s joint framework enhances comparability and allows us to utilise harmonised and consistent data for the 25 countries with available information.
+
+Statistics on Income and Living Conditions (SILC). The second micro-data source is Eurostat’s SILC (Eurostat, 2021b). This survey collects multidimensional cross-sectional data on household income, transfers, taxes, poverty, social exclusion and living conditions. Also, it includes detailed information on the socio-demographic situation of all household members. The information is available and comparable for all EU countries yearly. Therefore, we take the SILC wave that better fits each country’s HBS reference year2.
+
+Household Finance and Consumption Survey (HFCS). The last micro-data source used is European Central Bank’s HFCS (ECB, 2021). This survey provides information on households’ economic behaviour and financial situation through detailed data on assets and liabilities, some variables related to income and consumption, and other household socio-demographic variables. For this survey, there are three waves and, for each of them, both the year of the survey and the number of countries available change. However, only the first wave information is used in order to be consistent with the HBS reference year.
+
+Whereas most countries conducted their HBS in 2010, some others carried it out in a different year: CY (Cyprus) in 2009, DE (Germany) in 2008, FI (Finland) in 2012, LT (Lithuania) in 2008, MT (Malta) in 2008 and SE (Sweden) in 2009. In these cases, Eurostat adjusted the monetary data to 2010 using price coefficients (Eurostat, 2015).
+In SILC, questions on households’ income refer to a year before the interview for most countries; therefore, we choose as the reference year for SILC the same as that of the HBS plus one year (one exception is IE, for which income variables in SILC are referred to the same year of the interview).
+Socioeconomic dimensions
+The data process described before allows CHANCE to integrate around 200,000 household’s microdata covering all EU regions, and ensuring a large representation of the behaviour of the European households. Household micro data provides detailed information about households and the heterogeneity of different economic agents. They, thereby, enable to widen the distributional analysis and to focus on the sectors and households most affected by policies. Bellow, we show a set of socioeconomic indicators that can be analysed through CHANCE:
+
+Households Demand
+
+Total Households expenditure. Change on Household demand
+Final expenditure by commodity: (example)
+
+Food
+Transport
+Heating
+Electricity
+Diesel and Gasoline
+Housing
+Education and Leisure
+Durables
+Other goods and services
+Household welfare by income group: Decile (the income disaggregation could be higher- e.g.: ventile or centile)
+
+Decil 1
+Decil 2
+Decil 3
+Decil 4
+Decil 5
+Decil 6
+Decil 7
+Decil 8
+Decil 9
+Decil 10
+Inequality. Impact on inequality measures.
+
+Top 1%. The share of all income received by the Top 1% households with highest disposable income
+Top 10%. The share of all income received by the Top 10% households with highest disposable income
+Ratio 80/20. The share of all income received by the top 20% of households compared to the bottom 20% of households.
+Palma Ratio. The share of all income received by the top 10% of households compared to the bottom 40% of households.
+Gini Index. Measures the deviation of income distribution among households within an economy from perfectly equal distribution.
+Social welfare.
+
+Social welfare impacts thought the social welfare function (SWF) proposed by Atkinson (1970) which evaluates the social welfare according to the inequality-aversion level of the society
+Welfare by type of Household.
+
+Couples with children
+Retired couples
+Retirees living alone
+Single-parent household
+Welfare by level of rurality
+
+Urban
+Semi-rural
+Rural
+Welfare by gender
+
+Households which breadwinner is a Woman.
+Households which breadwinner is a Man
+Energy Poverty. Impacts on energy poor households according to the next measures
+
+Double of the median (2M): Share of energy expenses relative to its disposable income is higher than twice the national median share.
+Hidden Energy Poverty. Share of energy expenses relative to its disposable income is lower than half the national median share.
+Lower Income High Cost (LIHC). Actual energy costs are above the median level and if they spend this amount, their residual income is below the official poverty line.

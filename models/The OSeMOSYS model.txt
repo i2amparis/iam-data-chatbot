@@ -1,0 +1,74 @@
+Short overview
+OSeMOSYS is not a model application, but a modelling framework. Using OSeMOSYS, a representation of the energy, land and water systems and the links between them can be created. Climate change is an input to the model and it is typically included as variation of temperature (therefore, evaporation and evapotranspiration) and of precipitation patterns. OSeMOSYS relies on an agnostic representation of processes and commodities, so that any type of process or commodity may be represented, in the energy system but also beyond it. Whichever the process represented, energy and mass balances are ensured. The energy system typically includes representation of several conversion and storage options, from primary resources, to final energy demands (i.e. in energy units) or final energy services if data is available (e.g. passenger-km in transportation). Demands for energy or services are defined exogenously, and they can be defined as step-by-step curves so as to approximate partial equilibrium. The tool can be run with myopic foresight.
+
+Key features of the OSeMOSYS model
+Geographic coverage:
+
+Models at global, continental, regional, national and sub-national scale can and have been built. So far, most countries in the world have been represented, with different sectoral coverages, and time and space resolutions. Applications include: US, Mexico, Costa Rica, Nicaragua, Paraguay, Brazil, Bolivia, Ecuador, the whole of South America (SAMBA model, country by country) EU27+ UK, Switzerland and Norway (country by country - OSeMBE model), the whole African continent (country by country - TEMBA model), Mauritius, Azerbaijan, Iran, Pakistan, India, Vietnam, Nepal, Bhutan, Sri Lanka, Thailand, Philippines, Malaysia, Mongolia, Indonesia.
+
+Time resolution and horizon:
+
+OSeMOSYS allows the user to define the time resolution of the model dividing the year in seasons, day types and part of the day (the so called 'time steps' or 'time slices' approach that is common in the long-term energy system modelling practice). However, modelling approaches with sequential time steps and high time resolution (up to hourly) can be pursued. Applications with hourly time resolution exist.
+
+Technological Characterization:
+
+The user can create any number and type of technology, with any custom characteristic. In the power sector, a single power plant as well as aggregations of power plants can be represented. Representations of the energy sector with up to 60-70 technologies per country are common. Through the 'blocks' called technologies, the user may also represent land uses, processing of agricultural products (including crops, livestock and biomass) and processing of water (for 'CLEWs' applications - see related links on I2AM Paris).
+
+Climate module & emissions granularity
+OsEMOSYS allows specific emissions per each technology to be modelled and it allows the modeller to set emission penalties, annual limits on emissions and limits on emissions for model period. Emissions can also be “exogenous” meaning not produced by the modelled technologies, but coming from outside of the model domain and just accounted for.
+
+Socioeconomic dimensions
+The Growth of the energy demand can be modelled according to different economic growth and social related trends evaluated outside the model boundaries. The tool can be linked to Input-Output models to account for job loss and creation in investment and/or operation of energy infrastructure.
+
+Mitigation/adaptation measures and technologies
+The tool allows all the existing technologies for energy conversion, from fossil fuels to new generation renewables, to be modelled. A switch from one technology to the other can be modelled thanks to emission targets, cost targets or technology use targets. In the same way it is possible to evaluate the impact of national and international climate policies on the energy system.
+
+Climatic change is modelled by e.g. varying the precipitation rates, the producibility of hydro power plants and/or the efficiency of thermal power plants that use water for cooling. Adaptation and no-adaptation scenarios can be created by changing the climate but maintaining the infrastructure as calculated by cost-optimization without climate change.
+
+Changes in emissions due to changes of land covers (e.g. negative emissions from re-afforestation) can also be modelled.
+
+Economic rationale and model solution
+The core operating principle of OSeMOSYS is the energy and mass balances, for every node, at system level and per each time slice.
+
+The objective of the model is to estimate the lowest net present value (NPV) cost of an energy/resource system to meet given demand(s) for energy, energy services or other commodities while meeting resource, policy and technical constraints.
+
+Key parameters
+Key Scenario assumptions for OSeMOSYS include: Energy Carriers Characterization (Fuels, Electricity, Heat), Energy Conversion Technologies Characterization (Capital Cost, Operative Costs, Efficiency, Emissions, Location, Lifetime) and Energy Demand of the modelled nodes.
+
+Key Scenario results (outputs) consist in the matrix of installed and operating technologies every year to satisfy the energy demand, the costs of the scenario and of each technology and the overall emissions.
+
+Policy questions and SDGs
+Key policies that can be addressed
+Policies that can be addressed can consist in:
+
+Carbon Budget Policies
+Carbon Pricing Policies
+Technology Production Minimum or Maximum Policies
+Technology Phase Out Policies
+Renewable targets
+Implications for other SDGs
+OSeMOSYS does not automatically calculate the implications on SDGs of its least-cost energy system to meet prescribed climate or emissions constraints. However, it is possible to use its outputs and calculate the predictions for certain indicators framed in the SDG agenda (for energy applications, SDG 7 and 13)
+
+Model presentation
+Video
+
+Slides
+Download slides in pdf
+Recent use cases
+ 
+
+Paper DOI	Paper Title	Key findings
+10.1016/j.jclepro.2020.121278	Electrification pathways for Tanzania: Implications for the economy and the environment	Four scenarios are considered, representative of alternative technological and environmental policies, characterized by different timing to achieve full electrification. Results indicate that while an expansion of the electricity sector can contribute significantly to economic growth, the associated direct and indirect growth in carbon emissions is equally remarkable. Relying on the country’s renewable generation potential would be important but might not be sufficient to lower the economy-wide carbon intensity, particularly under the assumption of reaching full access already in 2030. Targeting energy efficiency and/or decarbonization efforts in the industrial sectors as well as in the provisions of services would also be necessary. The latter is particularly relevant as, per effect of an average income increase, household consumption habits contributes to drive the economy away from its traditional, agricultural base.
+10.1016/j.enpol.2019.01.071	Impact of land requirements on electricity system decarbonisation pathways	With its globally representative energy mix, the electricity system transition in Alberta, Canada is studied. OSeMOSYS optimizes generation capacity between 2015 and 2060 under various land impact scenarios. The wind and solar dominant reference scenario expands land area impacts tenfold. Under zero-land expansion constraints, costs increase by 11%, wind generation is eliminated, 15% and 55% of electricity is generated by rooftop solar and fossil fuels with carbon sequestration, respectively. Energy policy will need to designate increasing land areas for electricity production, or aid more compact low-carbon technology development.
+10.1016/j.apenergy.2019.113820	Decarbonizing China’s energy system – Modeling the transformation of the electricity, transportation, heat, and industrial sectors	A detailed provincial resolution allows for the implementation of regional characteristics and disparities within China. Conclusively, we complement the model-based analysis with a quantitative assessment of current barriers for the needed transformation. Results indicate that overall energy system CO2 emissions and in particular coal usage have to be reduced drastically to meet (inter-) national climate targets. Specifically, coal consumption has to decrease by around 60% in 2050 compared to 2015. The current Nationally Determined Contributions proposed by the Chinese government of peaking emissions in 2030 are, therefore, not sufficient to comply with a global CO2 budget in line with the Paris Agreement. Renewable energies, in particular photovoltaics and onshore wind, profit from decreasing costs and can provide a more sustainable and cheaper energy source. Furthermore, increased stakeholder interactions and incentives are needed to mitigate the resistance of local actors against a low-carbon transformation.
+Recent publications using the OSeMOSYS model
+References
+Barnes, T., Shivakumar, A., Brinkerink, M., & Niet, T. (2022). OSeMOSYS Global: An open-source, open data global electricity system model generator.
+
+Howells, M., Rogner, H., Strachan, N., Heaps, C., Huntington, H., Kypreos, S., ... & Roehrl, A. (2011). OSeMOSYS: the open source energy modeling system: an introduction to its ethos, structure and development. Energy Policy, 39(10), 5850-5870.
+
+Gardumi, F., Shivakumar, A., Morrison, R., Taliotis, C., Broad, O., Beltramo, A., ... & Alfstad, T. (2018). From the development of an open-source energy modelling tool to its application and the creation of communities of practice: The example of OSeMOSYS. Energy strategy reviews, 20, 209-228.
+
+Gardumi, F., Mhiri, N., Howells, M., Bock, F., Necibi, T., & Bouden, C. (2021). A scenario analysis of potential long-term impacts of COVID-19 on the Tunisian electricity sector. Energy Strategy Reviews, 38, 100759.
+
+Burandt, Thorsten, Bobby Xiong, Konstantin L?ffler, and Pao Yu Oei. 2019. “Decarbonizing China’s Energy System – Modeling the Transformation of the Electricity, Transportation, Heat, and Industrial Sectors.” Applied Energy 255(August): 113820.

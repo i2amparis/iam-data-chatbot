@@ -1,0 +1,277 @@
+Overview
+The North American TIMES Energy Model (NATEM) is an optimisation model that belongs to the TIMES family of models—for a brief explanation of TIMES see the MAPLE model description in Section 3.6.1. NATEM is currently the only detailed optimisation model in North America. The 23-region model optimises the entire integrated energy systems, as well as non-energy GHG emitting sectors, of Canada, the United States and Mexico. By capturing the large diversity of energy systems and policies across the three countries using a consistent modelling approach, it provides a rational framework for supporting adequate decision-making related to climate policies over the 2050 horizon. Model results have been used by decision makers from public and private organisations to draft the Climate Action Plan, identify research priorities for reducing mitigation costs, prepare energy transition outlooks, assess the impacts of energy projects and evaluate circular economy strategies.
+
+Key features of the model
+Energy sectoral detail
+NATEM offers a comprehensive representation of the energy system of each of the North American jurisdictions (see the figure below). It also models inter-jurisdictional and international flows of energy and material commodities. The model is driven by a set of about 70 end-use demands for energy services in five sectors: agriculture, commercial, industrial, residential and transportation.
+
+For the energy supply side, NATEM captures all sectors including electricity and heat generation in many details. Other supply sectors include fossil fuels extraction, upgrading and transport, uranium extraction and transport, petroleum refining, bioenergy production, natural gas liquefaction and exports, hydrogen supply chain, etc. Primary energy resources include conventional and unconventional fossil fuels reserves (oil, gas, and coal), renewables potentials (hydro, geothermal, wind, solar, tidal and wave), uranium reserves and biomass (various solid, liquid and gaseous sources). Carbon capture options are available in the electricity and industrial sectors. Sequestration potentials exist for enhanced oil recovery, in oil and gas fields (onshore and offshore) and in deep saline aquifers.
+
+In each sector, a repository includes a large number of new technologies that are in competition to satisfy each end-use demand including existing technologies, improved versions of existing technologies and new technologies.
+
+Natem Energy System Per Region
+                                                      Representation of the NATEM energy system for each region
+                                                                             Source: Vaillancourt et al. (2018c)
+
+Geographic coverage
+NATEM covers Canada through thirteen regions (each of the thirteen provinces and territories), the United States through nine regions (the official census regions) and Mexico through one region (see the figure below).
+
+Multi-year time periods
+The time horizon over which NATEM simulates the evolution of the energy system is divided into a user-chosen number of time-periods. The model is currently solved for the 2011-2050 timeframe through ten time periods of variable lengths. Short time periods (1 to 2 years) are defined at the beginning of the horizon, while longer time periods (5 years) are considered afterward, as uncertainties related to data are increasing over time. Current milestone years (for which results are generated) are: 2011, 2013, 2015, 2020, 2025, 2030, 2035, 2040, 2045, and 2050. All years in a given period are considered identical. For all quantities such as installed technology levels, power plant capacities and energy and emissions flows, any annual input quantity (e.g. coal used in a power plant per year) or output quantity (e.g. electricity generated from the coal plant per year) related to a given time period applies identically to each of the years in that period.
+
+Natem Regional Representation
+                                                                        Regional representation in NATEM
+                           Source: ESMIA Consultants (2019). Website: Model Description. Retrieved from  www.esmia.ca
+
+Intra-year time periods (time slices)
+In addition to the multi-year time periods described above, in NATEM there are time divisions within a year, called “time slices”, which may be de?ned by the user, so as to capture different weather, consumer behaviours, and energy demand conditions at different times of the year. There are currently sixteen time slices representing four seasons a year (spring, summer, fall and winter) and four intraday periods (day, night, morning peak, evening peak). The MAPLE model documentation (Section 3.6.2.4) provides further detail of the purpose of time-slices in the TIMES framework.
+
+Climate module & emissions granularity
+The model tracks all GHGs, including carbon dioxide (CO2), methane (CH4), nitrous oxide (N20), hydrofluorocarbons (HFCs), perfluorocarbons (PFCs), sulfur hexafluoride (SF6) and nitrogen trifluoride (NF3) from all sectors of the national inventories, except land use, land-use change and forestry (LULUCF). NATEM does not include a climate module that calculates the corresponding changes in the atmospheric concentration, the change in radiative forcing and the temperature change over pre-industrial times.
+
+Drivers of energy and other GHG-emitting service demands
+The NATEM model requires inputs concerning the degree to which energy service demands, as well as demand for other goods and services which result in GHG emissions, will grow over the course of next decades in the different countries. It does this by using various socioeconomic inputs, as described below. Data will be revised and updated before running the model under the PARIS REINFORCE project.
+
+Demands for energy services are currently projected through 2050 using a coherent set of socioeconomic assumptions from the projections of the National Energy Board (NEB, 2017) for Canada, from the Annual Energy Outlook (EIA, 2018) for the United States, and various national sources for Mexico (CONAPO, 2012; SENER, 2014; PRODESEN, 2018). Demands for energy services are projected using national sources specific to the three countries and not a single source. Demands are ultimately projected through 2050 from the 2011 base year using the following growth index:
+
+GDP	Index in 2050 (2011=1)
+Canada	1.93
+United
+States	2.16
+Mexico	3.70
+Population	Index in 2050 (2011=1)
+Canada	1.33
+United
+States	1.24
+Mexico	1.29
+Key socioeconomic inputs in NATEM
+It is important to note that macroeconomic drivers, such as Gross Domestic product (GDP) and population, are not the only factors used to project end-use demands for energy services. These projections formed the basis for projecting end-use requirements in the different sectors, but many other factors are considered: future announced projects, degree-day projections, number of households, commercial surface, industrial gross output, etc.
+
+Economic growth
+GDP projections are based on national specific information. Growth rates vary significantly across the three countries, where the GDP is expected to double by 2050 in Canada and the United States, while a more than three-fold increase is projected for Mexico. Although the economic structure varies from a country to another, the three economies rest on abundant energy resources, both fossil and renewables.
+
+Population growth
+Population projections are also based on national specific information. Growth rates are similar across the three countries with Canada having the highest rate. This estimation takes into account historical trends, adjusted with immigration, emigration and interprovincial migration and track on the National Energy Board’s population by province as published by the National Energy Board (NEB 2017; TEPF, 2016).
+
+Sectoral growth
+The growth in the industrial, agricultural and commercial sectors in each region is partially derived from the national’s overall GDP growth, with each sector’s share of total GDP changing over time, and from the expected/planned production levels, constructions, and development of certain activities. These shares are derived from a historical analysis of how all countries’ sectoral shares of output have changed as their overall output grew. Growth of residential households is derived from population growth and assumptions on average household size in each region. Growth in each of these sectors drives energy demand as described in the next sub-section.
+
+Energy demand drivers and demand elasticities
+As with MAPLE, described in Section 3.6.4.2, energy demands are driven by underlying drivers of socioeconomic growth, as well as energy price changes.
+
+Calibration of the model
+The NATEM model is calibrated to the 2011 base year using mainly country-specific information (e.g. EIA, 2018; PRODESEN, 2018; Statistics Canada, 2015), with the projections for the key energy flows, energy-related investments and stocks (e.g. installed technology capacity) further calibrated as new datasets become available.
+
+NATEM is constantly updated; the version to be used in PARIS REINFORCE will have an updated energy statistics calibration (the most useful combination among the key international and local sources) to the most recent years. The main variables to be calibrated are: the capacities/stocks and operating levels of all technologies, the extracted, exported, imported, produced, and consumed quantities for all energy carriers, and the representation of new policy- and target-related elements.
+
+In order to better isolate the effects of a new policy and/or have a clear picture of the remaining efforts necessary to achieve mitigation goals, reference scenarios include government policies already in place such as existing action plans on climate change, transport electrification targets, renewable penetration targets, Corporate Average Fuel Economy (CAFE) standards, building codes, regulations on the minimum content of renewables in conventional fuels, carbon taxes, as well as the existing carbon market between Quebec and California.
+
+Mitigation/adaptation measures and technologies
+TIMES models enable capturing in particular substitutions of energy forms (e.g., switching to low-carbon fuels) and energy technologies (e.g., use of battery-electric vehicles instead of vehicles equipped with an internal combustion engine running on conventional fuels) to comply with climate policy targets.
+
+NATEM is such a technology-rich model that represents most major fossil fuel and low-carbon technologies that are envisaged to be available for at least the first half of the 21st century. By capturing the substitution of low-carbon for high-carbon technologies in response to their relative costs, as well as emissions constraints and/or carbon prices, the NATEM model simulates mitigation. The principal mitigation technology options are as shown in the following table. Options marked with an asterisk (*) are currently not in the database but could be included during the project period in harmonisation with the other modelling teams. Data will be revised and updated in the framework of the Paris Reinforce project, and in accordance with the international database and feedback of local experts.
+
+Upstream and downstream
+
+Synthetic fuel production	Hydrogen production
+Coal to gas without CCS*
+Coal to liquids without CCS*
+Biomass to gas without CCS
+Coal to gas with CCS*
+Coal to liquids with CCS*
+Gas to liquids with CCS
+Biomass to liquids (with and without CCS)
+Electrolysis
+Coal to hydrogen with CCS*
+Gas to hydrogen with CCS*
+Biomass to hydrogen with CCS*
+Oil & gas extraction and refining	Other
+Electricity
+Nuclear (small units)
+Electricity and heat
+
+Electricity generation	Heat generation
+Coal with CCS
+Gas with CCS
+Nuclear (fission and fusion)
+Hydro (dam and run-of-river)
+Biomass (with and without CCS)
+Geothermal
+Solar PV
+Solar CSP
+Wind (onshore and offshore)
+Tidal
+Marine
+Coal with CCS
+Gas with CCS
+Oil with CCS
+Geothermal
+Biomass
+Biomass with CCS
+Transport
+
+Road	Rail
+Gas (LNG / CNG) vehicles
+Hybrid electric vehicles
+Fully electric vehicles
+Hydrogen fuel cell vehicles
+Biofuels in fuel mix
+Efficiency
+Electric
+Hydrogen
+Efficiency
+Air	Marine
+Biofuels in fuel mix
+Hydrogen planes*
+Efficiency
+Gas
+Hydrogen
+Biofuels
+Efficiency
+Buildings
+
+Heating	Lighting
+Gas replacing coal / oil
+Biofuels
+Electricity
+Hydrogen
+Efficiency
+Efficiency
+Appliances	Cooling
+Electricity
+Efficiency
+Electricity
+Efficiency
+Industry
+
+Process heat	Machine drives
+Gas replacing oil / coal
+Biomass
+Hydrogen
+Electricity
+Gas replacing oil / coal
+Electricity
+Steam	CHP
+Gas replacing oil / coal
+Electricity
+Gas replacing oil / coal
+Biomass
+CCS	Other (technology replacement)
+CCS in iron and steel
+CCS in cement
+CCS in chemicals
+Advanced technologies for aluminium (inert anodes)
+Cement clicker replacement
+Agriculture
+
+Energy	Non-Energy
+Biomass
+Electricity
+Additives to reduce enteric fermentation
+Manure & Digester
+Waste
+
+Solid waste	Wastewater
+Energy recovery for organic material
+Landfill gas capture + renewable gas or electricity
+Fugitive emissions
+
+Flare gas recovery
+Main GHG energy system mitigation options in NATEM
+Economic rationale and model solution
+The TIMES modelling framework rationale, as a least-cost optimisation model, is detailed in the MAPLE documentation, in Section 3.6.7.
+
+Key parameters
+NATEM relies on a technology-rich database that has been developed and continuously updated for the past 10 years, through partnerships and accesses to other energy optimisation model databases used worldwide, research projects in several universities with important Canadian research funding, consulting projects for public and private organisations in North America, constant technology watch and literature review, and collaboration with world class energy modellers to develop rigorous assumptions and robust approaches through ETSAP-IEA. With thousands of specific (existing and future) technologies, characterised with their techno-economic attributes, and hundreds of commodities, many datasets can be extracted and reported.
+
+Given the very rich and diversified energy systems in North America, the following key information are considered as the most important parameters to monitor, discuss and evaluate in the framework of the PARIS REINFORCE project for a successful integration of this model with the other tools and analyses:
+Conventional and unconventional oil and gas reserves (located, enhanced recovery, new discoveries);
+International markets for oil and gas exports (quantities and/or prices);
+Biomass potential for energy purposes (forest and agriculture residues, organic wastes, etc.);
+Renewable potentials and annual variability of intermittent resources;
+Sequestration potentials in oil and gas field as well as saline aquifers;
+Information about new projects, namely hydro dams and interconnections that are currently under construction or already scheduled for future construction, as well as pipeline projects;
+Cost evolution for the most promising technologies (renewable electricity, electric vehicles, etc.);
+Cost evolution for emerging technologies (second generation biofuels, new industrial processes, etc.);
+Energy conservation potentials in buildings (roof insulation, duct sealing, etc.);
+Existing policies, targets, plans; etc.
+Parameters can be revised and updated in the framework of the PARIS REINFORCE project, following the feedback of national and local experts (stakeholder engagement), the comparative assessment with other modelling experiences, and the discussion with the partners (modellers).
+
+Policy questions and SDGs
+Key policies that can be addressed
+As for all the TIMES-based models, the NATEM predominantly works by specifying either a GHG price (e.g. a carbon tax) or a GHG limit (e.g. an upper bound constraint) in one or several regions, or alternatively for all regions simultaneously. Additionally, the following further policies and measures can be implemented: subsidies or taxes on specific technologies, renewable portfolio standards, minimum renewable content in conventional fuels, phase-out programs and moratoria on some energy type (e.g. nuclear or hydrocarbon), investment growth rate projections, etc.
+
+This allows NATEM to perform a number of energy and climate policy-relevant investigations. Indeed, NATEM has been used to assess the implications of meeting ambitious GHG mitigation goals on the energy system configuration and cost, under many different economic and technical assumptions. Model results have been used by decision makers at national, regional and city levels in North America to i)draft Climate Action Plan and define optimal sequences for the introduction of mitigation measures and ii) identify strategic research priorities for reducing mitigation costs while contributing to the development of a sustainable economy. For example: 
+
+Quebec Ministry of Environment and Climate Change and Quebec Ministry of Finance in preparation of the Climate Action Plan: the model was used to identify optimal GHG reduction trajectories for achieving the official targets taking into account uncertainties related to the evolution of demands, social acceptability, and technological innovation (Dunsky et al., 2019).
+Environmental Commissioner of Ontario in preparation of its Climate Action Plan: the model was used to compare costs and other impacts for i) achieving Canadian only mitigation targets and ii) achieving both Ontario and Canadian mitigation targets (Vaillancourt et al., 2018d).
+Metropolitan Montreal Community (MMC) in preparation of its Climate Action Plan: the model is used in support to the development of an action plan and define priorities in consultation with key stakeholders to achieve carbon neutrality in 2050 (ongoing project).
+NATEM was also used in a variety of other applications to support decision-makers in governments, industries and associations:
+
+With the preparation of Canadian energy outlooks, such as the most recent Canadian Energy Outlook (Langlois-Bertrand et al., 2018) with an ambitious scenario including a GHG reduction target of 80% by 2050 compared to 1990 (the first of its kind in over a decade covering Canada and its 13 jurisdictions) and the Trottier Energy Futures Project (TEFP, 2016) which is now a reference in Canadian universities and government offices to understand how Canada can achieve its official targets.
+With the preparation of technology roadmaps: the model was used to support a gas company in preparation of its long-term Strategic Plan 2015-2030 to analyse the penetration rates of renewable natural gas under mitigation scenarios (confidential project).
+With technological penetration rate estimations: the model was used to support the Biofuel Canada Network to derive market penetration rates of emerging biofuels to 2050 under GHG mitigation scenarios (Levasseur et al., 2016).
+With economic and environmental impact assessments of future energy projects : the model was used to support the Prime Minister Office and Quebec Ministry of Environment and Climate Change in developing their position on the exploitation of hydrocarbon on the Anticosti Island in a GHG mitigation context (Vaillancourt et al., 2018c).
+With energy security issues: the model was used to evaluate the impacts of the TransCanada Energy East pipeline on the oil supply-demand dynamic and prices in Eastern provinces, Newfoundland and Labrador especially for the Centre for Applied Research in Economics (CARE) (Vaillancourt et al., 2015).
+With the evaluation of circular economy strategies: the model was used to support the Quebec Ministry of Energy and Natural Resources to assess the techno-economic potential of circular economy strategies for the iron, copper and lithium mining industries (Vaillancourt et al., 2018e).
+Implications for other SDGs
+NATEM does not automatically calculate the implications for non-climate SDGs of its least-cost energy system to meet prescribed climate targets. However, it is possible to take its outputs and perform “off-model” calculations to estimate many of the SDG implications or to use them as input in other models or tools. A number of other SDGs can be taken into consideration and investigated indirectly making use of the NATEM model (see the table below).
+
+SDG	Details
+§1. Poverty	Impacts on energy prices in different sectors can be used and trade-offs between energy poverty reduction measures versus energy consumptions can be partially explored.
+§3. Health	Life-cycle analysis can be used to assess other environmental impacts than GHGs of model solutions. Other pollutants can be tracked and impacts on air quality and health assessed with a spatial distribution model.
+§7. Affordable and clean energy	Cost-effectiveness of energy technologies and commodities within a specific storyline.
+§8. Decent work & growth	Energy export revenues can be tracked and analysed to evaluate the corresponding impacts on the global budget. Model outputs (energy prices, etc.) can be used as input in a general equilibrium model to estimate impacts on GDP and jobs.
+§9. Industry, Innovation, Infrastructure	Model can be used to assess the techno-economic potential of emerging technologies in industries.
+§11. Sustainable cities/communities	When model development allows it (enough spatial disaggregation), GHG mitigation studies can be performed at the city level.
+§12. Responsible Cons.-Production	When model development allows it (enough sectoral details with modelling of material commodities), circular economy strategies can be assessed.
+§15: Life on land	Afforestation measures can be taken into account through exogenous supply curves. Land-specific constraints (natural and regulatory) can be introduced.
+Capability of the NATEM model to assess other SDGs
+Recent publications
+Study	Focus	Key findings
+Vaillancourt et al. (2018a)	The role of bioenergy in low-carbon energy transition scenarios: A case study for Quebec (Canada).	Our study envisions a much larger penetration of bioenergy (up to a threefold increase) than the one proposed by the government of Quebec in its 2030 Energy Policy to achieve the GHG mitigation target.
+Vaillancourt et al. (2018b)	The Canadian contribution to limiting global warming below 2oC: An analysis of technological options and regional cooperation.	The main transformations include significant energy efficiency improvements, greater penetration of electricity and bioenergy in all end-use sectors in 2050, a rapid decarbonisation of electricity production and a shift away from fossil fuels. Canada would benefit from achieving greater cooperation between jurisdictions because of the large diversity of energy systems.
+Vaillancourt et al. (2018c)	The role of new fossil fuels projects in a decarbonising energy system: A case study for Quebec.	Results indicate the 2050 GHG emission levels would increase by nearly 7% in the reference case. Greater total GHG reductions would thus be required from the baseline at a significantly higher marginal cost.
+Astudillo et al. (2017)	Can the household sector reduce global warming mitigation costs? Sensitivity to key parameters in a TIMES techno-economic energy model.	Results indicate that peak demand would rise by 30% due to global mitigation efforts, but it can be effectively reduced by interventions in the residential sector. Heat pumps are the most cost-effective heating technology, despite their lower efficiencies in cold climates. Better-insulated building envelopes have an important uptake in new houses, reducing by 14% the mitigation costs.
+Levasseur et al. (2016)	Assessing butanol from integrated forest biorefinery: A combined techno-economic and life cycle approach.	Results show that (i) the energy efficiency of the butanol production process is a critical aspect to make butanol a competitive fuel; (ii) with a 50% internal heat recovery, butanol has a role to play for transport under climate policy scenarios; and (iii) higher supply costs for feedstock might undermine the competitiveness of butanol in the medium term (2030), but probably not in the long-term (2050).
+Vaillancourt et al. (2017)	Exploring deep decarbonisation pathways to 2050 for Canada using an optimisation energy model framework.	Results show that three fundamental transformations need to occur to achieve GHG reduction targets: electricity should represent up to 57% of final energy by 2050, electricity generating supply should achieve nearly complete decarbonisation by 2025 and final energy should decrease by 20% relative to the baseline by 2050.
+References
+Astudillo, M.F., Vaillancourt, K., Pineau, P.-O. & Amor M.B. (2017). Can the household sector reduce global warming mitigation costs? Sensitivity to key parameters in a TIMES techno-economic energy model. Applied Energy (205), 486-498.
+
+CONAPO – Consejo Nacional de Poblacion (2012). Proyecciones de la Poblaci?n 2010-2050. https://www.gob.mx /cms/uploads/attachment /file/63977/Documento_Metodologico_Proyecciones_Mexico_2010_2050.pdf
+
+Dunsky, P., Poirier, M., Vaillancourt, K. & Joly, E. (2019). Trajectoires de r?duction d’?missions de GES du Qu?bec – Horizons 2030 et 2050. Final Report. Quebec Ministry of Environment and Climate Change. http://www.environnement.gouv.qc.ca/changementsclimatiques/trajectoires-emissions-ges.pdf
+
+EIA – Energy Information administration (2018). Annual Energy Outlook 2018 – With projections to 2050. Main Report. U.S. Department of Energy http://www.eia.gov/forecasts/aeo/
+
+Langlois-Bertrand, S., Vaillancourt, K. Bahn, O., Beaumier, L., Mousseau N. (2018). Canadian Energy Outlook 2018 – Horizon 2050. Trottier Energy Institute And E/ Hub. http://iet.polymtl.ca/en/energy-outlook/
+
+Levasseur, A., Bahn, O., Beloin-Saint-Pierre, D., Marinova M. & Vaillancourt K. (2016). Assessing butanol from integrated forest biorefinery: A combined techno-economic and life cycle approach. Applied Energy, 198, 440-452.
+
+Loulou R. Labriet M. (2007). ETSAP-TIAM: the TIMES integrated assessment model Part I: Model structure. Computational Management Science, 5(102), 7–40.
+
+Loulou, R., Goldstein, G., Kanudia, A., Lehtila, A. & Remme, U. (2016). Documentation for the TIMES Model. ETSAP of the International Energy Agency (IEA). Retrieved from http://iea-etsap.org/index.php/documentation.
+
+NEB – National Energy Board (2017). Canada’s Energy Future 2017 - Energy Supply and Demand Projections to 2040 - An Energy Market Assessment. Ottawa, 90 p. and annexes.
+
+SENER – Secretariat de Energia (2018). PRODESEN – Programme de Desarrollo des Sistema Electrico Nacional. https://www.gob.mx/sener/acciones-y-programas/ programa-de-desarrollo-del-sistema-electrico-nacional-33462
+
+SENER – Secretariat de Energia (2014). Prospectiva de Energ?a Renovable 2014 – 2028. https://www.gob.mx/sener/documentos/prospectivas-del-sector-energetico
+
+Statistics Canada (2015). Report on Energy Supply-Demand in Canada. Catalogue N. 57-003-XIE. https://www150.statcan.gc.ca/n1/en/catalogue/57-003-X
+
+TEFP - Trottier Energy Futures Project (2016). Canada’s challenge & opportunity – Transformations for major reductions in GHG emissions. Retrieved from http://iet.polymtl.ca/en/tefp/.
+
+Vaillancourt K. Bahn O. Levasseur A. (2018a). The role of bioenergy in low-carbon energy transition scenarios: A case study for Quebec (Canada). Renewable and Sustainable Energy Reviews, 102, 24-34.
+
+Vaillancourt K. Bahn O. Sigvaldason O. (2018b). The Canadian contribution to limiting global warming below 2oC: An analysis of technological options and regional cooperation. In G. Giannakidis et al (eds). Springer Lecture Notes in Energy: Limiting Global Warming to Well Below 2°C: Energy System Modelling and Policy Development: 223-242.
+
+Vaillancourt K., Bahn O., Patreau V. & Roy P.O. (2018c). The role of new fossil fuels projects in a decarbonizing energy system: A case studies for Quebec (Canada). Applied Energy, 218, 114-130.
+
+Vaillancourt K., Sigvaldason O. & Ogilvie K. (2018d). Appendix E: Minimum Cost Strategies for GHG Mitigation for Ontario to 2030, and to 2050. Prepared for the Environmental Commissioner of Ontario. https://docs.assets.eco.on.ca/reports/climate-change/2018/Climate-Action-in-Ontario.pdf
+
+Vaillancourt et al. (2018e). M?taux et ?conomie circulaire au Qu?bec. Rapport de l’?tape 3.2: Analyse technico-?conomique des strat?gies de circularit?. Avec l’Institut EDDEC pour le minist?re de l’?nergie et des Ressources naturelles (MERN), 169 p. https://mern.gouv.qc.ca/mines/publications/analyses-projets-recherche/
+
+Vaillancourt K., Bahn O., Frenette E. & Sigvaldason O. (2017). Exploring deep decarbonization pathways to 2050 for Canada using an optimization energy model framework. Applied Energy, 195, 774-785.
+
+Vaillancourt K., Alcocer A. & Bahn O. (2015). Impact of the Energy East pipeline on the oil and gas industry in Newfoundland and Labrador. Collaborative Applied Research in Economics (CARE), Memorial University of Newfoundland, 49p. https://www.mun.ca/care/news.php?id=6438

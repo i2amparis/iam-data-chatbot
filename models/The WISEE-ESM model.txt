@@ -1,0 +1,52 @@
+Short overview
+The energy supply model WISEE-ESM calculates the cost-optimal expansion and use of energy supply plants, infrastructures and sector coupling technologies (e.g. electrolysers or heat pumps) to cover given energy demands. Demands can be taken from the energy demand model (WISEE-EDM) or can be specified externally (e.g. from existing energy scenarios). WISEE-ESM can be flexibly adjusted which energy sources or substances (CO2, other material flows) are to be taken into account. For each of them, production technologies, transport and storage infrastructures as well as sector coupling technologies can be represented.
+
+The model consists of two modules: The expansion or invest module and the deployment or dispatch module. The Invest module calculates the necessary increase in generation, transport and conversion capacity over the next decades, the dispatch module calculates the use of the system components during the year. Both modules work with an optimization whose objective function is the minimization of costs. Investment, CO2, fuel and operating costs are taken into account. CO2 emission limits and limitations of potential can be specified as boundary conditions.
+
+Key results of model runs are: installed capacity (of generation, transport, storage and conversion facilities), capital expenditure, dispatch of the components in hourly resolution, dispatch costs, CO2 emissions.
+
+Depending on the object of investigation, various parameters can be taken from external sources or optimised internally. The model can represent several regions. Depending on the research question, regions can be, for example, federal states or states. Depending on the application and the data basis, the model can be parameterized for different regions. Up to now, the application of the model has concentrated on Germany and Europe.
+
+Wisee Esm
+Key features of the WISEE-ESM model
+Flexible choice of model components
+
+WISEE-ESM can represent the supply of various energy sources and materials such as electricity, heat, hydrogen, CO2 or other material flows. It can be flexibly adjusted which of these energy sources or substances are to be taken into account. For each of them, producers, transport and storage infrastructures and sector coupling technologies can be represented.
+
+Flexible spatial and temporal resolution
+
+The model can represent several regions. Depending on the research question, regions can be, for example, federal states or states. Depending on the application and the data basis, the model can be parameterized for different regions. Transmission capacities represent the connections between the regions. They are defined as transmission power at the region boundaries. A transmission capacity is therefore representative of all lines that connect these two regions.
+
+Climate module & emissions granularity
+Emission limits are implemented as boundary conditions
+
+Socioeconomic dimensions
+The socio-economic dimension enters the model via demand for various energy carriers reflecting for example growth trajectories in different sectors. Furthermore, constraints set to the optimisation may reflect socio-economic dimensions, for example regarding limitations of onshore wind generation potentials.
+
+Mitigation/adaptation measures and technologies
+WISEE-ESM calculates the cost-optimal expansion and use of energy supply plants. It covers fossils-based as well as low-carbon energy supply technologies. Mitigation measures that influence costs of different technologies, for example CO2 price, subsidies and taxes can be represented by the model. Furthermore, all measures that foster or limit the application of particular technologies (e.g. coal exit strategies) can be included in the model. Adaptation measures are not part of the model.
+
+Economic rationale and model solution
+The core principle behind the results provided by the model is that of minimal societal costs (as reflected in the model's input parameter) for providing a given amount of energy.
+
+Key parameters
+Key input parameters
+
+Key input parameters of the model are one the one hand of technical nature: CO2 cap, potentials for renewables, energy demand (electricity, heat, hydrogen) over time.
+
+On the other hand, economic parameters are required: investment costs per unit, fuel prices and operative costs. Finally, the starting situation (existing plants, infrastructure etc.) needs to be defined.
+
+Data basis
+
+Energy demand from WISEE-EDM model results or externally given
+Current German power plant park (own databases)
+Cross border capacity based on Entso-E data
+Demand curves according to Entso-E TYNPD
+Renewables production in different weather years according to PyPSA-EUR (https://github.com/PyPSA/pypsa-eur )
+Costs (invest, fuels, CO2, operation)
+Policy questions and SDGs
+Key policies that can be addressed
+Different policies can be represented in the model if they translate into costs or can be represented through cost parameters (see mitigation measures above).
+
+Implications for other SDGs
+WISEE-ESM does not automatically calculate the implications on non-climate SDGs of its least-cost energy system to meet prescribed climate or emissions constraints. However, it is possible to use its outputs and calculate the predictions for certain indicators framed in the SDG agenda.

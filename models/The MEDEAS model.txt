@@ -1,0 +1,28 @@
+Short overview
+MEDEAS is a set of policy-simulation dynamic-recursive models sharing the same conceptual modeling approach which have been designed applying system dynamics. Models at three different geographical aggregated scales have been developed: global (MEDEAS-W), European Union (MEDEAS-EU) and country-level for Austria and Bulgaria (MEDEAS-AUT and MEDEAS-BGR, respectively). MEDEAS models are structured in nine main modules: economy, energy demand, energy availability, energy infrastructures and EROI, minerals, land-use, water, climate/emissions, and social and environmental impact indicators. The biophysical limits associated with the exploitation of natural resources (energy and materials), the dynamic EROI and the feedbacks between the modules play an essential role in the model.
+
+Key features of the MEDEAS model
+The MEDEAS models are driven by a set of input assumptions that define each scenario. All the input parameters of the model are in an MS Excel file that is read by the model. Geographic coverage. MEDEAS-W represents the entire world. MEDEAS-EU represents European Union, and requires data from MEDEAS-W. Economic disaggregation. MEDEAS breaks down the economy into 35 industrial sectors, according to the classification used in WIOD.
+
+Energy system detail
+The energy system has three levels: primary energy resources, transformation systems and final energy. Primary energy resources can be non-renewable (fossil and uranium resources) or renewable (23 types). 5 types of final energy are used (electricity, liquids, solids, gases and heat). The final energy demand is obtained through the energy intensities of each sector. The final energy demanded is contrasted with the final energy available. The scarcity of each type of energy feeds back and drives the dynamics of the system. EROI is dynamically calculated and feedbacks into the system.
+
+Land-use detail. MEDEAS land dimension focuses mainly on the land requirements of the RES energies, which have been found to be substantially higher than their fossil fuel counterparts.38,107,108,168 The model computes the additional land requirements associated with the transition towards renewable energies, taking the power density levels of the different technologies and energies (biofuels, solar PV, solar CSP and hydroelectricity) as a starting point
+
+Climate module & emissions granularity
+The Climate module in MEDEAS-W is based on the climate model C-ROADS,[2] which is a state-of-the-art model able to run in MEDEAS computational time (i.e., avoiding the complexity and long simulation times of Global Circulation Models[4]). The C-ROADS model is based on the works of Fiddaman,[3] Goudriaan and Ketner[5] and Oeschger et al.[6] The carbon cycle represents the dynamics between the carbon in the atmosphere, the biosphere (humus and biomass) and the ocean, including temperature feedbacks. The emissions of the rest of the GHGs are mostly exogenous, except for CH4, for which the share of its emissions associated to the extraction, distribution and combustion of natural gas is endogenously calculated, considering its whole lifetime.176 The user can select the level of future emissions of the rest of the GHGs through the selection of their respective RCP scenario.[1] The other GHGs cycles (CH4, N2O, PFCs, SF6 and HFCs) are also explicitly modeled in MEDEAS-W, including the mutual interactions, such as between CH4 and N2O.
+
+[1] D. P. van Vuuren, J. Edmonds, M. Kainuma, K. Riahi, A. Thomson, K. Hibbard, G. C. Hurtt, T. Kram, V. Krey, J.-F. Lamarque, T. Masui, M. Meinshausen, N. Nakicenovic, S. J. Smith and S. K. Rose, Clim. Change, 2011, 109, 5–31.
+
+[2] T. Fiddaman, L. S. Siegel, E. Sawin, A. P. Jones and J. Sterman, C-ROADS simulator reference guide (v78b), 2017
+
+[3] T. S. Fiddaman, Feedback complexity in integrated climate economy models, Massachusetts Institute of Technology, 1997.
+
+[4] M. Meinshausen, S. Raper and T. Wigley, Atmos. Chem. Phys., 2011, 11, 1417–1456.
+
+[5] J. Goudriaan and P. Ketner, Clim. Change, 1984, 6, 167–192.
+
+[6]H. Oeschger, U. Siegenthaler, U. Schotterer and A. Gugelmann, Tellus, 1975, 27, 168–192.
+
+Socioeconomic dimensions
+The MEDEAS Economy module is framed in ecological economics principles, i.e., assuming that the socioeconomic system is constrained by the environment and, therefore, subject to its biophysical boundaries. By integrating hybrid (energy–economy) input–output analysis (IOA) and system dynamics, this approach is able to capture sectorial and structural conditions and limiting factors in energy transition scenarios. The Economy module represents the interdependencies between the economy and the environment through the energy and climate feedbacks; hence building bridges between ecological economics and post-Keynesian theoretical frameworks (demand-led growth affected by income distribution, adjustments via quantities, etc.), which are two of the main concerns of ecological macroeconomics.Tthe WIOD database (Dietzenbacher et al., 2013) has been used to define the IO framework, together with its socioeconomic (Timmer et al., 2015) and environmental (Genty, 2012) satellite accounts. In addition, the EU-KLEMS database has been used to extend the socioeconomic variables’ time series until 2015. The IO framework used comprises 35 different industrial sectors.

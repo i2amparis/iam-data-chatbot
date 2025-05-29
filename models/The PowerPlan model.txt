@@ -1,0 +1,24 @@
+Short overview
+PowerPlan allows users to explore what-if scenarios, quantifying the implications of decisions made. The outputs are not predictions of the future; they are a way of analysing the potential impacts of different choices (scenarios). It simulates investment decisions in capacity expansion and produces results including generation costs, system reliability, fuel use and environmental emissions. The core of the PowerPlan model is the production simulation module in which the demand has to be met by the supply using the merit order approach. Calculations are performed on an hourly bases.
+
+The model uses a merit-order approach assigned based on user assumptions by the user or based on marginal costs. For scheduled maintenance and unplanned outage, the existing capacities are de-rated for operation & maintenance by a fixed fraction throughout the year.
+
+The representation of system reliability is parameterized by the Loss of Load Probability (LOLP) and energy shortages. The LOLP is a measure for the number of hours per year in which the demand is higher than the production, see equation 1. The shortages are the amount of energy (GWh) that could not be delivered, see equation 2. Besides this, PowerPlan gives also the surplus of electricity generated. This surplus occurs when intermittent sources like wind and photovoltaics and so-called “must-run” capacity like nuclear power stations produce more electricity than the final demand. In an annual cycle, the demand is determined by the peak load and the normalized hourly demand pattern. To simulate intermittent energy sources (wind and solar PV) multiple normalized hourly patterns can be used. Hydro power plants can receive an inflow into their reservoir, which is based on the Pard?-coefficients. The monthly influxes are equally divided over the hours within a month. The surpluses are allocated to the plants based on the relative storage potential of the individual plants: each hour, first the natural inflow is added to the reservoir and second available surpluses will be stored in the upper reservoirs.
+
+Key features of the PowerPlan model
+PowerPlan uses a bottom-up approach which means that each plant in the electricity production system can be defined separately, several production patterns for e.g. PV and wind farms can be used.
+
+PowerPlan is flexible. Although it is designed for a national scale. It can also be used for smaller electricity systems can be simulated (e.g. a self-sufficient village).
+
+It is used to develop alternative scenarios for the national electricity system but also to study more detailed questions like: to what extend are Swiss Pump Hydro Power plants capable of buffering the German future electricity system with a high penetration of renewable sources (Solar PV and Wind).
+
+It has a uses-friendly interface with lots of detailed output. Input and output can also be realised via Excel sheets.
+
+Climate module & emissions granularity
+PowerPlan only give CO2 emissions as an output.
+
+Socioeconomic dimensions
+Population and GDP together wit a GDP-Electricity demand determe the frwoth of the electricity demand. The uses can also enters a time series for the electricity growth directly.
+
+Mitigation/adaptation measures and technologies
+Variety of mitigation technologies.
