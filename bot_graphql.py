@@ -6,7 +6,7 @@ Usage:
     python bot_graphql.py
 
 This script uses OpenAI to maintain conversational context, summarize model descriptions via REST,
-and fetch time-series results via IAM Paris REST API.
+and fetch time-series results via IAM Paris REST API. Sensitive keys and URLs are read from config.py.
 """
 import os
 import re
@@ -15,11 +15,11 @@ import pandas as pd
 import requests
 import numpy as np
 import matplotlib.pyplot as plt
+from config import API_KEY, REST_MODELS_URL, RESULTS_URL
 
-# === Configuration ===
-API_KEY = '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'
-REST_MODELS_URL = 'https://cms.iamparis.eu/items/models'
-RESULTS_URL = 'https://api.iamparis.eu/results'
+# === Validate config ===
+if not API_KEY or not REST_MODELS_URL or not RESULTS_URL:
+    raise RuntimeError("Configuration error: please set API_KEY, REST_MODELS_URL and RESULTS_URL in config.py")
 
 # === Initialize OpenAI client ===
 client = openai.OpenAI(api_key=API_KEY)
@@ -34,11 +34,11 @@ conversation = [
 
 # === Model metadata via REST ===
 def list_models_rest() -> list[str]:
-    """Return all modelName values from the REST endpoint."""
+    """Return all model names from REST endpoint."""
     try:
         resp = requests.get(REST_MODELS_URL, params={'fields': 'modelName', 'limit': -1})
         resp.raise_for_status()
-        return [item.get('modelName') for item in resp.json().get('data', []) if 'modelName' in item]
+        return [item['modelName'] for item in resp.json().get('data', []) if 'modelName' in item]
     except Exception:
         return []
 
@@ -46,10 +46,8 @@ def list_models_rest() -> list[str]:
 def fetch_model_info_rest(name: str) -> dict:
     """Fetch a single model's metadata using REST."""
     try:
-        params = {
-            'filter[modelName][_eq]': name,
-            'fields': 'modelName,description,overview,institute,model_type'
-        }
+        params = {'filter[modelName][_eq]': name,
+                  'fields': 'modelName,description,overview,institute,model_type'}
         resp = requests.get(REST_MODELS_URL, params=params)
         resp.raise_for_status()
         items = resp.json().get('data', [])
@@ -66,8 +64,8 @@ def fetch_results(filters: dict) -> pd.DataFrame:
         yrs = pd.json_normalize(df.pop('years'))
         df = pd.concat([df, yrs], axis=1)
     df.rename(columns={
-        'modelName': 'Model', 'unit': 'Unit', 'variable': 'Variable',
-        'region': 'Region', 'scenario': 'Scenario'
+        'region': 'Region', 'scenario': 'Scenario', 'modelName': 'Model',
+        'unit': 'Unit', 'variable': 'Variable'
     }, inplace=True)
     return df
 
@@ -108,6 +106,10 @@ def chatbot_response(user_input: str) -> str:
     ql = user_input.lower()
     conversation.append({"role": "user", "content": user_input})
 
+    # Exit
+    if ql in ['exit', 'quit']:
+        return 'Goodbye!'
+
     # List models
     if any(kw in ql for kw in ['which models', 'list models', 'show models']):
         models = list_models_rest()
@@ -119,10 +121,10 @@ def chatbot_response(user_input: str) -> str:
     for name in list_models_rest():
         if name.lower() in ql:
             info = fetch_model_info_rest(name)
-            desc = (info.get('description') or '').strip()
-            overview = (info.get('overview') or '').strip()
-            inst = (info.get('institute') or '').strip()
-            mtype = (info.get('model_type') or '').strip()
+            desc = info.get('description', 'No description available').strip()
+            overview = info.get('overview', '').strip()
+            inst = info.get('institute', '').strip()
+            mtype = info.get('model_type', '').strip()
             reply = (
                 f"**{name}**: {desc}\n"
                 f"Overview: {overview}\n"
@@ -132,23 +134,17 @@ def chatbot_response(user_input: str) -> str:
             conversation.append({"role": "assistant", "content": reply})
             return reply
 
-    # Build filters
-    filters = {
-        'modelName': [], 'scenario': [], 'study': ['paris-reinforce'],
-        'variable': [], 'workspace_code': ['eu-headed']
-    }
-    if 'emission' in ql or 'co2' in ql:
+    # Data query filters
+    filters = {'modelName': [], 'scenario': [], 'study': ['paris-reinforce'], 'variable': [], 'workspace_code': ['eu-headed']}
+    if 'co2' in ql or 'emission' in ql:
         filters['variable'] = ['Emissions|CO2|Energy|Supply|Other Sector']
     elif 'food' in ql:
         filters['variable'] = ['Crops|Food']
     else:
         filters['variable'] = ['Final Energy']
-    if 'usa' in ql:
-        filters['workspace_code'] = ['us-headed']
-    if 'world' in ql:
-        filters['workspace_code'] = ['world-headed']
-    if 'pr_wwh_cp' in ql:
-        filters['scenario'] = ['PR_WWH_CP']
+    if 'usa' in ql: filters['workspace_code'] = ['us-headed']
+    if 'world' in ql: filters['workspace_code'] = ['world-headed']
+    if 'pr_wwh_cp' in ql: filters['scenario'] = ['PR_WWH_CP']
 
     df = fetch_results(filters)
     if df.empty:
@@ -156,7 +152,7 @@ def chatbot_response(user_input: str) -> str:
         conversation.append({"role": "assistant", "content": reply})
         return reply
 
-    # Plot
+    # Plot request
     if any(k in ql for k in ['plot', 'chart', 'graph']):
         m = re.search(r'\b(20\d{2})\b', ql)
         year = int(m.group(1)) if m else None
@@ -170,7 +166,7 @@ def chatbot_response(user_input: str) -> str:
     if m_year and m_year.group(1) in df.columns:
         yr = m_year.group(1)
         lines = [f"{r.Model}: {r[yr]:.2f} {r.Unit}" for _, r in df.iterrows()]
-        reply = f"Projections for {yr} are:\n" + "\n".join(lines) + "\nWhat else interests you?"
+        reply = f"Projections for {yr}:\n" + "\n".join(lines) + "\nAnything else?"
         conversation.append({"role": "assistant", "content": reply})
         return reply
 
@@ -190,7 +186,7 @@ def chatbot_response(user_input: str) -> str:
 
 # === CLI ===
 if __name__ == '__main__':
-    print('Welcome to the Climate and Energy Dataset Explorer powered by Holistic SA! (type "exit" or "quit" to close)')
+    print("Welcome to the Climate and Energy Dataset Explorer powered by Holistic SA! (type 'exit' or 'quit' to close)")
     while True:
         text = input('You: ')
         if text.lower() in ['exit', 'quit']:

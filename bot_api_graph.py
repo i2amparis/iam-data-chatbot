@@ -1,288 +1,224 @@
+#!/usr/bin/env python3
+"""
+Climate and Energy Dataset Explorer Chatbot
 
+Usage:
+    python bot_graphql.py
+
+This script uses OpenAI to maintain conversational context, summarize model descriptions via REST,
+and fetch time-series results via IAM Paris REST API. Sensitive keys and URLs are loaded from a .dotenv file or environment.
+"""
+import os
+import re
 import openai
 import pandas as pd
 import requests
-import faiss
 import numpy as np
 import matplotlib.pyplot as plt
-import os
 
-# OpenAI API client
-client = openai.OpenAI(
-    api_key='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'
-)
+# === Manual dotenv loader ===
+def load_dotenv_file(path='.dotenv'):
+    if not os.path.exists(path):
+        return
+    with open(path, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith('#') or '=' not in line:
+                continue
+            key, val = line.split('=', 1)
+            key = key.strip()
+            val = val.strip().strip('"').strip("'")
+            os.environ.setdefault(key, val)
 
-#load and index files
-def load_model_descriptions(folder="models"):
-    descriptions = {}
-    if not os.path.exists(folder):
-        print(f"Warning: folder '{folder}' not found. No model descriptions loaded.")
-        return descriptions
-    for filename in os.listdir(folder):
-        if filename.endswith(".txt"):
-            model_name = filename.replace(".txt", "").upper()
-            file_path = os.path.join(folder, filename)
-            try:
-                with open(file_path, "r", encoding="utf-8-sig", errors="replace") as f:
-                    descriptions[model_name] = f.read()
-            except Exception as e:
-                print(f"⚠️ Failed to load {filename}: {e}")
-    return descriptions
+# Load .dotenv if present
+load_dotenv_file()
 
+# === Configuration ===
+API_KEY = os.getenv('API_KEY')
+if not API_KEY:
+    raise RuntimeError("Environment variable API_KEY is required. Set it in .dotenv or OS env.")
 
-MODEL_DESCRIPTIONS= load_model_descriptions()
+REST_MODELS_URL = os.getenv('REST_MODELS_URL')
+if not REST_MODELS_URL:
+    raise RuntimeError("Environment variable REST_MODELS_URL is required.")
 
-#detect model query
-def get_requested_model_name(query):
-    for model in MODEL_DESCRIPTIONS:
-        if model.lower() in query.lower():
-            return model
-    return None
+RESULTS_URL = os.getenv('RESULTS_URL')
+if not RESULTS_URL:
+    raise RuntimeError("Environment variable RESULTS_URL is required.")
 
+# === Initialize OpenAI client ===
+client = openai.OpenAI(api_key=API_KEY)
 
-
-
-# Global conversation memory
+# === Conversation memory ===
 conversation = [
-    {
-        "role": "system",
-        "content": (
-            "You are a friendly AI assistant helping users understand climate and energy data. "
-            "Based on the data provided, answer clearly and ask a relevant follow-up question to continue the conversation. "
-            "If the user asks for a plot, determine if it's a line plot over time or a bar chart by model in a specific year."
-        )
-    }
+    {"role": "system", "content": (
+        "You are a friendly, engaging assistant that helps users explore climate and energy data. "
+        "Use natural, conversational summaries and always include a relevant follow-up question."
+    )}
 ]
 
-# Fetch data from API based on dynamic filters
-def fetch_results_from_api(filters):
-    url = "https://api.iamparis.eu/results"
+# === Model metadata via REST ===
+
+def list_models_rest() -> list[str]:
+    """Return all modelName values from the REST endpoint."""
     try:
-        response = requests.post(url, json=filters)
-        response.raise_for_status()
-        data = response.json()
+        resp = requests.get(REST_MODELS_URL, params={'fields': 'modelName', 'limit': -1})
+        resp.raise_for_status()
+        return [item.get('modelName') for item in resp.json().get('data', []) if 'modelName' in item]
+    except Exception:
+        return []
 
-        if 'data' not in data or not data['data']:
-            print("No results found in the API.")
-            return pd.DataFrame()
 
-        df_api = pd.DataFrame(data['data'])
-
-        if 'years' in df_api.columns:
-            years_df = pd.json_normalize(df_api['years'])
-            df_api = pd.concat([df_api.drop(columns=['years']), years_df], axis=1)
-
-        df_api.rename(columns={
-            "region": "Region",
-            "scenario": "Scenario",
-            "modelName": "Model",
-            "unit": "Unit",
-            "variable": "Variable"
-        }, inplace=True)
-
-        return df_api
-
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching data: {e}")
-        return pd.DataFrame()
-
-# Format each row into a text entry
-def format_text(row):
-    year_columns = [col for col in row.index if str(col).isdigit()]
-    # 👇 Only keep 3 year values max (or filter to just 2030)
-    values = [
-        f"{year}: {row[year]}"
-        for year in year_columns
-        if pd.notna(row[year]) and (year == "2030" or year == "2040" or year == "2050")
-    ][:3]
-    trend_text = ", ".join(values) if values else "No data available"
-
-    var_parts = row['Variable'].split('|') if isinstance(row['Variable'], str) else []
-    var_category = var_parts[0] if len(var_parts) > 0 else ""
-    var_subcategory = var_parts[1] if len(var_parts) > 1 else ""
-    var_specification = var_parts[2] if len(var_parts) > 2 else ""
-
-    return (
-        f"Scenario: {row.get('Scenario', '')} | Region: {row.get('Region', '')} | "
-        f"Category: {var_category} | Subcategory: {var_subcategory} | Specification: {var_specification} "
-        f"({row.get('Unit', '')}) | Model: {row.get('Model', '')} | Trend: {trend_text}."
-    )
-
-# Create embeddings
-def get_embedding(text):
+def fetch_model_info_rest(name: str) -> dict:
+    """Fetch a single model's metadata using REST."""
     try:
-        response = client.embeddings.create(
-            input=text,
-            model="text-embedding-3-small"
-        )
-        vector = np.array(response.data[0].embedding)
-        return vector / np.linalg.norm(vector)
-    except Exception as e:
-        print(f"Error generating embedding: {str(e)}")
-        return None
+        params = {
+            'filter[modelName][_eq]': name,
+            'fields': 'modelName,description,overview,institute,model_type'
+        }
+        resp = requests.get(REST_MODELS_URL, params=params)
+        resp.raise_for_status()
+        items = resp.json().get('data', [])
+        return items[0] if items else {}
+    except Exception:
+        return {}
 
-# Parse user query into API filters
-def parse_query(query):
-    query = query.lower()
-    filters = {
-        "modelName": [],
-        "scenario": [],
-        "study": ["paris-reinforce"],
-        "variable": [],
-        "workspace_code": ["eu-headed"]
-    }
+# === Time-series data via REST ===
 
-    # Workspace detection
-    if "usa" in query or "us" in query:
-        filters["workspace_code"] = ["us-headed"]
-    if "world" in query:
-        filters["workspace_code"] = ["world-headed"]
+def fetch_results(filters: dict) -> pd.DataFrame:
+    resp = requests.post(RESULTS_URL, json=filters)
+    resp.raise_for_status()
+    df = pd.DataFrame(resp.json().get('data', []))
+    if 'years' in df.columns:
+        yrs = pd.json_normalize(df.pop('years'))
+        df = pd.concat([df, yrs], axis=1)
+    df.rename(columns={
+        'region': 'Region', 'scenario': 'Scenario', 'modelName': 'Model',
+        'unit': 'Unit', 'variable': 'Variable'
+    }, inplace=True)
+    return df
 
-    # Smart variable detection
-    if any(word in query for word in ["energy in food", "food energy"]):
-        filters["variable"].append("Crops|Food")
-    elif "food" in query:
-        filters["variable"].append("Crops|Food")
-    elif "feed" in query:
-        filters["variable"].append("Crops|Feed")
-    elif any(word in query for word in ["energy", "energy demand", "energy use", "final energy"]):
-        filters["variable"].append("Final Energy")
-    elif any(word in query for word in ["emissions", "co2", "carbon"]):
-        filters["variable"].append("Emissions|CO2|Energy|Supply|Other Sector")
+# === Formatting helpers ===
+def format_trend(row, max_points: int = 3) -> str:
+    years = sorted(int(c) for c in row.index if c.isdigit())
+    pts = [(y, row[str(y)]) for y in years if pd.notna(row[str(y)])][:max_points]
+    return ', '.join(f"in {y}: {val:.2f} {row.Unit}" for y, val in pts)
 
-    # Scenario detection
-    if "pr_wwh_cp" in query:
-        filters["scenario"].append("PR_WWH_CP")
-    if "ref" in query:
-        filters["scenario"].append("REF")
 
-    # If no variable is detected
-    if not filters["variable"]:
-        if "emissions" in query or "co2" in query or "carbon" in query:
-            filters["variable"].append("Emissions|CO2|Energy|Supply|Other Sector")
-        elif "food" in query or "crops" in query:
-            filters["variable"].append("Crops|Food")
-        else:
-            filters["variable"].append("Final Energy")
+def format_text(row) -> str:
+    return (f"Model '{row.Model}' projects {row.Variable} in {row.Region} under {row.Scenario}, "
+            f"{format_trend(row)}.")
 
-    return filters
-
-# Main chatbot logic
-def chatbot_response(user_query, temperature=0.2):
-    model_name = get_requested_model_name(user_query)
-
-    # ✅ Handle model listing
-    if "which models" in user_query.lower() or "what models" in user_query.lower():
-        available_models = ", ".join(sorted(MODEL_DESCRIPTIONS.keys()))
-        return f"I use the following models: {available_models}"
-
-    # ✅ Handle specific model description
-    if model_name:
-        summary_prompt = (
-            f"Please summarize the following description of the {model_name} model:\n\n"
-            f"{MODEL_DESCRIPTIONS[model_name]}"
-        )
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4",
-                messages=[{"role": "user", "content": summary_prompt}],
-                temperature=0.4
-            )
-            return f"📘 Summary for **{model_name}**:\n\n{response.choices[0].message.content}"
-        except Exception as e:
-            return f"Found description for model {model_name}, but failed to summarize it: {str(e)}"
-
-    # ✅ Plotting logic
-    def plot_data(df, user_query=None):
-        year_columns = [col for col in df.columns if str(col).isdigit()]
-        if not year_columns:
-            print('No year columns found')
-            return
-
-        requested_year = None
-        if user_query:
-            for y in year_columns:
-                if str(y) in user_query:
-                    requested_year = y
-                    break
-
-        plt.figure(figsize=(10, 6))
-
-        if requested_year:
-            models = df["Model"]
-            values = df[requested_year]
-            plt.bar(models, values)
-            plt.xlabel("Model")
-            plt.ylabel(df.iloc[0].get("Unit", "Value"))
-            plt.title(f"Energy Demand in {requested_year} by Model")
-            plt.xticks(rotation=45)
-        else:
-            for _, row in df.iterrows():
-                values = row[year_columns].dropna()
-                plt.plot(values.index.astype(int), values.values, label=row["Model"])
-
-            plt.xlabel("Year")
-            plt.ylabel(df.iloc[0].get("Unit", "Value"))
-            plt.title(f"{df.iloc[0].get('Variable', 'Data')} over Time")
-            plt.legend()
-
-        plt.grid(True)
+# === Plotting ===
+def plot_data(df: pd.DataFrame, year: int = None):
+    if year and str(year) in df.columns:
+        plt.figure(figsize=(8,5))
+        plt.bar(df.Model, df[str(year)])
+        plt.title(f"{df.Variable.iloc[0]} in {year}")
+        plt.ylabel(df.Unit.iloc[0])
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.show()
+    else:
+        yrs = sorted(int(c) for c in df.columns if c.isdigit())
+        plt.figure(figsize=(8,5))
+        for _, r in df.iterrows():
+            plt.plot(yrs, [r[str(y)] for y in yrs], label=r.Model)
+        plt.title(f"{df.Variable.iloc[0]} over Time")
+        plt.ylabel(df.Unit.iloc[0])
+        plt.legend()
         plt.tight_layout()
         plt.show()
 
-    wants_plot = any(kw in user_query.lower() for kw in ["plot", "graph", "chart", "visualize"])
-    filters = parse_query(user_query)
-    df = fetch_results_from_api(filters)
+# === Chatbot logic ===
+def chatbot_response(user_input: str) -> str:
+    ql = user_input.lower()
+    conversation.append({"role": "user", "content": user_input})
 
-    if df.empty:
-        return "I don’t know. I couldn’t find the info you’re looking for."
+    # Exit
+    if ql in ['exit', 'quit']:
+        return 'Goodbye!'
 
-    if wants_plot:
-        try:
-            plot_data(df, user_query)
-            return "Here is the graph generated from the data."
-        except Exception as e:
-            return f"Data fetched, but unable to generate the graph: {str(e)}"
-
-    df["Text"] = df.apply(format_text, axis=1)
-    context = df["Text"].tolist()[:5]
-
-    user_prompt = (
-        "You are a friendly AI assistant helping users understand climate and energy data.\n"
-        "This is a sample of the data (limited to a few models).\n"
-        "If the user asks for a plot, determine if it's a line plot over time or a bar chart by model in a specific year.\n"
-        "Respond clearly, and if needed, ask a follow-up question.\n\n"
-        "Data:\n" + "\n".join(context) + "\n\n"
-        f"User Question: {user_query}\n\n"
-        "Answer:"
-    )
-
-    conversation.append({"role": "user", "content": user_prompt})
-
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=conversation,
-            temperature=temperature
-        )
-        reply = response.choices[0].message.content
+    # List models
+    if any(kw in ql for kw in ['which models', 'list models', 'show models']):
+        models = list_models_rest()
+        reply = "Available models: " + ", ".join(models)
         conversation.append({"role": "assistant", "content": reply})
         return reply
-    except Exception as e:
-        return f"Oops, something went wrong: {str(e)}"
 
+    # Specific model info
+    for name in list_models_rest():
+        if name.lower() in ql:
+            info = fetch_model_info_rest(name)
+            desc = info.get('description', 'No description available').strip()
+            overview = info.get('overview', '').strip()
+            inst = info.get('institute', '').strip()
+            mtype = info.get('model_type', '').strip()
+            reply = (
+                f"**{name}**: {desc}\n"
+                f"Overview: {overview}\n"
+                f"Institution: {inst} | Type: {mtype}\n"
+                "Let me know if you'd like details on another model or data point!"
+            )
+            conversation.append({"role": "assistant", "content": reply})
+            return reply
 
-# CLI interface
-if __name__ == "__main__":
-    print("Welcome to the Climate and Energy Dataset Explorer powered by Holistic SA!")
-    print("Type your question and press Enter. Type 'exit' to quit.")
+    # Data query filters
+    filters = {'modelName': [], 'scenario': [], 'study': ['paris-reinforce'], 'variable': [], 'workspace_code': ['eu-headed']}
+    if 'co2' in ql or 'emission' in ql:
+        filters['variable'] = ['Emissions|CO2|Energy|Supply|Other Sector']
+    elif 'food' in ql:
+        filters['variable'] = ['Crops|Food']
+    else:
+        filters['variable'] = ['Final Energy']
+    if 'usa' in ql: filters['workspace_code'] = ['us-headed']
+    if 'world' in ql: filters['workspace_code'] = ['world-headed']
+    if 'pr_wwh_cp' in ql: filters['scenario'] = ['PR_WWH_CP']
+
+    df = fetch_results(filters)
+    if df.empty:
+        reply = "I couldn't find data for that query—anything else I can help with?"
+        conversation.append({"role": "assistant", "content": reply})
+        return reply
+
+    # Plot request
+    if any(k in ql for k in ['plot', 'chart', 'graph']):
+        m = re.search(r'\b(20\d{2})\b', ql)
+        year = int(m.group(1)) if m else None
+        plot_data(df, year)
+        reply = "Here's the chart—let me know if you want more details or another plot!"
+        conversation.append({"role": "assistant", "content": reply})
+        return reply
+
+    # Year-specific values
+    m_year = re.search(r'\b(20\d{2})\b', ql)
+    if m_year and m_year.group(1) in df.columns:
+        yr = m_year.group(1)
+        lines = [f"{r.Model}: {r[yr]:.2f} {r.Unit}" for _, r in df.iterrows()]
+        reply = f"Projections for {yr}:\n" + "\n".join(lines) + "\nAnything else?"
+        conversation.append({"role": "assistant", "content": reply})
+        return reply
+
+    # General summary via GPT
+    rows = [format_text(r) for _, r in df.iterrows()]
+    prompt = (
+        "Summarize these climate and energy projections conversationally and ask a relevant follow-up question to continue the dialogue:\n\n"
+        "Data:\n" + "\n".join(rows) + "\n\nSummary:")
+    resp = client.chat.completions.create(
+        model="gpt-4",
+        messages=conversation + [{"role": "user", "content": prompt}],
+        temperature=0.7
+    )
+    reply = resp.choices[0].message.content.strip()
+    conversation.append({"role": "assistant", "content": reply})
+    return reply
+
+# === CLI ===
+if __name__ == '__main__':
+    print("Welcome to the Climate and Energy Dataset Explorer powered by Holistic SA! (type 'exit' or 'quit' to close)")
     while True:
-        user_input = input("\nYou: ")
-        if user_input.lower() in ["exit", "quit"]:
-            print("Exiting. Goodbye!")
+        text = input('You: ')
+        if text.lower() in ['exit', 'quit']:
+            print('Goodbye!')
             break
-        try:
-            response = chatbot_response(user_input)
-            print(f"Bot: {response}")
-        except Exception as e:
-            print(f"Error: {e}")
+        print(chatbot_response(text))
