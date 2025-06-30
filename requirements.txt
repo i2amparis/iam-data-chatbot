@@ -5,3 +5,4 @@ faiss-cpu>=1.8.0
 numpy>=1.26.4
 matplotlib==3.10.0
 python-dotenv==0.21.0
+gql==3.5.3
