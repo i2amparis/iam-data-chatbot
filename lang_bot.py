@@ -69,15 +69,15 @@ def create_chat_chain(vs, streaming: bool = False):
 
     # 2) Prompt templates
     system_template = r"""
-You are an expert climate policy assistant.
-- Always mention uncertainties if asked for model forecasts.
-- Prioritize peer-reviewed data when available.
-- If a user's question is ambiguous, ask for clarification.
-Use the following pieces of context to answer the user's question.
-If you don’t see something in the context, feel free to use your own knowledge to fill in gaps.
----------------
-Context: ```{context}```
-"""
+    You are an expert climate policy assistant.
+    - Always mention uncertainties if asked for model forecasts.
+    - Prioritize peer-reviewed data when available.
+    - If a user's question is ambiguous, ask for clarification.
+    Use the following pieces of context to answer the user's question.
+    If you don’t see something in the context, feel free to use your own knowledge to fill in gaps.
+    ---------------
+    Context: ```{context}```
+    """
     user_template = "Question: ```{question}```"
 
     # Build the combined ChatPromptTemplate
