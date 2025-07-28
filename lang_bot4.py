@@ -83,16 +83,9 @@ def build_faiss_index(docs: list, embeddings) -> FAISS:
 
 def create_qa_chain(vs: FAISS, streaming: bool) -> ConversationalRetrievalChain:
     memory = ConversationBufferMemory(return_messages=True, input_key="question", output_key="answer")
-    # System prompt revised to incorporate manager guidance. The assistant should base its answers on
-    # the IAM PARIS platform whenever possible. If data is missing, it should say so and only then
-    # rely on general knowledge, clearly noting that it comes from outside IAM PARIS. It should also
-    # ask clarifying questions when the query is ambiguous and suggest follow‑up questions.
     system_tpl = (
-        "You are an expert climate‑policy assistant using the IAM PARIS database. "
-        "Base your answers on the IAM PARIS platform. "
-        "If requested information isn’t available in the platform, clearly state that and then rely on general knowledge, "
-        "noting that it comes from outside IAM PARIS. "
-        "Ask clarifying questions if the user’s query is ambiguous, such as requesting a specific study, scenario, variable, or region. "
+        "You are an expert climate policy assistant. "
+        "Always reference specific data and model results. "
         "Suggest next questions after each answer.\nContext: ```{context}```"
     )
     user_tpl = "Question: ```{question}```"
@@ -157,26 +150,6 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
     # list years
     if 'list years' in q:
         yrs = sorted({k for r in ts_data for k in r if k.isdigit()}); return "Years: " + ", ".join(yrs)
-
-    # list available scenarios
-    # Capture queries asking which scenarios are available or to list scenarios. Pull the field
-    # `scenario` or `scenarioName` from the time‑series data. If none exist, direct the user
-    # to the IAM PARIS results page to choose a study.
-    if re.search(r"\bscenarios?\b.*\b(available|list)\b", q):
-        scenarios = sorted({
-            (r.get('scenario') or r.get('scenarioName'))
-            for r in ts_data
-            if r.get('scenario') or r.get('scenarioName')
-        })
-        # Filter out empty values
-        scenarios = [s for s in scenarios if s]
-        if scenarios:
-            return "Scenarios: " + ", ".join(scenarios)
-        else:
-            return (
-                "Scenario information isn’t provided in the current dataset. "
-                "Please choose a modelling study from https://iamparis.eu/results to explore its specific scenarios."
-            )
     # model info
     if any(w in q for w in ('info','details','describe')):
         for r in model_data:
@@ -185,6 +158,22 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
                         f"Description: {r.get('description','N/A')}\n"
                         f"Institution: {r.get('institute','N/A')}\n"
                         f"Type: {r.get('model_type','N/A')}")
+
+    # tell me more about a specific model
+    # Detect phrases like "tell me more about gcam" and return the model description and other metadata
+    if re.search(r"\btell me more about\b", q):
+        for r in model_data:
+            if r.get('modelName','').lower() in q:
+                return (
+                    f"Model: {r['modelName']}\n"
+                    f"Description: {r.get('description','N/A')}\n"
+                    f"Institution: {r.get('institute','N/A')}\n"
+                    f"Type: {r.get('model_type','N/A')}"
+                )
+        # If no specific model detected, ask user to specify
+        return (
+            "Please specify which model you would like to know more about (e.g., GCAM, GEMINI‑E3)."
+        )
 
     # extract year if present
     m = re.search(r"(20\d{2})", q)
@@ -242,11 +231,12 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
             "You can explore detailed modelling studies and results at https://iamparis.eu/results."
         )
 
-    # generic future emissions question – ask for a specific study or scenario from IAM PARIS
+    # generic future emissions question – ask for specific study
     if 'emissions' in q and 'future' in q and 'post-glasgow' not in q:
         return (
-            "Emissions trajectories vary by modelling study, model, scenario and region. "
-            "Please specify a study or scenario from the IAM PARIS results page (https://iamparis.eu/results) to explore its data."
+            "Emissions trajectories depend on the specific modelling study, project, model, scenario and region. "
+            "Please specify which study or scenario you would like to explore. For example, the IAM PARIS results page lists multiple studies: "
+            "https://iamparis.eu/results."
         )
 
     # post-glasgow context – prompt for variable and region after study selection
@@ -268,11 +258,32 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
 
     # request for more information about models
     if re.search(r"\btell me something more about (these )?models\b", q) or 'can you tell me more about' in q:
+        # Provide a prompt asking the user to choose a specific model for detailed information
         return (
-            "The IAM PARIS platform provides detailed documentation for each model. "
-            "For example, GCAM is a global integrated assessment model combining human and Earth systems, while GEMINI‑E3 is a recursive general equilibrium model. "
-            "You can explore overviews, key features, geographic coverage and other details for each model at https://iamparis.eu/detailed_model_doc."
+            "The IAM PARIS platform provides a short overview and key features for each model. "
+            "Please specify a model name (e.g., GCAM, GEMINI‑E3) so I can provide its description and other available details."
         )
+
+    # list available studies included
+    # Capture queries asking for studies included in the dataset. Attempt to extract study or project
+    # names from the time‑series data and return them. If none are found, direct the user to IAM PARIS results.
+    if re.search(r"\b(studies|study)\b.*\b(available|included|list)\b", q):
+        # look for keys that might contain study or project identifiers
+        study_names = set()
+        for rec in ts_data:
+            for key in rec.keys():
+                if 'study' in key.lower() or 'project' in key.lower():
+                    val = rec.get(key)
+                    if isinstance(val, str) and val:
+                        study_names.add(val)
+        # some APIs may embed study names under 'workspace' or other fields
+        if study_names:
+            return "Studies: " + ", ".join(sorted(study_names))
+        else:
+            return (
+                "I don't have a list of studies in the current dataset. "
+                "Please see https://iamparis.eu/results for the available studies."
+            )
 
     return ""
 
