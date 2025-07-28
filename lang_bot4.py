@@ -136,6 +136,35 @@ def plot_time_series(records: list, year: int=None, model: str=None, variable: s
 
 def data_query(question: str, model_data: list, ts_data: list) -> str:
     q = question.lower()
+
+    # Detect if the user has entered only a model or study name. If so, return the model description or
+    # notify that detailed study descriptions are unavailable. This uses a sanitized token to match
+    # names ignoring spaces and hyphens.
+    model_lookup = {r.get('modelName','').lower(): r for r in model_data if r.get('modelName')}
+    import re as _re_mod
+    def _sanitize_token(s: str) -> str:
+        return _re_mod.sub(r'[\s-]', '', s.lower())
+    # direct model name match
+    if q.strip() in model_lookup:
+        r = model_lookup[q.strip()]
+        return (
+            f"Model: {r.get('modelName','N/A')}\n"
+            f"Description: {r.get('description','N/A')}\n"
+            f"Institution: {r.get('institute','N/A')}\n"
+            f"Type: {r.get('model_type','N/A')}"
+        )
+    # direct study name match (ignoring spaces and hyphens)
+    study_names_lower = set()
+    for rec in ts_data:
+        for key, val in rec.items():
+            if isinstance(val, str) and val and ('study' in key.lower() or 'project' in key.lower()):
+                study_names_lower.add(val.lower())
+    sanitized_studies = {_sanitize_token(name) for name in study_names_lower}
+    if q.strip() in study_names_lower or _sanitize_token(q.strip()) in sanitized_studies:
+        return (
+            "Detailed descriptions of this study are not available in the current dataset. "
+            "Please visit https://iamparis.eu/results for more information about this study."
+        )
     if 'help' in q:
         return "Ask models, variables, years or plots: 'list models', 'plot for 2050', 'plot gcam', 'plot all models', etc."
 
@@ -150,6 +179,36 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
     # list years
     if 'list years' in q:
         yrs = sorted({k for r in ts_data for k in r if k.isdigit()}); return "Years: " + ", ".join(yrs)
+
+    # list available scenarios (match 'scenario' or 'scenarios' with 'available', 'included' or 'list')
+    if re.search(r"\bscenarios?\b.*\b(available|included|list)\b", q):
+        scenarios = set()
+        for rec in ts_data:
+            for key, val in rec.items():
+                if 'scenario' in key.lower() and isinstance(val, str) and val:
+                    scenarios.add(val)
+        if scenarios:
+            return "Scenarios: " + ", ".join(sorted(scenarios))
+        else:
+            return (
+                "Scenario information isn’t provided in the current dataset. "
+                "Please choose a modelling study from https://iamparis.eu/results to explore its specific scenarios."
+            )
+
+    # list available studies (match phrases like 'what studies', 'which studies', 'list studies')
+    if re.search(r"\b(what|which|list)\b.*\bstud(?:y|ies)\b", q):
+        study_names = set()
+        for rec in ts_data:
+            for key, val in rec.items():
+                if ('study' in key.lower() or 'project' in key.lower()) and isinstance(val, str) and val:
+                    study_names.add(val)
+        if study_names:
+            return "Studies: " + ", ".join(sorted(study_names))
+        else:
+            return (
+                "I don't have a list of studies in the current dataset. "
+                "Please see https://iamparis.eu/results for the available studies."
+            )
     # model info
     if any(w in q for w in ('info','details','describe')):
         for r in model_data:
@@ -158,22 +217,6 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
                         f"Description: {r.get('description','N/A')}\n"
                         f"Institution: {r.get('institute','N/A')}\n"
                         f"Type: {r.get('model_type','N/A')}")
-
-    # tell me more about a specific model
-    # Detect phrases like "tell me more about gcam" and return the model description and other metadata
-    if re.search(r"\btell me more about\b", q):
-        for r in model_data:
-            if r.get('modelName','').lower() in q:
-                return (
-                    f"Model: {r['modelName']}\n"
-                    f"Description: {r.get('description','N/A')}\n"
-                    f"Institution: {r.get('institute','N/A')}\n"
-                    f"Type: {r.get('model_type','N/A')}"
-                )
-        # If no specific model detected, ask user to specify
-        return (
-            "Please specify which model you would like to know more about (e.g., GCAM, GEMINI‑E3)."
-        )
 
     # extract year if present
     m = re.search(r"(20\d{2})", q)
@@ -231,12 +274,11 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
             "You can explore detailed modelling studies and results at https://iamparis.eu/results."
         )
 
-    # generic future emissions question – ask for specific study
+    # generic future emissions question – ask for a specific study or scenario
     if 'emissions' in q and 'future' in q and 'post-glasgow' not in q:
         return (
-            "Emissions trajectories depend on the specific modelling study, project, model, scenario and region. "
-            "Please specify which study or scenario you would like to explore. For example, the IAM PARIS results page lists multiple studies: "
-            "https://iamparis.eu/results."
+            "Emissions trajectories vary by modelling study, model, scenario and region. "
+            "Please specify a study or scenario from the IAM PARIS results page (https://iamparis.eu/results) to explore its data."
         )
 
     # post-glasgow context – prompt for variable and region after study selection
@@ -253,37 +295,48 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
             "GCAM (Global Change Assessment Model) is a technology‑rich integrated assessment model that represents the interactions of energy, agriculture, land use and climate systems. "
             "It simulates the substitution of low‑carbon for high‑carbon technologies based on costs and policy constraints, providing a long‑term global perspective on mitigation pathways. "
             "GEMINI‑E3, by contrast, is a multi‑country, multi‑sector computable general equilibrium model that represents economic markets under perfect competition. "
-            "It focuses on short‑ to medium‑term economic impacts of policies such as carbon taxes and trade measures."
+            "It focuses on short‑ to medium‑term economic impacts of policies such as carbon taxes and trade measures. "
+            "Would you like to explore their differences across key features, geographic coverage or other metadata fields available in the IAM PARIS documentation?"
         )
 
     # request for more information about models
     if re.search(r"\btell me something more about (these )?models\b", q) or 'can you tell me more about' in q:
-        # Provide a prompt asking the user to choose a specific model for detailed information
+        # Ask the user to specify which model they are interested in
         return (
             "The IAM PARIS platform provides a short overview and key features for each model. "
             "Please specify a model name (e.g., GCAM, GEMINI‑E3) so I can provide its description and other available details."
         )
 
-    # list available studies included
-    # Capture queries asking for studies included in the dataset. Attempt to extract study or project
-    # names from the time‑series data and return them. If none are found, direct the user to IAM PARIS results.
-    if re.search(r"\b(studies|study)\b.*\b(available|included|list)\b", q):
-        # look for keys that might contain study or project identifiers
-        study_names = set()
-        for rec in ts_data:
-            for key in rec.keys():
-                if 'study' in key.lower() or 'project' in key.lower():
-                    val = rec.get(key)
-                    if isinstance(val, str) and val:
-                        study_names.add(val)
-        # some APIs may embed study names under 'workspace' or other fields
-        if study_names:
-            return "Studies: " + ", ".join(sorted(study_names))
-        else:
-            return (
-                "I don't have a list of studies in the current dataset. "
-                "Please see https://iamparis.eu/results for the available studies."
-            )
+    # handle queries like 'tell me more about [model]'
+    if re.search(r"\btell me more about\b", q):
+        for r in model_data:
+            if r.get('modelName','').lower() in q:
+                return (
+                    f"Model: {r.get('modelName','N/A')}\n"
+                    f"Description: {r.get('description','N/A')}\n"
+                    f"Institution: {r.get('institute','N/A')}\n"
+                    f"Type: {r.get('model_type','N/A')}"
+                )
+        return "Please specify which model you would like to know more about (e.g., GCAM, GEMINI‑E3)."
+
+    # fallback for queries that contain no known tokens (models, variables, scenarios or studies)
+    known_models = {r.get('modelName','').lower() for r in model_data if r.get('modelName')}
+    known_vars = {r.get('variable','').lower() for r in ts_data if r.get('variable')}
+    known_scenarios = set()
+    for rec in ts_data:
+        for key, val in rec.items():
+            if 'scenario' in key.lower() and isinstance(val, str) and val:
+                known_scenarios.add(val.lower())
+    known_studies = set()
+    for rec in ts_data:
+        for key, val in rec.items():
+            if ('study' in key.lower() or 'project' in key.lower()) and isinstance(val, str) and val:
+                known_studies.add(val.lower())
+    if not any(tok in q for tok in known_models | known_vars | known_scenarios | known_studies):
+        return (
+            "I don't have information about that topic in the IAM PARIS dataset. "
+            "Please ask about available variables, models, studies or scenarios listed at https://iamparis.eu/results."
+        )
 
     return ""
 
