@@ -6,6 +6,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from dotenv import load_dotenv
 from typing import List, Tuple
+import hashlib
+import json
+import time
+from pathlib import Path
 
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -33,15 +37,35 @@ def load_env() -> None:
     if missing:
         raise RuntimeError(f"Missing environment variables: {', '.join(missing)}")
     globals().update(env)
+    # allow user to override with local .env index dir etc.
+    if not os.getenv("INDEX_DIR"):
+        os.environ["INDEX_DIR"] = "faiss_index"
+    if not os.getenv("CACHE_DIR"):
+        os.environ["CACHE_DIR"] = "http_cache"
 
 
-def fetch_json(url: str, params=None, payload=None) -> list:
+def fetch_json(url: str, params=None, payload=None, use_cache: bool = True) -> list:
     """
-    GET or POST JSON data and return 'data'.
+    GET or POST JSON data and return 'data'. Cache responses in ./http_cache/
     """
+    cache_dir = Path(os.getenv("CACHE_DIR", "http_cache"))
+    cache_dir.mkdir(exist_ok=True)
+    key = hashlib.sha256(json.dumps({"url": url, "params": params, "payload": payload}, sort_keys=True).encode()).hexdigest()
+    cache_file = cache_dir / f"{key}.json"
+    if use_cache and cache_file.exists():
+        try:
+            return json.loads(cache_file.read_text()).get("data", [])
+        except Exception:
+            # fall through and re-fetch if cache corrupted
+            pass
     resp = requests.post(url, json=payload) if payload is not None else requests.get(url, params=params)
     resp.raise_for_status()
-    return resp.json().get("data", [])
+    j = resp.json()
+    try:
+        cache_file.write_text(json.dumps(j))
+    except Exception:
+        pass
+    return j.get("data", [])
 
 
 def flatten_years(ts_data: list) -> list:
@@ -72,12 +96,36 @@ def docs_from_records(records: list) -> list:
     return docs
 
 
-def build_faiss_index(docs: list, embeddings) -> FAISS:
-    index_dir = "faiss_index"
-    if os.path.exists(index_dir):
-        return FAISS.load_local(index_dir, embeddings, allow_dangerous_deserialization=True)
+def _docs_signature(docs: list) -> str:
+    h = hashlib.sha256()
+    for d in docs:
+        h.update((d.page_content or "").encode("utf-8"))
+        # include a handful of metadata fields to detect changes
+        for k in ("modelName", "variable", "unit"):
+            h.update(str(d.metadata.get(k, "")).encode("utf-8"))
+    return h.hexdigest()
+
+def build_faiss_index(docs: list, embeddings, index_dir: str = None, rebuild: bool = False) -> "FAISS":
+    index_dir = index_dir or os.getenv("INDEX_DIR", "faiss_index")
+    sig_file = Path(index_dir) / ".signature"
+    docs_sig = _docs_signature(docs)
+    if Path(index_dir).exists() and not rebuild:
+        try:
+            existing = sig_file.read_text().strip() if sig_file.exists() else ""
+            if existing == docs_sig:
+                return FAISS.load_local(index_dir, embeddings, allow_dangerous_deserialization=True)
+        except Exception:
+            # if anything fails, rebuild below
+            pass
+    start = time.time()
     store = FAISS.from_documents(docs, embeddings)
     store.save_local(index_dir)
+    try:
+        Path(index_dir).mkdir(parents=True, exist_ok=True)
+        sig_file.write_text(docs_sig)
+    except Exception:
+        pass
+    print(f"Built FAISS index in {time.time()-start:.1f}s")
     return store
 
 
@@ -344,18 +392,31 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
 def main():
     load_env()
     p = argparse.ArgumentParser("Climate Data Chatbot")
-    p.add_argument("--no-stream",action="store_true",help="Disable streaming")
+    p.add_argument("--no-stream", action="store_true", help="Disable streaming")
+    p.add_argument("--rebuild-index", action="store_true", help="Force rebuild of FAISS index")
+    p.add_argument("--index-dir", default=os.getenv("INDEX_DIR", "faiss_index"), help="Index directory")
+    p.add_argument("--no-emb", action="store_true", help="Skip embeddings / vector index (faster startup)")
+    p.add_argument("--chunk-size", type=int, default=800, help="Text chunk size for embeddings")
+    p.add_argument("--limit", type=int, default=-1, help="Limit number of model records fetched (development)")
     args = p.parse_args()
+    os.environ["INDEX_DIR"] = args.index_dir
     print("Loading data...")
-    models = fetch_json(os.getenv("REST_MODELS_URL"),params={"limit":-1})
-    ts = flatten_years(fetch_json(os.getenv("REST_API_FULL"),payload={"study":["paris-reinforce"],"workspace_code":["eu-headed"]}))
+    models = fetch_json(os.getenv("REST_MODELS_URL"), params={"limit": args.limit}, use_cache=True)
+    ts = flatten_years(fetch_json(os.getenv("REST_API_FULL"), payload={"study": ["paris-reinforce"], "workspace_code": ["eu-headed"]}, use_cache=True))
     docs = docs_from_records(models + ts)
-    chunks = RecursiveCharacterTextSplitter(chunk_size=800,chunk_overlap=80).split_documents(docs)
-    emb = OpenAIEmbeddings(model="text-embedding-3-small",api_key=os.getenv("OPENAI_API_KEY"))
-    vs = build_faiss_index(chunks,emb)
-    chain = create_qa_chain(vs, streaming=not args.no_stream)
+    chunks = RecursiveCharacterTextSplitter(chunk_size=args.chunk_size, chunk_overlap=80).split_documents(docs)
+    vs = None
+    chain = None
+    if not args.no_emb:
+        start = time.time()
+        emb = OpenAIEmbeddings(model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"), api_key=os.getenv("OPENAI_API_KEY"))
+        vs = build_faiss_index(chunks, emb, index_dir=args.index_dir, rebuild=args.rebuild_index)
+        chain = create_qa_chain(vs, streaming=not args.no_stream)
+        print(f"Embeddings/index ready ({time.time()-start:.1f}s)")
+    else:
+        print("Embeddings disabled (--no-emb). Vector search and LLM retrieval will be unavailable.")
     print("Ready! Type your question or 'exit'.")
-    history: List[Tuple[str,str]] = []
+    history: List[Tuple[str, str]] = []
     while True:
         u = input("You: ").strip()
         if u.lower() in ('exit','quit'): break
@@ -364,11 +425,15 @@ def main():
         if ans:
             print("Bot:", ans)
         else:
-            print("Bot: ", end="", flush=True)
-            r = chain.invoke({"question": u, "chat_history": history})
-            out = r.get("answer") or "No answer."
-            print(out)
-            ans = out
+            if chain is None:
+                print("Bot: I can't answer that without a vector index. Re-run with embeddings enabled or use --rebuild-index to build an index.")
+                ans = ""
+            else:
+                print("Bot: ", end="", flush=True)
+                r = chain.invoke({"question": u, "chat_history": history})
+                out = r.get("answer") or "No answer."
+                print(out)
+                ans = out
         history.append((u, ans))
 
 if __name__ == '__main__':
