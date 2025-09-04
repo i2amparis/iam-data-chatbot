@@ -27,10 +27,35 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
+        # File handler for all logs
         logging.FileHandler('chatbot.log'),
-        logging.StreamHandler()
+        # Custom stream handler for errors only
+        logging.StreamHandler(stream=open(os.devnull, 'w'))  # Suppress console output
     ]
 )
+
+def setup_logging(debug: bool = False):
+    """Configure logging with optional debug mode"""
+    # Root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG if debug else logging.INFO)
+    
+    # Remove existing handlers
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+    
+    # File handler - always log everything to file
+    file_handler = logging.FileHandler('chatbot.log')
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    root_logger.addHandler(file_handler)
+    
+    if debug:
+        # Console handler - only used in debug mode
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.DEBUG)
+        console_handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
+        root_logger.addHandler(console_handler)
 
 def docs_from_records(records: list) -> List[Document]:
     """Convert API records to Document objects for vector store"""
@@ -248,28 +273,57 @@ Let me show you the scenarios included in our database:
         response += "_Data source: [IAM PARIS Scenarios](https://iamparis.eu/results)_"
         return response
     
-    # Model info
-    if any(w in q for w in ('info', 'details', 'describe')):
+    # Model info or general models query
+    if any(w in q for w in ('info', 'details', 'describe', 'about', 'tell me about')):
+        # If asking about specific model
         for model in model_data:
             name = model.get('modelName', '').lower()
             if name in q:
                 desc = model.get('description', 'No description available.')
-                asum = model.get('assumptions', 'No assumptions listed.')
-                response = f"""## {model['modelName']} Model Details
+                response = f"""## {model['modelName']}
 
-### Description
 {desc}
 
-### Key Assumptions
-{asum}
+[View detailed documentation](https://iamparis.eu/detailed_model_doc)
 
-Would you like to:
-- See variables analyzed by this model? (use `list variables`)
-- Plot results from this model? (use `plot {model['modelName']} [year]`)
-- Compare with other models? (use `list models`)
+### Available Data
+- Variables: {len({r.get('variable') for r in ts_data if r.get('modelName') == model['modelName']})} variables
+- Time periods: {len({c for c in ts_data[0].keys() if c.isdigit()})} years
 
 _Data source: [IAM PARIS Models](https://iamparis.eu/models)_"""
                 return response
+
+        # If asking about models in general
+        response = """## IAM PARIS Models Overview
+
+The platform includes several integrated assessment models that analyze climate policy impacts:
+
+### Key Models
+
+- **GCAM (Global Change Assessment Model)**
+  - Global integrated assessment model representing human and Earth system dynamics
+  - Explores interactions between energy systems, agriculture, land use, economy and climate
+  - Provides comprehensive analysis of climate policy impacts
+
+- **PROMETHEUS**
+  - Focuses on energy system dynamics and technological change
+  - Features stochastic analysis capabilities
+  - Specialized in energy market projections
+
+- **TIMES-GEO**
+  - Detailed technology-rich model
+  - Analyzes energy system transformations
+  - Provides regional and sectoral insights
+
+[View detailed model documentation](https://iamparis.eu/detailed_model_doc)
+
+### Data Availability
+- Multiple scenarios and policy pathways
+- Time series from present to 2100
+- Regional and sectoral breakdowns
+
+_Data source: [IAM PARIS Models](https://iamparis.eu/models)_"""
+        return response
     
     # Help command
     if 'help' in q:
@@ -340,19 +394,22 @@ class IAMParisBot:
 
     def create_qa_chain(self, vs: FAISS) -> ConversationalRetrievalChain:
         """Create optimized QA chain with IAM PARIS specific prompting"""
+        # Updated memory initialization
         memory = ConversationBufferMemory(
             return_messages=True,
             input_key="question",
-            output_key="answer"
+            output_key="answer",
+            memory_key="chat_history"  # Add this line
         )
         
         system_tpl = """You are an expert climate policy assistant focused on IAM PARIS data and models (https://iamparis.eu/).
 
     Always:
+    - Provide direct answers without restating the question
     - Use Markdown formatting for responses with proper headers (##) and lists (-)
     - Reference specific IAM PARIS data points when available 
-    - Clearly indicate when information comes from external sources with: "_Note: This information comes from [source]_"
-    - Include relevant IAM PARIS links when referencing specific studies or results
+    - Clearly indicate when information comes from external sources
+    - Include relevant IAM PARIS links when referencing specific studies
     - Format numerical values with proper units
     - Keep answers focused and data-driven
 
@@ -499,7 +556,7 @@ class IAMParisBot:
                     print(f"\nBot: {ans}")
                     self.history.append((query, ans))
                     continue
-                    
+                
                 # Fall back to QA chain with streaming
                 if self.streaming:
                     print("\nBot: ", end="", flush=True)
@@ -510,9 +567,9 @@ class IAMParisBot:
                     ans = resp.get("answer", "").strip()
                     if not ans:
                         print("I cannot answer that question.")
-                    # Don't print ans here since it's already streamed
+                    # Answer is already streamed via callback
                 else:
-                    # Non-streaming mode
+                    # Non-streaming mode - only print the answer
                     resp = chain.invoke({
                         "question": query,
                         "chat_history": self.history
@@ -534,12 +591,12 @@ class IAMParisBot:
 def main():
     parser = argparse.ArgumentParser(description="IAM PARIS Climate Policy Assistant")
     parser.add_argument("--no-stream", action="store_true", help="Disable response streaming")
-    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+    parser.add_argument("--debug", action="store_true", help="Enable debug mode (shows all logs)")
     args = parser.parse_args()
     
-    if args.debug:
-        logging.getLogger().setLevel(logging.DEBUG)
-        
+    # Set up logging based on debug flag
+    setup_logging(args.debug)
+    
     bot = IAMParisBot(streaming=not args.no_stream)
     bot.run()
 
