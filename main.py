@@ -13,6 +13,7 @@ from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_community.vectorstores import FAISS
+from langchain_community.chat_message_histories import ChatMessageHistory  # Updated import
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory.buffer import ConversationBufferMemory
 from langchain.prompts import (
@@ -21,6 +22,7 @@ from langchain.prompts import (
     HumanMessagePromptTemplate,
 )
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from langchain.schema import messages_from_dict, messages_to_dict
 
 # Set up logging
 logging.basicConfig(
@@ -217,138 +219,51 @@ Troubleshooting steps:
 
 _If the problem persists, there might be an issue with the data source._"""
     
-    # List models
+    # List models (conversational)
     if re.search(r"\bmodels?\b.*\b(available|list)\b", q):
         models = sorted({r.get('modelName', '') for r in model_data if r.get('modelName')})
-        response = """## Available Climate Models
-
-I found the following models in the IAM PARIS database:
-
-"""
-        for model in models:
-            response += f"- {model}\n"
-        
-        response += "\nWould you like to:\n"
-        response += "- Get detailed information about a specific model? (use `info [model name]`)\n"
-        response += "- See what variables these models can analyze? (use `list variables`)\n"
-        response += "- Learn about specific scenarios? (use `list scenarios`)\n\n"
-        response += "_Data source: [IAM PARIS Models](https://iamparis.eu/models)_"
-        return response
+        if not models:
+            return "I couldn't find any models in the data right now. Try `help` or refresh the data."
+        # Build a natural sentence rather than a dry bullet list
+        if len(models) <= 6:
+            model_str = ", ".join(models[:-1]) + (" and " + models[-1] if len(models) > 1 else models[0])
+            return f"I found these models in the IAM PARIS dataset: {model_str}. Which one would you like to know more about?"
+        # For many models, give a short hint and invite follow-up
+        return (f"There are {len(models)} models available. "
+                "You can ask for details about a specific model using `info [model name]`, "
+                "or say `list variables` to see the kinds of outputs available.")
     
-    # List variables
+    # List variables (conversational)
     if 'list variables' in q:
         vars = sorted({r.get('variable', '') for r in ts_data if r.get('variable')})
-        response = """## Available Variables
-
-Here are all the variables I can find in the current dataset:
-
-"""
-        for var in vars:
-            response += f"- {var}\n"
-        
-        response += "\nYou can:\n"
-        response += "- Plot any variable over time using `plot [variable] [year]`\n"
-        response += "- Compare variables across different models\n"
-        response += "- Ask questions about specific trends\n\n"
-        response += "_Data source: [IAM PARIS Results](https://iamparis.eu/results)_"
-        return response
+        if not vars:
+            return "I don't see any variables in the loaded dataset. Try reloading or check the IAM PARIS results website."
+        # Present a friendly sample and hint for full list
+        sample = vars[:8]
+        more = "" if len(vars) <= 8 else f" and {len(vars)-8} more"
+        sample_str = ", ".join(sample[:-1]) + (" and " + sample[-1] if len(sample) > 1 else sample[0])
+        return (f"I can work with variables like {sample_str}{more}. "
+                "If you want the complete list, say `list variables` again or specify a variable to plot (e.g. `plot CO2 emissions`).")
     
-    # List scenarios
+    # List scenarios (conversational)
     if re.search(r"\bscenarios?\b.*\b(available|included|list)\b", q):
         scenarios = sorted({r.get('scenario', '') for r in ts_data if r.get('scenario')})
-        response = """## Available Scenarios
-
-Let me show you the scenarios included in our database:
-
-"""
-        for scenario in scenarios:
-            scenario_name = scenario.replace("_", " ").title()
-            response += f"- {scenario_name}\n"
-        
-        response += "\nEach scenario represents different policy and technology pathways. "
-        response += "Would you like to:\n"
-        response += "- Learn more about a specific scenario?\n"
-        response += "- Compare results across scenarios?\n"
-        response += "- See how variables change in different scenarios?\n\n"
-        response += "_Data source: [IAM PARIS Scenarios](https://iamparis.eu/results)_"
-        return response
+        if not scenarios:
+            return "No scenarios are loaded in the current dataset. Try a different query or check IAM PARIS results."
+        return ("I see several scenarios in the data. If you tell me which one interests you I can compare results or plot variables "
+                "for that scenario. Try `list scenarios` to get the exact names.")
     
-    # Model info or general models query
+    # Model info or general models query — now conversational and data-driven
     if any(w in q for w in ('info', 'details', 'describe', 'about', 'tell me about')):
-        # If asking about specific model
-        for model in model_data:
-            name = model.get('modelName', '').lower()
-            if name in q:
-                desc = model.get('description', 'No description available.')
-                response = f"""## {model['modelName']}
-
-{desc}
-
-[View detailed documentation](https://iamparis.eu/detailed_model_doc)
-
-### Available Data
-- Variables: {len({r.get('variable') for r in ts_data if r.get('modelName') == model['modelName']})} variables
-- Time periods: {len({c for c in ts_data[0].keys() if c.isdigit()})} years
-
-_Data source: [IAM PARIS Models](https://iamparis.eu/models)_"""
-                return response
-
-        # If asking about models in general
-        response = """## IAM PARIS Models Overview
-
-The platform includes several integrated assessment models that analyze climate policy impacts:
-
-### Key Models
-
-- **GCAM (Global Change Assessment Model)**
-  - Global integrated assessment model representing human and Earth system dynamics
-  - Explores interactions between energy systems, agriculture, land use, economy and climate
-  - Provides comprehensive analysis of climate policy impacts
-
-- **PROMETHEUS**
-  - Focuses on energy system dynamics and technological change
-  - Features stochastic analysis capabilities
-  - Specialized in energy market projections
-
-- **TIMES-GEO**
-  - Detailed technology-rich model
-  - Analyzes energy system transformations
-  - Provides regional and sectoral insights
-
-[View detailed model documentation](https://iamparis.eu/detailed_model_doc)
-
-### Data Availability
-- Multiple scenarios and policy pathways
-- Time series from present to 2100
-- Regional and sectoral breakdowns
-
-_Data source: [IAM PARIS Models](https://iamparis.eu/models)_"""
-        return response
+        return conversational_models_overview(model_data, ts_data, q)
     
     # Help command
     if 'help' in q:
-        return """## How Can I Help You?
-
-Here's what you can ask me about:
-
-### Explore Data 📊
-- `list models` - See all available climate models
-- `list variables` - Browse available data variables
-- `list scenarios` - Explore different policy scenarios
-- `list studies` - Check out research studies
-
-### Visualize Results 📈
-- `plot [model/variable] [year]` - Create custom visualizations
-- `info [model name]` - Learn about specific models
-
-### General Questions 💡
-You can also ask me about:
-- Climate policies and their impacts
-- Model comparisons and assumptions
-- Specific variables and their trends
-- Technical details about the models
-
-_Just type your question or command, and I'll help you explore the IAM PARIS data!_"""
+        return ("Tell me what you want to do and I'll help. Examples:\n"
+                "- Ask about models: `list models` or `info GCAM`\n"
+                "- Explore variables: `list variables` or `plot CO2 emissions`\n"
+                "- Visualize results: `plot emissions for GCAM`\n"
+                "If you want more conversational guidance, just say 'suggest' or ask a question in plain language.")
     
     return ""
 
@@ -394,12 +309,14 @@ class IAMParisBot:
 
     def create_qa_chain(self, vs: FAISS) -> ConversationalRetrievalChain:
         """Create optimized QA chain with IAM PARIS specific prompting"""
-        # Updated memory initialization
+        # New memory configuration using ChatMessageHistory
+        message_history = ChatMessageHistory()
         memory = ConversationBufferMemory(
+            chat_memory=message_history,
             return_messages=True,
-            input_key="question",
+            memory_key="chat_history",
             output_key="answer",
-            memory_key="chat_history"  # Add this line
+            input_key="question"
         )
         
         system_tpl = """You are an expert climate policy assistant focused on IAM PARIS data and models (https://iamparis.eu/).
@@ -544,49 +461,55 @@ class IAMParisBot:
         
         while True:
             try:
-                query = input("You: ").strip()
+                # Get user input without keeping it in the response
+                query = input("YOU: ").strip()
                 if query.lower() in ('exit', 'quit'):
                     break
                 if not query:
                     continue
-                    
-                # Try data query first
+                
+                # Handle data query
                 ans = data_query(query, models, ts)
                 if ans:
-                    print(f"\nBot: {ans}")
+                    print("\nBOT:", ans)
+                    print()
                     self.history.append((query, ans))
                     continue
-                
-                # Fall back to QA chain with streaming
+
+                # Handle QA chain response
                 if self.streaming:
-                    print("\nBot: ", end="", flush=True)
+                    print("\nBOT: ", end="", flush=True)
                     resp = chain.invoke({
                         "question": query,
                         "chat_history": self.history
                     })
-                    ans = resp.get("answer", "").strip()
-                    if not ans:
-                        print("I cannot answer that question.")
-                    # Answer is already streamed via callback
+                    print()
                 else:
-                    # Non-streaming mode - only print the answer
                     resp = chain.invoke({
                         "question": query,
                         "chat_history": self.history
                     })
-                    ans = resp.get("answer", "").strip()
-                    if not ans:
-                        ans = "I cannot answer that question."
-                    print(f"\nBot: {ans}")
-            
-                self.history.append((query, ans))
-                
+                ans = resp.get("answer", "").strip()
+
+                # Store in history without the "You:" part
+                if ans:
+                    if not self.streaming:
+                        print("\nBOT:", ans)
+                    print()
+                    self.history.append((query, ans))
+                else:
+                    if self.streaming:
+                        print("I cannot answer that question.")
+                    else:
+                        print("\nBOT: I cannot answer that question.")
+                    print()
+
             except KeyboardInterrupt:
                 print("\nExiting...")
                 break
             except Exception as e:
                 self.logger.error(f"Error processing query: {str(e)}")
-                print("\nSorry, I encountered an error. Please try again.")
+                print("\nBOT: Sorry, I encountered an error. Please try again.")
 
 def main():
     parser = argparse.ArgumentParser(description="IAM PARIS Climate Policy Assistant")
