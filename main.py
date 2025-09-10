@@ -8,8 +8,11 @@ from dotenv import load_dotenv
 from typing import List, Tuple, Optional, Dict, Any
 from datetime import datetime
 import logging
+import base64
+from io import BytesIO
+from PIL import Image
 
-from langchain.schema import Document 
+from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_community.vectorstores import FAISS
@@ -18,7 +21,7 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.memory.buffer import ConversationBufferMemory
 from langchain.prompts import (
     ChatPromptTemplate,
-    SystemMessagePromptTemplate, 
+    SystemMessagePromptTemplate,
     HumanMessagePromptTemplate,
 )
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
@@ -101,6 +104,43 @@ def build_faiss_index(docs: list, embeddings) -> FAISS:
     return store
 
 from data_utils import data_query
+
+def display_plot_from_base64(base64_string: str):
+    """Display plot image from base64 string"""
+    try:
+        # Extract base64 data from markdown string
+        if "data:image/png;base64," in base64_string:
+            base64_data = base64_string.split("data:image/png;base64,")[1]
+        else:
+            base64_data = base64_string
+
+        # Validate base64 data
+        if not base64_data or not base64_data.strip():
+            raise ValueError("Empty base64 data")
+
+        # Decode base64 to bytes
+        try:
+            image_bytes = base64.b64decode(base64_data)
+        except Exception as decode_error:
+            raise ValueError(f"Invalid base64 data: {decode_error}")
+
+        # Create PIL Image from bytes
+        try:
+            image = Image.open(BytesIO(image_bytes))
+        except Exception as image_error:
+            raise ValueError(f"Invalid image data: {image_error}")
+
+        # Display using matplotlib
+        plt.figure(figsize=(10, 6))
+        plt.imshow(image)
+        plt.axis('off')  # Hide axes
+        plt.tight_layout()
+        plt.show()
+
+    except ValueError as e:
+        print(f"Error displaying plot: {e}")
+    except Exception as e:
+        print(f"Unexpected error displaying plot: {e}")
 
 class IAMParisBot:
     def __init__(self, streaming: bool = True):
@@ -357,10 +397,17 @@ class IAMParisBot:
 
                 # Store in history without the "You:" part
                 if ans:
-                    if not self.streaming:
-                        print("\nBOT:", ans)
-                    print()
-                    self.history.append((query, ans))
+                    # Check if the answer is a plot markdown string
+                    if ans.startswith("![Plot]"):
+                        # Display the plot image visually
+                        display_plot_from_base64(ans)
+                        # Append to history but do not print the base64 markdown text
+                        self.history.append((query, "[Plot Image]"))
+                    else:
+                        if not self.streaming:
+                            print("\nBOT:", ans)
+                        print()
+                        self.history.append((query, ans))
                 else:
                     if self.streaming:
                         print("I cannot answer that question.")
@@ -485,7 +532,8 @@ def main():
 
     # Pre-compute common plots for faster access
     from simple_plotter import simple_plotter
-    simple_plotter.precompute_common_plots(ts, models)
+    # Removed precompute_common_plots call as caching is disabled and method removed
+    # simple_plotter.precompute_common_plots(ts, models)
 
     logger.info("Multi-agent manager initialized. Ready for interaction.")
 
@@ -505,10 +553,17 @@ def main():
 
             # Route query to appropriate agent
             response = manager.route_query(query, history)
-            print("\nBOT:", response, "\n")
 
-            # Append to history
-            history.append((query, response))
+            # Check if the response is a plot markdown string
+            if response.startswith("![Plot]"):
+                # Display the plot image visually
+                display_plot_from_base64(response)
+                # Append to history but do not print the base64 markdown text
+                history.append((query, "[Plot Image]"))
+            else:
+                print("\nBOT:", response, "\n")
+                # Append to history
+                history.append((query, response))
 
         except KeyboardInterrupt:
             print("\nExiting...")

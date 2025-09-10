@@ -21,51 +21,6 @@ from functools import lru_cache
 class SimplePlotter:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self.plot_cache = {}  # Cache for plot results
-        self.data_cache = {}  # Cache for processed data
-        self.cache_dir = "plot_cache"
-        self.precomputed_plots = {}  # Pre-computed common plots
-        os.makedirs(self.cache_dir, exist_ok=True)
-
-    def _get_cache_key(self, data_hash: str, variable: str = None, model: str = None, plot_type: str = 'line') -> str:
-        """Generate a unique cache key for plot requests"""
-        key_data = f"{data_hash}_{variable or 'all'}_{model or 'all'}_{plot_type}"
-        return hashlib.md5(key_data.encode()).hexdigest()
-
-    def _get_data_hash(self, data: List[Dict]) -> str:
-        """Generate hash for data to detect changes"""
-        data_str = json.dumps(data, sort_keys=True, default=str)
-        return hashlib.md5(data_str.encode()).hexdigest()
-
-    def _load_cached_plot(self, cache_key: str) -> Optional[str]:
-        """Load plot from cache if available and not expired"""
-        cache_file = os.path.join(self.cache_dir, f"{cache_key}.json")
-        if os.path.exists(cache_file):
-            try:
-                with open(cache_file, 'r') as f:
-                    cached_data = json.load(f)
-                # Check if cache is still valid (24 hours)
-                cache_time = datetime.fromisoformat(cached_data['timestamp'])
-                if (datetime.now() - cache_time).total_seconds() < 86400:  # 24 hours
-                    self.logger.info(f"Loading cached plot for key: {cache_key}")
-                    return cached_data['result']
-            except Exception as e:
-                self.logger.warning(f"Error loading cached plot: {e}")
-        return None
-
-    def _save_plot_to_cache(self, cache_key: str, result: str):
-        """Save plot result to cache"""
-        cache_file = os.path.join(self.cache_dir, f"{cache_key}.json")
-        cache_data = {
-            'timestamp': datetime.now().isoformat(),
-            'result': result
-        }
-        try:
-            with open(cache_file, 'w') as f:
-                json.dump(cache_data, f)
-            self.logger.info(f"Cached plot result for key: {cache_key}")
-        except Exception as e:
-            self.logger.warning(f"Error saving plot to cache: {e}")
 
     def find_variable(self, query: str, available_vars: List[str]) -> Optional[str]:
         """Find the best matching variable from user's query"""
@@ -75,6 +30,56 @@ class SimplePlotter:
         for var in available_vars:
             if var.lower() in query_lower:
                 return var
+
+        # Enhanced matching for common terms
+        emission_keywords = ['emission', 'emissions', 'co2', 'carbon', 'ghg', 'greenhouse']
+        energy_keywords = ['energy', 'power', 'electricity', 'renewable']
+        economic_keywords = ['gdp', 'economic', 'price', 'cost']
+        temperature_keywords = ['temperature', 'temp', 'warming', 'climate']
+        population_keywords = ['population', 'people', 'demographic']
+        land_keywords = ['land', 'land use', 'agriculture', 'forestry']
+
+        # Check for emission-related variables
+        if any(keyword in query_lower for keyword in emission_keywords):
+            for var in available_vars:
+                var_lower = var.lower()
+                if any(keyword in var_lower for keyword in emission_keywords):
+                    return var
+
+        # Check for energy-related variables
+        if any(keyword in query_lower for keyword in energy_keywords):
+            for var in available_vars:
+                var_lower = var.lower()
+                if any(keyword in var_lower for keyword in energy_keywords):
+                    return var
+
+        # Check for economic-related variables
+        if any(keyword in query_lower for keyword in economic_keywords):
+            for var in available_vars:
+                var_lower = var.lower()
+                if any(keyword in var_lower for keyword in economic_keywords):
+                    return var
+
+        # Check for temperature-related variables
+        if any(keyword in query_lower for keyword in temperature_keywords):
+            for var in available_vars:
+                var_lower = var.lower()
+                if any(keyword in var_lower for keyword in temperature_keywords):
+                    return var
+
+        # Check for population-related variables
+        if any(keyword in query_lower for keyword in population_keywords):
+            for var in available_vars:
+                var_lower = var.lower()
+                if any(keyword in var_lower for keyword in population_keywords):
+                    return var
+
+        # Check for land-related variables
+        if any(keyword in query_lower for keyword in land_keywords):
+            for var in available_vars:
+                var_lower = var.lower()
+                if any(keyword in var_lower for keyword in land_keywords):
+                    return var
 
         # Fuzzy matching for close matches
         close_matches = get_close_matches(query_lower, [v.lower() for v in available_vars], n=1, cutoff=0.6)
@@ -89,6 +94,11 @@ class SimplePlotter:
     def find_model(self, query: str, available_models: List[str]) -> Optional[str]:
         """Find the best matching model from user's query"""
         query_lower = query.lower()
+
+        # Check for "per model" or "all models" - return None to plot all models
+        if any(phrase in query_lower for phrase in ['per model', 'all models', 'each model', 'by model']):
+            self.logger.info("Detected 'per model' request - will plot all models")
+            return None
 
         # Direct matches first
         for model in available_models:
@@ -138,12 +148,7 @@ class SimplePlotter:
         if not data:
             return "No data available to plot."
 
-        # Check cache first
-        data_hash = self._get_data_hash(data)
-        cache_key = self._get_cache_key(data_hash, variable, model, plot_type)
-        cached_result = self._load_cached_plot(cache_key)
-        if cached_result:
-            return cached_result
+        # Removed caching: directly proceed to create plot without cache checks
 
         # Create DataFrame with optimized dtypes
         df = pd.DataFrame(data)
@@ -313,22 +318,15 @@ class SimplePlotter:
         plt.close()
         buffer.close()  # Free memory
 
-        # Optional: Save file only if explicitly requested or for debugging
-        save_file = os.getenv('SAVE_PLOT_FILES', 'false').lower() == 'true'
-        if save_file:
-            os.makedirs("plots", exist_ok=True)
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"plots/simple_plot_{timestamp}.png"
-            with open(filename, 'wb') as f:
-                f.write(base64.b64decode(image_base64))
-            result = f"![Plot](data:image/png;base64,{image_base64})\n\n**Plot saved as:** `{filename}`"
-        else:
-            result = f"![Plot](data:image/png;base64,{image_base64})"
+        # Always save plot file for terminal/command line usage
+        os.makedirs("plots", exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"plots/simple_plot_{timestamp}.png"
+        with open(filename, 'wb') as f:
+            f.write(base64.b64decode(image_base64))
 
-        # Save to cache
-        self._save_plot_to_cache(cache_key, result)
-
-        return result
+        # Return only the plot image (no text description)
+        return f"![Plot](data:image/png;base64,{image_base64})"
 
     def precompute_common_plots(self, ts_data: List[Dict], model_data: List[Dict]):
         """Pre-compute common plots for faster access"""
@@ -387,20 +385,21 @@ class SimplePlotter:
         available_vars = list(set(r.get('variable', '') for r in ts_data if r.get('variable')))
         available_models = list(set(r.get('modelName', '') for r in model_data if r.get('modelName')))
 
+        # Debug logging
+        self.logger.info(f"Query: '{query}'")
+        self.logger.info(f"Available variables ({len(available_vars)}): {available_vars[:10]}...")  # First 10
+        self.logger.info(f"Available models ({len(available_models)}): {available_models[:10]}...")  # First 10
+
         # Parse the request
         parsed = self.parse_plot_request(query, available_vars, available_models)
+
+        self.logger.info(f"Parsed request: variable='{parsed['variable']}', model='{parsed['model']}', plot_type='{parsed['plot_type']}'")
 
         if not parsed['variable'] and not parsed['model']:
             return ("I couldn't understand what you want to plot. Try mentioning a variable like 'emissions' or 'GDP', "
                    "or a model name. For example: 'plot CO2 emissions' or 'show me GCAM results'.")
 
-        # Check pre-computed plots first
-        plot_key = f"{parsed['variable'] or 'all'}_{parsed['model'] or 'all'}_{parsed['plot_type']}"
-        if plot_key in self.precomputed_plots:
-            self.logger.info(f"Using pre-computed plot: {plot_key}")
-            return self.precomputed_plots[plot_key]
-
-        # Create the plot
+        # Create the plot (no caching)
         return self.create_simple_plot(
             ts_data,
             variable=parsed['variable'],
