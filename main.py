@@ -120,26 +120,39 @@ class IAMParisBot:
             raise RuntimeError(f"Missing environment variables: {', '.join(missing)}")
         self.env = env
 
-    def fetch_json(self, url: str, params: Optional[Dict] = None, 
+    def fetch_json(self, url: str, params: Optional[Dict] = None,
                   payload: Optional[Dict] = None, cache: bool = True) -> list:
-        """Fetch JSON with caching"""
+        """Fetch JSON with caching - handles both API formats"""
         cache_file = f"cache/{url.split('/')[-1]}_{hash(str(params) + str(payload))}.json"
         os.makedirs("cache", exist_ok=True)
-        
+
         if cache and os.path.exists(cache_file):
             self.logger.info(f"Loading cached data from {cache_file}")
             with open(cache_file, 'r') as f:
                 return pd.read_json(f).to_dict('records')
-                
+
         self.logger.info(f"Fetching data from {url}")
         resp = requests.post(url, json=payload) if payload else requests.get(url, params=params)
         resp.raise_for_status()
-        data = resp.json().get("data", [])
-        
+        json_data = resp.json()
+
+        # Handle different API response formats
+        if "data" in json_data:
+            # IAM PARIS results API format
+            data = json_data["data"]
+        elif isinstance(json_data, list):
+            # Direct list response (CMS API)
+            data = json_data
+        else:
+            # Single object response - wrap in list
+            data = [json_data]
+
+        self.logger.info(f"Retrieved {len(data)} records from API")
+
         if cache:
             with open(cache_file, 'w') as f:
                 pd.DataFrame(data).to_json(f)
-                
+
         return data
 
     def create_qa_chain(self, vs: FAISS) -> ConversationalRetrievalChain:
@@ -396,16 +409,39 @@ def main():
         }
     )
 
-    # If no time series data, try alternative data sources
+    # If no time series data, try alternative data sources with year columns
     if not ts or not any(str(col).isdigit() for record in ts for col in record.keys()):
         logger.info("No time series data found, trying alternative data source...")
         ts = bot.fetch_json(
             bot.env["REST_API_FULL"],
             payload={
                 "study": ["all"],  # Try getting all studies
-                "limit": 1000  # Increase limit to get more data
+                "limit": 1000,  # Increase limit to get more data
+                "include_years": True  # Ensure we get year columns
             }
         )
+
+        # If still no year columns, try one more time with different parameters
+        if not ts or not any(str(col).isdigit() for record in ts for col in record.keys()):
+            logger.info("Still no year columns, trying with specific studies...")
+            ts = bot.fetch_json(
+                bot.env["REST_API_FULL"],
+                payload={
+                    "study": ["paris-reinforce", "emissions-gap", "1.5c-scenarios"],
+                    "workspace_code": ["eu-headed", "global"],
+                    "include_years": True,
+                    "limit": 2000
+                }
+            )
+            
+            # Debug: Log sample of time series data to understand structure
+            if ts:
+                logger.info(f"Sample time series record: {ts[0] if ts else 'No data'}")
+                sample_keys = list(ts[0].keys())[:10]  # First 10 keys
+                logger.info(f"Time series data keys: {sample_keys}")
+                # Check for any numeric columns that might be years
+                numeric_cols = [k for k in ts[0].keys() if str(k).isdigit()]
+                logger.info(f"Numeric columns (potential years): {numeric_cols}")
     logger.info(f"Fetched {len(ts)} time series records")
 
     # Debug: Check if models have modelName field
@@ -446,6 +482,11 @@ def main():
 
     # Initialize multi-agent manager
     manager = MultiAgentManager(shared_resources, streaming=not args.no_stream)
+
+    # Pre-compute common plots for faster access
+    from simple_plotter import simple_plotter
+    simple_plotter.precompute_common_plots(ts, models)
+
     logger.info("Multi-agent manager initialized. Ready for interaction.")
 
     print("\nWelcome to the IAM PARIS Climate Policy Assistant with Multi-Agent Support!")

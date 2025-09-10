@@ -7,165 +7,15 @@ from datetime import datetime
 import logging
 import base64
 from io import BytesIO
+from simple_plotter import simple_plot_query
 
 def data_query(question: str, model_data: list, ts_data: list) -> str:
     """Direct data lookup without using the LLM"""
     q = question.lower()
 
-    # Handle plot requests
+    # Handle plot requests using the simplified plotter
     if any(word in q for word in ['plot', 'show', 'graph', 'visualize']):
-        try:
-            # Debug information
-            logging.info(f"Total records in ts_data: {len(ts_data)}")
-
-            # Create DataFrame
-            df = pd.DataFrame(ts_data)
-            logging.info(f"DataFrame columns: {df.columns}")
-
-            # Get year columns first
-            year_cols = [col for col in df.columns if str(col).isdigit()]
-            logging.info(f"Year columns found: {year_cols}")
-
-            # If user query is ambiguous about time series, ask for clarification
-            if not year_cols and ('per year' in q or 'time series' in q or 'yearly' in q):
-                return ("I see you want data per year or time series plots, but the current dataset doesn't have year-based data loaded. "
-                        "Please specify which variable or model you want to see over time, or try `list variables` to see available data.")
-
-            if not year_cols:
-                # No time series data available - provide helpful guidance
-                vars = sorted({r.get('variable', '') for r in ts_data if r.get('variable')})
-                models = sorted({r.get('modelName', '') for r in model_data if r.get('modelName')})
-                scenarios = sorted({r.get('scenario', '') for r in ts_data if r.get('scenario')})
-
-                response = "## Plotting Information\n\n"
-                response += "I can help you create plots, but the current dataset doesn't contain time series data with year columns.\n\n"
-
-                if vars:
-                    response += "**Available Variables for Future Plotting:**\n"
-                    for var in vars[:10]:  # Show first 10 variables
-                        response += f"- {var}\n"
-                    if len(vars) > 10:
-                        response += f"- ... and {len(vars) - 10} more\n"
-                    response += "\n"
-
-                if models:
-                    response += f"**Available Models:** {', '.join(models[:5])}{'...' if len(models) > 5 else ''}\n\n"
-
-                if scenarios:
-                    response += f"**Available Scenarios:** {', '.join(scenarios[:5])}{'...' if len(scenarios) > 5 else ''}\n\n"
-
-                response += "**To create plots in the future, you can ask:**\n"
-                response += "- `plot [variable name]` (once time series data is available)\n"
-                response += "- `show me [variable name] over time`\n"
-                response += "- `graph [variable name] for [model name]`\n\n"
-
-                response += "**Current Data Exploration Options:**\n"
-                response += "- Use `list variables` to see all available variables\n"
-                response += "- Use `list models` to see available models\n"
-                response += "- Use `list scenarios` to explore scenarios\n"
-                response += "- Visit [IAM PARIS Results](https://iamparis.eu/results) for the latest data\n\n"
-
-                response += "_Note: Plotting requires time series data with year columns, which isn't currently available in the loaded dataset._"
-
-                return response
-
-            # Filter for emissions variables if requested
-            emissions_vars = []
-            if any(word in q for word in ['emission', 'co2', 'ghg']):
-                emissions_vars = [v for v in df['variable'].unique()
-                                if 'emission' in str(v).lower() or 'co2' in str(v).lower()]
-                logging.info(f"Found emission variables: {emissions_vars}")
-
-                if emissions_vars:
-                    df = df[df['variable'].isin(emissions_vars)]
-                else:
-                    return """## No Emission Data Found
-
-I couldn't find any emission-related variables in the current dataset. Available variables are:
-""" + "\n".join([f"- {v}" for v in sorted(df['variable'].unique())]) + """
-
-Try:
-- Using `list variables` to see all available variables
-- Plotting a different variable
-- Checking the data source at [IAM PARIS Results](https://iamparis.eu/results)
-"""
-
-            # Create plot
-            plt.figure(figsize=(12, 6))
-
-            # Plot data for each model/variable combination
-            for (model_name, var), group in df.groupby(['modelName', 'variable']):
-                years = sorted(year_cols)
-                values = [float(group[year].mean()) for year in years if not pd.isna(group[year].mean())]
-                if values:  # Only plot if we have values
-                    plt.plot(years[:len(values)], values, marker='o',
-                            label=f"{model_name}: {var}", linewidth=2)
-
-            if plt.gca().get_lines():  # Check if any lines were plotted
-                plt.title("Emissions Time Series")
-                plt.xlabel("Year")
-                plt.ylabel(f"Value ({df['unit'].iloc[0]})" if 'unit' in df else "Value")
-                plt.grid(True, alpha=0.3)
-                plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
-                plt.tight_layout()
-
-                # Convert plot to base64 for embedding in chat
-                buffer = BytesIO()
-                plt.savefig(buffer, format='png', dpi=150, bbox_inches='tight')
-                buffer.seek(0)
-                image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-                plt.close()
-
-                # Also save to file as backup
-                os.makedirs("plots", exist_ok=True)
-                filename = f"plots/timeseries_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
-                with open(filename, 'wb') as f:
-                    f.write(base64.b64decode(image_base64))
-
-                return f"""## Time Series Plot Generated
-
-I've created a plot showing emissions over time across different models:
-
-![Emissions Time Series](data:image/png;base64,{image_base64})
-
-**Plot Details:**
-- Data from {min(year_cols)} to {max(year_cols)}
-- {len(df['modelName'].unique())} different models
-- {len(emissions_vars)} emission-related variables
-
-**File saved as:** `{filename}`
-
-Want to:
-- Focus on a specific model? Try `plot emissions for [model name]`
-- Look at different variables? Try `list variables`
-- Compare specific years? Include a year in your query
-
-_Data source: [IAM PARIS Results](https://iamparis.eu/results)_"""
-            else:
-                return """## No Plottable Data Found
-
-While I found some data, I couldn't create a meaningful plot. This might be because:
-- The values are missing or invalid
-- The time series is incomplete
-- The data format isn't suitable for plotting
-
-Try:
-1. Using a different variable
-2. Specifying a particular model
-3. Checking the raw data with `list variables`"""
-
-        except Exception as e:
-            logging.error(f"Error creating plot: {str(e)}")
-            return f"""## Error Creating Plot
-
-I encountered an error: `{str(e)}`
-
-Troubleshooting steps:
-1. Check if the variable exists using `list variables`
-2. Try specifying a model with `plot [model_name] emissions`
-3. Make sure the data contains time series information
-
-_If the problem persists, there might be an issue with the data source._"""
+        return simple_plot_query(question, model_data, ts_data)
 
     # List models (conversational)
     if re.search(r"\b(list|available)\b.*\bmodels?\b", q) or re.search(r"\bmodels?\b.*\b(available|list)\b", q):
@@ -218,6 +68,22 @@ _If the problem persists, there might be an issue with the data source._"""
         if ts_data:
             df = pd.DataFrame(ts_data)
             year_cols = [col for col in df.columns if str(col).isdigit()]
+
+            # If no digit columns, check for "years" column with nested data
+            if not year_cols and 'years' in df.columns:
+                try:
+                    # Sample the years column to understand its structure
+                    sample_years = df['years'].dropna().head(3)
+                    if len(sample_years) > 0:
+                        first_sample = sample_years.iloc[0]
+                        if isinstance(first_sample, dict):
+                            # Expand nested years data
+                            years_expanded = df['years'].apply(pd.Series)
+                            year_cols_from_nested = [col for col in years_expanded.columns if str(col).isdigit()]
+                            if year_cols_from_nested:
+                                year_cols = year_cols_from_nested
+                except Exception as e:
+                    logging.warning(f"Error processing 'years' column: {e}")
 
             response = "## What I Can Plot\n\n"
 
