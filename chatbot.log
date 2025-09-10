@@ -1,0 +1,383 @@
+2025-09-10 10:04:54,517 - INFO - Loading data and resources for multi-agent system...
+2025-09-10 10:04:54,517 - INFO - Fetching model data...
+2025-09-10 10:04:54,518 - INFO - Fetching data from https://cms.iamparis.eu/items/models
+2025-09-10 10:04:55,080 - INFO - Fetched 68 model records
+2025-09-10 10:04:55,080 - INFO - Fetching time series data...
+2025-09-10 10:04:55,081 - INFO - Fetching data from https://api.iamparis.eu/results
+2025-09-10 10:04:55,870 - INFO - Fetched 1653 time series records
+2025-09-10 10:04:55,870 - INFO - Sample model data: {'id': 4, 'status': 'active', 'sort': None, 'user_created': 'c34c955e-e074-49ce-a356-6bd33de51123', 'date_created': '2024-12-18T19:16:12.466Z', 'user_updated': None, 'date_updated': None, 'modelName': '42', 'description': "42 is bottom-up type model based on the scenarios of socio-economic, demographic, structural and technological parameters of different countries' development. The outut is energy balances which correspond to the methodology and structure of IEA balances.", 'overview': None, 'climate_module': None, 'socioeconomic_dimensions': None, 'measures_technologies': None, 'economic_rationale': None, 'key_parameters': None, 'key_policies': None, 'sdgs_implications': None, 'references': None, 'modelId': 89353, 'long_name': '42', 'institute': 'IEF-RAS', 'model_type': 'Energy System', 'key_features': None, 'version': 1, 'model_publications': [], 'projects': [1]}
+2025-09-10 10:04:55,872 - INFO - Found 68 models with modelName: ['42', 'ALADIN', 'ATOM', 'CHANCE', 'EGMM']...
+2025-09-10 10:04:55,872 - INFO - Sample time series data: {'modelId': 89353, 'unit': 'Mt CO2/yr', 'workspace_code': 'eu-headed', 'modelName': '42', 'region': 'EU', 'scenario': 'PR_WWH_CP', 'resultId': 137001, 'variable': 'Emissions|CO2|Energy|Supply|Other Sector', 'study': 'paris-reinforce', 'years': {'2005': 302.270013090869, '2010': 279.999009837262, '2015': 266.731719502147, '2020': 243.010792604244, '2025': 205.75200854232, '2030': 191.136598309264, '2035': 178.356383405854, '2040': 167.857694398662, '2045': 158.985727605111, '2050': None}}
+2025-09-10 10:04:55,873 - INFO - Found scenarios: ['PR_WWH_CP', 'PR_WWH_NDC']...
+2025-09-10 10:04:59,455 - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-09-10 10:05:02,426 - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-09-10 10:05:03,671 - INFO - Loading faiss with AVX2 support.
+2025-09-10 10:05:04,100 - INFO - Successfully loaded faiss with AVX2 support.
+2025-09-10 10:05:04,110 - INFO - Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+2025-09-10 10:05:05,048 - INFO - All agents initialized successfully.
+2025-09-10 10:05:05,048 - INFO - Multi-agent manager initialized. Ready for interaction.
+2025-09-10 10:06:21,158 - INFO - Loading data and resources for multi-agent system...
+2025-09-10 10:06:21,158 - INFO - Fetching model data...
+2025-09-10 10:06:21,159 - INFO - Fetching data from https://cms.iamparis.eu/items/models
+2025-09-10 10:06:21,566 - INFO - Fetched 68 model records
+2025-09-10 10:06:21,566 - INFO - Fetching time series data...
+2025-09-10 10:06:21,566 - INFO - Fetching data from https://api.iamparis.eu/results
+2025-09-10 10:06:22,155 - INFO - Fetched 1653 time series records
+2025-09-10 10:06:22,155 - INFO - Sample model data: {'id': 4, 'status': 'active', 'sort': None, 'user_created': 'c34c955e-e074-49ce-a356-6bd33de51123', 'date_created': '2024-12-18T19:16:12.466Z', 'user_updated': None, 'date_updated': None, 'modelName': '42', 'description': "42 is bottom-up type model based on the scenarios of socio-economic, demographic, structural and technological parameters of different countries' development. The outut is energy balances which correspond to the methodology and structure of IEA balances.", 'overview': None, 'climate_module': None, 'socioeconomic_dimensions': None, 'measures_technologies': None, 'economic_rationale': None, 'key_parameters': None, 'key_policies': None, 'sdgs_implications': None, 'references': None, 'modelId': 89353, 'long_name': '42', 'institute': 'IEF-RAS', 'model_type': 'Energy System', 'key_features': None, 'version': 1, 'model_publications': [], 'projects': [1]}
+2025-09-10 10:06:22,155 - INFO - Found 68 models with modelName: ['42', 'ALADIN', 'ATOM', 'CHANCE', 'EGMM']...
+2025-09-10 10:06:22,155 - INFO - Sample time series data: {'modelId': 89353, 'unit': 'Mt CO2/yr', 'workspace_code': 'eu-headed', 'modelName': '42', 'region': 'EU', 'scenario': 'PR_WWH_CP', 'resultId': 137001, 'variable': 'Emissions|CO2|Energy|Supply|Other Sector', 'study': 'paris-reinforce', 'years': {'2005': 302.270013090869, '2010': 279.999009837262, '2015': 266.731719502147, '2020': 243.010792604244, '2025': 205.75200854232, '2030': 191.136598309264, '2035': 178.356383405854, '2040': 167.857694398662, '2045': 158.985727605111, '2050': None}}
+2025-09-10 10:06:22,155 - INFO - Found scenarios: ['PR_WWH_NDC', 'PR_WWH_CP']...
+2025-09-10 10:06:23,219 - INFO - Loading faiss with AVX2 support.
+2025-09-10 10:06:23,240 - INFO - Successfully loaded faiss with AVX2 support.
+2025-09-10 10:06:23,246 - INFO - Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+2025-09-10 10:07:49,713 - INFO - Loading data and resources for multi-agent system...
+2025-09-10 10:07:49,713 - INFO - Fetching model data...
+2025-09-10 10:07:49,713 - INFO - Fetching data from https://cms.iamparis.eu/items/models
+2025-09-10 10:07:50,051 - INFO - Fetched 68 model records
+2025-09-10 10:07:50,052 - INFO - Fetching time series data...
+2025-09-10 10:07:50,052 - INFO - Fetching data from https://api.iamparis.eu/results
+2025-09-10 10:07:50,680 - INFO - Fetched 1653 time series records
+2025-09-10 10:07:50,681 - INFO - Sample model data: {'id': 4, 'status': 'active', 'sort': None, 'user_created': 'c34c955e-e074-49ce-a356-6bd33de51123', 'date_created': '2024-12-18T19:16:12.466Z', 'user_updated': None, 'date_updated': None, 'modelName': '42', 'description': "42 is bottom-up type model based on the scenarios of socio-economic, demographic, structural and technological parameters of different countries' development. The outut is energy balances which correspond to the methodology and structure of IEA balances.", 'overview': None, 'climate_module': None, 'socioeconomic_dimensions': None, 'measures_technologies': None, 'economic_rationale': None, 'key_parameters': None, 'key_policies': None, 'sdgs_implications': None, 'references': None, 'modelId': 89353, 'long_name': '42', 'institute': 'IEF-RAS', 'model_type': 'Energy System', 'key_features': None, 'version': 1, 'model_publications': [], 'projects': [1]}
+2025-09-10 10:07:50,681 - INFO - Found 68 models with modelName: ['42', 'ALADIN', 'ATOM', 'CHANCE', 'EGMM']...
+2025-09-10 10:07:50,681 - INFO - Sample time series data: {'modelId': 89353, 'unit': 'Mt CO2/yr', 'workspace_code': 'eu-headed', 'modelName': '42', 'region': 'EU', 'scenario': 'PR_WWH_CP', 'resultId': 137001, 'variable': 'Emissions|CO2|Energy|Supply|Other Sector', 'study': 'paris-reinforce', 'years': {'2005': 302.270013090869, '2010': 279.999009837262, '2015': 266.731719502147, '2020': 243.010792604244, '2025': 205.75200854232, '2030': 191.136598309264, '2035': 178.356383405854, '2040': 167.857694398662, '2045': 158.985727605111, '2050': None}}
+2025-09-10 10:07:50,682 - INFO - Found scenarios: ['PR_WWH_NDC', 'PR_WWH_CP']...
+2025-09-10 10:07:51,759 - INFO - Loading faiss with AVX2 support.
+2025-09-10 10:07:51,779 - INFO - Successfully loaded faiss with AVX2 support.
+2025-09-10 10:07:51,785 - INFO - Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+2025-09-10 10:07:52,523 - INFO - All agents initialized successfully.
+2025-09-10 10:07:52,523 - INFO - Multi-agent manager initialized. Ready for interaction.
+2025-09-10 10:10:39,608 - INFO - Loading data and resources for multi-agent system...
+2025-09-10 10:10:39,609 - INFO - Fetching model data...
+2025-09-10 10:10:39,609 - INFO - Fetching data from https://cms.iamparis.eu/items/models
+2025-09-10 10:10:40,014 - INFO - Fetched 68 model records
+2025-09-10 10:10:40,014 - INFO - Fetching time series data...
+2025-09-10 10:10:40,014 - INFO - Fetching data from https://api.iamparis.eu/results
+2025-09-10 10:10:40,607 - INFO - Fetched 1653 time series records
+2025-09-10 10:10:40,607 - INFO - Sample model data: {'id': 4, 'status': 'active', 'sort': None, 'user_created': 'c34c955e-e074-49ce-a356-6bd33de51123', 'date_created': '2024-12-18T19:16:12.466Z', 'user_updated': None, 'date_updated': None, 'modelName': '42', 'description': "42 is bottom-up type model based on the scenarios of socio-economic, demographic, structural and technological parameters of different countries' development. The outut is energy balances which correspond to the methodology and structure of IEA balances.", 'overview': None, 'climate_module': None, 'socioeconomic_dimensions': None, 'measures_technologies': None, 'economic_rationale': None, 'key_parameters': None, 'key_policies': None, 'sdgs_implications': None, 'references': None, 'modelId': 89353, 'long_name': '42', 'institute': 'IEF-RAS', 'model_type': 'Energy System', 'key_features': None, 'version': 1, 'model_publications': [], 'projects': [1]}
+2025-09-10 10:10:40,608 - INFO - Found 68 models with modelName: ['42', 'ALADIN', 'ATOM', 'CHANCE', 'EGMM']...
+2025-09-10 10:10:40,608 - INFO - Sample time series data: {'modelId': 89353, 'unit': 'Mt CO2/yr', 'workspace_code': 'eu-headed', 'modelName': '42', 'region': 'EU', 'scenario': 'PR_WWH_CP', 'resultId': 137001, 'variable': 'Emissions|CO2|Energy|Supply|Other Sector', 'study': 'paris-reinforce', 'years': {'2005': 302.270013090869, '2010': 279.999009837262, '2015': 266.731719502147, '2020': 243.010792604244, '2025': 205.75200854232, '2030': 191.136598309264, '2035': 178.356383405854, '2040': 167.857694398662, '2045': 158.985727605111, '2050': None}}
+2025-09-10 10:10:40,608 - INFO - Found scenarios: ['PR_WWH_CP', 'PR_WWH_NDC']...
+2025-09-10 10:10:41,793 - INFO - Loading faiss with AVX2 support.
+2025-09-10 10:10:41,816 - INFO - Successfully loaded faiss with AVX2 support.
+2025-09-10 10:10:41,822 - INFO - Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+2025-09-10 10:10:42,607 - INFO - All agents initialized successfully.
+2025-09-10 10:10:42,607 - INFO - Multi-agent manager initialized. Ready for interaction.
+2025-09-10 10:11:07,122 - INFO - Routing query to general_qa agent.
+2025-09-10 10:11:08,213 - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-09-10 10:11:10,370 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:12:15,233 - INFO - Loading data and resources for multi-agent system...
+2025-09-10 10:12:15,233 - INFO - Fetching model data...
+2025-09-10 10:12:15,233 - INFO - Fetching data from https://cms.iamparis.eu/items/models
+2025-09-10 10:12:15,627 - INFO - Fetched 68 model records
+2025-09-10 10:12:15,627 - INFO - Fetching time series data...
+2025-09-10 10:12:15,628 - INFO - Fetching data from https://api.iamparis.eu/results
+2025-09-10 10:12:16,317 - INFO - Fetched 1653 time series records
+2025-09-10 10:12:16,318 - INFO - Sample model data: {'id': 4, 'status': 'active', 'sort': None, 'user_created': 'c34c955e-e074-49ce-a356-6bd33de51123', 'date_created': '2024-12-18T19:16:12.466Z', 'user_updated': None, 'date_updated': None, 'modelName': '42', 'description': "42 is bottom-up type model based on the scenarios of socio-economic, demographic, structural and technological parameters of different countries' development. The outut is energy balances which correspond to the methodology and structure of IEA balances.", 'overview': None, 'climate_module': None, 'socioeconomic_dimensions': None, 'measures_technologies': None, 'economic_rationale': None, 'key_parameters': None, 'key_policies': None, 'sdgs_implications': None, 'references': None, 'modelId': 89353, 'long_name': '42', 'institute': 'IEF-RAS', 'model_type': 'Energy System', 'key_features': None, 'version': 1, 'model_publications': [], 'projects': [1]}
+2025-09-10 10:12:16,318 - INFO - Found 68 models with modelName: ['42', 'ALADIN', 'ATOM', 'CHANCE', 'EGMM']...
+2025-09-10 10:12:16,318 - INFO - Sample time series data: {'modelId': 89353, 'unit': 'Mt CO2/yr', 'workspace_code': 'eu-headed', 'modelName': '42', 'region': 'EU', 'scenario': 'PR_WWH_CP', 'resultId': 137001, 'variable': 'Emissions|CO2|Energy|Supply|Other Sector', 'study': 'paris-reinforce', 'years': {'2005': 302.270013090869, '2010': 279.999009837262, '2015': 266.731719502147, '2020': 243.010792604244, '2025': 205.75200854232, '2030': 191.136598309264, '2035': 178.356383405854, '2040': 167.857694398662, '2045': 158.985727605111, '2050': None}}
+2025-09-10 10:12:16,318 - INFO - Found scenarios: ['PR_WWH_NDC', 'PR_WWH_CP']...
+2025-09-10 10:12:17,405 - INFO - Loading faiss with AVX2 support.
+2025-09-10 10:12:17,424 - INFO - Successfully loaded faiss with AVX2 support.
+2025-09-10 10:12:17,429 - INFO - Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+2025-09-10 10:12:18,187 - INFO - All agents initialized successfully.
+2025-09-10 10:12:18,187 - INFO - Multi-agent manager initialized. Ready for interaction.
+2025-09-10 10:12:19,765 - INFO - Routing query to general_qa agent.
+2025-09-10 10:12:20,282 - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-09-10 10:12:21,496 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:15:38,288 - INFO - Loading data and resources for multi-agent system...
+2025-09-10 10:15:38,289 - INFO - Fetching model data...
+2025-09-10 10:15:38,289 - INFO - Fetching data from https://cms.iamparis.eu/items/models
+2025-09-10 10:15:38,634 - INFO - Fetched 68 model records
+2025-09-10 10:15:38,635 - INFO - Fetching time series data...
+2025-09-10 10:15:38,635 - INFO - Fetching data from https://api.iamparis.eu/results
+2025-09-10 10:15:39,347 - INFO - Fetched 1653 time series records
+2025-09-10 10:15:39,347 - INFO - Sample model data: {'id': 4, 'status': 'active', 'sort': None, 'user_created': 'c34c955e-e074-49ce-a356-6bd33de51123', 'date_created': '2024-12-18T19:16:12.466Z', 'user_updated': None, 'date_updated': None, 'modelName': '42', 'description': "42 is bottom-up type model based on the scenarios of socio-economic, demographic, structural and technological parameters of different countries' development. The outut is energy balances which correspond to the methodology and structure of IEA balances.", 'overview': None, 'climate_module': None, 'socioeconomic_dimensions': None, 'measures_technologies': None, 'economic_rationale': None, 'key_parameters': None, 'key_policies': None, 'sdgs_implications': None, 'references': None, 'modelId': 89353, 'long_name': '42', 'institute': 'IEF-RAS', 'model_type': 'Energy System', 'key_features': None, 'version': 1, 'model_publications': [], 'projects': [1]}
+2025-09-10 10:15:39,347 - INFO - Found 68 models with modelName: ['42', 'ALADIN', 'ATOM', 'CHANCE', 'EGMM']...
+2025-09-10 10:15:39,348 - INFO - Sample time series data: {'modelId': 89353, 'unit': 'Mt CO2/yr', 'workspace_code': 'eu-headed', 'modelName': '42', 'region': 'EU', 'scenario': 'PR_WWH_CP', 'resultId': 137001, 'variable': 'Emissions|CO2|Energy|Supply|Other Sector', 'study': 'paris-reinforce', 'years': {'2005': 302.270013090869, '2010': 279.999009837262, '2015': 266.731719502147, '2020': 243.010792604244, '2025': 205.75200854232, '2030': 191.136598309264, '2035': 178.356383405854, '2040': 167.857694398662, '2045': 158.985727605111, '2050': None}}
+2025-09-10 10:15:39,348 - INFO - Found scenarios: ['PR_WWH_NDC', 'PR_WWH_CP']...
+2025-09-10 10:15:40,484 - INFO - Loading faiss with AVX2 support.
+2025-09-10 10:15:40,506 - INFO - Successfully loaded faiss with AVX2 support.
+2025-09-10 10:15:40,513 - INFO - Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+2025-09-10 10:15:41,276 - INFO - All agents initialized successfully.
+2025-09-10 10:15:41,276 - INFO - Multi-agent manager initialized. Ready for interaction.
+2025-09-10 10:19:19,016 - INFO - Loading data and resources for multi-agent system...
+2025-09-10 10:19:19,016 - INFO - Fetching model data...
+2025-09-10 10:19:19,016 - INFO - Fetching data from https://cms.iamparis.eu/items/models
+2025-09-10 10:19:19,402 - INFO - Fetched 68 model records
+2025-09-10 10:19:19,402 - INFO - Fetching time series data...
+2025-09-10 10:19:19,404 - INFO - Fetching data from https://api.iamparis.eu/results
+2025-09-10 10:19:20,019 - INFO - Fetched 1653 time series records
+2025-09-10 10:19:20,020 - INFO - Sample model data: {'id': 4, 'status': 'active', 'sort': None, 'user_created': 'c34c955e-e074-49ce-a356-6bd33de51123', 'date_created': '2024-12-18T19:16:12.466Z', 'user_updated': None, 'date_updated': None, 'modelName': '42', 'description': "42 is bottom-up type model based on the scenarios of socio-economic, demographic, structural and technological parameters of different countries' development. The outut is energy balances which correspond to the methodology and structure of IEA balances.", 'overview': None, 'climate_module': None, 'socioeconomic_dimensions': None, 'measures_technologies': None, 'economic_rationale': None, 'key_parameters': None, 'key_policies': None, 'sdgs_implications': None, 'references': None, 'modelId': 89353, 'long_name': '42', 'institute': 'IEF-RAS', 'model_type': 'Energy System', 'key_features': None, 'version': 1, 'model_publications': [], 'projects': [1]}
+2025-09-10 10:19:20,020 - INFO - Found 68 models with modelName: ['42', 'ALADIN', 'ATOM', 'CHANCE', 'EGMM']...
+2025-09-10 10:19:20,020 - INFO - Sample time series data: {'modelId': 89353, 'unit': 'Mt CO2/yr', 'workspace_code': 'eu-headed', 'modelName': '42', 'region': 'EU', 'scenario': 'PR_WWH_CP', 'resultId': 137001, 'variable': 'Emissions|CO2|Energy|Supply|Other Sector', 'study': 'paris-reinforce', 'years': {'2005': 302.270013090869, '2010': 279.999009837262, '2015': 266.731719502147, '2020': 243.010792604244, '2025': 205.75200854232, '2030': 191.136598309264, '2035': 178.356383405854, '2040': 167.857694398662, '2045': 158.985727605111, '2050': None}}
+2025-09-10 10:19:20,020 - INFO - Found scenarios: ['PR_WWH_CP', 'PR_WWH_NDC']...
+2025-09-10 10:19:21,122 - INFO - Loading faiss with AVX2 support.
+2025-09-10 10:19:21,144 - INFO - Successfully loaded faiss with AVX2 support.
+2025-09-10 10:19:21,151 - INFO - Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+2025-09-10 10:19:21,902 - INFO - All agents initialized successfully.
+2025-09-10 10:19:21,902 - INFO - Multi-agent manager initialized. Ready for interaction.
+2025-09-10 10:19:35,419 - INFO - Routing query to general_qa agent.
+2025-09-10 10:19:36,759 - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-09-10 10:19:38,191 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:20:29,725 - INFO - Routing query to general_qa agent.
+2025-09-10 10:20:31,369 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:20:32,017 - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-09-10 10:20:33,729 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:22:05,579 - INFO - Routing query to general_qa agent.
+2025-09-10 10:22:06,521 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:22:07,371 - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-09-10 10:22:08,634 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:23:30,380 - INFO - Routing query to data_plotting agent.
+2025-09-10 10:23:30,384 - WARNING - No year data available
+2025-09-10 10:26:03,138 - INFO - Loading data and resources for multi-agent system...
+2025-09-10 10:26:03,138 - INFO - Fetching model data...
+2025-09-10 10:26:03,138 - INFO - Fetching data from https://cms.iamparis.eu/items/models
+2025-09-10 10:26:03,587 - INFO - Fetched 68 model records
+2025-09-10 10:26:03,587 - INFO - Fetching time series data...
+2025-09-10 10:26:03,587 - INFO - Fetching data from https://api.iamparis.eu/results
+2025-09-10 10:26:04,343 - INFO - Fetched 1653 time series records
+2025-09-10 10:26:04,343 - INFO - Sample model data: {'id': 4, 'status': 'active', 'sort': None, 'user_created': 'c34c955e-e074-49ce-a356-6bd33de51123', 'date_created': '2024-12-18T19:16:12.466Z', 'user_updated': None, 'date_updated': None, 'modelName': '42', 'description': "42 is bottom-up type model based on the scenarios of socio-economic, demographic, structural and technological parameters of different countries' development. The outut is energy balances which correspond to the methodology and structure of IEA balances.", 'overview': None, 'climate_module': None, 'socioeconomic_dimensions': None, 'measures_technologies': None, 'economic_rationale': None, 'key_parameters': None, 'key_policies': None, 'sdgs_implications': None, 'references': None, 'modelId': 89353, 'long_name': '42', 'institute': 'IEF-RAS', 'model_type': 'Energy System', 'key_features': None, 'version': 1, 'model_publications': [], 'projects': [1]}
+2025-09-10 10:26:04,343 - INFO - Found 68 models with modelName: ['42', 'ALADIN', 'ATOM', 'CHANCE', 'EGMM']...
+2025-09-10 10:26:04,343 - INFO - Sample time series data: {'modelId': 89353, 'unit': 'Mt CO2/yr', 'workspace_code': 'eu-headed', 'modelName': '42', 'region': 'EU', 'scenario': 'PR_WWH_CP', 'resultId': 137001, 'variable': 'Emissions|CO2|Energy|Supply|Other Sector', 'study': 'paris-reinforce', 'years': {'2005': 302.270013090869, '2010': 279.999009837262, '2015': 266.731719502147, '2020': 243.010792604244, '2025': 205.75200854232, '2030': 191.136598309264, '2035': 178.356383405854, '2040': 167.857694398662, '2045': 158.985727605111, '2050': None}}
+2025-09-10 10:26:04,344 - INFO - Found scenarios: ['PR_WWH_NDC', 'PR_WWH_CP']...
+2025-09-10 10:26:05,442 - INFO - Loading faiss with AVX2 support.
+2025-09-10 10:26:05,459 - INFO - Successfully loaded faiss with AVX2 support.
+2025-09-10 10:26:05,465 - INFO - Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+2025-09-10 10:26:06,189 - INFO - All agents initialized successfully.
+2025-09-10 10:26:06,189 - INFO - Multi-agent manager initialized. Ready for interaction.
+2025-09-10 10:26:22,359 - INFO - Routing query to general_qa agent.
+2025-09-10 10:26:23,438 - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-09-10 10:26:24,780 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:26:56,912 - INFO - Routing query to data_plotting agent.
+2025-09-10 10:26:56,912 - INFO - Total records in ts_data: 1653
+2025-09-10 10:26:56,918 - INFO - DataFrame columns: Index(['modelId', 'unit', 'workspace_code', 'modelName', 'region', 'scenario',
+       'resultId', 'variable', 'study', 'years'],
+      dtype='object')
+2025-09-10 10:26:56,939 - INFO - Found emission variables: ['Emissions|CO2|Energy|Supply|Other Sector', 'Emissions|CO2|Energy', 'Emissions|CO2|Energy|Demand', 'Emissions|CO2|Energy|Demand|Industry', 'Emissions|CO2|Energy|Demand|Residential and Commercial', 'Emissions|CO2|Energy|Demand|Transportation', 'Emissions|CO2|Energy|Supply', 'Emissions|CO2|Energy|Supply|Electricity', 'Emissions|CO2|Energy|Supply|Heat', 'Emissions|CO2|Energy|Demand|Transportation|Aviation', 'Emissions|CO2|Energy|Demand|Transportation|Maritime', 'Emissions|CO2|Energy|Demand|Transportation|Rail', 'Emissions|CO2|Energy|Demand|Transportation|Road', 'Emissions|CO2|Energy|Demand|Transportation|Road|Freight', 'Emissions|CO2|Energy|Demand|Transportation|Road|Passenger', 'Emissions|CO2', 'Emissions|CO2|Electricity', 'Emissions|CO2|Energy and Industrial Processes', 'Emissions|CO2|Gases', 'Emissions|CO2|Heat', 'Emissions|CO2|Liquids', 'Emissions|CO2|Solids', 'Emissions|CO2|Energy and Industrial Processes|EUETS', 'Emissions|CO2|Energy and Industrial Processes|Non EUETS', 'Emissions|CO2|Energy|Demand|AFOFI', 'Emissions|CO2|Energy|Demand|Commercial', 'Emissions|CO2|Energy|Demand|Industry|EUETS', 'Emissions|CO2|Energy|Demand|Industry|Non EUETS', 'Emissions|CO2|Energy|Demand|Residential', 'Emissions|CO2|Energy|Demand|Transportation|Aviation|Freight', 'Emissions|CO2|Energy|Demand|Transportation|Aviation|Passenger', 'Emissions|CO2|Energy|Demand|Transportation|EUETS', 'Emissions|CO2|Energy|Demand|Transportation|non EUETS', 'Emissions|CO2|Energy|Demand|Transportation|Rail|Freight', 'Emissions|CO2|Energy|Demand|Transportation|Rail|Passenger', 'Emissions|CO2|Energy|Supply|EUETS', 'Emissions|CO2|Energy|Supply|Non EUETS', 'Emissions|CO2|EUETS', 'Emissions|CO2|Industrial Processes', 'Emissions|CO2|Non EUETS', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Commercial', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Commercial|Heating', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Commercial|Heating|Cooking', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Commercial|Heating|Space', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Commercial|Heating|Water', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Residential', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Residential|Heating', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Residential|Heating|Cooking', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Residential|Heating|Space', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Residential|Heating|Water', 'Emissions|C2F6', 'Emissions|CH4', 'Emissions|CH4|AFOLU', 'Emissions|CH4|Energy', 'Emissions|CO', 'Emissions|CO2|AFOLU', 'Emissions|CO2|Energy|Supply|Gases', 'Emissions|CO2|Energy|Supply|Liquids', 'Emissions|CO2|Energy|Supply|Solids', 'Emissions|F-Gases', 'Emissions|HFC', 'Emissions|HFC|HFC125', 'Emissions|HFC|HFC134a', 'Emissions|HFC|HFC143a', 'Emissions|HFC|HFC227ea', 'Emissions|HFC|HFC23', 'Emissions|HFC|HFC245fa', 'Emissions|HFC|HFC32', 'Emissions|HFC|HFC43-10', 'Emissions|Kyoto Gases', 'Emissions|N2O', 'Emissions|N2O|AFOLU', 'Emissions|N2O|Energy', 'Emissions|NH3', 'Emissions|NOx', 'Emissions|OC', 'Emissions|PFC', 'Emissions|SF6', 'Emissions|Sulfur', 'Emissions|VOC', 'Emissions|CH4|AFOLU|Agriculture', 'Emissions|CH4|Industrial Processes', 'Emissions|CH4|Waste', 'Emissions|CO2|Waste', 'Emissions|HFC|Industrial Processes', 'Emissions|N2O|AFOLU|Agriculture', 'Emissions|N2O|Industrial Processes', 'Emissions|N2O|Other', 'Emissions|N2O|Waste', 'Emissions|PFC|CF4', 'Emissions per capita|CO2|Energy', 'Emissions/GDP|CO2|Energy', 'Emissions|CO2|Energy|Demand|Industry|Cement', 'Emissions|CO2|Energy|Demand|Industry|Chemicals', 'Emissions|CO2|Energy|Demand|Industry|Chemicals|Ammonia', 'Emissions|CO2|Energy|Demand|Industry|Chemicals|High value chemicals', 'Emissions|CO2|Energy|Demand|Industry|Chemicals|Methanol', 'Emissions|CO2|Energy|Demand|Industry|Chemicals|Other', 'Emissions|CO2|Energy|Demand|Industry|Non-ferrous metals', 'Emissions|CO2|Energy|Demand|Industry|Other', 'Emissions|CO2|Energy|Demand|Industry|Pulp and Paper', 'Emissions|CO2|Energy|Demand|Industry|Steel', 'Emissions|CO2|Energy|Demand|Other Sector', 'Emissions|CO2|Energy|Demand|Transportation|Maritime|Freight', 'Emissions|CO2|Energy|Demand|Transportation|Road|Passenger|Bus', 'Emissions|CO2|Energy|Demand|Transportation|Road|Passenger|LDV', 'Emissions|CO2|Industrial Processes|Cement', 'Emissions|CO2|Industrial Processes|Chemicals', 'Emissions|CO2|Industrial Processes|Chemicals|Ammonia', 'Emissions|CO2|Industrial Processes|Chemicals|High value chemicals', 'Emissions|CO2|Industrial Processes|Chemicals|Methanol', 'Emissions|CO2|Industrial Processes|Chemicals|Other', 'Emissions|CO2|Industrial Processes|Non-ferrous metals', 'Emissions|CO2|Industrial Processes|Other', 'Emissions|CO2|Industrial Processes|Pulp and Paper', 'Emissions|CO2|Industrial Processes|Steel', 'Emissions|CO2|AFOLU|Agriculture', 'Emissions|CO2|Energy|Demand|Transportation|Non EUETS', 'Emissions|CO2|Other']
+2025-09-10 10:26:56,952 - INFO - Year columns found: []
+2025-09-10 10:27:05,836 - INFO - Routing query to general_qa agent.
+2025-09-10 10:27:07,815 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:27:08,461 - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-09-10 10:27:09,006 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:27:25,008 - INFO - Routing query to general_qa agent.
+2025-09-10 10:27:26,341 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:27:27,220 - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-09-10 10:27:28,520 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:28:02,840 - INFO - Routing query to data_plotting agent.
+2025-09-10 10:28:02,840 - INFO - Total records in ts_data: 1653
+2025-09-10 10:28:02,846 - INFO - DataFrame columns: Index(['modelId', 'unit', 'workspace_code', 'modelName', 'region', 'scenario',
+       'resultId', 'variable', 'study', 'years'],
+      dtype='object')
+2025-09-10 10:28:02,846 - INFO - Found emission variables: ['Emissions|CO2|Energy|Supply|Other Sector', 'Emissions|CO2|Energy', 'Emissions|CO2|Energy|Demand', 'Emissions|CO2|Energy|Demand|Industry', 'Emissions|CO2|Energy|Demand|Residential and Commercial', 'Emissions|CO2|Energy|Demand|Transportation', 'Emissions|CO2|Energy|Supply', 'Emissions|CO2|Energy|Supply|Electricity', 'Emissions|CO2|Energy|Supply|Heat', 'Emissions|CO2|Energy|Demand|Transportation|Aviation', 'Emissions|CO2|Energy|Demand|Transportation|Maritime', 'Emissions|CO2|Energy|Demand|Transportation|Rail', 'Emissions|CO2|Energy|Demand|Transportation|Road', 'Emissions|CO2|Energy|Demand|Transportation|Road|Freight', 'Emissions|CO2|Energy|Demand|Transportation|Road|Passenger', 'Emissions|CO2', 'Emissions|CO2|Electricity', 'Emissions|CO2|Energy and Industrial Processes', 'Emissions|CO2|Gases', 'Emissions|CO2|Heat', 'Emissions|CO2|Liquids', 'Emissions|CO2|Solids', 'Emissions|CO2|Energy and Industrial Processes|EUETS', 'Emissions|CO2|Energy and Industrial Processes|Non EUETS', 'Emissions|CO2|Energy|Demand|AFOFI', 'Emissions|CO2|Energy|Demand|Commercial', 'Emissions|CO2|Energy|Demand|Industry|EUETS', 'Emissions|CO2|Energy|Demand|Industry|Non EUETS', 'Emissions|CO2|Energy|Demand|Residential', 'Emissions|CO2|Energy|Demand|Transportation|Aviation|Freight', 'Emissions|CO2|Energy|Demand|Transportation|Aviation|Passenger', 'Emissions|CO2|Energy|Demand|Transportation|EUETS', 'Emissions|CO2|Energy|Demand|Transportation|non EUETS', 'Emissions|CO2|Energy|Demand|Transportation|Rail|Freight', 'Emissions|CO2|Energy|Demand|Transportation|Rail|Passenger', 'Emissions|CO2|Energy|Supply|EUETS', 'Emissions|CO2|Energy|Supply|Non EUETS', 'Emissions|CO2|EUETS', 'Emissions|CO2|Industrial Processes', 'Emissions|CO2|Non EUETS', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Commercial', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Commercial|Heating', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Commercial|Heating|Cooking', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Commercial|Heating|Space', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Commercial|Heating|Water', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Residential', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Residential|Heating', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Residential|Heating|Cooking', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Residential|Heating|Space', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Residential|Heating|Water', 'Emissions|C2F6', 'Emissions|CH4', 'Emissions|CH4|AFOLU', 'Emissions|CH4|Energy', 'Emissions|CO', 'Emissions|CO2|AFOLU', 'Emissions|CO2|Energy|Supply|Gases', 'Emissions|CO2|Energy|Supply|Liquids', 'Emissions|CO2|Energy|Supply|Solids', 'Emissions|F-Gases', 'Emissions|HFC', 'Emissions|HFC|HFC125', 'Emissions|HFC|HFC134a', 'Emissions|HFC|HFC143a', 'Emissions|HFC|HFC227ea', 'Emissions|HFC|HFC23', 'Emissions|HFC|HFC245fa', 'Emissions|HFC|HFC32', 'Emissions|HFC|HFC43-10', 'Emissions|Kyoto Gases', 'Emissions|N2O', 'Emissions|N2O|AFOLU', 'Emissions|N2O|Energy', 'Emissions|NH3', 'Emissions|NOx', 'Emissions|OC', 'Emissions|PFC', 'Emissions|SF6', 'Emissions|Sulfur', 'Emissions|VOC', 'Emissions|CH4|AFOLU|Agriculture', 'Emissions|CH4|Industrial Processes', 'Emissions|CH4|Waste', 'Emissions|CO2|Waste', 'Emissions|HFC|Industrial Processes', 'Emissions|N2O|AFOLU|Agriculture', 'Emissions|N2O|Industrial Processes', 'Emissions|N2O|Other', 'Emissions|N2O|Waste', 'Emissions|PFC|CF4', 'Emissions per capita|CO2|Energy', 'Emissions/GDP|CO2|Energy', 'Emissions|CO2|Energy|Demand|Industry|Cement', 'Emissions|CO2|Energy|Demand|Industry|Chemicals', 'Emissions|CO2|Energy|Demand|Industry|Chemicals|Ammonia', 'Emissions|CO2|Energy|Demand|Industry|Chemicals|High value chemicals', 'Emissions|CO2|Energy|Demand|Industry|Chemicals|Methanol', 'Emissions|CO2|Energy|Demand|Industry|Chemicals|Other', 'Emissions|CO2|Energy|Demand|Industry|Non-ferrous metals', 'Emissions|CO2|Energy|Demand|Industry|Other', 'Emissions|CO2|Energy|Demand|Industry|Pulp and Paper', 'Emissions|CO2|Energy|Demand|Industry|Steel', 'Emissions|CO2|Energy|Demand|Other Sector', 'Emissions|CO2|Energy|Demand|Transportation|Maritime|Freight', 'Emissions|CO2|Energy|Demand|Transportation|Road|Passenger|Bus', 'Emissions|CO2|Energy|Demand|Transportation|Road|Passenger|LDV', 'Emissions|CO2|Industrial Processes|Cement', 'Emissions|CO2|Industrial Processes|Chemicals', 'Emissions|CO2|Industrial Processes|Chemicals|Ammonia', 'Emissions|CO2|Industrial Processes|Chemicals|High value chemicals', 'Emissions|CO2|Industrial Processes|Chemicals|Methanol', 'Emissions|CO2|Industrial Processes|Chemicals|Other', 'Emissions|CO2|Industrial Processes|Non-ferrous metals', 'Emissions|CO2|Industrial Processes|Other', 'Emissions|CO2|Industrial Processes|Pulp and Paper', 'Emissions|CO2|Industrial Processes|Steel', 'Emissions|CO2|AFOLU|Agriculture', 'Emissions|CO2|Energy|Demand|Transportation|Non EUETS', 'Emissions|CO2|Other']
+2025-09-10 10:28:02,848 - INFO - Year columns found: []
+2025-09-10 10:36:43,037 - INFO - Loading data and resources for multi-agent system...
+2025-09-10 10:36:43,037 - INFO - Fetching model data...
+2025-09-10 10:36:43,037 - INFO - Fetching data from https://cms.iamparis.eu/items/models
+2025-09-10 10:36:43,475 - INFO - Fetched 68 model records
+2025-09-10 10:36:43,475 - INFO - Fetching time series data...
+2025-09-10 10:36:43,475 - INFO - Fetching data from https://api.iamparis.eu/results
+2025-09-10 10:36:44,159 - INFO - Fetched 1653 time series records
+2025-09-10 10:36:44,159 - INFO - Sample model data: {'id': 4, 'status': 'active', 'sort': None, 'user_created': 'c34c955e-e074-49ce-a356-6bd33de51123', 'date_created': '2024-12-18T19:16:12.466Z', 'user_updated': None, 'date_updated': None, 'modelName': '42', 'description': "42 is bottom-up type model based on the scenarios of socio-economic, demographic, structural and technological parameters of different countries' development. The outut is energy balances which correspond to the methodology and structure of IEA balances.", 'overview': None, 'climate_module': None, 'socioeconomic_dimensions': None, 'measures_technologies': None, 'economic_rationale': None, 'key_parameters': None, 'key_policies': None, 'sdgs_implications': None, 'references': None, 'modelId': 89353, 'long_name': '42', 'institute': 'IEF-RAS', 'model_type': 'Energy System', 'key_features': None, 'version': 1, 'model_publications': [], 'projects': [1]}
+2025-09-10 10:36:44,159 - INFO - Found 68 models with modelName: ['42', 'ALADIN', 'ATOM', 'CHANCE', 'EGMM']...
+2025-09-10 10:36:44,159 - INFO - Sample time series data: {'modelId': 89353, 'unit': 'Mt CO2/yr', 'workspace_code': 'eu-headed', 'modelName': '42', 'region': 'EU', 'scenario': 'PR_WWH_CP', 'resultId': 137001, 'variable': 'Emissions|CO2|Energy|Supply|Other Sector', 'study': 'paris-reinforce', 'years': {'2005': 302.270013090869, '2010': 279.999009837262, '2015': 266.731719502147, '2020': 243.010792604244, '2025': 205.75200854232, '2030': 191.136598309264, '2035': 178.356383405854, '2040': 167.857694398662, '2045': 158.985727605111, '2050': None}}
+2025-09-10 10:36:44,160 - INFO - Found scenarios: ['PR_WWH_CP', 'PR_WWH_NDC']...
+2025-09-10 10:36:45,297 - INFO - Loading faiss with AVX2 support.
+2025-09-10 10:36:45,319 - INFO - Successfully loaded faiss with AVX2 support.
+2025-09-10 10:36:45,326 - INFO - Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+2025-09-10 10:36:46,110 - INFO - All agents initialized successfully.
+2025-09-10 10:36:46,110 - INFO - Multi-agent manager initialized. Ready for interaction.
+2025-09-10 10:36:53,578 - INFO - Routing query to general_qa agent.
+2025-09-10 10:36:54,318 - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-09-10 10:36:55,903 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:37:17,968 - INFO - Routing query to general_qa agent.
+2025-09-10 10:37:18,726 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:37:19,258 - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-09-10 10:37:21,167 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:37:38,298 - INFO - Routing query to general_qa agent.
+2025-09-10 10:37:39,577 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:37:40,269 - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-09-10 10:37:41,578 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:38:02,072 - INFO - Routing query to data_plotting agent.
+2025-09-10 10:38:02,072 - INFO - Total records in ts_data: 1653
+2025-09-10 10:38:02,075 - INFO - DataFrame columns: Index(['modelId', 'unit', 'workspace_code', 'modelName', 'region', 'scenario',
+       'resultId', 'variable', 'study', 'years'],
+      dtype='object')
+2025-09-10 10:38:02,076 - INFO - Found emission variables: ['Emissions|CO2|Energy|Supply|Other Sector', 'Emissions|CO2|Energy', 'Emissions|CO2|Energy|Demand', 'Emissions|CO2|Energy|Demand|Industry', 'Emissions|CO2|Energy|Demand|Residential and Commercial', 'Emissions|CO2|Energy|Demand|Transportation', 'Emissions|CO2|Energy|Supply', 'Emissions|CO2|Energy|Supply|Electricity', 'Emissions|CO2|Energy|Supply|Heat', 'Emissions|CO2|Energy|Demand|Transportation|Aviation', 'Emissions|CO2|Energy|Demand|Transportation|Maritime', 'Emissions|CO2|Energy|Demand|Transportation|Rail', 'Emissions|CO2|Energy|Demand|Transportation|Road', 'Emissions|CO2|Energy|Demand|Transportation|Road|Freight', 'Emissions|CO2|Energy|Demand|Transportation|Road|Passenger', 'Emissions|CO2', 'Emissions|CO2|Electricity', 'Emissions|CO2|Energy and Industrial Processes', 'Emissions|CO2|Gases', 'Emissions|CO2|Heat', 'Emissions|CO2|Liquids', 'Emissions|CO2|Solids', 'Emissions|CO2|Energy and Industrial Processes|EUETS', 'Emissions|CO2|Energy and Industrial Processes|Non EUETS', 'Emissions|CO2|Energy|Demand|AFOFI', 'Emissions|CO2|Energy|Demand|Commercial', 'Emissions|CO2|Energy|Demand|Industry|EUETS', 'Emissions|CO2|Energy|Demand|Industry|Non EUETS', 'Emissions|CO2|Energy|Demand|Residential', 'Emissions|CO2|Energy|Demand|Transportation|Aviation|Freight', 'Emissions|CO2|Energy|Demand|Transportation|Aviation|Passenger', 'Emissions|CO2|Energy|Demand|Transportation|EUETS', 'Emissions|CO2|Energy|Demand|Transportation|non EUETS', 'Emissions|CO2|Energy|Demand|Transportation|Rail|Freight', 'Emissions|CO2|Energy|Demand|Transportation|Rail|Passenger', 'Emissions|CO2|Energy|Supply|EUETS', 'Emissions|CO2|Energy|Supply|Non EUETS', 'Emissions|CO2|EUETS', 'Emissions|CO2|Industrial Processes', 'Emissions|CO2|Non EUETS', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Commercial', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Commercial|Heating', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Commercial|Heating|Cooking', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Commercial|Heating|Space', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Commercial|Heating|Water', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Residential', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Residential|Heating', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Residential|Heating|Cooking', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Residential|Heating|Space', 'Emissions|CO2|Energy|Demand|Residential and Commercial|Residential|Heating|Water', 'Emissions|C2F6', 'Emissions|CH4', 'Emissions|CH4|AFOLU', 'Emissions|CH4|Energy', 'Emissions|CO', 'Emissions|CO2|AFOLU', 'Emissions|CO2|Energy|Supply|Gases', 'Emissions|CO2|Energy|Supply|Liquids', 'Emissions|CO2|Energy|Supply|Solids', 'Emissions|F-Gases', 'Emissions|HFC', 'Emissions|HFC|HFC125', 'Emissions|HFC|HFC134a', 'Emissions|HFC|HFC143a', 'Emissions|HFC|HFC227ea', 'Emissions|HFC|HFC23', 'Emissions|HFC|HFC245fa', 'Emissions|HFC|HFC32', 'Emissions|HFC|HFC43-10', 'Emissions|Kyoto Gases', 'Emissions|N2O', 'Emissions|N2O|AFOLU', 'Emissions|N2O|Energy', 'Emissions|NH3', 'Emissions|NOx', 'Emissions|OC', 'Emissions|PFC', 'Emissions|SF6', 'Emissions|Sulfur', 'Emissions|VOC', 'Emissions|CH4|AFOLU|Agriculture', 'Emissions|CH4|Industrial Processes', 'Emissions|CH4|Waste', 'Emissions|CO2|Waste', 'Emissions|HFC|Industrial Processes', 'Emissions|N2O|AFOLU|Agriculture', 'Emissions|N2O|Industrial Processes', 'Emissions|N2O|Other', 'Emissions|N2O|Waste', 'Emissions|PFC|CF4', 'Emissions per capita|CO2|Energy', 'Emissions/GDP|CO2|Energy', 'Emissions|CO2|Energy|Demand|Industry|Cement', 'Emissions|CO2|Energy|Demand|Industry|Chemicals', 'Emissions|CO2|Energy|Demand|Industry|Chemicals|Ammonia', 'Emissions|CO2|Energy|Demand|Industry|Chemicals|High value chemicals', 'Emissions|CO2|Energy|Demand|Industry|Chemicals|Methanol', 'Emissions|CO2|Energy|Demand|Industry|Chemicals|Other', 'Emissions|CO2|Energy|Demand|Industry|Non-ferrous metals', 'Emissions|CO2|Energy|Demand|Industry|Other', 'Emissions|CO2|Energy|Demand|Industry|Pulp and Paper', 'Emissions|CO2|Energy|Demand|Industry|Steel', 'Emissions|CO2|Energy|Demand|Other Sector', 'Emissions|CO2|Energy|Demand|Transportation|Maritime|Freight', 'Emissions|CO2|Energy|Demand|Transportation|Road|Passenger|Bus', 'Emissions|CO2|Energy|Demand|Transportation|Road|Passenger|LDV', 'Emissions|CO2|Industrial Processes|Cement', 'Emissions|CO2|Industrial Processes|Chemicals', 'Emissions|CO2|Industrial Processes|Chemicals|Ammonia', 'Emissions|CO2|Industrial Processes|Chemicals|High value chemicals', 'Emissions|CO2|Industrial Processes|Chemicals|Methanol', 'Emissions|CO2|Industrial Processes|Chemicals|Other', 'Emissions|CO2|Industrial Processes|Non-ferrous metals', 'Emissions|CO2|Industrial Processes|Other', 'Emissions|CO2|Industrial Processes|Pulp and Paper', 'Emissions|CO2|Industrial Processes|Steel', 'Emissions|CO2|AFOLU|Agriculture', 'Emissions|CO2|Energy|Demand|Transportation|Non EUETS', 'Emissions|CO2|Other']
+2025-09-10 10:38:02,077 - INFO - Year columns found: []
+2025-09-10 10:38:12,159 - INFO - Routing query to data_plotting agent.
+2025-09-10 10:38:12,160 - INFO - Total records in ts_data: 1653
+2025-09-10 10:38:12,163 - INFO - DataFrame columns: Index(['modelId', 'unit', 'workspace_code', 'modelName', 'region', 'scenario',
+       'resultId', 'variable', 'study', 'years'],
+      dtype='object')
+2025-09-10 10:38:12,163 - INFO - Year columns found: []
+2025-09-10 10:39:10,766 - INFO - Loading data and resources for multi-agent system...
+2025-09-10 10:39:10,767 - INFO - Fetching model data...
+2025-09-10 10:39:10,767 - INFO - Fetching data from https://cms.iamparis.eu/items/models
+2025-09-10 10:39:11,116 - INFO - Fetched 68 model records
+2025-09-10 10:39:11,116 - INFO - Fetching time series data...
+2025-09-10 10:39:11,117 - INFO - Fetching data from https://api.iamparis.eu/results
+2025-09-10 10:39:11,798 - INFO - Fetched 1653 time series records
+2025-09-10 10:39:11,798 - INFO - Sample model data: {'id': 4, 'status': 'active', 'sort': None, 'user_created': 'c34c955e-e074-49ce-a356-6bd33de51123', 'date_created': '2024-12-18T19:16:12.466Z', 'user_updated': None, 'date_updated': None, 'modelName': '42', 'description': "42 is bottom-up type model based on the scenarios of socio-economic, demographic, structural and technological parameters of different countries' development. The outut is energy balances which correspond to the methodology and structure of IEA balances.", 'overview': None, 'climate_module': None, 'socioeconomic_dimensions': None, 'measures_technologies': None, 'economic_rationale': None, 'key_parameters': None, 'key_policies': None, 'sdgs_implications': None, 'references': None, 'modelId': 89353, 'long_name': '42', 'institute': 'IEF-RAS', 'model_type': 'Energy System', 'key_features': None, 'version': 1, 'model_publications': [], 'projects': [1]}
+2025-09-10 10:39:11,798 - INFO - Found 68 models with modelName: ['42', 'ALADIN', 'ATOM', 'CHANCE', 'EGMM']...
+2025-09-10 10:39:11,798 - INFO - Sample time series data: {'modelId': 89353, 'unit': 'Mt CO2/yr', 'workspace_code': 'eu-headed', 'modelName': '42', 'region': 'EU', 'scenario': 'PR_WWH_CP', 'resultId': 137001, 'variable': 'Emissions|CO2|Energy|Supply|Other Sector', 'study': 'paris-reinforce', 'years': {'2005': 302.270013090869, '2010': 279.999009837262, '2015': 266.731719502147, '2020': 243.010792604244, '2025': 205.75200854232, '2030': 191.136598309264, '2035': 178.356383405854, '2040': 167.857694398662, '2045': 158.985727605111, '2050': None}}
+2025-09-10 10:39:11,799 - INFO - Found scenarios: ['PR_WWH_CP', 'PR_WWH_NDC']...
+2025-09-10 10:39:12,939 - INFO - Loading faiss with AVX2 support.
+2025-09-10 10:39:12,956 - INFO - Successfully loaded faiss with AVX2 support.
+2025-09-10 10:39:12,962 - INFO - Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+2025-09-10 10:39:13,706 - INFO - All agents initialized successfully.
+2025-09-10 10:39:13,706 - INFO - Multi-agent manager initialized. Ready for interaction.
+2025-09-10 10:39:21,038 - INFO - Routing query to data_plotting agent.
+2025-09-10 10:39:21,038 - INFO - Total records in ts_data: 1653
+2025-09-10 10:39:21,042 - INFO - DataFrame columns: Index(['modelId', 'unit', 'workspace_code', 'modelName', 'region', 'scenario',
+       'resultId', 'variable', 'study', 'years'],
+      dtype='object')
+2025-09-10 10:39:21,042 - INFO - Year columns found: []
+2025-09-10 10:40:33,717 - INFO - Loading data and resources for multi-agent system...
+2025-09-10 10:40:33,717 - INFO - Fetching model data...
+2025-09-10 10:40:33,718 - INFO - Fetching data from https://cms.iamparis.eu/items/models
+2025-09-10 10:40:34,086 - INFO - Fetched 68 model records
+2025-09-10 10:40:34,086 - INFO - Fetching time series data...
+2025-09-10 10:40:34,086 - INFO - Fetching data from https://api.iamparis.eu/results
+2025-09-10 10:40:34,795 - INFO - Fetched 1653 time series records
+2025-09-10 10:40:34,795 - INFO - Sample model data: {'id': 4, 'status': 'active', 'sort': None, 'user_created': 'c34c955e-e074-49ce-a356-6bd33de51123', 'date_created': '2024-12-18T19:16:12.466Z', 'user_updated': None, 'date_updated': None, 'modelName': '42', 'description': "42 is bottom-up type model based on the scenarios of socio-economic, demographic, structural and technological parameters of different countries' development. The outut is energy balances which correspond to the methodology and structure of IEA balances.", 'overview': None, 'climate_module': None, 'socioeconomic_dimensions': None, 'measures_technologies': None, 'economic_rationale': None, 'key_parameters': None, 'key_policies': None, 'sdgs_implications': None, 'references': None, 'modelId': 89353, 'long_name': '42', 'institute': 'IEF-RAS', 'model_type': 'Energy System', 'key_features': None, 'version': 1, 'model_publications': [], 'projects': [1]}
+2025-09-10 10:40:34,795 - INFO - Found 68 models with modelName: ['42', 'ALADIN', 'ATOM', 'CHANCE', 'EGMM']...
+2025-09-10 10:40:34,795 - INFO - Sample time series data: {'modelId': 89353, 'unit': 'Mt CO2/yr', 'workspace_code': 'eu-headed', 'modelName': '42', 'region': 'EU', 'scenario': 'PR_WWH_CP', 'resultId': 137001, 'variable': 'Emissions|CO2|Energy|Supply|Other Sector', 'study': 'paris-reinforce', 'years': {'2005': 302.270013090869, '2010': 279.999009837262, '2015': 266.731719502147, '2020': 243.010792604244, '2025': 205.75200854232, '2030': 191.136598309264, '2035': 178.356383405854, '2040': 167.857694398662, '2045': 158.985727605111, '2050': None}}
+2025-09-10 10:40:34,795 - INFO - Found scenarios: ['PR_WWH_NDC', 'PR_WWH_CP']...
+2025-09-10 10:40:35,884 - INFO - Loading faiss with AVX2 support.
+2025-09-10 10:40:35,901 - INFO - Successfully loaded faiss with AVX2 support.
+2025-09-10 10:40:35,907 - INFO - Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+2025-09-10 10:40:36,651 - INFO - All agents initialized successfully.
+2025-09-10 10:40:36,651 - INFO - Multi-agent manager initialized. Ready for interaction.
+2025-09-10 10:40:44,811 - INFO - Routing query to data_query agent.
+2025-09-10 10:40:44,811 - INFO - Total records in ts_data: 1653
+2025-09-10 10:40:44,814 - INFO - DataFrame columns: Index(['modelId', 'unit', 'workspace_code', 'modelName', 'region', 'scenario',
+       'resultId', 'variable', 'study', 'years'],
+      dtype='object')
+2025-09-10 10:40:44,814 - INFO - Year columns found: []
+2025-09-10 10:40:49,516 - INFO - Routing query to data_query agent.
+2025-09-10 10:41:11,424 - INFO - Routing query to data_plotting agent.
+2025-09-10 10:41:11,425 - INFO - Total records in ts_data: 1653
+2025-09-10 10:41:11,428 - INFO - DataFrame columns: Index(['modelId', 'unit', 'workspace_code', 'modelName', 'region', 'scenario',
+       'resultId', 'variable', 'study', 'years'],
+      dtype='object')
+2025-09-10 10:41:11,428 - INFO - Year columns found: []
+2025-09-10 10:43:32,632 - INFO - Loading data and resources for multi-agent system...
+2025-09-10 10:43:32,632 - INFO - Fetching model data...
+2025-09-10 10:43:32,633 - INFO - Fetching data from https://cms.iamparis.eu/items/models
+2025-09-10 10:43:33,089 - INFO - Fetched 68 model records
+2025-09-10 10:43:33,089 - INFO - Fetching time series data...
+2025-09-10 10:43:33,089 - INFO - Fetching data from https://api.iamparis.eu/results
+2025-09-10 10:43:33,683 - INFO - Fetched 1653 time series records
+2025-09-10 10:43:33,683 - INFO - Sample model data: {'id': 4, 'status': 'active', 'sort': None, 'user_created': 'c34c955e-e074-49ce-a356-6bd33de51123', 'date_created': '2024-12-18T19:16:12.466Z', 'user_updated': None, 'date_updated': None, 'modelName': '42', 'description': "42 is bottom-up type model based on the scenarios of socio-economic, demographic, structural and technological parameters of different countries' development. The outut is energy balances which correspond to the methodology and structure of IEA balances.", 'overview': None, 'climate_module': None, 'socioeconomic_dimensions': None, 'measures_technologies': None, 'economic_rationale': None, 'key_parameters': None, 'key_policies': None, 'sdgs_implications': None, 'references': None, 'modelId': 89353, 'long_name': '42', 'institute': 'IEF-RAS', 'model_type': 'Energy System', 'key_features': None, 'version': 1, 'model_publications': [], 'projects': [1]}
+2025-09-10 10:43:33,683 - INFO - Found 68 models with modelName: ['42', 'ALADIN', 'ATOM', 'CHANCE', 'EGMM']...
+2025-09-10 10:43:33,683 - INFO - Sample time series data: {'modelId': 89353, 'unit': 'Mt CO2/yr', 'workspace_code': 'eu-headed', 'modelName': '42', 'region': 'EU', 'scenario': 'PR_WWH_CP', 'resultId': 137001, 'variable': 'Emissions|CO2|Energy|Supply|Other Sector', 'study': 'paris-reinforce', 'years': {'2005': 302.270013090869, '2010': 279.999009837262, '2015': 266.731719502147, '2020': 243.010792604244, '2025': 205.75200854232, '2030': 191.136598309264, '2035': 178.356383405854, '2040': 167.857694398662, '2045': 158.985727605111, '2050': None}}
+2025-09-10 10:43:33,684 - INFO - Found scenarios: ['PR_WWH_NDC', 'PR_WWH_CP']...
+2025-09-10 10:43:34,816 - INFO - Loading faiss with AVX2 support.
+2025-09-10 10:43:34,832 - INFO - Successfully loaded faiss with AVX2 support.
+2025-09-10 10:43:34,837 - INFO - Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+2025-09-10 10:43:35,635 - INFO - All agents initialized successfully.
+2025-09-10 10:43:35,635 - INFO - Multi-agent manager initialized. Ready for interaction.
+2025-09-10 10:43:44,087 - INFO - Routing query to data_plotting agent.
+2025-09-10 10:43:44,087 - INFO - Total records in ts_data: 1653
+2025-09-10 10:43:44,091 - INFO - DataFrame columns: Index(['modelId', 'unit', 'workspace_code', 'modelName', 'region', 'scenario',
+       'resultId', 'variable', 'study', 'years'],
+      dtype='object')
+2025-09-10 10:43:44,091 - INFO - Year columns found: []
+2025-09-10 10:43:49,846 - INFO - Routing query to data_query agent.
+2025-09-10 10:44:01,961 - INFO - Routing query to data_query agent.
+2025-09-10 10:46:31,876 - INFO - Loading data and resources for multi-agent system...
+2025-09-10 10:46:31,876 - INFO - Fetching model data...
+2025-09-10 10:46:31,876 - INFO - Fetching data from https://cms.iamparis.eu/items/models
+2025-09-10 10:46:32,214 - INFO - Fetched 68 model records
+2025-09-10 10:46:32,214 - INFO - Fetching time series data...
+2025-09-10 10:46:32,214 - INFO - Fetching data from https://api.iamparis.eu/results
+2025-09-10 10:46:32,954 - INFO - Fetched 1653 time series records
+2025-09-10 10:46:32,954 - INFO - Sample model data: {'id': 4, 'status': 'active', 'sort': None, 'user_created': 'c34c955e-e074-49ce-a356-6bd33de51123', 'date_created': '2024-12-18T19:16:12.466Z', 'user_updated': None, 'date_updated': None, 'modelName': '42', 'description': "42 is bottom-up type model based on the scenarios of socio-economic, demographic, structural and technological parameters of different countries' development. The outut is energy balances which correspond to the methodology and structure of IEA balances.", 'overview': None, 'climate_module': None, 'socioeconomic_dimensions': None, 'measures_technologies': None, 'economic_rationale': None, 'key_parameters': None, 'key_policies': None, 'sdgs_implications': None, 'references': None, 'modelId': 89353, 'long_name': '42', 'institute': 'IEF-RAS', 'model_type': 'Energy System', 'key_features': None, 'version': 1, 'model_publications': [], 'projects': [1]}
+2025-09-10 10:46:32,954 - INFO - Found 68 models with modelName: ['42', 'ALADIN', 'ATOM', 'CHANCE', 'EGMM']...
+2025-09-10 10:46:32,954 - INFO - Sample time series data: {'modelId': 89353, 'unit': 'Mt CO2/yr', 'workspace_code': 'eu-headed', 'modelName': '42', 'region': 'EU', 'scenario': 'PR_WWH_CP', 'resultId': 137001, 'variable': 'Emissions|CO2|Energy|Supply|Other Sector', 'study': 'paris-reinforce', 'years': {'2005': 302.270013090869, '2010': 279.999009837262, '2015': 266.731719502147, '2020': 243.010792604244, '2025': 205.75200854232, '2030': 191.136598309264, '2035': 178.356383405854, '2040': 167.857694398662, '2045': 158.985727605111, '2050': None}}
+2025-09-10 10:46:32,955 - INFO - Found scenarios: ['PR_WWH_NDC', 'PR_WWH_CP']...
+2025-09-10 10:46:34,080 - INFO - Loading faiss with AVX2 support.
+2025-09-10 10:46:34,099 - INFO - Successfully loaded faiss with AVX2 support.
+2025-09-10 10:46:34,105 - INFO - Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+2025-09-10 10:46:34,849 - INFO - All agents initialized successfully.
+2025-09-10 10:46:34,849 - INFO - Multi-agent manager initialized. Ready for interaction.
+2025-09-10 10:46:42,956 - INFO - Routing query to data_plotting agent.
+2025-09-10 10:46:42,956 - INFO - Total records in ts_data: 1653
+2025-09-10 10:46:42,959 - INFO - DataFrame columns: Index(['modelId', 'unit', 'workspace_code', 'modelName', 'region', 'scenario',
+       'resultId', 'variable', 'study', 'years'],
+      dtype='object')
+2025-09-10 10:46:42,959 - INFO - Year columns found: []
+2025-09-10 10:46:51,806 - INFO - Routing query to data_query agent.
+2025-09-10 10:47:00,076 - INFO - Routing query to general_qa agent.
+2025-09-10 10:47:00,600 - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-09-10 10:47:02,281 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:47:25,413 - INFO - Routing query to data_plotting agent.
+2025-09-10 10:47:25,413 - INFO - Total records in ts_data: 1653
+2025-09-10 10:47:25,416 - INFO - DataFrame columns: Index(['modelId', 'unit', 'workspace_code', 'modelName', 'region', 'scenario',
+       'resultId', 'variable', 'study', 'years'],
+      dtype='object')
+2025-09-10 10:47:25,416 - INFO - Year columns found: []
+2025-09-10 10:49:28,625 - INFO - Loading data and resources for multi-agent system...
+2025-09-10 10:49:28,625 - INFO - Fetching model data...
+2025-09-10 10:49:28,625 - INFO - Fetching data from https://cms.iamparis.eu/items/models
+2025-09-10 10:49:28,975 - INFO - Fetched 68 model records
+2025-09-10 10:49:28,975 - INFO - Fetching time series data...
+2025-09-10 10:49:28,975 - INFO - Fetching data from https://api.iamparis.eu/results
+2025-09-10 10:49:29,569 - INFO - Fetched 1653 time series records
+2025-09-10 10:49:29,569 - INFO - Sample model data: {'id': 4, 'status': 'active', 'sort': None, 'user_created': 'c34c955e-e074-49ce-a356-6bd33de51123', 'date_created': '2024-12-18T19:16:12.466Z', 'user_updated': None, 'date_updated': None, 'modelName': '42', 'description': "42 is bottom-up type model based on the scenarios of socio-economic, demographic, structural and technological parameters of different countries' development. The outut is energy balances which correspond to the methodology and structure of IEA balances.", 'overview': None, 'climate_module': None, 'socioeconomic_dimensions': None, 'measures_technologies': None, 'economic_rationale': None, 'key_parameters': None, 'key_policies': None, 'sdgs_implications': None, 'references': None, 'modelId': 89353, 'long_name': '42', 'institute': 'IEF-RAS', 'model_type': 'Energy System', 'key_features': None, 'version': 1, 'model_publications': [], 'projects': [1]}
+2025-09-10 10:49:29,569 - INFO - Found 68 models with modelName: ['42', 'ALADIN', 'ATOM', 'CHANCE', 'EGMM']...
+2025-09-10 10:49:29,569 - INFO - Sample time series data: {'modelId': 89353, 'unit': 'Mt CO2/yr', 'workspace_code': 'eu-headed', 'modelName': '42', 'region': 'EU', 'scenario': 'PR_WWH_CP', 'resultId': 137001, 'variable': 'Emissions|CO2|Energy|Supply|Other Sector', 'study': 'paris-reinforce', 'years': {'2005': 302.270013090869, '2010': 279.999009837262, '2015': 266.731719502147, '2020': 243.010792604244, '2025': 205.75200854232, '2030': 191.136598309264, '2035': 178.356383405854, '2040': 167.857694398662, '2045': 158.985727605111, '2050': None}}
+2025-09-10 10:49:29,569 - INFO - Found scenarios: ['PR_WWH_NDC', 'PR_WWH_CP']...
+2025-09-10 10:49:30,694 - INFO - Loading faiss with AVX2 support.
+2025-09-10 10:49:30,728 - INFO - Successfully loaded faiss with AVX2 support.
+2025-09-10 10:49:30,736 - INFO - Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+2025-09-10 10:49:31,489 - INFO - All agents initialized successfully.
+2025-09-10 10:49:31,489 - INFO - Multi-agent manager initialized. Ready for interaction.
+2025-09-10 10:49:42,847 - INFO - Routing query to data_plotting agent.
+2025-09-10 10:49:42,848 - INFO - Total records in ts_data: 1653
+2025-09-10 10:49:42,850 - INFO - DataFrame columns: Index(['modelId', 'unit', 'workspace_code', 'modelName', 'region', 'scenario',
+       'resultId', 'variable', 'study', 'years'],
+      dtype='object')
+2025-09-10 10:49:42,851 - INFO - Year columns found: []
+2025-09-10 10:49:57,299 - INFO - Routing query to data_query agent.
+2025-09-10 10:50:08,571 - INFO - Routing query to data_plotting agent.
+2025-09-10 10:50:08,572 - INFO - Total records in ts_data: 1653
+2025-09-10 10:50:08,576 - INFO - DataFrame columns: Index(['modelId', 'unit', 'workspace_code', 'modelName', 'region', 'scenario',
+       'resultId', 'variable', 'study', 'years'],
+      dtype='object')
+2025-09-10 10:50:08,576 - INFO - Year columns found: []
+2025-09-10 10:52:37,899 - INFO - Loading data and resources for multi-agent system...
+2025-09-10 10:52:37,901 - INFO - Fetching model data...
+2025-09-10 10:52:37,901 - INFO - Fetching data from https://cms.iamparis.eu/items/models
+2025-09-10 10:52:38,258 - INFO - Fetched 68 model records
+2025-09-10 10:52:38,259 - INFO - Fetching time series data...
+2025-09-10 10:52:38,259 - INFO - Fetching data from https://api.iamparis.eu/results
+2025-09-10 10:52:38,878 - INFO - No time series data found, trying alternative data source...
+2025-09-10 10:52:38,878 - INFO - Fetching data from https://api.iamparis.eu/results
+2025-09-10 10:52:39,187 - INFO - Fetched 0 time series records
+2025-09-10 10:52:39,187 - INFO - Sample model data: {'id': 4, 'status': 'active', 'sort': None, 'user_created': 'c34c955e-e074-49ce-a356-6bd33de51123', 'date_created': '2024-12-18T19:16:12.466Z', 'user_updated': None, 'date_updated': None, 'modelName': '42', 'description': "42 is bottom-up type model based on the scenarios of socio-economic, demographic, structural and technological parameters of different countries' development. The outut is energy balances which correspond to the methodology and structure of IEA balances.", 'overview': None, 'climate_module': None, 'socioeconomic_dimensions': None, 'measures_technologies': None, 'economic_rationale': None, 'key_parameters': None, 'key_policies': None, 'sdgs_implications': None, 'references': None, 'modelId': 89353, 'long_name': '42', 'institute': 'IEF-RAS', 'model_type': 'Energy System', 'key_features': None, 'version': 1, 'model_publications': [], 'projects': [1]}
+2025-09-10 10:52:39,188 - INFO - Found 68 models with modelName: ['42', 'ALADIN', 'ATOM', 'CHANCE', 'EGMM']...
+2025-09-10 10:52:40,274 - INFO - Loading faiss with AVX2 support.
+2025-09-10 10:52:40,293 - INFO - Successfully loaded faiss with AVX2 support.
+2025-09-10 10:52:40,299 - INFO - Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+2025-09-10 10:52:41,104 - INFO - All agents initialized successfully.
+2025-09-10 10:52:41,104 - INFO - Multi-agent manager initialized. Ready for interaction.
+2025-09-10 10:52:58,357 - INFO - Routing query to data_plotting agent.
+2025-09-10 10:52:58,357 - INFO - Total records in ts_data: 0
+2025-09-10 10:52:58,357 - INFO - DataFrame columns: RangeIndex(start=0, stop=0, step=1)
+2025-09-10 10:52:58,357 - INFO - Year columns found: []
+2025-09-10 10:53:25,251 - INFO - Routing query to general_qa agent.
+2025-09-10 10:53:25,846 - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-09-10 10:53:26,538 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:53:44,069 - INFO - Routing query to general_qa agent.
+2025-09-10 10:53:44,743 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:53:45,253 - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-09-10 10:53:46,005 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-10 10:54:28,187 - INFO - Routing query to data_plotting agent.
+2025-09-10 10:54:28,187 - INFO - Total records in ts_data: 0
+2025-09-10 10:54:28,188 - INFO - DataFrame columns: RangeIndex(start=0, stop=0, step=1)
+2025-09-10 10:54:28,188 - INFO - Year columns found: []
+2025-09-10 10:55:36,394 - INFO - Routing query to data_plotting agent.
+2025-09-10 10:55:36,394 - INFO - Total records in ts_data: 0
+2025-09-10 10:55:36,394 - INFO - DataFrame columns: RangeIndex(start=0, stop=0, step=1)
+2025-09-10 10:55:36,394 - INFO - Year columns found: []

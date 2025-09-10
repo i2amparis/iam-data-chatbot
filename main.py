@@ -100,172 +100,7 @@ def build_faiss_index(docs: list, embeddings) -> FAISS:
     store.save_local(index_dir)
     return store
 
-def data_query(question: str, model_data: list, ts_data: list) -> str:
-    """Direct data lookup without using the LLM"""
-    q = question.lower()
-    
-    # Handle plot requests
-    if any(word in q for word in ['plot', 'show', 'graph', 'visualize']):
-        try:
-            # Debug information
-            logging.info(f"Total records in ts_data: {len(ts_data)}")
-            
-            # Create DataFrame
-            df = pd.DataFrame(ts_data)
-            logging.info(f"DataFrame columns: {df.columns}")
-            
-            # Filter for emissions variables
-            emissions_vars = []
-            if any(word in q for word in ['emission', 'co2', 'ghg']):
-                emissions_vars = [v for v in df['variable'].unique() 
-                                if 'emission' in str(v).lower() or 'co2' in str(v).lower()]
-                logging.info(f"Found emission variables: {emissions_vars}")
-                
-                if emissions_vars:
-                    df = df[df['variable'].isin(emissions_vars)]
-                else:
-                    return """## No Emission Data Found
-
-I couldn't find any emission-related variables in the current dataset. Available variables are:
-""" + "\n".join([f"- {v}" for v in sorted(df['variable'].unique())]) + """
-
-Try:
-- Using `list variables` to see all available variables
-- Plotting a different variable
-- Checking the data source at [IAM PARIS Results](https://iamparis.eu/results)
-"""
-            
-            # Get year columns
-            year_cols = [col for col in df.columns if str(col).isdigit()]
-            logging.info(f"Year columns found: {year_cols}")
-            
-            if not year_cols:
-                return """## No Time Series Data Available
-
-The current dataset doesn't contain any year-based data columns. This might be because:
-- The data hasn't been loaded correctly
-- The selected variables don't have time series data
-- The data format is different than expected
-
-Try:
-1. Refreshing the data connection
-2. Using `list variables` to see available data
-3. Checking the [IAM PARIS Results](https://iamparis.eu/results) for available time series"""
-            
-            # Create plot
-            plt.figure(figsize=(12, 6))
-            
-            # Plot data for each model/variable combination
-            for (model_name, var), group in df.groupby(['modelName', 'variable']):
-                years = sorted(year_cols)
-                values = [float(group[year].mean()) for year in years if not pd.isna(group[year].mean())]
-                if values:  # Only plot if we have values
-                    plt.plot(years[:len(values)], values, marker='o', 
-                            label=f"{model_name}: {var}", linewidth=2)
-            
-            if plt.gca().get_lines():  # Check if any lines were plotted
-                plt.title("Emissions Time Series")
-                plt.xlabel("Year")
-                plt.ylabel(f"Value ({df['unit'].iloc[0]})" if 'unit' in df else "Value")
-                plt.grid(True, alpha=0.3)
-                plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
-                plt.tight_layout()
-                
-                # Save plot
-                os.makedirs("plots", exist_ok=True)
-                filename = f"plots/timeseries_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
-                plt.savefig(filename, dpi=300, bbox_inches='tight')
-                plt.close()
-                
-                return f"""## Time Series Plot Generated
-
-I've created a plot showing emissions over time across different models. 
-You can find it saved as: `{filename}`
-
-The plot shows:
-- Data from {min(year_cols)} to {max(year_cols)}
-- {len(df['modelName'].unique())} different models
-- {len(emissions_vars)} emission-related variables
-
-Want to:
-- Focus on a specific model? Try `plot emissions for [model name]`
-- Look at different variables? Try `list variables`
-- Compare specific years? Include a year in your query
-
-_Data source: [IAM PARIS Results](https://iamparis.eu/results)_"""
-            else:
-                return """## No Plottable Data Found
-
-While I found some data, I couldn't create a meaningful plot. This might be because:
-- The values are missing or invalid
-- The time series is incomplete
-- The data format isn't suitable for plotting
-
-Try:
-1. Using a different variable
-2. Specifying a particular model
-3. Checking the raw data with `list variables`"""
-                
-        except Exception as e:
-            logging.error(f"Error creating plot: {str(e)}")
-            return f"""## Error Creating Plot
-
-I encountered an error: `{str(e)}`
-
-Troubleshooting steps:
-1. Check if the variable exists using `list variables`
-2. Try specifying a model with `plot [model_name] emissions`
-3. Make sure the data contains time series information
-
-_If the problem persists, there might be an issue with the data source._"""
-    
-    # List models (conversational)
-    if re.search(r"\bmodels?\b.*\b(available|list)\b", q):
-        models = sorted({r.get('modelName', '') for r in model_data if r.get('modelName')})
-        if not models:
-            return "I couldn't find any models in the data right now. Try `help` or refresh the data."
-        # Build a natural sentence rather than a dry bullet list
-        if len(models) <= 6:
-            model_str = ", ".join(models[:-1]) + (" and " + models[-1] if len(models) > 1 else models[0])
-            return f"I found these models in the IAM PARIS dataset: {model_str}. Which one would you like to know more about?"
-        # For many models, give a short hint and invite follow-up
-        return (f"There are {len(models)} models available. "
-                "You can ask for details about a specific model using `info [model name]`, "
-                "or say `list variables` to see the kinds of outputs available.")
-    
-    # List variables (conversational)
-    if 'list variables' in q:
-        vars = sorted({r.get('variable', '') for r in ts_data if r.get('variable')})
-        if not vars:
-            return "I don't see any variables in the loaded dataset. Try reloading or check the IAM PARIS results website."
-        # Present a friendly sample and hint for full list
-        sample = vars[:8]
-        more = "" if len(vars) <= 8 else f" and {len(vars)-8} more"
-        sample_str = ", ".join(sample[:-1]) + (" and " + sample[-1] if len(sample) > 1 else sample[0])
-        return (f"I can work with variables like {sample_str}{more}. "
-                "If you want the complete list, say `list variables` again or specify a variable to plot (e.g. `plot CO2 emissions`).")
-    
-    # List scenarios (conversational)
-    if re.search(r"\bscenarios?\b.*\b(available|included|list)\b", q):
-        scenarios = sorted({r.get('scenario', '') for r in ts_data if r.get('scenario')})
-        if not scenarios:
-            return "No scenarios are loaded in the current dataset. Try a different query or check IAM PARIS results."
-        return ("I see several scenarios in the data. If you tell me which one interests you I can compare results or plot variables "
-                "for that scenario. Try `list scenarios` to get the exact names.")
-    
-    # Model info or general models query — now conversational and data-driven
-    if any(w in q for w in ('info', 'details', 'describe', 'about', 'tell me about')):
-        return conversational_models_overview(model_data, ts_data, q)
-    
-    # Help command
-    if 'help' in q:
-        return ("Tell me what you want to do and I'll help. Examples:\n"
-                "- Ask about models: `list models` or `info GCAM`\n"
-                "- Explore variables: `list variables` or `plot CO2 emissions`\n"
-                "- Visualize results: `plot emissions for GCAM`\n"
-                "If you want more conversational guidance, just say 'suggest' or ask a question in plain language.")
-    
-    return ""
+from data_utils import data_query
 
 class IAMParisBot:
     def __init__(self, streaming: bool = True):
@@ -432,13 +267,27 @@ class IAMParisBot:
         
         # Load model and time series data
         models = self.fetch_json(self.env["REST_MODELS_URL"], params={"limit": -1})
+
+        # Try to get data with time series (year columns)
         ts = self.fetch_json(
             self.env["REST_API_FULL"],
             payload={
                 "study": ["paris-reinforce"],
-                "workspace_code": ["eu-headed"]
+                "workspace_code": ["eu-headed"],
+                "include_years": True  # Request time series data
             }
         )
+
+        # If no time series data, try alternative data sources
+        if not ts or not any(str(col).isdigit() for record in ts for col in record.keys()):
+            self.logger.info("No time series data found, trying alternative data source...")
+            ts = self.fetch_json(
+                self.env["REST_API_FULL"],
+                payload={
+                    "study": ["all"],  # Try getting all studies
+                    "limit": 1000  # Increase limit to get more data
+                }
+            )
         
         # Create vector store and QA chain
         docs = docs_from_records(models + ts)
@@ -476,20 +325,22 @@ class IAMParisBot:
                     self.history.append((query, ans))
                     continue
 
-                # Handle QA chain response
+                # Handle QA chain response with streaming output
                 if self.streaming:
                     print("\nBOT: ", end="", flush=True)
+                    # Use callback handler to stream output
                     resp = chain.invoke({
                         "question": query,
                         "chat_history": self.history
                     })
                     print()
+                    ans = resp.get("answer", "").strip()
                 else:
                     resp = chain.invoke({
                         "question": query,
                         "chat_history": self.history
                     })
-                ans = resp.get("answer", "").strip()
+                    ans = resp.get("answer", "").strip()
 
                 # Store in history without the "You:" part
                 if ans:
@@ -511,17 +362,119 @@ class IAMParisBot:
                 self.logger.error(f"Error processing query: {str(e)}")
                 print("\nBOT: Sorry, I encountered an error. Please try again.")
 
+import logging
+from manager import MultiAgentManager
+
 def main():
-    parser = argparse.ArgumentParser(description="IAM PARIS Climate Policy Assistant")
+    import argparse
+    parser = argparse.ArgumentParser(description="IAM PARIS Climate Policy Assistant with Multi-Agent Support")
     parser.add_argument("--no-stream", action="store_true", help="Disable response streaming")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode (shows all logs)")
     args = parser.parse_args()
-    
+
     # Set up logging based on debug flag
     setup_logging(args.debug)
-    
+    logger = logging.getLogger(__name__)
+
+    # Initialize the original bot to access shared resources and plotting
     bot = IAMParisBot(streaming=not args.no_stream)
-    bot.run()
+    logger.info("Loading data and resources for multi-agent system...")
+
+    # Load data and resources as in IAMParisBot.run but without starting loop
+    logger.info("Fetching model data...")
+    models = bot.fetch_json(bot.env["REST_MODELS_URL"], params={"limit": -1})
+    logger.info(f"Fetched {len(models)} model records")
+
+    logger.info("Fetching time series data...")
+    # Try to get data with time series (year columns)
+    ts = bot.fetch_json(
+        bot.env["REST_API_FULL"],
+        payload={
+            "study": ["paris-reinforce"],
+            "workspace_code": ["eu-headed"],
+            "include_years": True  # Request time series data
+        }
+    )
+
+    # If no time series data, try alternative data sources
+    if not ts or not any(str(col).isdigit() for record in ts for col in record.keys()):
+        logger.info("No time series data found, trying alternative data source...")
+        ts = bot.fetch_json(
+            bot.env["REST_API_FULL"],
+            payload={
+                "study": ["all"],  # Try getting all studies
+                "limit": 1000  # Increase limit to get more data
+            }
+        )
+    logger.info(f"Fetched {len(ts)} time series records")
+
+    # Debug: Check if models have modelName field
+    if models:
+        sample_model = models[0] if models else {}
+        logger.info(f"Sample model data: {sample_model}")
+        model_names = [r.get('modelName', '') for r in models if r.get('modelName')]
+        logger.info(f"Found {len(model_names)} models with modelName: {model_names[:5]}...")
+
+    # Debug: Check time series data
+    if ts:
+        sample_ts = ts[0] if ts else {}
+        logger.info(f"Sample time series data: {sample_ts}")
+        scenarios = list(set(r.get('scenario', '') for r in ts if r.get('scenario')))
+        logger.info(f"Found scenarios: {scenarios[:5]}...")
+
+    # Prepare documents and vector store
+    docs = docs_from_records(models + ts)
+    chunks = RecursiveCharacterTextSplitter(
+        chunk_size=800,
+        chunk_overlap=80
+    ).split_documents(docs)
+
+    emb = OpenAIEmbeddings(
+        model="text-embedding-3-small",
+        api_key=bot.env["OPENAI_API_KEY"]
+    )
+    vs = build_faiss_index(chunks, emb)
+
+    # Shared resources dictionary
+    shared_resources = {
+        "models": models,
+        "ts": ts,
+        "vector_store": vs,
+        "env": bot.env,
+        "bot": bot  # For plotting agent to call plot_time_series
+    }
+
+    # Initialize multi-agent manager
+    manager = MultiAgentManager(shared_resources, streaming=not args.no_stream)
+    logger.info("Multi-agent manager initialized. Ready for interaction.")
+
+    print("\nWelcome to the IAM PARIS Climate Policy Assistant with Multi-Agent Support!")
+    print("Ask me about climate models, scenarios, policies, data, or request plots.")
+    print("Type 'help' for available commands or 'exit' to quit.\n")
+
+    history = []
+
+    while True:
+        try:
+            query = input("YOU: ").strip()
+            if query.lower() in ("exit", "quit"):
+                break
+            if not query:
+                continue
+
+            # Route query to appropriate agent
+            response = manager.route_query(query, history)
+            print("\nBOT:", response, "\n")
+
+            # Append to history
+            history.append((query, response))
+
+        except KeyboardInterrupt:
+            print("\nExiting...")
+            break
+        except Exception as e:
+            logger.error(f"Error processing query: {e}")
+            print("\nBOT: Sorry, I encountered an error. Please try again.")
 
 if __name__ == "__main__":
     main()
