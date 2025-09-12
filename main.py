@@ -532,8 +532,7 @@ def main():
 
     # Pre-compute common plots for faster access
     from simple_plotter import simple_plotter
-    # Removed precompute_common_plots call as caching is disabled and method removed
-    # simple_plotter.precompute_common_plots(ts, models)
+
 
     logger.info("Multi-agent manager initialized. Ready for interaction.")
 
