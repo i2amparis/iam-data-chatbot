@@ -1,0 +1,13 @@
+- Education:
+    - No Education:
+        description: without formal education
+    - Incomplete Primary Education:
+        description: with incomplete primary education
+    - Primary Education:
+        description: with completed primary education
+    - Lower Secondary Education:
+        description: with completed lower secondary education
+    - Upper Secondary Education:
+        description: with completed upper secondary education
+    - Post Secondary Education:
+        description: with completed post secondary education

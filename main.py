@@ -1,4 +1,7 @@
 import os
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 import re
 import argparse
 import requests
@@ -61,6 +64,21 @@ def setup_logging(debug: bool = False):
         console_handler.setLevel(logging.DEBUG)
         console_handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
         root_logger.addHandler(console_handler)
+
+def load_definitions():
+    from utils.yaml_loader import load_all_yaml_files, yaml_to_documents
+    from pathlib import Path
+
+    region_path = Path('definitions/region').resolve()
+    region_yaml = load_all_yaml_files(str(region_path))
+    variable_path = Path('definitions/variable').resolve()
+    variable_yaml = load_all_yaml_files(str(variable_path))
+
+    region_docs = yaml_to_documents(region_yaml)
+    variable_docs = yaml_to_documents(variable_yaml)
+    return region_docs, variable_docs
+
+
 
 def docs_from_records(records: list) -> List[Document]:
     """Convert API records to Document objects for vector store"""
@@ -234,7 +252,7 @@ class IAMParisBot:
 
         llm = ChatOpenAI(
             model_name="gpt-4-turbo",
-            temperature=0,
+            temperature=2,
             streaming=self.streaming,
             callbacks=[StreamingStdOutCallbackHandler()] if self.streaming else None,
             api_key=self.env["OPENAI_API_KEY"]
@@ -432,6 +450,10 @@ def main():
     parser.add_argument("--debug", action="store_true", help="Enable debug mode (shows all logs)")
     args = parser.parse_args()
 
+    region_docs, variable_docs = load_definitions()
+
+
+
     # Set up logging based on debug flag
     setup_logging(args.debug)
     logger = logging.getLogger(__name__)
@@ -506,11 +528,20 @@ def main():
         logger.info(f"Found scenarios: {scenarios[:5]}...")
 
     # Prepare documents and vector store
-    docs = docs_from_records(models + ts)
+    # Step 1: Get model and time series documents
+    api_docs = docs_from_records(models + ts)
+
+    # Step 2: Load YAML docs
+    region_docs, variable_docs = load_definitions()
+
+    # Step 3: Combine all documents
+    all_docs = api_docs + region_docs + variable_docs
+
+    # Step 4: Split into chunks (for large YAML descriptions too)
     chunks = RecursiveCharacterTextSplitter(
         chunk_size=800,
         chunk_overlap=80
-    ).split_documents(docs)
+    ).split_documents(all_docs)
 
     emb = OpenAIEmbeddings(
         model="text-embedding-3-small",

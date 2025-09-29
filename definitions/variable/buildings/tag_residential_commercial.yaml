@@ -1,0 +1,7 @@
+- Residential and Commercial:
+    - Residential:
+        description: residential
+    - Commercial:
+        description: commercial
+    - Residential and Commercial:
+        description: all

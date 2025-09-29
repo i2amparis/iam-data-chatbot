@@ -114,6 +114,23 @@ class SimplePlotter:
 
         return None
 
+    def find_region(self, query: str) -> Optional[str]:
+        """Find region/country from user's query"""
+        common_regions = ['greece', 'germany', 'china', 'usa', 'india', 'brazil', 'russia', 'japan', 'france', 'uk', 'italy', 'spain', 'canada', 'australia', 'world', 'global', 'eu', 'europe', 'asia', 'africa', 'america', 'north america', 'south america']
+        query_lower = query.lower()
+        for region in common_regions:
+            if region in query_lower:
+                return region.title()  # Title case for display
+        return None
+
+    def find_year(self, query: str) -> Optional[int]:
+        """Find year from user's query"""
+        import re
+        match = re.search(r'\b(20\d{2})\b', query)
+        if match:
+            return int(match.group(1))
+        return None
+
     def parse_plot_request(self, query: str, available_vars: List[str], available_models: List[str]) -> Dict[str, Any]:
         """Parse natural language plot requests"""
         query_lower = query.lower()
@@ -123,6 +140,8 @@ class SimplePlotter:
             'action': 'plot',
             'variable': None,
             'model': None,
+            'region': None,
+            'year': None,
             'plot_type': 'line',  # default
             'time_series': True
         }
@@ -133,6 +152,12 @@ class SimplePlotter:
         # Find model
         result['model'] = self.find_model(query, available_models)
 
+        # Find region
+        result['region'] = self.find_region(query)
+
+        # Find year
+        result['year'] = self.find_year(query)
+
         # Determine plot type
         if any(word in query_lower for word in ['bar', 'bars', 'histogram']):
             result['plot_type'] = 'bar'
@@ -142,7 +167,7 @@ class SimplePlotter:
         return result
 
     def create_simple_plot(self, data: List[Dict], variable: str = None, model: str = None,
-                          plot_type: str = 'line') -> str:
+                          plot_type: str = 'line', region: str = None, year: int = None) -> str:
         """Create a simple plot from the data with caching support"""
 
         if not data:
@@ -179,6 +204,16 @@ class SimplePlotter:
                 self.logger.info(f"Filtered by model '{model}': {len(df)} records remaining")
             else:
                 return f"Model '{model}' not found in data. Available models: {list(set(df.get('modelName', [])))}"
+
+        # Filter by region if specified - use more efficient string matching
+        if region:
+            if 'region' in df.columns:
+                # Use case-insensitive regex for better performance
+                region_pattern = re.compile(re.escape(region), re.IGNORECASE)
+                df = df[df['region'].str.contains(region_pattern, na=False)]
+                self.logger.info(f"Filtered by region '{region}': {len(df)} records remaining")
+            else:
+                return f"Region '{region}' not found in data. Available regions: {list(set(df.get('region', [])))}"
 
         if df.empty:
             return "No data matches your criteria."

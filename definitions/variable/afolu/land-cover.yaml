@@ -1,0 +1,133 @@
+- Land Cover:
+    description: Total land cover
+    unit: million ha
+    agmip: Land Cover (LAND) - Total (TOT)
+    tier: 1
+
+- Land Cover|Built-Up Area:
+    description: Built-up land associated with human settlements
+    unit: million ha
+    engage: Land Cover|Built-up Area
+    navigate: Land Cover|Built-up Area
+    tier: 1
+
+- Land Cover|Pasture:
+    description: Pasture and range land based on FAO definition of 'permanent meadows and pastures'
+    unit: million ha
+    tier: 1
+
+- Land Cover|Cropland:
+    description: Arable land, i.e. land in bioenergy crop, food, and feed/fodder crops,
+      permanent crops as well as other arable land (physical area)
+    unit: million ha
+    agmip: Land Cover (LAND) - All crops (CRP)
+    tier: 1
+- Land Cover|Cropland|{Crop Types}:
+    description: Cropland for {Crop Types}
+    unit: million ha
+    tier: 2
+- Land Cover|Cropland|Fallow:
+    description: Fallow cropland
+    unit: million ha
+    tier: 2
+- Land Cover|Cropland|Trees:
+    description: Trees on cropland for agroforesty
+    unit: million ha
+    tier: 2
+    notes: To prevent double-counting, this variable should include only the actual crop area specifically covered by trees, not the entire agroforestry landscape
+- Land Cover|Cropland|Rainfed:
+    description: Rainfed cropland (physical area)
+    unit: million ha
+    tier: 1
+- Land Cover|Cropland|Irrigated:
+    description: Irrigated cropland (physical area)
+    unit: million ha
+    tier: 1
+- Land Cover|Cropland|{Crop Types}|Rainfed:
+    description: Rainfed cropland (physical area) for {Crop Types}
+    unit: million ha
+    tier: 3
+- Land Cover|Cropland|{Crop Types}|Irrigated:
+    description: Irrigated cropland (physical area) for {Crop Types}
+    unit: million ha
+    tier: 3
+
+- Land Cover|Forest:
+    description: Sum of primary, secondary and planted forest (FAO definition)
+    unit: million ha
+    agmip: Land Cover (LAND) - Forest (FOR)
+    tier: 1
+- Land Cover|Forest|Primary:
+    description: Naturally regenerated forest of native tree species, where there are no
+      clearly visible indications of human activities and the ecological processes are not
+      significantly disturbed (FAO definition)
+    unit: million ha
+    sdg: 15
+    tier: 2
+- Land Cover|Forest|Secondary:
+    description: Forest predominantly composed of trees established through natural
+      regeneration excluding primary forest (based on FAO definition of Naturally Regenerating Forest)
+    unit: million ha
+    sdg: 15
+    tier: 2
+- Land Cover|Forest|Planted:
+    description: Forest predominantly composed of trees established through planting
+      and/or deliberate seeding (FAO definition)
+    unit: million ha
+    tier: 2
+- Land Cover|Forest|Planted|Plantation:
+    description: Plantations are planted forests that are intensively managed and meet
+      have one or two species, even age class, and regular spacing at planting and
+      stand maturity (FAO definition)
+    unit: million ha
+    tier: 2
+- Land Cover|Forest|Planted|Plantation|Timber:
+    description: Plantations for timber production
+    unit: million ha
+    tier: 2
+- Land Cover|Forest|Planted|Plantation|Re/Afforestation:
+    description: Reforestation and/or afforestation for carbon sequestration with
+      non-native species and/or as monoculture plantation
+    unit: million ha
+    tier: 2
+- Land Cover|Forest|Planted|Natural:
+    description: Planted forest which is not classified as plantation forest,
+      in particular re/afforestation for carbon sequestration with native tree species
+    unit: million ha
+    tier: 2
+- Land Cover|Forest|Planted|Natural|Re/Afforestation:
+    description: Reforestation and/or afforestation for carbon sequestration with native
+      tree species resembling natural vegetation
+    unit: million ha
+    tier: 2
+- Land Cover|Forest|Planted|Natural|Other:
+    description: Other planted forest which is not classified as plantation forest
+    unit: million ha
+    tier: 2
+
+- Land Cover|Other Natural:
+    description: Non-forest natural land including primary non-forest, restored and
+      recovered natural land
+    unit: million ha
+    tier: 1
+- Land Cover|Other Natural|Primary Non-Forest:
+    description: Primary non-forest natural land without clearly visible indications of
+      human activities
+    unit: million ha
+    tier: 2
+- Land Cover|Other Natural|Restored:
+    description: Intentionally restored natural land for the purpose of nature and/or
+      biodiversity conservation
+    unit: million ha
+    tier: 2
+- Land Cover|Other Natural|Recovered:
+    description: Recovered natural land due to the abandonment of agricultural or
+      forestry land without intention for nature/biodiversity conservation
+    unit: million ha
+    tier: 2
+
+- Land Cover|Other Land:
+    description: Other land cover that does not fit into any other land cover category,
+      e.g. ice and water bodies
+    unit: million ha
+    tier: 2
