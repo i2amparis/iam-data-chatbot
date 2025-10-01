@@ -70,12 +70,12 @@ def load_definitions():
     from pathlib import Path
 
     region_path = Path('definitions/region').resolve()
-    region_yaml = load_all_yaml_files(str(region_path))
+    region_yaml_dict = load_all_yaml_files(str(region_path))
     variable_path = Path('definitions/variable').resolve()
-    variable_yaml = load_all_yaml_files(str(variable_path))
+    variable_yaml_dict = load_all_yaml_files(str(variable_path))
 
-    region_docs = yaml_to_documents(region_yaml)
-    variable_docs = yaml_to_documents(variable_yaml)
+    region_docs = yaml_to_documents(region_yaml_dict)
+    variable_docs = yaml_to_documents(variable_yaml_dict)
     return region_docs, variable_docs
 
 

@@ -11,7 +11,7 @@ class Document:
     def _repr__(self):
         return f'Document(metadata={self.metadata})'
 
-def load_all_yaml_files(directory: str) -> Dict[str, dict]:
+def load_all_yaml_files(directory: str) -> Dict[str, Any]:
     yaml_files = {}
     loaded_count = 0
     error_count = 0
