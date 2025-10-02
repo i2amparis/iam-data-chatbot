@@ -1,6 +1,6 @@
 import os
 import yaml
-from typing import List, Dict
+from typing import List, Dict, Any
 from pathlib import Path
 
 class Document:
