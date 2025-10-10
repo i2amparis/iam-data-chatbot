@@ -35,14 +35,15 @@ def load_all_yaml_files(directory: str) -> Dict[str, Any]:
 
 
 
-def yaml_to_documents(yaml_dict: Dict[str, dict]) -> List[Document]:
-    docs = []
-    for file_path, content in yaml_dict.items():
-        if not content:
-            continue
-        doc = Document(
-            page_content=str(content),  # You can format this better if needed
-            metadata={"source": file_path}
-        )
-        docs.append(doc)
-    return docs
+def yaml_to_documents(yaml_data: dict) -> List[Document]:
+    """
+    Convert parsed YAML dictionary into LangChain Document objects.
+    """
+    documents = []
+    for filename, items in yaml_data.items():
+        for item in items:
+            metadata = item.copy()
+            content = metadata.pop("description", "")
+            documents.append(Document(page_content=content, metadata=metadata))
+    return documents
+

@@ -16,6 +16,7 @@ from io import BytesIO
 from PIL import Image
 
 from langchain.schema import Document
+
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_community.vectorstores import FAISS
@@ -38,7 +39,8 @@ logging.basicConfig(
         # File handler for all logs
         logging.FileHandler('chatbot.log'),
         # Custom stream handler for errors only
-        logging.StreamHandler(stream=open(os.devnull, 'w'))  # Suppress console output
+        if debug:
+            logging.StreamHandler()  # Suppress console output
     ]
 )
 
@@ -371,7 +373,8 @@ class IAMParisBot:
             model="text-embedding-3-small",
             api_key=self.env["OPENAI_API_KEY"]
         )
-        vs = build_faiss_index(chunks, emb)
+        "vector_store":vs,
+        share_recourses['vector_store'] = faiss_index
         chain = self.create_qa_chain(vs)
         
         self.logger.info("Bot ready for interaction")
@@ -450,13 +453,14 @@ def main():
     parser.add_argument("--debug", action="store_true", help="Enable debug mode (shows all logs)")
     args = parser.parse_args()
 
-    region_docs, variable_docs = load_definitions()
+    definitions_docs = region_docs + variable_docs
 
 
 
     # Set up logging based on debug flag
     setup_logging(args.debug)
     logger = logging.getLogger(__name__)
+
 
     # Initialize the original bot to access shared resources and plotting
     bot = IAMParisBot(streaming=not args.no_stream)
@@ -535,7 +539,10 @@ def main():
     region_docs, variable_docs = load_definitions()
 
     # Step 3: Combine all documents
-    all_docs = api_docs + region_docs + variable_docs
+    # Incorrect
+    definitions_docs = region_docs + variable_docs
+
+
 
     # Step 4: Split into chunks (for large YAML descriptions too)
     chunks = RecursiveCharacterTextSplitter(
@@ -547,22 +554,22 @@ def main():
         model="text-embedding-3-small",
         api_key=bot.env["OPENAI_API_KEY"]
     )
-    vs = build_faiss_index(chunks, emb)
+    faiss_index = FAISS.from_documents(chunks, emb)
+
 
     # Shared resources dictionary
     shared_resources = {
         "models": models,
         "ts": ts,
         "vector_store": vs,
-        "env": bot.env,
+        "env": bot.env,,
+        'vector_store':faiss_index,
         "bot": bot  # For plotting agent to call plot_time_series
     }
 
     # Initialize multi-agent manager
     manager = MultiAgentManager(shared_resources, streaming=not args.no_stream)
 
-    # Pre-compute common plots for faster access
-    from simple_plotter import simple_plotter
 
 
     logger.info("Multi-agent manager initialized. Ready for interaction.")

@@ -45,16 +45,17 @@ class ModelExplanationAgent(BaseAgent):
         llm = ChatOpenAI(
             model_name="gpt-4-turbo",
             temperature=0,
-            streaming=True,
+            streaming=self.streaming,
             api_key=self.resources["env"]["OPENAI_API_KEY"],
         )
 
         message_history = ChatMessageHistory()
         memory = ConversationSummaryBufferMemory(
+            llm=llm,
+            max_token_limit=2000,
             chat_memory=message_history,
             return_messages=True,
-            memory_key="chat_history",
-            llm=llm
+            memory_key="chat_history"
         )
 
         system_tpl = """You are an expert climate policy assistant focused on IAM PARIS data and models (https://iamparis.eu/).
@@ -106,7 +107,6 @@ class DataPlottingAgent(BaseAgent):
     def handle(self, query: str, history: Optional[List[Tuple[str, str]]] = None) -> str:
         models = self.resources.get("models", [])
         ts = self.resources.get("ts", [])
-        # Use the data_query function which has the plotting logic
         return data_query(query, models, ts)
 
 
@@ -123,24 +123,27 @@ class GeneralQAAgent(BaseAgent):
         llm = ChatOpenAI(
             model_name="gpt-4-turbo",
             temperature=0,
-            streaming=self.streaming,
+            streaming=True,
             api_key=self.resources["env"]["OPENAI_API_KEY"],
         )
 
         message_history = ChatMessageHistory()
         memory = ConversationSummaryBufferMemory(
+            llm=llm,
+            max_token_limit=2000,
             chat_memory=message_history,
             return_messages=True,
-            memory_key="chat_history",
-            llm=llm
+            memory_key="chat_history"
         )
 
-        system_tpl = """You are a helpful assistant for IAM PARIS climate data and models.
+        system_tpl = """You are an expert climate policy assistant focused on IAM PARIS data and models (https://iamparis.eu/).
 
 Always:
-- Provide clear and concise answers
-- Use Markdown formatting
-- Reference IAM PARIS data when applicable
+- Provide direct answers without restating the question
+- Use Markdown formatting with headers and lists
+- Reference IAM PARIS data when available
+- Include IAM PARIS links
+- Format numbers with units
 
 Context: ```{context}```"""
 
@@ -185,4 +188,3 @@ class ModellingSuggestionsAgent(BaseAgent):
         for idx, suggestion in enumerate(suggestions, 1):
             response += f"{idx}. {suggestion}\n"
         return response
-
