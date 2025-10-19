@@ -9,12 +9,13 @@ import base64
 from io import BytesIO
 
 from simple_plotter import simple_plot_query
-from utils_query import match_variable_from_yaml, extract_examples_from_data
+from utils_query import match_variable_from_yaml, extract_examples_from_data, get_available_workspaces, extract_variable_and_region_from_query
 from utils.yaml_loader import load_all_yaml_files
 
 
-# Load variable definitions from YAML files
+# Load variable and region definitions from YAML files
 variable_dict = load_all_yaml_files('definitions/variable')
+region_dict = load_all_yaml_files('definitions/region')
 
 
 def data_query(question: str, model_data: list, ts_data: list) -> str:
@@ -25,18 +26,8 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
     # Handle PLOTTING QUERIES
     # -------------------------------
     if any(word in q for word in ['plot', 'show', 'graph', 'visualize']):
-        match = match_variable_from_yaml(question, variable_dict)
-
-        if match["match_type"] in ["exact", "fuzzy"]:
-            matched_var = match["matched_variable"]
-            return simple_plot_query(matched_var, model_data, ts_data)
-
-        elif match["match_type"] == "ambiguous":
-            options = ", ".join(match["matches"][:5])
-            return f"Your query matched multiple variables. Please clarify one of the following: {options}"
-
-        else:
-            return "Could not identify a variable to plot. Try specifying a variable like 'CO2 emissions' or 'energy consumption'."
+        # Use data-based matching as primary method (more reliable than YAML)
+        return simple_plot_query(question, model_data, ts_data)
 
     # -------------------------------
     # LIST AVAILABLE MODELS
@@ -80,6 +71,25 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
         more = "" if len(scenarios) <= 8 else f" and {len(scenarios)-8} more"
         sample_str = ", ".join(sample[:-1]) + (" and " + sample[-1] if len(sample) > 1 else sample[0])
         return f"I found scenarios like {sample_str}{more}. You can plot variables for any of these scenarios."
+
+    # -------------------------------
+    # LIST ALL MODELS, RESULTS, AND WORKSPACES
+    # -------------------------------
+    if re.search(r"\b(list|get)\b.*\b(all|available)\b.*\b(models?|results?|workspaces?)\b", q) or \
+       re.search(r"\b(models?|results?|workspaces?)\b.*\b(list|get|available)\b", q) or \
+       re.search(r"\b(list|get)\b.*\b(models?|results?|workspaces?)\b.*\b(and|,)\b.*\b(models?|results?|workspaces?)\b", q):
+        models = sorted({r.get('modelName', '') for r in model_data if r and r.get('modelName')})
+        variables = sorted({r.get('variable', '') for r in ts_data if r and r.get('variable')})
+        scenarios = sorted({r.get('scenario', '') for r in ts_data if r and r.get('scenario')})
+        workspaces = get_available_workspaces(ts_data)
+
+        response = "### Available Models, Results, and Workspaces\n\n"
+        response += f"**Models ({len(models)}):**\n" + ", ".join(models) + "\n\n"
+        response += f"**Results - Variables ({len(variables)}):**\n" + ", ".join(variables[:10]) + (f" and {len(variables)-10} more" if len(variables) > 10 else "") + "\n\n"
+        response += f"**Results - Scenarios ({len(scenarios)}):**\n" + ", ".join(scenarios[:10]) + (f" and {len(scenarios)-10} more" if len(scenarios) > 10 else "") + "\n\n"
+        response += f"**Workspaces ({len(workspaces)}):**\n" + ", ".join(workspaces) + "\n\n"
+        response += "For more details on any item, ask specific questions like 'list models' or 'plot [variable]'."
+        return response
 
     # -------------------------------
     # MODEL INFO REQUESTS

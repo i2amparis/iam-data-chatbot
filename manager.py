@@ -24,10 +24,31 @@ class MultiAgentManager:
         """Route the query to the appropriate agent based on keywords."""
         query_lower = query.lower()
 
+        # Check for clarification responses first
+        if hasattr(self, 'clarification_context') and self.clarification_context:
+            # This is a follow-up to a clarification request
+            context = self.clarification_context
+            if context['agent_type'] == 'data_plotting':
+                response = self.agents["data_plotting"].handle_clarification(query, context, history)
+                # Clear context after handling
+                self.clarification_context = None
+                return response
+
         # Routing logic based on keywords - more specific to avoid false positives
         # Check for actual plotting requests first (highest priority)
         if any(word in query_lower for word in ["plot", "show me", "graph", "visualize", "chart", "give me a plot", "create a plot", "make a plot"]):
             agent_name = "data_plotting"
+            response = self.agents[agent_name].handle(query, history)
+            # Check if response indicates ambiguity that needs clarification
+            if "Please clarify" in response or "matched multiple" in response:
+                # Store clarification context for follow-up
+                self.clarification_context = {
+                    'original_query': query,
+                    'ambiguous_response': response,
+                    'agent_type': agent_name
+                }
+                return response
+            return response
         elif any(phrase in query_lower for phrase in ["list models", "list variables", "list scenarios", "available models", "available variables", "available scenarios", "what models", "what variables", "what scenarios"]) or \
               any(word in query_lower for word in ["what data", "what can you plot", "what can you graph", "what can you visualize", "what plots", "what graphs", "what charts"]):
             agent_name = "data_query"

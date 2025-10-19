@@ -7,7 +7,7 @@ from typing import List, Dict, Any
 from utils_query import match_variable_from_yaml, extract_region_from_query, find_closest_variable_name
 from utils.yaml_loader import load_all_yaml_files
 
-def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]) -> str:
+def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict], region: str = None) -> str:
     """
     Generate a simple plot based on the user query.
     Filters data by variable, model, scenario, region if specified.
@@ -45,8 +45,14 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
             scenario = r['scenario']
             break
 
-    # Extract region
-    region = extract_region_from_query(q, [r.get('region', '') for r in ts_data if r])
+    # Use provided region if available, otherwise extract from query
+    if region is None:
+        # Extract region from actual data instead of region definitions
+        regions_in_data = {r.get('region', '') for r in ts_data if r and r.get('region')}
+        for reg in regions_in_data:
+            if reg.lower() in q.lower():
+                region = reg
+                break
 
     # Filter data
     filtered_data = []
@@ -64,7 +70,24 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
         filtered_data.append(r)
 
     if not filtered_data:
-        return f"No data found for variable '{variable}' with the specified filters (model: {model}, scenario: {scenario}, region: {region}). Try adjusting your query."
+        available_regions = sorted(set(r.get('region', '') for r in ts_data if r and r.get('region')))
+        available_scenarios = sorted(set(r.get('scenario', '') for r in ts_data if r and r.get('scenario')))
+        available_models = sorted(set(r.get('model', '') for r in ts_data if r and r.get('model')))
+
+        suggestions = []
+        if region and region not in available_regions:
+            suggestions.append(f"Try a different region. Available regions include: {', '.join(available_regions[:5])}...")
+        if scenario and scenario not in available_scenarios:
+            suggestions.append(f"Try a different scenario. Available scenarios include: {', '.join(available_scenarios[:3])}...")
+        if model and model not in available_models:
+            suggestions.append(f"Try a different model. Available models include: {', '.join(available_models[:3])}...")
+
+        if suggestions:
+            suggestion_text = " ".join(suggestions)
+        else:
+            suggestion_text = "Try using 'list variables' to see available options, or try a different variable name."
+
+        return f"No data found for variable '{variable}' with the specified filters (model: {model}, scenario: {scenario}, region: {region}). {suggestion_text}"
 
     # Prepare data for plotting
     df = pd.DataFrame(filtered_data)
@@ -77,6 +100,14 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
     year_cols = [col for col in df.columns if str(col).isdigit()]
     if not year_cols:
         return "No time series data available for plotting."
+
+    # Extract specific year from query if mentioned
+    specific_year = None
+    year_match = re.search(r'\b(20\d{2})\b', q)
+    if year_match:
+        specific_year = year_match.group(1)
+        if specific_year in year_cols:
+            year_cols = [specific_year]
 
     # Plot
     plt.figure(figsize=(10, 6))

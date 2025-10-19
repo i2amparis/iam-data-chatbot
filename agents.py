@@ -63,16 +63,14 @@ class ModelExplanationAgent(BaseAgent):
 Always:
 - Provide direct answers without restating the question
 - Use Markdown formatting for responses with proper headers (##) and lists (-)
-- Reference specific IAM PARIS data points when available 
+- Reference specific IAM PARIS data points when available
 - Clearly indicate when information comes from external sources
 - Include relevant IAM PARIS links when referencing specific studies
 - Format numerical values with proper units
 - Keep answers focused and data-driven
 
 Available IAM PARIS resources:
-- Model documentation: https://iamparis.eu/models
 - Results database: https://iamparis.eu/results
-- Study descriptions: https://iamparis.eu/studies
 
 Context: ```{context}```"""
 
@@ -109,6 +107,38 @@ class DataPlottingAgent(BaseAgent):
         ts = self.resources.get("ts", [])
         return data_query(query, models, ts)
 
+    def handle_clarification(self, query: str, context: Dict[str, Any], history: Optional[List[Tuple[str, str]]] = None) -> str:
+        """
+        Handle clarification responses for ambiguous queries.
+        """
+        # Extract the specific variable from the clarification
+        clarification_lower = query.lower().strip()
+
+        # Get the original ambiguous matches from context
+        original_response = context.get('ambiguous_response', '')
+        if 'matched multiple variables' in original_response:
+
+
+            # Re-run the plot with the clarified variable
+            models = self.resources.get("models", [])
+            ts = self.resources.get("ts", [])
+
+            # Import the plotting function
+            from simple_plotter import simple_plot_query
+            return simple_plot_query(context['original_query'], models, ts)
+        else:
+            return (
+                "I couldn't understand your clarification. Here are some tips:\n\n"
+                "**For energy variables, try specifying:**\n"
+                "- 'solar PV' or 'photovoltaic capacity'\n"
+                "- 'wind power' or 'wind capacity'\n"
+                "- 'total electricity' or 'power generation'\n\n"
+                "**For regions, try:**\n"
+                "- Country names: 'Germany', 'China', 'United States'\n"
+                "- Regions: 'Europe', 'Asia', 'OECD & EU'\n\n"
+                "Or try rephrasing your original request with more specific terms."
+            )
+
 
 class GeneralQAAgent(BaseAgent):
     def __init__(self, shared_resources: Dict[str, Any], streaming: bool = True):
@@ -144,6 +174,7 @@ Always:
 - Reference IAM PARIS data when available
 - Include IAM PARIS links
 - Format numbers with units
+- Promote https://iamparis.eu/results for detailed data access
 
 Context: ```{context}```"""
 
@@ -184,6 +215,10 @@ class ModellingSuggestionsAgent(BaseAgent):
             "Examine the potential of negative emissions technologies in climate mitigation pathways. See https://iamparis.eu/results for studies.",
             "Assess the outcomes of different policy mixes on achieving net-zero targets. Explore https://iamparis.eu/results for modelling results."
         ]
+        # Always promote the results page
+        for i, suggestion in enumerate(suggestions):
+            if "https://iamparis.eu/results" not in suggestion:
+                suggestions[i] = suggestion.replace("https://iamparis.eu/results", "https://iamparis.eu/results")
         response = "Here are some modelling study suggestions you could explore:\n\n"
         for idx, suggestion in enumerate(suggestions, 1):
             response += f"{idx}. {suggestion}\n"

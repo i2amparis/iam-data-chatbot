@@ -2,7 +2,7 @@
 ChatGPT bot to provide access and analysis to IAM result data
 
 ~~~~~INFO~~~~
-# create conda enviroment 
+# create conda enviroment
 conda create -n botenv python=3.10
 
 # conda activation
@@ -18,10 +18,10 @@ pip freeze > requirements.txt
 pip install -r requirements.txt
 
 #run the bot to get answers from data
-python bot_data.py
+python mainv2.py
 
 #run the bot to get answers from api
-python bot_api.py
+python mainv2.py --query "your question here"
 
 #run the bot to get answers with graph
-python bot_api_graph.py
+python mainv2.py --debug

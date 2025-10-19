@@ -40,7 +40,7 @@ from utils_query import (
 from pathlib import Path
 
 #Variable Definitions for Energy Systems
-variable_dict = load_all_yaml_files('definitions/variable/energy')
+variable_dict = load_all_yaml_files('definitions/variable')
 
 def setup_logging(debug: bool = False):
     root_logger = logging.getLogger()
@@ -134,7 +134,7 @@ class IAMParisBot:
             with open(cache_file, 'r') as f:
                 return pd.read_json(f).to_dict('records')
         if payload:
-            resp = requests.get(url, params=payload)
+            resp = requests.post(url, json=payload)
         else:
             resp = requests.get(url, params=params)
         print(f"API call to {url}: status {resp.status_code}")
@@ -189,6 +189,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--no-stream", action="store_true")
     parser.add_argument("--debug", action="store_true")
+    parser.add_argument("--query", type=str, help="Single query to process and exit")
     args = parser.parse_args()
 
     setup_logging(args.debug)
@@ -196,7 +197,7 @@ def main():
 
     bot = IAMParisBot(streaming=not args.no_stream)
     models = bot.fetch_json(bot.env["REST_MODELS_URL"], params={"limit": -1})
-    ts_payload = {"study": ["Decarbonization potentials of energy citizens"], "limit": -1}
+    ts_payload = {"limit": -1, "workspace_code": ["energy-systems"]}
     logger.info(f"Fetching timeseries with payload: {ts_payload}")
     ts = bot.fetch_json(bot.env["REST_API_FULL"], payload=ts_payload)
     logger.info(f"Timeseries records fetched: {len(ts)}")
@@ -218,23 +219,31 @@ def main():
     }
 
     manager = MultiAgentManager(shared_resources, streaming=not args.no_stream)
+
+    if args.query:
+        # Process single query and exit
+        history = []
+        response = manager.route_query(args.query, history)
+        if response.startswith("![Plot]"):
+            display_plot_from_base64(response)
+            print("Response: [Plot Image]")
+        else:
+            print("Response:", response)
+        return
+
     print("\nWelcome to the IAM PARIS Climate Policy Assistant! Type 'exit' to quit.\n")
 
-    print("Examples:")
-    print("Models:", ", ".join(get_available_models(models)[:5]))
+    print("Examples (filtered for energy-systems workspace):")
+    # Filter models to those available in the loaded ts data
+    available_models = set(r.get('modelName', '') for r in ts if r and r.get('modelName'))
+    model_names = [name for name in available_models if name][:5]
+    print("Models:", ", ".join(sorted(model_names)))
     print("Scenarios:", ", ".join(get_available_scenarios(ts)[:5]))
-    variable_names = []
 
-    for file_data in variable_dict.values():
-        for item in file_data:  # each item is a dict with variable name as key
-            for name in item.keys():
-                variable_names.append(name.strip())
-
-    print("Variables:", ", ".join(sorted(variable_names)[:10]))
-
-
-
-
+    # Filter variables to those available in the loaded ts data
+    available_variables = set(r.get('variable', '') for r in ts if r and r.get('variable'))
+    variable_names = [name for name in available_variables if name][:10]
+    print("Variables:", ", ".join(sorted(variable_names)))
 
     history = []
     while True:

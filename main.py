@@ -38,9 +38,6 @@ logging.basicConfig(
     handlers=[
         # File handler for all logs
         logging.FileHandler('chatbot.log'),
-        # Custom stream handler for errors only
-        if debug:
-            logging.StreamHandler()  # Suppress console output
     ]
 )
 
@@ -373,9 +370,8 @@ class IAMParisBot:
             model="text-embedding-3-small",
             api_key=self.env["OPENAI_API_KEY"]
         )
-        "vector_store":vs,
-        share_recourses['vector_store'] = faiss_index
-        chain = self.create_qa_chain(vs)
+        faiss_index = build_faiss_index(chunks, emb)
+        chain = self.create_qa_chain(faiss_index)
         
         self.logger.info("Bot ready for interaction")
         print("\nWelcome to the IAM PARIS Climate Policy Assistant!")
@@ -539,10 +535,7 @@ def main():
     region_docs, variable_docs = load_definitions()
 
     # Step 3: Combine all documents
-    # Incorrect
-    definitions_docs = region_docs + variable_docs
-
-
+    all_docs = api_docs + region_docs + variable_docs
 
     # Step 4: Split into chunks (for large YAML descriptions too)
     chunks = RecursiveCharacterTextSplitter(
@@ -561,9 +554,8 @@ def main():
     shared_resources = {
         "models": models,
         "ts": ts,
-        "vector_store": vs,
-        "env": bot.env,,
-        'vector_store':faiss_index,
+        "vector_store": faiss_index,
+        "env": bot.env,
         "bot": bot  # For plotting agent to call plot_time_series
     }
 
