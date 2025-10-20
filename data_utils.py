@@ -32,7 +32,7 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
     # -------------------------------
     # LIST AVAILABLE MODELS
     # -------------------------------
-    if re.search(r"\b(list|available)\b.*\bmodels?\b", q) or re.search(r"\bmodels?\b.*\b(available|list)\b", q):
+    if re.search(r"\b(list|available|what)\b.*\bmodels?\b", q) or re.search(r"\bmodels?\b.*\b(available|list|what|do you have)\b", q) or re.search(r"\bwhat.*models?\b", q):
         models = sorted({r.get('modelName', '') for r in model_data if r and r.get('modelName')})
         if not models:
             return "I couldn't find any models in the data right now. Try `help` or refresh the data."
@@ -62,7 +62,7 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
     # -------------------------------
     # LIST AVAILABLE SCENARIOS
     # -------------------------------
-    if re.search(r"\b(list|available)\b.*\bscenarios?\b", q) or re.search(r"\bscenarios?\b.*\b(available|included|list)\b", q):
+    if re.search(r"\b(list|available|what)\b.*\bscenarios?\b", q) or re.search(r"\bscenarios?\b.*\b(available|included|list|what|are there)\b", q) or re.search(r"\bwhat.*scenarios?\b", q):
         scenarios = sorted({r.get('scenario', '') for r in ts_data if r and r.get('scenario')})
         if not scenarios:
             return "No scenarios are loaded in the current dataset. Try a different query or check IAM PARIS results."

@@ -196,10 +196,10 @@ def main():
     logger = logging.getLogger(__name__)
 
     bot = IAMParisBot(streaming=not args.no_stream)
-    models = bot.fetch_json(bot.env["REST_MODELS_URL"], params={"limit": -1})
+    models = bot.fetch_json(bot.env["REST_MODELS_URL"], params={"limit": -1}, cache=False)
     ts_payload = {"limit": -1, "workspace_code": ["energy-systems"]}
     logger.info(f"Fetching timeseries with payload: {ts_payload}")
-    ts = bot.fetch_json(bot.env["REST_API_FULL"], payload=ts_payload)
+    ts = bot.fetch_json(bot.env["REST_API_FULL"], payload=ts_payload, cache=False)
     logger.info(f"Timeseries records fetched: {len(ts)}")
     print(f"ts fetch: {len(ts)} records")
 

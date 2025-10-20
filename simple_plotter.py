@@ -111,12 +111,35 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
 
     # Plot
     plt.figure(figsize=(10, 6))
-    for idx, row in df.iterrows():
-        label = f"{row.get('model', 'Unknown')} - {row.get('scenario', 'Unknown')} - {row.get('region', 'Global')}"
-        values = [row.get(str(year), 0) for year in sorted(year_cols, key=int)]
-        plt.plot(sorted(year_cols, key=int), values, label=label, marker='o')
 
-    plt.title(f"{variable} Projections")
+    # Group data by scenario for better visualization when multiple scenarios exist
+    if len(df['scenario'].unique()) > 1:
+        # Multiple scenarios - plot each scenario as a separate line
+        for scenario_name in df['scenario'].unique():
+            scenario_data = df[df['scenario'] == scenario_name]
+            if not scenario_data.empty:
+                # Use the first row for this scenario (assuming all rows for same scenario have same data)
+                row = scenario_data.iloc[0]
+                label = f"{scenario_name}"
+                values = [row.get(str(year), 0) for year in sorted(year_cols, key=int)]
+                plt.plot(sorted(year_cols, key=int), values, label=label, marker='o', linewidth=2)
+    else:
+        # Single scenario - plot normally
+        for idx, row in df.iterrows():
+            label = f"{row.get('model', 'Unknown')} - {row.get('scenario', 'Unknown')} - {row.get('region', 'Global')}"
+            values = [row.get(str(year), 0) for year in sorted(year_cols, key=int)]
+            plt.plot(sorted(year_cols, key=int), values, label=label, marker='o')
+
+    # Update title to reflect filters applied
+    title_suffix = ""
+    if scenario:
+        title_suffix += f" - {scenario}"
+    if region:
+        title_suffix += f" ({region})"
+    if specific_year:
+        title_suffix += f" - {specific_year}"
+
+    plt.title(f"{variable} Projections{title_suffix}")
     plt.xlabel("Year")
     plt.ylabel(variable)
     plt.legend()

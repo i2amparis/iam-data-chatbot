@@ -49,7 +49,7 @@ class MultiAgentManager:
                 }
                 return response
             return response
-        elif any(phrase in query_lower for phrase in ["list models", "list variables", "list scenarios", "available models", "available variables", "available scenarios", "what models", "what variables", "what scenarios"]) or \
+        elif any(phrase in query_lower for phrase in ["list models", "list variables", "list scenarios", "available models", "available variables", "available scenarios", "what models", "what variables", "what scenarios", "what are the scenarios", "what scenarios are there"]) or \
               any(word in query_lower for word in ["what data", "what can you plot", "what can you graph", "what can you visualize", "what plots", "what graphs", "what charts"]):
             agent_name = "data_query"
         elif any(phrase in query_lower for phrase in ["explain", "describe", "info about", "details about", "tell me about", "what is"]):
