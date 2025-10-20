@@ -198,31 +198,71 @@ def match_variable_from_yaml(query: str, variable_dict: dict) -> dict:
 
     # Fuzzy matching using similarity and word presence
     if not exact_matches and not templated_matches:
-        fuzzy_matched_names = get_close_matches(query_lower, [n.lower() for n in all_variable_names], n=5, cutoff=0.6)
-        fuzzy_matches = [n for n in all_variable_names if n.lower() in fuzzy_matched_names]
-        logger.info(f"Fuzzy matches from similarity: {fuzzy_matches}")
+        # First check for exact match with variable names (case-insensitive)
+        exact_variable_matches = [n for n in all_variable_names if n.lower() == query_lower]
+        if exact_variable_matches:
+            fuzzy_matches = exact_variable_matches
+            logger.info(f"Exact variable name match: {fuzzy_matches}")
+        else:
+            # Check if the query contains a full variable name (pipe-separated)
+            pipe_count = query_lower.count('|')
+            if pipe_count >= 2:  # Likely a full variable name
+                # Look for exact match of the full variable name
+                full_variable_matches = [n for n in all_variable_names if n.lower() == query_lower]
+                if full_variable_matches:
+                    fuzzy_matches = full_variable_matches
+                    logger.info(f"Full variable name match: {fuzzy_matches}")
+                else:
+                    # Try partial matches but prefer longer ones
+                    partial_matches = [n for n in all_variable_names if all(part.strip().lower() in n.lower() for part in query_lower.split('|') if part.strip())]
+                    if partial_matches:
+                        # Sort by how well they match (prefer exact substring matches)
+                        partial_matches.sort(key=lambda x: len(x) if query_lower in x.lower() else 0, reverse=True)
+                        fuzzy_matches = partial_matches[:3]
+                        logger.info(f"Partial variable name matches: {fuzzy_matches}")
+                    else:
+                        # Fall back to substring matching with better prioritization
+                        substring_matches = [n for n in all_variable_names if query_lower in n.lower()]
+                        if substring_matches:
+                            # Prioritize matches where the query is a significant portion of the variable name
+                            substring_matches.sort(key=lambda x: (len(query_lower) / len(x), len(x)), reverse=True)
+                            fuzzy_matches = substring_matches[:3]
+                            logger.info(f"Substring matches (prioritized): {fuzzy_matches}")
+            else:
+                # For non-pipe queries, use substring matching with better prioritization
+                substring_matches = [n for n in all_variable_names if query_lower in n.lower() or n.lower() in query_lower]
+                if substring_matches:
+                    # Prioritize longer matches and exact substrings
+                    substring_matches.sort(key=lambda x: (query_lower in x.lower(), len(x)), reverse=True)
+                    fuzzy_matches = substring_matches[:3]
+                    logger.info(f"General substring matches (prioritized): {fuzzy_matches}")
+                else:
+                    # Fall back to fuzzy similarity matching
+                    fuzzy_matched_names = get_close_matches(query_lower, [n.lower() for n in all_variable_names], n=5, cutoff=0.6)
+                    fuzzy_matches = [n for n in all_variable_names if n.lower() in fuzzy_matched_names]
+                    logger.info(f"Fuzzy matches from similarity: {fuzzy_matches}")
 
-        # Additional check: if significant non-stop words in query are in name or description
-        if not fuzzy_matches:
-            stop_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'will', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'can', 'could', 'should', 'would', 'may', 'might', 'must', 'shall', 'increase', 'decrease', 'future', 'past', 'now', 'then', 'here', 'there', 'this', 'that', 'these', 'those', 'plot', 'show', 'display', 'graph', 'chart'}
-            query_words = set(re.findall(r'\b\w+\b', query_lower))
-            significant_words = [w for w in query_words if len(w) > 2 and w not in stop_words]  # Ignore short words and stop words
-            logger.info(f"Significant words: {significant_words}")
-            if significant_words:  # Only proceed if there are significant words
-                for file_data in variable_dict.values():
-                    for item in file_data:
-                        if isinstance(item, dict):
-                            for name, details in item.items():
-                                if not isinstance(details, dict):
-                                    continue
-                                name_lower = name.lower()
-                                description = details.get("description", "").lower()
-                                combined_text = name_lower + " " + description
-                                if any(word in combined_text for word in significant_words):
-                                    fuzzy_matches.append(name)
-                                    logger.info(f"Word presence match: {name}")
-                                    break  # Take the first match
-                fuzzy_matches = fuzzy_matches[:1]  # Limit to one match
+                    # Additional check: if significant non-stop words in query are in name or description
+                    if not fuzzy_matches:
+                        stop_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'will', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'can', 'could', 'should', 'would', 'may', 'might', 'must', 'shall', 'increase', 'decrease', 'future', 'past', 'now', 'then', 'here', 'there', 'this', 'that', 'these', 'those', 'plot', 'show', 'display', 'graph', 'chart'}
+                        query_words = set(re.findall(r'\b\w+\b', query_lower))
+                        significant_words = [w for w in query_words if len(w) > 2 and w not in stop_words]  # Ignore short words and stop words
+                        logger.info(f"Significant words: {significant_words}")
+                        if significant_words:  # Only proceed if there are significant words
+                            for file_data in variable_dict.values():
+                                for item in file_data:
+                                    if isinstance(item, dict):
+                                        for name, details in item.items():
+                                            if not isinstance(details, dict):
+                                                continue
+                                            name_lower = name.lower()
+                                            description = details.get("description", "").lower()
+                                            combined_text = name_lower + " " + description
+                                            if any(word in combined_text for word in significant_words):
+                                                fuzzy_matches.append(name)
+                                                logger.info(f"Word presence match: {name}")
+                                                break  # Take the first match
+                            fuzzy_matches = fuzzy_matches[:1]  # Limit to one match
 
 
     result = {}
