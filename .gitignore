@@ -1,4 +1,35 @@
-*.log
+# Environment and secrets
+.env
+.env.local
+
+# Cache directories (should not be committed)
+cache/
+faiss_index/
+plots/
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Logs
+*.log
+chatbot.log
+
+# Temporary files
+*.tmp
+*.temp
