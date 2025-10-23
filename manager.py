@@ -34,10 +34,17 @@ class MultiAgentManager:
                 self.clarification_context = None
                 return response
 
-        # Routing logic based on keywords - more specific to avoid false positives
-        # Check for actual plotting requests first (highest priority)
+        # Enhanced routing logic to detect data queries
         plotting_keywords = ["plot", "graph", "visualize", "chart", "give me a plot", "create a plot", "make a plot"]
         data_listing_keywords = ["list models", "list variables", "list scenarios", "available models", "available variables", "available scenarios", "what models", "what variables", "what scenarios", "what are the models", "what are the variables", "what are the scenarios", "what scenarios are there", "tell me the models", "tell me the variables", "tell me the scenarios", "what data", "what can you plot", "what can you graph", "what can you visualize", "what plots", "what graphs", "what charts"]
+
+        # Check for data variable queries (contains variable-like terms + location)
+        data_variable_keywords = ["capacity", "generation", "production", "emissions", "energy", "electricity", "power", "solar", "wind", "gas", "coal", "nuclear", "hydro", "biomass", "co2", "carbon", "greenhouse"]
+        location_keywords = ["greece", "europe", "china", "india", "usa", "united states", "germany", "france", "japan", "russia", "brazil", "africa", "asia", "global", "world"]
+
+        has_data_keywords = any(word in query_lower for word in data_variable_keywords)
+        has_location = any(loc in query_lower for loc in location_keywords)
+        has_for = "for" in query_lower or "in" in query_lower
 
         # Check if this is a data listing request (not plotting)
         is_data_listing = any(phrase in query_lower for phrase in data_listing_keywords)
@@ -46,8 +53,11 @@ class MultiAgentManager:
         has_plotting_words = any(word in query_lower for word in plotting_keywords)
         has_show_me = "show me" in query_lower
 
+        # Route to data_query for: data listings, variable queries with locations, or direct variable names
+        if is_data_listing or (has_data_keywords and (has_location or has_for)) or "|" in query:
+            agent_name = "data_query"
         # Special case: "show me" + data listing keywords should go to data_query, not plotting
-        if has_show_me and any(phrase in query_lower for phrase in ["models", "variables", "scenarios"]):
+        elif has_show_me and any(phrase in query_lower for phrase in ["models", "variables", "scenarios"]):
             agent_name = "data_query"
         elif has_plotting_words and not is_data_listing:
             agent_name = "data_plotting"
@@ -62,8 +72,6 @@ class MultiAgentManager:
                 }
                 return response
             return response
-        elif is_data_listing:
-            agent_name = "data_query"
         elif any(phrase in query_lower for phrase in ["explain", "describe", "info about", "details about", "tell me about", "what is"]):
             agent_name = "model_explanation"
         elif any(word in query_lower for word in ["suggest", "recommend", "modelling studies", "modelling suggestions"]):

@@ -20,12 +20,22 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
 
     q = question.lower()
 
-    # Extract filters from query
+    # Extract filters from query - use YAML matching first, then validate against loaded data
     variable_match = match_variable_from_yaml(q, variable_dict)
     if variable_match['match_type'] in ['exact', 'fuzzy']:
         variable = variable_match['matched_variable']
+        # Validate that this variable exists in our loaded data
+        available_vars = {r.get('variable', '') for r in ts_data if r and r.get('variable')}
+        if variable not in available_vars:
+            # Variable from YAML doesn't exist in data, try to find similar in data
+            ts_vars = list(available_vars)
+            closest_var = find_closest_variable_name(variable, ts_vars)
+            if closest_var:
+                variable = closest_var
+            else:
+                return f"Variable '{variable}' not found in loaded data. Available variables include: {', '.join(list(available_vars)[:5])}..."
     else:
-        # Fallback to closest match from ts_data
+        # No YAML match, fallback to data-driven matching
         ts_vars = list({r.get('variable', '') for r in ts_data if r and r.get('variable')})
         variable = find_closest_variable_name(q, ts_vars)
         if not variable:
@@ -103,9 +113,10 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
 
     # Extract specific year from query if mentioned
     specific_year = None
-    year_match = re.search(r'\b(20\d{2})\b', q)
-    if year_match:
-        specific_year = year_match.group(1)
+    year_matches = re.findall(r'\b(20\d{2})\b', q)
+    if year_matches:
+        # Use the last mentioned year
+        specific_year = year_matches[-1]
         if specific_year in year_cols:
             year_cols = [specific_year]
 

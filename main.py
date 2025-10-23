@@ -338,26 +338,13 @@ class IAMParisBot:
         # Load model and time series data
         models = self.fetch_json(self.env["REST_MODELS_URL"], params={"limit": -1})
 
-        # Try to get data with time series (year columns)
+        # Load data from energy-systems workspace
         ts = self.fetch_json(
             self.env["REST_API_FULL"],
             payload={
-                "study": ["paris-reinforce"],
-                "workspace_code": ["eu-headed"],
-                "include_years": True  # Request time series data
+                "workspace_code": ["energy-systems"]
             }
         )
-
-        # If no time series data, try alternative data sources
-        if not ts or not any(str(col).isdigit() for record in ts for col in record.keys()):
-            self.logger.info("No time series data found, trying alternative data source...")
-            ts = self.fetch_json(
-                self.env["REST_API_FULL"],
-                payload={
-                    "study": ["all"],  # Try getting all studies
-                    "limit": 1000  # Increase limit to get more data
-                }
-            )
         
         # Create vector store and QA chain
         docs = docs_from_records(models + ts)
@@ -468,40 +455,62 @@ def main():
     logger.info(f"Fetched {len(models)} model records")
 
     logger.info("Fetching time series data...")
-    # Try to get data with time series (year columns)
-    ts = bot.fetch_json(
-        bot.env["REST_API_FULL"],
-        payload={
+    # Try multiple data sources to get time series data with year columns
+    ts = []
+
+    # First try: Specific studies with year data
+    data_sources = [
+        {
             "study": ["paris-reinforce"],
             "workspace_code": ["eu-headed"],
-            "include_years": True  # Request time series data
+            "include_years": True,
+            "limit": 5000
+        },
+        {
+            "study": ["emissions-gap", "1.5c-scenarios"],
+            "workspace_code": ["global", "eu-headed"],
+            "include_years": True,
+            "limit": 5000
+        },
+        {
+            "study": ["all"],
+            "include_years": True,
+            "limit": 10000
         }
-    )
+    ]
 
-    # If no time series data, try alternative data sources with year columns
-    if not ts or not any(str(col).isdigit() for record in ts for col in record.keys()):
-        logger.info("No time series data found, trying alternative data source...")
-        ts = bot.fetch_json(
-            bot.env["REST_API_FULL"],
-            payload={
-                "study": ["all"],  # Try getting all studies
-                "limit": 1000,  # Increase limit to get more data
-                "include_years": True  # Ensure we get year columns
-            }
-        )
+    for i, payload in enumerate(data_sources):
+        logger.info(f"Trying data source {i+1}/{len(data_sources)}...")
+        try:
+            temp_ts = bot.fetch_json(bot.env["REST_API_FULL"], payload=payload)
+            if temp_ts and any(str(col).isdigit() for record in temp_ts for col in record.keys()):
+                logger.info(f"Found time series data with year columns in source {i+1}")
+                ts.extend(temp_ts)
+                break  # Use first source that works
+            elif temp_ts:
+                logger.info(f"Source {i+1} has data but no year columns, continuing...")
+                ts.extend(temp_ts)  # Keep accumulating data even without years
+        except Exception as e:
+            logger.warning(f"Failed to fetch from source {i+1}: {e}")
+            continue
 
-        # If still no year columns, try one more time with different parameters
-        if not ts or not any(str(col).isdigit() for record in ts for col in record.keys()):
-            logger.info("Still no year columns, trying with specific studies...")
-            ts = bot.fetch_json(
+    # If we still don't have year columns, try a different approach
+    if ts and not any(str(col).isdigit() for record in ts for col in record.keys()):
+        logger.info("No year columns found, trying alternative API endpoint...")
+        try:
+            # Try different endpoint or parameters
+            alt_ts = bot.fetch_json(
                 bot.env["REST_API_FULL"],
                 payload={
-                    "study": ["paris-reinforce", "emissions-gap", "1.5c-scenarios"],
-                    "workspace_code": ["eu-headed", "global"],
                     "include_years": True,
                     "limit": 2000
                 }
             )
+            if alt_ts and any(str(col).isdigit() for record in alt_ts for col in record.keys()):
+                logger.info("Found year columns with alternative parameters")
+                ts = alt_ts
+        except Exception as e:
+            logger.warning(f"Alternative fetch failed: {e}")
             
             # Debug: Log sample of time series data to understand structure
             if ts:

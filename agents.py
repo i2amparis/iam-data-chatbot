@@ -103,9 +103,11 @@ Context: ```{context}```"""
 
 class DataPlottingAgent(BaseAgent):
     def handle(self, query: str, history: Optional[List[Tuple[str, str]]] = None) -> str:
+        # Use the plotting function directly instead of data_query
+        from simple_plotter import simple_plot_query
         models = self.resources.get("models", [])
         ts = self.resources.get("ts", [])
-        return data_query(query, models, ts)
+        return simple_plot_query(query, models, ts)
 
     def handle_clarification(self, query: str, context: Dict[str, Any], history: Optional[List[Tuple[str, str]]] = None) -> str:
         """
