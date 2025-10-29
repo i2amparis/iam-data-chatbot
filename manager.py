@@ -35,12 +35,22 @@ class MultiAgentManager:
                 return response
 
         # Enhanced routing logic to detect data queries
-        plotting_keywords = ["plot", "graph", "visualize", "chart", "give me a plot", "create a plot", "make a plot"]
-        data_listing_keywords = ["list models", "list variables", "list scenarios", "available models", "available variables", "available scenarios", "what models", "what variables", "what scenarios", "what are the models", "what are the variables", "what are the scenarios", "what scenarios are there", "tell me the models", "tell me the variables", "tell me the scenarios", "what data", "what can you plot", "what can you graph", "what can you visualize", "what plots", "what graphs", "what charts"]
+        plotting_keywords = ["plot", "graph", "visualize", "chart", "give me a plot", 
+                             "create a plot", "make a plot"]
+        data_listing_keywords = ["list models", "list variables", "list scenarios", 
+                                 "available models", "available variables", "available scenarios", "what models", 
+                                 "what variables", "what scenarios", "what are the models", "what are the variables", 
+                                 "what are the scenarios", "what scenarios are there", "tell me the models", 
+                                 "tell me the variables", "tell me the scenarios", "what data", "what can you plot", 
+                                 "what can you graph", "what can you visualize", "what plots", "what graphs", 
+                                 "what charts", "show me variables", "show me models", "show me scenarios"]
 
         # Check for data variable queries (contains variable-like terms + location)
-        data_variable_keywords = ["capacity", "generation", "production", "emissions", "energy", "electricity", "power", "solar", "wind", "gas", "coal", "nuclear", "hydro", "biomass", "co2", "carbon", "greenhouse"]
-        location_keywords = ["greece", "europe", "china", "india", "usa", "united states", "germany", "france", "japan", "russia", "brazil", "africa", "asia", "global", "world"]
+        data_variable_keywords = ["capacity", "generation", "production", "emissions", "energy", 
+                                  "electricity", "power", "solar", "wind", "gas", "coal", "nuclear", 
+                                  "hydro", "biomass", "co2", "carbon", "greenhouse"]
+        location_keywords = ["greece", "europe", "china", "india", "usa", "united states", "germany", 
+                             "france", "japan", "russia", "brazil", "africa", "asia", "global", "world"]
 
         has_data_keywords = any(word in query_lower for word in data_variable_keywords)
         has_location = any(loc in query_lower for loc in location_keywords)
