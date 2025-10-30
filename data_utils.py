@@ -112,7 +112,6 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
     # SPECIFIC VARIABLE QUERIES - Enhanced matching with universal resolver
     # -------------------------------
     # Try universal natural language resolution first
-    from utils_query import resolve_natural_language_variable_universal
     variable_match = resolve_natural_language_variable_universal(question, variable_dict)
     region_match = None
 

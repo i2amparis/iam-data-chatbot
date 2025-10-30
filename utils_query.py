@@ -521,6 +521,8 @@ def resolve_natural_language_variable_universal(query: str, variable_dict: dict)
                 return best_investment
         return None
 
+    return best_variable
+
     # Resolve templates if needed
     if best_variable[1]['info']['is_template']:
         best_var_name = resolve_template(best_var_name, significant_words, variable_dict)

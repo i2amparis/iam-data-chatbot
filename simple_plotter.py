@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import base64
 from io import BytesIO
 from typing import List, Dict, Any
-from utils_query import match_variable_from_yaml, extract_region_from_query, find_closest_variable_name
+from utils_query import match_variable_from_yaml, extract_region_from_query, find_closest_variable_name, resolve_natural_language_variable_universal
 from utils.yaml_loader import load_all_yaml_files
 
 def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict], region: str = None) -> str:
@@ -21,7 +21,6 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
     q = question.lower()
 
     # Try universal natural language resolution first
-    from utils_query import resolve_natural_language_variable_universal
     natural_variable = resolve_natural_language_variable_universal(question, variable_dict)
     if natural_variable:
         # Check if this variable exists in our data
