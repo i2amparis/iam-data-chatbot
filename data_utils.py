@@ -9,7 +9,7 @@ import base64
 from io import BytesIO
 
 from simple_plotter import simple_plot_query
-from utils_query import match_variable_from_yaml, extract_examples_from_data, get_available_workspaces, extract_variable_and_region_from_query
+from utils_query import match_variable_from_yaml, extract_examples_from_data, get_available_workspaces, extract_variable_and_region_from_query, resolve_natural_language_variable_universal
 from utils.yaml_loader import load_all_yaml_files
 
 
@@ -26,7 +26,16 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
     # Handle PLOTTING QUERIES
     # -------------------------------
     if any(word in q for word in ['plot', 'show', 'graph', 'visualize']):
-        # Use data-based matching as primary method (more reliable than YAML)
+        # Try universal natural language resolution first
+        natural_variable = resolve_natural_language_variable_universal(question, variable_dict)
+        if natural_variable:
+            # Check if this variable exists in our data
+            available_vars = {r.get('variable', '') for r in ts_data if r and r.get('variable')}
+            if natural_variable in available_vars:
+                # Use simple_plot_query with resolved variable
+                return simple_plot_query(question, model_data, ts_data)
+
+        # Fallback to existing plotting logic
         return simple_plot_query(question, model_data, ts_data)
 
     # -------------------------------
@@ -100,23 +109,23 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
         return response
 
     # -------------------------------
-    # SPECIFIC VARIABLE QUERIES - Enhanced matching with direct data search
+    # SPECIFIC VARIABLE QUERIES - Enhanced matching with universal resolver
     # -------------------------------
-    # First try to extract using utils functions (YAML-based)
-    extracted = extract_variable_and_region_from_query(question, variable_dict, region_dict)
+    # Try universal natural language resolution first
+    from utils_query import resolve_natural_language_variable_universal
+    variable_match = resolve_natural_language_variable_universal(question, variable_dict)
+    region_match = None
 
-    variable_match = None
-    region_match = extracted['region']
+    # Extract region if universal resolver didn't find variable
+    if not variable_match:
+        extracted = extract_variable_and_region_from_query(question, variable_dict, region_dict)
+        region_match = extracted['region']
 
-    # Enhanced variable matching: try YAML first, then direct data search
-    if extracted['variable']['match_type'] not in [None, 'ambiguous']:
-        variable_match = extracted['variable']['matched_variable']
-        # Validate that this variable actually exists in our loaded data
-        available_vars = {r.get('variable', '') for r in ts_data if r and r.get('variable')}
-        if variable_match not in available_vars:
-            variable_match = None  # Reset if not found
+        # Try YAML-based matching as fallback
+        if extracted['variable']['match_type'] not in [None, 'ambiguous']:
+            variable_match = extracted['variable']['matched_variable']
 
-    # If YAML matching failed or variable not in data, try direct data search
+    # If still no match, try direct data search
     if not variable_match:
         q_lower = question.lower()
         available_vars = {r.get('variable', '') for r in ts_data if r and r.get('variable')}
@@ -148,8 +157,27 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
             if emission_vars:
                 variable_match = emission_vars[0]
 
+        # NEW: Direct search for investment variables
+        elif any(word in q_lower for word in ['investment', 'investments', 'invest']):
+            investment_vars = [v for v in available_vars if 'investment' in v.lower()]
+            if investment_vars:
+                # Prefer variables with more specific matches
+                if any(word in q_lower for word in ['energy', 'supply']):
+                    energy_investments = [v for v in investment_vars if 'energy' in v.lower() and 'supply' in v.lower()]
+                    if energy_investments:
+                        variable_match = energy_investments[0]
+                    else:
+                        variable_match = investment_vars[0]
+                else:
+                    variable_match = investment_vars[0]  # Take first investment variable
+
     # If we found a variable match, filter and return data
     if variable_match:
+        # Validate that this variable actually exists in our loaded data
+        available_vars = {r.get('variable', '') for r in ts_data if r and r.get('variable')}
+        if variable_match not in available_vars:
+            return f"Variable '{variable_match}' not found in loaded data."
+
         # Filter time series data
         filtered_data = []
         for record in ts_data:

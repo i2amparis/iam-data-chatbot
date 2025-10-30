@@ -380,6 +380,210 @@ def extract_region_from_query(query: str, region_dict: dict) -> str:
     logger.info("No region match found")
     return ""
 
+def build_semantic_index(variable_dict: dict) -> dict:
+    """
+    Build a semantic index of all variables from YAML definitions.
+    Returns a dict mapping semantic keywords to variable names.
+    """
+    semantic_index = {}
+
+    for file_data in variable_dict.values():
+        for item in file_data:
+            if isinstance(item, dict):
+                for var_name, var_info in item.items():
+                    if not isinstance(var_info, dict):
+                        continue
+
+                    # Extract semantic information
+                    description = (var_info.get('description') or '').lower()
+                    unit = (var_info.get('unit') or '').lower()
+
+                    # Create semantic keywords from description and variable name
+                    var_words = set(var_name.lower().replace('|', ' ').replace('{', ' ').replace('}', ' ').split())
+                    desc_words = set(description.split())
+                    unit_words = set(unit.replace('/', ' ').replace('(', ' ').replace(')', ' ').split())
+
+                    # Combine all semantic keywords
+                    semantic_keywords = var_words | desc_words | unit_words
+
+                    # Add common synonyms and related terms
+                    enhanced_keywords = set()
+                    for keyword in semantic_keywords:
+                        enhanced_keywords.add(keyword)
+                        # Add related terms
+                        if keyword in ['investment', 'investments']:
+                            enhanced_keywords.update(['funding', 'capital', 'spending', 'invest'])
+                        elif keyword in ['capacity']:
+                            enhanced_keywords.update(['installed', 'generation', 'power'])
+                        elif keyword in ['emission', 'emissions']:
+                            enhanced_keywords.update(['co2', 'carbon', 'greenhouse', 'gas'])
+                        elif keyword in ['energy']:
+                            enhanced_keywords.update(['power', 'electricity', 'electric'])
+                        elif keyword in ['future', 'annual', 'yearly']:
+                            enhanced_keywords.update(['long-term', 'projection', 'forecast'])
+
+                    # Store in index
+                    for keyword in enhanced_keywords:
+                        if keyword not in semantic_index:
+                            semantic_index[keyword] = []
+                        semantic_index[keyword].append({
+                            'variable': var_name,
+                            'description': description,
+                            'unit': unit,
+                            'is_template': '{' in var_name and '}' in var_name
+                        })
+
+    return semantic_index
+
+
+def resolve_natural_language_variable_universal(query: str, variable_dict: dict) -> str:
+    """
+    Universal resolver that works for all variables in YAML definitions.
+    Uses semantic indexing and scoring to find the best match.
+    """
+    query_lower = query.lower()
+
+    # Build semantic index (cache this for performance)
+    if not hasattr(resolve_natural_language_variable_universal, '_semantic_index'):
+        resolve_natural_language_variable_universal._semantic_index = build_semantic_index(variable_dict)
+
+    semantic_index = resolve_natural_language_variable_universal._semantic_index
+
+    # Extract significant words from query
+    stop_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'plot', 'show', 'graph', 'display', 'visualize', 'give', 'me', 'a', 'please'}
+    query_words = set(re.findall(r'\b\w+\b', query_lower))
+    significant_words = [w for w in query_words if len(w) > 2 and w not in stop_words and w is not None]
+
+    # Score all variables
+    variable_scores = {}
+
+    for word in significant_words:
+        if word in semantic_index:
+            for var_info in semantic_index[word]:
+                var_name = var_info['variable']
+                if var_name not in variable_scores:
+                    variable_scores[var_name] = {
+                        'score': 0,
+                        'info': var_info,
+                        'matched_words': []
+                    }
+
+                # Enhanced scoring with priority for investment variables
+                if 'investment' in var_name.lower() and 'investment' in word:
+                    variable_scores[var_name]['score'] += 5  # High priority for investment matches
+                elif word in var_name.lower():
+                    variable_scores[var_name]['score'] += 3  # Variable name match
+                elif word in var_info['description']:
+                    variable_scores[var_name]['score'] += 2  # Description match
+                else:
+                    variable_scores[var_name]['score'] += 1  # Related term match
+
+                # Bonus points for multi-word matches
+                if len(significant_words) > 1:
+                    # Check if multiple keywords match this variable
+                    keyword_matches = sum(1 for kw in significant_words if kw in var_name.lower() or kw in var_info['description'])
+                    if keyword_matches > 1:
+                        variable_scores[var_name]['score'] += keyword_matches
+
+                # Special handling for investment queries
+                if 'investment' in significant_words and 'investment' in var_name.lower():
+                    if 'future' in significant_words and ('annual' in var_name.lower() or 'yearly' in var_name.lower()):
+                        variable_scores[var_name]['score'] += 3  # Boost annual investments for "future" queries
+                    if 'biomass' in significant_words and 'biomass' in var_name.lower():
+                        variable_scores[var_name]['score'] += 4  # Boost biomass investments
+                    if 'solar' in significant_words and 'solar' in var_name.lower():
+                        variable_scores[var_name]['score'] += 4  # Boost solar investments
+                    if 'wind' in significant_words and 'wind' in var_name.lower():
+                        variable_scores[var_name]['score'] += 4  # Boost wind investments
+
+                    # Boost any investment variable for investment queries
+                    variable_scores[var_name]['score'] += 2  # General investment boost
+
+                variable_scores[var_name]['matched_words'].append(word)
+
+    if not variable_scores:
+        return None
+
+    # Find best match
+    best_variable = max(variable_scores.items(), key=lambda x: x[1]['score'])
+    best_var_name = best_variable[0]
+    best_score = best_variable[1]['score']
+
+    # Minimum confidence threshold - lower for investment queries
+    min_threshold = 1 if any(word in significant_words for word in ['investment', 'investments', 'invest']) else 2
+    if best_score < min_threshold:
+        # For investment queries, try to find any investment variable as fallback
+        if any(word in significant_words for word in ['investment', 'investments', 'invest']):
+            investment_vars = [name for name in variable_scores.keys() if 'investment' in name.lower()]
+            if investment_vars:
+                # Sort by score and pick the highest
+                best_investment = max(investment_vars, key=lambda x: variable_scores[x]['score'])
+                return best_investment
+        return None
+
+    # Resolve templates if needed
+    if best_variable[1]['info']['is_template']:
+        best_var_name = resolve_template(best_var_name, significant_words, variable_dict)
+
+    return best_var_name
+
+
+def resolve_template(template_var: str, query_words: list, variable_dict: dict) -> str:
+    """
+    Resolve templated variables like Capacity|Electricity|{Electricity Source}
+    """
+    if '{' not in template_var or '}' not in template_var:
+        return template_var
+
+    # Extract template name
+    import re
+    template_match = re.search(r'\{([^}]+)\}', template_var)
+    if not template_match:
+        return template_var
+
+    template_name = template_match.group(1)
+
+    # Find possible values for this template
+    template_values = find_template_values(template_name, variable_dict)
+
+    # Match query words to template values
+    for word in query_words:
+        if word is None:
+            continue
+        for value_info in template_values:
+            value_name = value_info['name']
+            if word.lower() == value_name.lower() or word.lower() in value_info.get('aliases', []):
+                return template_var.replace(f'{{{template_name}}}', value_name)
+
+    # Return first available value as default
+    if template_values:
+        return template_var.replace(f'{{{template_name}}}', template_values[0]['name'])
+
+    return template_var
+
+
+def find_template_values(template_name: str, variable_dict: dict) -> list:
+    """
+    Find all possible values for a template like 'Electricity Source'
+    """
+    values = []
+
+    for file_data in variable_dict.values():
+        for item in file_data:
+            if isinstance(item, dict):
+                for var_name, var_info in item.items():
+                    if var_name == template_name and isinstance(var_info, list):
+                        for value_item in var_info:
+                            if isinstance(value_item, dict):
+                                for value_name, value_details in value_item.items():
+                                    values.append({
+                                        'name': value_name,
+                                        'aliases': value_details.get('aliases', []) if isinstance(value_details, dict) else []
+                                    })
+
+    return values
+
+
 def extract_variable_and_region_from_query(query: str, variable_dict: dict, region_dict: dict) -> dict:
     """
     Extract both variable and region from a natural language query.

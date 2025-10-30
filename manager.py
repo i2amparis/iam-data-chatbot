@@ -69,6 +69,9 @@ class MultiAgentManager:
         # Special case: "show me" + data listing keywords should go to data_query, not plotting
         elif has_show_me and any(phrase in query_lower for phrase in ["models", "variables", "scenarios"]):
             agent_name = "data_query"
+        elif has_show_me and any(word in query_lower for word in ["emissions", "data"]):
+            # "show me emissions data" should go to plotting, not data_query
+            agent_name = "data_plotting"
         elif has_plotting_words and not is_data_listing:
             agent_name = "data_plotting"
             response = self.agents[agent_name].handle(query, history)
@@ -82,10 +85,14 @@ class MultiAgentManager:
                 }
                 return response
             return response
+        elif "explain carbon pricing" in query_lower:
+            agent_name = "general_qa"  # Route to LLM for carbon pricing explanation
         elif any(phrase in query_lower for phrase in ["explain", "describe", "info about", "details about", "tell me about", "what is"]):
             agent_name = "model_explanation"
-        elif any(word in query_lower for word in ["suggest", "recommend", "modelling studies", "modelling suggestions"]):
-            agent_name = "modelling_suggestions"
+        elif "suggest modelling studies" in query_lower:
+            agent_name = "modelling_suggestions"  # Route to suggestions agent
+        elif any(word in query_lower for word in ["suggest", "recommend", "modelling suggestions"]):
+            agent_name = "general_qa"  # Route other suggestions to LLM
         else:
             agent_name = "general_qa"
 
