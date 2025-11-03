@@ -11,7 +11,7 @@ def extract_examples_from_data(models, ts):
     """Extract examples of models, scenarios, and variables from the dataset."""
     model_names = list({m.get('modelName', '') for m in models if m and m.get('modelName')})
     scenario_names = list({m.get('scenario', '') for m in ts if m and m.get('scenario')})
-    variable_names = list({m.get('variable', '') for m in ts if m and m.get('variable')})
+    variable_names = list({str(m.get('variable', '')) for m in ts if m and m.get('variable')})
     return {
         'scenarios': sorted(scenario_names)[:10],
         'models': sorted(model_names)[:10],
@@ -91,7 +91,8 @@ def get_available_models(models: list) -> list:
 
 def get_available_variables(ts: list) -> list:
     """Extract sorted variable names from timeseries records."""
-    return sorted({r.get("variable", "").strip() for r in ts if r and "variable" in r})
+    return sorted({str(r.get("variable", "")).strip() for r in ts if r and "variable" in r})
+
 
 # --------------------------
 # Getters from YAML Files
@@ -521,13 +522,7 @@ def resolve_natural_language_variable_universal(query: str, variable_dict: dict)
                 return best_investment
         return None
 
-    return best_variable
-
-    # Resolve templates if needed
-    if best_variable[1]['info']['is_template']:
-        best_var_name = resolve_template(best_var_name, significant_words, variable_dict)
-
-    return best_var_name
+    return best_variable[0]
 
 
 def resolve_template(template_var: str, query_words: list, variable_dict: dict) -> str:

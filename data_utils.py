@@ -30,7 +30,7 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
         natural_variable = resolve_natural_language_variable_universal(question, variable_dict)
         if natural_variable:
             # Check if this variable exists in our data
-            available_vars = {r.get('variable', '') for r in ts_data if r and r.get('variable')}
+            available_vars = {str(r.get('variable', '')) for r in ts_data if r and r.get('variable')}
             if natural_variable in available_vars:
                 # Use simple_plot_query with resolved variable
                 return simple_plot_query(question, model_data, ts_data)
@@ -58,7 +58,7 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
     # LIST AVAILABLE VARIABLES
     # -------------------------------
     if 'list variables' in q or 'show me variables' in q:
-        vars = sorted({r.get('variable', '') for r in ts_data if r and r.get('variable')})
+        vars = sorted({str(r.get('variable', '')) for r in ts_data if r and r.get('variable')})
         if not vars:
             return "I don't see any variables in the loaded dataset. Try reloading or check the IAM PARIS results website."
 
@@ -96,7 +96,7 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
        re.search(r"\b(models?|results?|workspaces?)\b.*\b(list|get|available)\b", q) or \
        re.search(r"\b(list|get)\b.*\b(models?|results?|workspaces?)\b.*\b(and|,)\b.*\b(models?|results?|workspaces?)\b", q):
         models = sorted({r.get('modelName', '') for r in model_data if r and r.get('modelName')})
-        variables = sorted({r.get('variable', '') for r in ts_data if r and r.get('variable')})
+        variables = sorted({str(r.get('variable', '')) for r in ts_data if r and r.get('variable')})
         scenarios = sorted({r.get('scenario', '') for r in ts_data if r and r.get('scenario')})
         workspaces = get_available_workspaces(ts_data)
 
@@ -127,7 +127,7 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
     # If still no match, try direct data search
     if not variable_match:
         q_lower = question.lower()
-        available_vars = {r.get('variable', '') for r in ts_data if r and r.get('variable')}
+        available_vars = {str(r.get('variable', '')) for r in ts_data if r and r.get('variable')}
 
         # Direct search for solar-related variables
         if any(word in q_lower for word in ['solar', 'pv', 'photovoltaic']):
@@ -173,14 +173,14 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
     # If we found a variable match, filter and return data
     if variable_match:
         # Validate that this variable actually exists in our loaded data
-        available_vars = {r.get('variable', '') for r in ts_data if r and r.get('variable')}
+        available_vars = {str(r.get('variable', '')) for r in ts_data if r and r.get('variable')}
         if variable_match not in available_vars:
             return f"Variable '{variable_match}' not found in loaded data."
 
         # Filter time series data
         filtered_data = []
         for record in ts_data:
-            if record.get('variable') == variable_match:
+            if str(record.get('variable', '')) == variable_match:
                 if region_match and record.get('region') == region_match:
                     filtered_data.append(record)
                 elif not region_match:  # No region specified, include all
@@ -227,7 +227,7 @@ def format_time_series_data(data_records: list, variable: str, region: str = "")
     # Group by scenario and model
     scenario_groups = {}
     for record in data_records:
-        key = (record.get('scenario', 'Unknown'), record.get('modelName', 'Unknown'))
+        key = (str(record.get('scenario', 'Unknown')), str(record.get('modelName', 'Unknown')))
         if key not in scenario_groups:
             scenario_groups[key] = []
         scenario_groups[key].append(record)

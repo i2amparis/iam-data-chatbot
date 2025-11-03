@@ -22,9 +22,10 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
 
     # Try universal natural language resolution first
     natural_variable = resolve_natural_language_variable_universal(question, variable_dict)
-    if natural_variable:
+    if natural_variable and isinstance(natural_variable, str):
         # Check if this variable exists in our data
-        available_vars = {r.get('variable', '') for r in ts_data if r and r.get('variable')}
+        available_vars = {str(r.get('variable', '')) for r in ts_data if r and r.get('variable') is not None}
+
         if natural_variable in available_vars:
             variable = natural_variable
         else:
@@ -41,7 +42,7 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
         if variable_match['match_type'] in ['exact', 'fuzzy']:
             variable = variable_match['matched_variable']
             # Validate that this variable exists in our loaded data
-            available_vars = {r.get('variable', '') for r in ts_data if r and r.get('variable')}
+            available_vars = {str(r.get('variable', '')) for r in ts_data if r and r.get('variable')}
             if variable not in available_vars:
                 # Variable from YAML doesn't exist in data, try to find similar in data
                 ts_vars = list(available_vars)
@@ -52,7 +53,7 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
                     return f"Variable '{variable}' not found in loaded data. Available variables include: {', '.join(list(available_vars)[:5])}..."
         else:
             # No YAML match, fallback to data-driven matching
-            ts_vars = list({r.get('variable', '') for r in ts_data if r and r.get('variable')})
+            ts_vars = list({str(r.get('variable', '')) for r in ts_data if r and r.get('variable')})
             variable = find_closest_variable_name(q, ts_vars)
             if not variable:
                 return "Could not identify a variable to plot. Try specifying a variable like 'CO2 emissions' or 'energy consumption'."
@@ -74,7 +75,7 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
     # Use provided region if available, otherwise extract from query
     if region is None:
         # Extract region from actual data instead of region definitions
-        regions_in_data = {r.get('region', '') for r in ts_data if r and r.get('region')}
+        regions_in_data = {str(r.get('region', '')) for r in ts_data if r and r.get('region')}
         for reg in regions_in_data:
             if reg.lower() in q.lower():
                 region = reg
@@ -85,7 +86,7 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
     for r in ts_data:
         if r is None:
             continue
-        if r.get('variable') != variable:
+        if str(r.get('variable', '')) != variable:
             continue
         if model and r.get('model') != model:
             continue
@@ -96,9 +97,9 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
         filtered_data.append(r)
 
     if not filtered_data:
-        available_regions = sorted(set(r.get('region', '') for r in ts_data if r and r.get('region')))
-        available_scenarios = sorted(set(r.get('scenario', '') for r in ts_data if r and r.get('scenario')))
-        available_models = sorted(set(r.get('model', '') for r in ts_data if r and r.get('model')))
+        available_regions = sorted(set(str(r.get('region', '')) for r in ts_data if r and r.get('region')))
+        available_scenarios = sorted(set(str(r.get('scenario', '')) for r in ts_data if r and r.get('scenario')))
+        available_models = sorted(set(str(r.get('model', '')) for r in ts_data if r and r.get('model')))
 
         suggestions = []
         if region and region not in available_regions:

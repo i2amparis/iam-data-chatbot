@@ -185,7 +185,10 @@ class IAMParisBot:
 
     def fetch_json(self, url: str, params=None, payload=None, cache=True) -> list:
         os.makedirs("cache", exist_ok=True)
-        cache_file = f"cache/{url.split('/')[-1]}_{hash(str(params) + str(payload))}.json"
+        # Convert params and payload to strings for hashing if they contain dicts
+        params_str = str(sorted(params.items())) if params is not None else ""
+        payload_str = str(sorted(payload.items())) if payload is not None else ""
+        cache_file = f"cache/{url.split('/')[-1]}_{hash(params_str + payload_str)}.json"
         if cache and os.path.exists(cache_file):
             with open(cache_file, 'r') as f:
                 return pd.read_json(f).to_dict('records')
@@ -298,7 +301,7 @@ def main():
     print("Scenarios:", ", ".join(get_available_scenarios(ts)[:5]))
 
     # Filter variables to those available in the loaded ts data
-    available_variables = set(r.get('variable', '') for r in ts if r and r.get('variable'))
+    available_variables = set(str(r.get('variable', '')) for r in ts if r and r.get('variable'))
     variable_names = [name for name in available_variables if name][:10]
     print("Variables:", ", ".join(sorted(variable_names)))
 

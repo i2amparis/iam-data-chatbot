@@ -178,9 +178,12 @@ class IAMParisBot:
         self.env = env
 
     def fetch_json(self, url: str, params: Optional[Dict] = None,
-                  payload: Optional[Dict] = None, cache: bool = True) -> list:
+                   payload: Optional[Dict] = None, cache: bool = True) -> list:
         """Fetch JSON with caching - handles both API formats"""
-        cache_file = f"cache/{url.split('/')[-1]}_{hash(str(params) + str(payload))}.json"
+        # Convert params and payload to strings for hashing if they contain dicts
+        params_str = str(params) if params is not None else ""
+        payload_str = str(payload) if payload is not None else ""
+        cache_file = f"cache/{url.split('/')[-1]}_{hash(params_str + payload_str)}.json"
         os.makedirs("cache", exist_ok=True)
 
         if cache and os.path.exists(cache_file):
