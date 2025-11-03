@@ -38,9 +38,65 @@ from utils_query import (
     get_available_variables_from_yaml)
 
 from pathlib import Path
+from fastapi import FastAPI, HTTPException
+import uvicorn
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+
+
+#PYDANTIC Models
+class QueryRequest(BaseModel):
+    query: str
+class QueryResponse(BaseModel):
+    answer: str
+    history: List[Tuple[str, str]] = []
 
 #Variable Definitions for Energy Systems
 variable_dict = load_all_yaml_files('definitions/variable')
+
+
+#FASTAPI Setup
+app = FastAPI(title='IAM Paris Data Chatbot API')
+
+@app.post('/query',response_model=QueryResponse)
+def query_chatbot(req:QueryRequest):
+    try:
+        bot=IAMParisBot(streaming=False)
+
+        # Load models and timeseries for startupmodels = bot.fetch_json(bot.env['REST_MODELS_URL'], params={'limit': -1}, cache=False)
+        models = bot.fetch_json(bot.env['REST_MODELS_URL'], params={'limit': -1}, cache=False)
+        ts_payload = {'workspace_code': ['energy-systems']}
+        ts = bot.fetch_json(bot.env['REST_API_FULL'],payload=ts_payload,cache=False)
+
+
+        #prepare docs and index
+        region_docs, variable_docs = load_definitions()
+        all_docs = docs_from_records(models +ts) +region_docs + variable_docs
+        chunks = RecursiveCharacterTextSplitter(chunk_size=800,chunk_overlap=80).split_documents(all_docs)
+        embeddings = OpenAIEmbeddings(model='text-embedding-3-small', api_key=bot.env['OPENAI_API_KEY'])
+        faiss_index = build_faiss_index(chunks,embeddings)
+
+        shared_resources ={
+            'models':models,
+            'ts':ts,
+            'vector_store': faiss_index,
+            'env':bot.env,
+            'bot':bot
+        }
+
+        manager = MultiAgentManager(shared_resources,streaming=False)
+        chat_history :List[Tuple[str,str]]=[]
+
+        #route query
+        response = manager.route_query(req.query, chat_history)
+        chat_history.append((req.query, response))
+
+        return QueryResponse(answer=response, history=chat_history)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 
 def setup_logging(debug: bool = False):
     root_logger = logging.getLogger()
