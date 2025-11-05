@@ -21,7 +21,13 @@ pip install -r requirements.txt
 python mainv2.py
 
 #run the bot to get answers from api
-python mainv2.py --query "your question here"
+python main.py --query "your question here"
 
 #run the bot to get answers with graph
-python mainv2.py --debug
+python main.py --debug
+
+#run the FastAPI server
+python fastapi_app.py
+
+#or with uvicorn
+uvicorn fastapi_app:app --reload

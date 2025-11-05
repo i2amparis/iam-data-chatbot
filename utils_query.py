@@ -165,6 +165,7 @@ def match_variable_from_yaml(query: str, variable_dict: dict) -> dict:
                                 for value in template_map[template_name]:
                                     expanded_name = name.replace('{' + template_name + '}', value)
                                     all_variable_names.append(expanded_name)
+                                    logger.info(f"Added expanded template: {expanded_name}")
     logger.info(f"All variable names for fuzzy: {all_variable_names[:10]}...")  # Log first 10
 
     for file_data in variable_dict.values():
@@ -197,28 +198,36 @@ def match_variable_from_yaml(query: str, variable_dict: dict) -> dict:
                                         fuzzy_matches.append(expanded_name)
                                         logger.info(f"Templated fuzzy match: {expanded_name}")
 
-    # Enhanced fuzzy matching with better solar/PV capacity recognition
+    # Enhanced fuzzy matching with better technology recognition
     if not exact_matches and not templated_matches:
-        # Special handling for solar/PV capacity queries
-        solar_keywords = ['pv', 'solar', 'photovoltaic', 'capacity']
-        if any(keyword in query_lower for keyword in solar_keywords):
-            # Prioritize solar-related variables
-            solar_variables = [n for n in all_variable_names if any(solar_term in n.lower() for solar_term in ['solar', 'pv', 'photovoltaic', 'capacity'])]
-            if solar_variables:
-                # Look for exact solar capacity matches first
-                solar_capacity_matches = [n for n in solar_variables if 'capacity' in n.lower() and ('solar' in n.lower() or 'pv' in n.lower())]
-                if solar_capacity_matches:
-                    # Prioritize Capacity|Electricity|Solar|Utility specifically
-                    utility_matches = [n for n in solar_capacity_matches if 'utility' in n.lower()]
-                    if utility_matches:
-                        fuzzy_matches = utility_matches[:1]  # Take the first utility match
-                        logger.info(f"Solar utility capacity prioritized match: {fuzzy_matches}")
+        # Special handling for technology-specific queries
+        tech_keywords = {
+            'solar': ['pv', 'solar', 'photovoltaic'],
+            'wind': ['wind', 'onshore', 'offshore'],
+            'nuclear': ['nuclear'],
+            'hydro': ['hydro', 'hydropower'],
+            'biomass': ['biomass'],
+            'gas': ['gas', 'natural gas'],
+            'coal': ['coal'],
+            'ccs': ['ccs', 'carbon capture'],
+            'battery': ['battery', 'storage'],
+            'hydrogen': ['hydrogen', 'electrolysis']
+        }
+
+        for tech, keywords in tech_keywords.items():
+            if any(keyword in query_lower for keyword in keywords):
+                # Find variables related to this technology
+                tech_variables = [n for n in all_variable_names if any(kw in n.lower() for kw in keywords)]
+                if tech_variables:
+                    # Prioritize capacity variables for this technology
+                    capacity_matches = [n for n in tech_variables if 'capacity' in n.lower()]
+                    if capacity_matches:
+                        fuzzy_matches = capacity_matches[:3]
+                        logger.info(f"{tech.title()} capacity prioritized matches: {fuzzy_matches}")
                     else:
-                        fuzzy_matches = solar_capacity_matches[:3]
-                        logger.info(f"Solar capacity prioritized matches: {fuzzy_matches}")
-                else:
-                    fuzzy_matches = solar_variables[:3]
-                    logger.info(f"Solar-related matches: {fuzzy_matches}")
+                        fuzzy_matches = tech_variables[:3]
+                        logger.info(f"{tech.title()}-related matches: {fuzzy_matches}")
+                    break  # Stop after finding first technology match
 
         # First check for exact match with variable names (case-insensitive)
         exact_variable_matches = [n for n in all_variable_names if n.lower() == query_lower]
@@ -354,6 +363,10 @@ def extract_region_from_query(query: str, region_dict: dict) -> str:
                         if 'greece' in query_lower and country_lower == 'greece':
                             logger.info(f"Greece country match -> {region_name}")
                             return region_name
+                        # Handle "Greek" as variation of Greece
+                        if 'greek' in query_lower and country_lower == 'greece':
+                            logger.info(f"Greek country match -> {region_name}")
+                            return region_name
                 elif isinstance(region_info, list):
                     # Handle list format
                     for item in region_info:
@@ -415,7 +428,9 @@ def build_semantic_index(variable_dict: dict) -> dict:
                         if keyword in ['investment', 'investments']:
                             enhanced_keywords.update(['funding', 'capital', 'spending', 'invest'])
                         elif keyword in ['capacity']:
-                            enhanced_keywords.update(['installed', 'generation', 'power'])
+                            enhanced_keywords.update(['installed', 'generation', 'power', 'pv', 'solar', 'photovoltaic'])
+                        elif keyword in ['solar', 'pv', 'photovoltaic']:
+                            enhanced_keywords.update(['capacity', 'pv', 'photovoltaic', 'solar'])
                         elif keyword in ['emission', 'emissions']:
                             enhanced_keywords.update(['co2', 'carbon', 'greenhouse', 'gas'])
                         elif keyword in ['energy']:
@@ -423,7 +438,7 @@ def build_semantic_index(variable_dict: dict) -> dict:
                         elif keyword in ['future', 'annual', 'yearly']:
                             enhanced_keywords.update(['long-term', 'projection', 'forecast'])
 
-                    # Store in index
+                    # Store in index - include both original and expanded templates
                     for keyword in enhanced_keywords:
                         if keyword not in semantic_index:
                             semantic_index[keyword] = []
@@ -433,6 +448,29 @@ def build_semantic_index(variable_dict: dict) -> dict:
                             'unit': unit,
                             'is_template': '{' in var_name and '}' in var_name
                         })
+
+                    # Also add expanded templated variables to semantic index
+                    if '{' in var_name and '}' in var_name:
+                        import re
+                        template_match = re.search(r'\{([^}]+)\}', var_name)
+                        if template_match:
+                            template_name = template_match.group(1)
+                            # Find template values
+                            template_values = find_template_values(template_name, variable_dict)
+                            for value_info in template_values:
+                                value_name = value_info['name']
+                                expanded_name = var_name.replace('{' + template_name + '}', value_name)
+
+                                # Add expanded variable to semantic index with same keywords
+                                for keyword in enhanced_keywords:
+                                    if keyword not in semantic_index:
+                                        semantic_index[keyword] = []
+                                    semantic_index[keyword].append({
+                                        'variable': expanded_name,
+                                        'description': description,
+                                        'unit': unit,
+                                        'is_template': False  # Expanded, so not a template anymore
+                                    })
 
     return semantic_index
 
@@ -451,9 +489,15 @@ def resolve_natural_language_variable_universal(query: str, variable_dict: dict)
     semantic_index = resolve_natural_language_variable_universal._semantic_index
 
     # Extract significant words from query
-    stop_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'plot', 'show', 'graph', 'display', 'visualize', 'give', 'me', 'a', 'please'}
+    stop_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'plot', 'show', 'graph', 'display', 'visualize', 'give', 'me', 'a', 'please', 'will', 'be', 'increase', 'future', 'can', 'you', 'tell', 'me', 'about', 'what', 'is', 'are', 'do', 'does', 'have', 'has', 'had', 'greece', 'greek', 'under', 'different', 'scenario', 'scenarios'}
     query_words = set(re.findall(r'\b\w+\b', query_lower))
     significant_words = [w for w in query_words if len(w) > 2 and w not in stop_words and w is not None]
+
+    # Add back short but important words that were filtered out
+    important_short_words = ['pv', 'co2', 'co', 'eu', 'us']
+    for word in important_short_words:
+        if word in query_lower and word not in significant_words:
+            significant_words.append(word)
 
     # Score all variables
     variable_scores = {}
@@ -469,9 +513,41 @@ def resolve_natural_language_variable_universal(query: str, variable_dict: dict)
                         'matched_words': []
                     }
 
-                # Enhanced scoring with priority for investment variables
-                if 'investment' in var_name.lower() and 'investment' in word:
-                    variable_scores[var_name]['score'] += 5  # High priority for investment matches
+                # Enhanced scoring with priority for specific technology matches
+                if 'nuclear' in significant_words and 'nuclear' in var_name.lower():
+                    variable_scores[var_name]['score'] += 8  # High priority for nuclear matches
+                elif 'pv' in significant_words and 'solar' in var_name.lower() and 'capacity' in var_name.lower():
+                    variable_scores[var_name]['score'] += 10  # Very high priority for solar capacity when PV mentioned
+                elif 'photovoltaic' in significant_words and 'solar' in var_name.lower() and 'capacity' in var_name.lower():
+                    variable_scores[var_name]['score'] += 10  # Very high priority for solar capacity when photovoltaic mentioned
+                elif 'capacity' in significant_words and 'capacity' in var_name.lower():
+                    variable_scores[var_name]['score'] += 5  # High priority for capacity matches
+                    if 'nuclear' in significant_words and 'nuclear' in var_name.lower():
+                        variable_scores[var_name]['score'] += 5  # Extra boost for nuclear capacity
+                    if 'pv' in significant_words and 'solar' in var_name.lower():
+                        variable_scores[var_name]['score'] += 5  # Extra boost for PV + solar + capacity
+                    if 'photovoltaic' in significant_words and 'solar' in var_name.lower():
+                        variable_scores[var_name]['score'] += 5  # Extra boost for photovoltaic + solar + capacity
+                    if 'solar' in significant_words and 'solar' in var_name.lower():
+                        variable_scores[var_name]['score'] += 5  # Extra boost for solar + capacity
+                    if 'wind' in significant_words and 'wind' in var_name.lower():
+                        variable_scores[var_name]['score'] += 5  # Extra boost for wind capacity
+                    if 'hydro' in significant_words and 'hydro' in var_name.lower():
+                        variable_scores[var_name]['score'] += 5  # Extra boost for hydro capacity
+                elif 'pv' in significant_words and ('solar' in var_name.lower() or 'pv' in var_name.lower()):
+                    variable_scores[var_name]['score'] += 5  # High priority for PV/solar matches
+                elif 'photovoltaic' in significant_words and ('solar' in var_name.lower() or 'pv' in var_name.lower()):
+                    variable_scores[var_name]['score'] += 5  # High priority for photovoltaic matches
+                elif 'solar' in significant_words and ('solar' in var_name.lower() or 'pv' in var_name.lower()):
+                    variable_scores[var_name]['score'] += 5  # High priority for solar matches
+                elif 'nuclear' in significant_words and 'nuclear' in var_name.lower():
+                    variable_scores[var_name]['score'] += 5  # High priority for nuclear matches
+                elif 'wind' in significant_words and 'wind' in var_name.lower():
+                    variable_scores[var_name]['score'] += 5  # High priority for wind matches
+                elif 'hydro' in significant_words and 'hydro' in var_name.lower():
+                    variable_scores[var_name]['score'] += 5  # High priority for hydro matches
+                elif 'investment' in var_name.lower() and 'investment' in word:
+                    variable_scores[var_name]['score'] += 4  # Lower priority for investment matches
                 elif word in var_name.lower():
                     variable_scores[var_name]['score'] += 3  # Variable name match
                 elif word in var_info['description']:
@@ -485,6 +561,26 @@ def resolve_natural_language_variable_universal(query: str, variable_dict: dict)
                     keyword_matches = sum(1 for kw in significant_words if kw in var_name.lower() or kw in var_info['description'])
                     if keyword_matches > 1:
                         variable_scores[var_name]['score'] += keyword_matches
+
+                # Special handling for capacity and technology queries
+                if 'capacity' in significant_words and 'capacity' in var_name.lower():
+                    if 'nuclear' in significant_words and 'nuclear' in var_name.lower():
+                        variable_scores[var_name]['score'] += 8  # Strong boost for nuclear capacity
+                    if 'solar' in significant_words and 'solar' in var_name.lower():
+                        variable_scores[var_name]['score'] += 5  # Boost solar capacity
+                    if 'pv' in significant_words and ('solar' in var_name.lower() or 'pv' in var_name.lower()):
+                        variable_scores[var_name]['score'] += 5  # Boost PV capacity
+                    if 'photovoltaic' in significant_words and ('solar' in var_name.lower() or 'pv' in var_name.lower()):
+                        variable_scores[var_name]['score'] += 5  # Boost photovoltaic capacity
+                    if 'wind' in significant_words and 'wind' in var_name.lower():
+                        variable_scores[var_name]['score'] += 5  # Boost wind capacity
+                    if 'hydro' in significant_words and 'hydro' in var_name.lower():
+                        variable_scores[var_name]['score'] += 5  # Boost hydro capacity
+                    if 'electricity' in significant_words and 'electricity' in var_name.lower():
+                        variable_scores[var_name]['score'] += 3  # Boost electricity capacity
+
+                    # Boost any capacity variable for capacity queries
+                    variable_scores[var_name]['score'] += 2  # General capacity boost
 
                 # Special handling for investment queries
                 if 'investment' in significant_words and 'investment' in var_name.lower():
@@ -510,9 +606,44 @@ def resolve_natural_language_variable_universal(query: str, variable_dict: dict)
     best_var_name = best_variable[0]
     best_score = best_variable[1]['score']
 
-    # Minimum confidence threshold - lower for investment queries
-    min_threshold = 1 if any(word in significant_words for word in ['investment', 'investments', 'invest']) else 2
+    # Debug logging - show all scored variables
+    print(f"DEBUG: All variable scores:")
+    for var_name, info in sorted(variable_scores.items(), key=lambda x: x[1]['score'], reverse=True)[:5]:
+        print(f"  {var_name}: {info['score']} points")
+    print(f"DEBUG: Best match: {best_var_name} with score {best_score}")
+    print(f"DEBUG: Significant words: {significant_words}")
+    print(f"DEBUG: Query: {query}")
+
+    # For comparison queries, try to find a more general capacity variable
+    if 'compare' in query_lower and 'capacity' in significant_words:
+        # Look for general capacity variables that might exist
+        general_capacity_vars = [name for name in variable_scores.keys() if 'capacity' in name.lower() and 'electricity' in name.lower()]
+        if general_capacity_vars:
+            # Sort by score and pick the highest
+            best_general = max(general_capacity_vars, key=lambda x: variable_scores[x]['score'])
+            print(f"DEBUG: Fallback to general capacity variable: {best_general}")
+            return best_general
+
+    # For queries that result in variables not found in data, try to find similar available variables
+    # This is a general fallback mechanism, not specific to PV capacity
+    if best_var_name:
+        # Check if the resolved variable actually exists in available data
+        # We need to pass the available variables from the data context
+        # For now, we'll implement a more general approach in the calling function
+        # Return the best match anyway - let the calling function handle data availability
+        pass
+
+    # Minimum confidence threshold - lower for capacity and investment queries
+    min_threshold = 1 if any(word in significant_words for word in ['capacity', 'investment', 'investments', 'invest']) else 2
     if best_score < min_threshold:
+        # For capacity queries, try to find any capacity variable as fallback
+        if any(word in significant_words for word in ['capacity']):
+            capacity_vars = [name for name in variable_scores.keys() if 'capacity' in name.lower()]
+            if capacity_vars:
+                # Sort by score and pick the highest
+                best_capacity = max(capacity_vars, key=lambda x: variable_scores[x]['score'])
+                print(f"DEBUG: Fallback to capacity variable: {best_capacity}")
+                return best_capacity
         # For investment queries, try to find any investment variable as fallback
         if any(word in significant_words for word in ['investment', 'investments', 'invest']):
             investment_vars = [name for name in variable_scores.keys() if 'investment' in name.lower()]
@@ -521,6 +652,15 @@ def resolve_natural_language_variable_universal(query: str, variable_dict: dict)
                 best_investment = max(investment_vars, key=lambda x: variable_scores[x]['score'])
                 return best_investment
         return None
+
+    # Additional fallback for comparison queries
+    if 'compare' in query_lower and best_score < 3:
+        # For comparison queries with low confidence, try general capacity variables
+        general_capacity_vars = [name for name in variable_scores.keys() if 'capacity' in name.lower() and 'electricity' in name.lower()]
+        if general_capacity_vars:
+            best_general = max(general_capacity_vars, key=lambda x: variable_scores[x]['score'])
+            print(f"DEBUG: Comparison query fallback to general capacity: {best_general}")
+            return best_general
 
     return best_variable[0]
 

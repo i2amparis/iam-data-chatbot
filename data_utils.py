@@ -11,6 +11,7 @@ from io import BytesIO
 from simple_plotter import simple_plot_query
 from utils_query import match_variable_from_yaml, extract_examples_from_data, get_available_workspaces, extract_variable_and_region_from_query, resolve_natural_language_variable_universal
 from utils.yaml_loader import load_all_yaml_files
+from difflib import get_close_matches
 
 
 # Load variable and region definitions from YAML files
@@ -115,12 +116,12 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
     variable_match = resolve_natural_language_variable_universal(question, variable_dict)
     region_match = None
 
-    # Extract region if universal resolver didn't find variable
-    if not variable_match:
-        extracted = extract_variable_and_region_from_query(question, variable_dict, region_dict)
-        region_match = extracted['region']
+    # Always try to extract region, regardless of variable match success
+    extracted = extract_variable_and_region_from_query(question, variable_dict, region_dict)
+    region_match = extracted['region']
 
-        # Try YAML-based matching as fallback
+    # If universal resolver didn't find variable, try YAML-based matching as fallback
+    if not variable_match:
         if extracted['variable']['match_type'] not in [None, 'ambiguous']:
             variable_match = extracted['variable']['matched_variable']
 
@@ -175,7 +176,36 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
         # Validate that this variable actually exists in our loaded data
         available_vars = {str(r.get('variable', '')) for r in ts_data if r and r.get('variable')}
         if variable_match not in available_vars:
-            return f"Variable '{variable_match}' not found in loaded data."
+            # For comparison queries, try to find a general capacity variable that exists
+            if 'compare' in question.lower() and 'capacity' in question.lower():
+                general_capacity_vars = [v for v in available_vars if 'capacity' in v.lower() and 'electricity' in v.lower()]
+                if general_capacity_vars:
+                    variable_match = general_capacity_vars[0]  # Use the first general capacity variable
+                    print(f"DEBUG: Using general capacity variable for comparison: {variable_match}")
+                else:
+                    # Try to find any capacity variable
+                    any_capacity_vars = [v for v in available_vars if 'capacity' in v.lower()]
+                    if any_capacity_vars:
+                        variable_match = any_capacity_vars[0]
+                        print(f"DEBUG: Using any capacity variable for comparison: {variable_match}")
+
+            # If still not found, try to find similar variables
+            if variable_match not in available_vars:
+                similar_vars = find_similar_available_variables(variable_match, available_vars)
+                if similar_vars:
+                    # For comparison queries, automatically use the first similar variable
+                    if 'compare' in question.lower():
+                        variable_match = similar_vars[0]
+                        print(f"DEBUG: Auto-selected similar variable for comparison: {variable_match}")
+                    else:
+                        # Ask user to clarify which variable they want
+                        clarification_msg = f"Variable '{variable_match}' not found. Did you mean one of these?\n"
+                        for i, var in enumerate(similar_vars[:3], 1):
+                            clarification_msg += f"{i}. {var}\n"
+                        clarification_msg += "\nPlease specify which variable you want, or rephrase your question."
+                        return clarification_msg
+                else:
+                    return f"Variable '{variable_match}' not found in loaded data. Available variables include: {', '.join(list(available_vars)[:5])}..."
 
         # Filter time series data
         filtered_data = []
@@ -218,6 +248,21 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
     # -------------------------------
     return ""
 
+
+def find_similar_available_variables(requested_var: str, available_vars: set) -> list:
+    """Find similar variables that exist in the loaded data."""
+    available_list = list(available_vars)
+
+    # Try exact substring matches first
+    substring_matches = [v for v in available_list if requested_var.lower() in v.lower() or v.lower() in requested_var.lower()]
+    if substring_matches:
+        # Sort by similarity (shorter names first, then by how well they match)
+        substring_matches.sort(key=lambda x: (len(x), -len(set(requested_var.lower().split('|')) & set(x.lower().split('|')))))
+        return substring_matches[:3]
+
+    # Fall back to fuzzy matching
+    fuzzy_matches = get_close_matches(requested_var, available_list, n=3, cutoff=0.4)
+    return fuzzy_matches
 
 def format_time_series_data(data_records: list, variable: str, region: str = "") -> str:
     """Format time series data into a readable table."""

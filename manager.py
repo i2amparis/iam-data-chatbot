@@ -35,8 +35,8 @@ class MultiAgentManager:
                 return response
 
         # Enhanced routing logic to detect data queries
-        plotting_keywords = ["plot", "graph", "visualize", "chart", "give me a plot", 
-                             "create a plot", "make a plot"]
+        plotting_keywords = ["plot", "graph", "visualize", "chart", "give me a plot",
+                              "create a plot", "make a plot", "show me", "trends"]
         data_listing_keywords = ["list models", "list variables", "list scenarios", 
                                  "available models", "available variables", "available scenarios", "what models", 
                                  "what variables", "what scenarios", "what are the models", "what are the variables", 
@@ -46,9 +46,11 @@ class MultiAgentManager:
                                  "what charts", "show me variables", "show me models", "show me scenarios"]
 
         # Check for data variable queries (contains variable-like terms + location)
-        data_variable_keywords = ["capacity", "generation", "production", "emissions", "energy", 
-                                  "electricity", "power", "solar", "wind", "gas", "coal", "nuclear", 
-                                  "hydro", "biomass", "co2", "carbon", "greenhouse"]
+        data_variable_keywords = ["capacity", "generation", "production", "emissions", "energy",
+                                  "electricity", "power", "solar", "wind", "gas", "coal", "nuclear",
+                                  "hydro", "biomass", "co2", "carbon", "greenhouse", "ccs", "storage",
+                                  "battery", "hydrogen", "investments", "investment", "costs", "prices",
+                                  "efficiency", "consumption", "demand", "supply", "mix", "share"]
         location_keywords = ["greece", "europe", "china", "india", "usa", "united states", "germany", 
                              "france", "japan", "russia", "brazil", "africa", "asia", "global", "world"]
 
@@ -64,7 +66,7 @@ class MultiAgentManager:
         has_show_me = "show me" in query_lower
 
         # Route to data_query for: data listings, variable queries with locations, or direct variable names
-        if is_data_listing or (has_data_keywords and (has_location or has_for)) or "|" in query:
+        if is_data_listing or (has_data_keywords and (has_location or has_for)) or "|" in query or (has_data_keywords and not any(word in query_lower for word in ['explain', 'describe', 'what is', 'how does', 'why', 'how to', 'how do', 'how can', 'how are', 'how much', 'how many'])):
             agent_name = "data_query"
         # Special case: "show me" + data listing keywords should go to data_query, not plotting
         elif has_show_me and any(phrase in query_lower for phrase in ["models", "variables", "scenarios"]):
@@ -87,7 +89,7 @@ class MultiAgentManager:
             return response
         elif "explain carbon pricing" in query_lower:
             agent_name = "general_qa"  # Route to LLM for carbon pricing explanation
-        elif any(phrase in query_lower for phrase in ["explain", "describe", "info about", "details about", "tell me about", "what is"]):
+        elif any(phrase in query_lower for phrase in ["explain", "describe", "info about", "details about", "tell me about", "what is", "how does", "how do", "how to", "how can", "how are", "how much", "how many"]):
             agent_name = "model_explanation"
         elif "suggest modelling studies" in query_lower:
             agent_name = "modelling_suggestions"  # Route to suggestions agent
