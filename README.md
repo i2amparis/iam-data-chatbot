@@ -18,7 +18,7 @@ pip freeze > requirements.txt
 pip install -r requirements.txt
 
 #run the bot to get answers from data
-python mainv2.py
+python main.py
 
 #run the bot to get answers from api
 python main.py --query "your question here"
