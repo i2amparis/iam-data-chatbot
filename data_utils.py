@@ -21,6 +21,8 @@ region_dict = load_all_yaml_files('definitions/region')
 
 def data_query(question: str, model_data: list, ts_data: list) -> str:
     """Process a user query about IAM data, optionally returning results or plots."""
+    if not question or not isinstance(question, str):
+        return "Please provide a valid question."
     q = question.lower()
 
     # -------------------------------
@@ -58,7 +60,7 @@ def data_query(question: str, model_data: list, ts_data: list) -> str:
     # -------------------------------
     # LIST AVAILABLE VARIABLES
     # -------------------------------
-    if 'list variables' in q or 'show me variables' in q:
+    if re.search(r"\b(list|available|what)\b.*\bvariables?\b", q) or re.search(r"\bvariables?\b.*\b(available|list|what|do you have)\b", q) or re.search(r"\bwhat.*variables?\b", q):
         vars = sorted({str(r.get('variable', '')) for r in ts_data if r and r.get('variable')})
         if not vars:
             return "I don't see any variables in the loaded dataset. Try reloading or check the IAM PARIS results website."
