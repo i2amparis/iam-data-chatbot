@@ -7,16 +7,37 @@ from datetime import datetime
 import logging
 import base64
 from io import BytesIO
+import requests.exceptions
 
 from simple_plotter import simple_plot_query
 from utils_query import match_variable_from_yaml, extract_examples_from_data, get_available_workspaces, extract_variable_and_region_from_query, resolve_natural_language_variable_universal
 from utils.yaml_loader import load_all_yaml_files
 from difflib import get_close_matches
+import pickle
+import os
 
+# Create cached versions of YAML loading
+def get_cached_yaml_definitions():
+    # Try file cache
+    cache_file = "cache/yaml_dicts.pkl"
+    if os.path.exists(cache_file):
+        with open(cache_file, 'rb') as f:
+            return pickle.load(f)
+    
+    # Load YAML files (expensive operation)
+    variable_dict = load_all_yaml_files('definitions/variable')
+    region_dict = load_all_yaml_files('definitions/region')
+    result = (variable_dict, region_dict)
+    
+    # Save to cache
+    os.makedirs("cache", exist_ok=True)
+    with open(cache_file, 'wb') as f:
+        pickle.dump(result, f)
+    
+    return result
 
-# Load variable and region definitions from YAML files
-variable_dict = load_all_yaml_files('definitions/variable')
-region_dict = load_all_yaml_files('definitions/region')
+# Load variable and region definitions from YAML files (replace lines 18-20)
+variable_dict, region_dict = get_cached_yaml_definitions()
 
 
 def data_query(question: str, model_data: list, ts_data: list) -> str:

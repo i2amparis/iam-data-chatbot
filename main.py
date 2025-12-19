@@ -1,6 +1,7 @@
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import requests.exceptions
 
 from pathlib import Path
 import re
@@ -38,8 +39,40 @@ from utils_query import (
     get_available_scenarios,
     get_available_variables_from_yaml)
 
+import pickle
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
+
+
+def load_definitions():
+    #try file cache
+    cache_file ='cache/yaml_definitions.pkl'
+    if os.path.exists(cache_file):
+        print('loading yaml definitions from file cache..')
+        with open(cache_file,'rb') as f:
+            return pickle.load(f)
+        
+    #print and parse yaml files
+    print('loading and parsing yaml files..')
+    region_path = Path('definitions/region').resolve()
+    variable_path = Path('definitions/variable').resolve()
+    region_yaml = load_all_yaml_files(str(region_path))
+    variable_yaml = load_all_yaml_files(str(variable_path))
+    result = yaml_to_documents(region_yaml), yaml_to_documents(variable_yaml)
+
+    #save to cache
+    os.makedirs('cache',exist_ok=True)
+    with open(cache_file, 'wb') as f:
+        pickle.dump(result,f)
+    
+    return result
 
 def setup_logging(debug: bool = False):
     root_logger = logging.getLogger()
@@ -55,14 +88,8 @@ def setup_logging(debug: bool = False):
         console_handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
         root_logger.addHandler(console_handler)
 
-def load_definitions():
-    region_path = Path('definitions/region').resolve()
-    variable_path = Path('definitions/variable').resolve()
-    region_yaml = load_all_yaml_files(str(region_path))
-    variable_yaml = load_all_yaml_files(str(variable_path))
-    return yaml_to_documents(region_yaml), yaml_to_documents(variable_yaml)
 
-region_docs , variable_docs = load_definitions()
+
 
 def docs_from_records(records: list) -> List[Document]:
     docs = []
@@ -88,13 +115,35 @@ def docs_from_records(records: list) -> List[Document]:
         docs.append(doc)
     return docs
 
-def build_faiss_index(docs: list, embeddings) -> FAISS:
-    index_dir = "faiss_index"
-    if os.path.exists(index_dir):
+def build_faiss_index(docs:list, embeddings) ->FAISS:
+    #try file cache
+    index_dir = 'cache/faiss_index'
+    index_file = os.path.join(index_dir, 'index.faiss')
+    
+    if os.path.exists(index_file):
+        print('Loading FAISS index from file cache ..')
         return FAISS.load_local(index_dir, embeddings, allow_dangerous_deserialization=True)
-    store = FAISS.from_documents(docs, embeddings)
-    store.save_local(index_dir)
-    return store
+    
+    # Create FAISS index if cache doesn't exist
+    print('Creating FAISS index...')
+    faiss_index = FAISS.from_documents(docs, embeddings)
+    
+    # Save to cache using FAISS native save method
+    os.makedirs(index_dir, exist_ok=True)
+    faiss_index.save_local(index_dir)
+    
+    return faiss_index
+
+#clear cache
+def clear_cache():
+    """Clear all cached data."""
+    import shutil
+    if os.path.exists("cache"):
+        shutil.rmtree("cache")
+    
+    print("Cache cleared")
+
+
 
 def display_plot_from_base64(base64_string: str):
     try:
@@ -136,9 +185,9 @@ class IAMParisBot:
             with open(cache_file, 'r') as f:
                 return pd.read_json(f).to_dict('records')
         if payload:
-            resp = requests.post(url, json=payload)
+            resp = requests.post(url, json=payload, timeout=30)
         else:
-            resp = requests.get(url, params=params)
+            resp = requests.get(url, params=params,timeout=30)
         print(f"API call to {url}: status {resp.status_code}")
         resp.raise_for_status()
         data = resp.json()
@@ -192,19 +241,32 @@ def main():
     parser.add_argument("--no-stream", action="store_true")
     parser.add_argument("--debug", action="store_true")
     parser.add_argument("--query", type=str, help="Single query to process and exit")
+    parser.add_argument("--clear-cache", action="store_true", help="Clear all cached data and exit")
     args = parser.parse_args()
+
+    if args.clear_cache:
+        clear_cache()
+        return
 
     setup_logging(args.debug)
     logger = logging.getLogger(__name__)
 
     bot = IAMParisBot(streaming=not args.no_stream)
-    models = bot.fetch_json(bot.env["REST_MODELS_URL"], params={"limit": -1}, cache=False)
-    # Remove limit to get all available data for energy-systems workspace
-    ts_payload = {"workspace_code": ["energy-systems"]}
-    logger.info(f"Fetching timeseries with payload: {ts_payload}")
-    ts = bot.fetch_json(bot.env["REST_API_FULL"], payload=ts_payload, cache=False)
-    logger.info(f"Timeseries records fetched: {len(ts)}")
-    print(f"ts fetch: {len(ts)} records")
+    try:
+        models = bot.fetch_json(bot.env["REST_MODELS_URL"], params={"limit": -1}, cache=False)
+        # Remove limit to get all available data for energy-systems workspace
+        ts_payload = {"workspace_code": ["energy-systems"]}
+        logger.info(f"Fetching timeseries with payload: {ts_payload}")
+        ts = bot.fetch_json(bot.env["REST_API_FULL"], payload=ts_payload, cache=False)
+        logger.info(f"Timeseries records fetched: {len(ts)}")
+        print(f"ts fetch: {len(ts)} records")
+    except RuntimeError as e:
+        logger.error(f"Failed to fetch data: {e}")
+        print(f"Error: {e}")
+        print("Please check your internet connection and try again.")
+        return
+
+
 
     region_docs, variable_docs = load_definitions()
     all_docs = docs_from_records(models + ts) + region_docs + variable_docs

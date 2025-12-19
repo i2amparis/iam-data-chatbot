@@ -7,19 +7,40 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
+import requests.exceptions
+import logging
+logger = logging.getLogger(__name__)
 from main import IAMParisBot, docs_from_records, build_faiss_index
 from utils.yaml_loader import load_all_yaml_files, yaml_to_documents
 from langchain_openai import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from manager import MultiAgentManager
 
+
+
+
+#Add caching
 def load_definitions():
+    # Try file cache
+    cache_file = "cache/yaml_definitions.pkl"
+    if os.path.exists(cache_file):
+        with open(cache_file, 'rb') as f:
+            return pickle.load(f)
+    
+    # Load and parse YAML files
     region_path = Path('definitions/region').resolve()
     variable_path = Path('definitions/variable').resolve()
     region_yaml = load_all_yaml_files(str(region_path))
     variable_yaml = load_all_yaml_files(str(variable_path))
-    return yaml_to_documents(region_yaml), yaml_to_documents(variable_yaml)
+    result = yaml_to_documents(region_yaml), yaml_to_documents(variable_yaml)
+    
+    # Save to cache
+    os.makedirs("cache", exist_ok=True)
+    with open(cache_file, 'wb') as f:
+        pickle.dump(result, f)
+    
+    return result
+
 
 # Pydantic Models
 class QueryRequest(BaseModel):
@@ -58,12 +79,16 @@ def query_chatbot(req: QueryRequest):
         bot = IAMParisBot(streaming=False)
 
         # Load models and timeseries data (energy-systems workspace only)
-        models = bot.fetch_json(bot.env['REST_MODELS_URL'], params={'limit': -1}, cache=False)
-        ts_payload = {'workspace_code': ['energy-systems'], 'limit': -1}
-        ts = bot.fetch_json(bot.env['REST_API_FULL'], payload=ts_payload, cache=False)
+        try:
+            models = bot.fetch_json(bot.env['REST_MODELS_URL'], params={'limit': -1}, cache=False)
+            ts_payload = {'workspace_code': ['energy-systems'], 'limit': -1}
+            ts = bot.fetch_json(bot.env['REST_API_FULL'], payload=ts_payload, cache=False)
+        except RuntimeError as e:
+            logger.error(f"Failed to fetch data: {e}")
+            raise HTTPException(status_code=503, detail=f"Data service unavailable: {str(e)}")
+
 
         # Prepare documents and index
-        region_docs, variable_docs = load_definitions()
         all_docs = docs_from_records(models + ts) + region_docs + variable_docs
         chunks = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=80).split_documents(all_docs)
         embeddings = OpenAIEmbeddings(model='text-embedding-3-small', api_key=bot.env['OPENAI_API_KEY'])
