@@ -31,3 +31,6 @@ python fastapi_app.py
 
 #or with uvicorn
 uvicorn fastapi_app:app --reload
+
+#force recreation of the faiss index
+python main.py --clear-cache

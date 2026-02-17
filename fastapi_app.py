@@ -78,10 +78,16 @@ def query_chatbot(req: QueryRequest):
         # Initialize bot (non-streaming for API)
         bot = IAMParisBot(streaming=False)
 
-        # Load models and timeseries data (energy-systems workspace only)
+        # Load models and timeseries data (all workspaces)
         try:
             models = bot.fetch_json(bot.env['REST_MODELS_URL'], params={'limit': -1}, cache=False)
-            ts_payload = {'workspace_code': ['energy-systems'], 'limit': -1}
+            all_workspaces = [
+                "afolu", "buildings-transf", "covid-rec", "decarb-potentials", "decipher_1",
+                "energy-systems", "eu-headed", "index-decomp", "industrial-transf", "ndcs-impacts",
+                "net-zero", "post-glasgow", "power-people", "study-1", "study-2", "study-3",
+                "study-4", "study-6", "study-7", "transp-transf", "world-headed"
+            ]
+            ts_payload = {'workspace_code': all_workspaces}
             ts = bot.fetch_json(bot.env['REST_API_FULL'], payload=ts_payload, cache=False)
         except RuntimeError as e:
             logger.error(f"Failed to fetch data: {e}")
@@ -89,6 +95,7 @@ def query_chatbot(req: QueryRequest):
 
 
         # Prepare documents and index
+        region_docs, variable_docs = load_definitions()
         all_docs = docs_from_records(models + ts) + region_docs + variable_docs
         chunks = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=80).split_documents(all_docs)
         embeddings = OpenAIEmbeddings(model='text-embedding-3-small', api_key=bot.env['OPENAI_API_KEY'])
@@ -128,3 +135,4 @@ def root():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+

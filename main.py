@@ -175,27 +175,46 @@ class IAMParisBot:
         if missing := [k for k, v in self.env.items() if not v]:
             raise RuntimeError(f"Missing environment variables: {', '.join(missing)}")
 
-    def fetch_json(self, url: str, params=None, payload=None, cache=True) -> list:
+    def fetch_json(self, url: str, params=None, payload=None, cache=True, max_retries=3) -> list:
         os.makedirs("cache", exist_ok=True)
         # Convert params and payload to strings for hashing if they contain dicts
         params_str = str(sorted(params.items())) if params is not None else ""
         payload_str = str(sorted(payload.items())) if payload is not None else ""
-        cache_file = f"cache/{url.split('/')[-1]}_{hash(params_str + payload_str)}.json"
+        # Use hashlib for consistent hashing across Python sessions
+        import hashlib
+        hash_key = hashlib.md5((params_str + payload_str).encode()).hexdigest()[:16]
+        cache_file = f"cache/{url.split('/')[-1]}_{hash_key}.json"
         if cache and os.path.exists(cache_file):
             with open(cache_file, 'r') as f:
                 return pd.read_json(f).to_dict('records')
-        if payload:
-            resp = requests.post(url, json=payload, timeout=30)
-        else:
-            resp = requests.get(url, params=params,timeout=30)
-        print(f"API call to {url}: status {resp.status_code}")
-        resp.raise_for_status()
-        data = resp.json()
-        records = data.get("data") if isinstance(data, dict) else data
-        print(f"Records fetched: {len(records)}")
-        with open(cache_file, 'w') as f:
-            pd.DataFrame(records).to_json(f)
-        return records
+        # Use POST if payload is provided, otherwise GET
+        # Use longer timeout for large data fetches
+        timeout = 300 if payload is not None else 60
+        print(f"Fetching data from {url}...")
+        
+        # Retry logic with exponential backoff
+        for attempt in range(max_retries):
+            try:
+                if payload is not None:
+                    resp = requests.post(url, json=payload, timeout=timeout)
+                else:
+                    resp = requests.get(url, params=params, timeout=timeout)
+                print(f"API call completed: status {resp.status_code}")
+                resp.raise_for_status()
+                data = resp.json()
+                records = data.get("data") if isinstance(data, dict) else data
+                print(f"Records fetched: {len(records)}")
+                with open(cache_file, 'w') as f:
+                    pd.DataFrame(records).to_json(f)
+                return records
+            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+                if attempt < max_retries - 1:
+                    wait_time = (2 ** attempt) * 5  # Exponential backoff: 5, 10, 20 seconds...
+                    print(f"Request failed ({type(e).__name__}), retrying in {wait_time}s... (attempt {attempt + 1}/{max_retries})")
+                    time.sleep(wait_time)
+                else:
+                    raise RuntimeError(f"Failed to fetch data after {max_retries} attempts: {e}")
+        return []
 
     def create_qa_chain(self, vs: FAISS) -> ConversationalRetrievalChain:
         memory = ConversationBufferMemory(
@@ -253,27 +272,59 @@ def main():
 
     bot = IAMParisBot(streaming=not args.no_stream)
     try:
-        models = bot.fetch_json(bot.env["REST_MODELS_URL"], params={"limit": -1}, cache=False)
-        # Remove limit to get all available data for energy-systems workspace
-        ts_payload = {"workspace_code": ["energy-systems"]}
-        logger.info(f"Fetching timeseries with payload: {ts_payload}")
-        ts = bot.fetch_json(bot.env["REST_API_FULL"], payload=ts_payload, cache=False)
-        logger.info(f"Timeseries records fetched: {len(ts)}")
+        models = bot.fetch_json(bot.env["REST_MODELS_URL"], params={"limit": -1}, cache=True)
+        
+        # Fetch ALL data from IAMPARIS API (all workspaces)
+        # Using workspace_code filter to get all data
+        all_workspaces = [
+            "afolu", "buildings-transf", "covid-rec", "decarb-potentials", "decipher_1",
+            "energy-systems", "eu-headed", "index-decomp", "industrial-transf", "ndcs-impacts",
+            "net-zero", "post-glasgow", "power-people", "study-1", "study-2", "study-3",
+            "study-4", "study-6", "study-7", "transp-transf", "world-headed"
+        ]
+        ts_payload = {"workspace_code": all_workspaces}
+        ts = bot.fetch_json(bot.env["REST_API_FULL"], payload=ts_payload, cache=True)
+        
         print(f"ts fetch: {len(ts)} records")
+
+        # Create workspace lookup for filtering
+        workspace_lookup = {}
+        for record in ts:
+            ws = record.get('workspace_code', 'unknown')
+            if ws not in workspace_lookup:
+                workspace_lookup[ws] = []
+            workspace_lookup[ws].append(record)
+        print(f"Workspaces loaded: {list(workspace_lookup.keys())}")
     except RuntimeError as e:
         logger.error(f"Failed to fetch data: {e}")
         print(f"Error: {e}")
         print("Please check your internet connection and try again.")
         return
 
+    # Check if FAISS cache exists before processing documents
+    index_dir = "cache/faiss_index"
+    if os.path.exists(os.path.join(index_dir, "index.faiss")):
+        print("Loading FAISS index from cache...")
+        embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=bot.env["OPENAI_API_KEY"])
+        faiss_index = FAISS.load_local(index_dir, embeddings, allow_dangerous_deserialization=True)
+    else:
+        print("Creating new FAISS index...")
+        region_docs, variable_docs = load_definitions()
+        all_docs = docs_from_records(models + ts) + region_docs + variable_docs
+        chunks = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=80).split_documents(all_docs)
+        embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=bot.env["OPENAI_API_KEY"])
+        faiss_index = FAISS.from_documents(chunks, embeddings)
+        os.makedirs(index_dir, exist_ok=True)
+        faiss_index.save_local(index_dir)
 
-
-    region_docs, variable_docs = load_definitions()
-    all_docs = docs_from_records(models + ts) + region_docs + variable_docs
-    chunks = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=80).split_documents(all_docs)
-
-    embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=bot.env["OPENAI_API_KEY"])
-    faiss_index = build_faiss_index(chunks, embeddings)
+    shared_resources = {
+        "models": models,
+        "ts": ts,
+        "workspace_lookup": workspace_lookup,
+        "vector_store": faiss_index,
+        "env": bot.env,
+        "bot": bot
+    }
 
     shared_resources = {
         "models": models,
@@ -297,18 +348,6 @@ def main():
         return
 
     print("\nWelcome to the IAM PARIS Climate Policy Assistant! Type 'exit' to quit.\n")
-
-    print("Examples (filtered for energy-systems workspace):")
-    # Filter models to those available in the loaded ts data
-    available_models = set(r.get('modelName', '') for r in ts if r and r.get('modelName'))
-    model_names = [name for name in available_models if name][:5]
-    print("Models:", ", ".join(sorted(model_names)))
-    print("Scenarios:", ", ".join(get_available_scenarios(ts)[:5]))
-
-    # Filter variables to those available in the loaded ts data
-    available_variables = set(str(r.get('variable', '')) for r in ts if r and r.get('variable'))
-    variable_names = [name for name in available_variables if name][:10]
-    print("Variables:", ", ".join(sorted(variable_names)))
 
     history = []
     while True:

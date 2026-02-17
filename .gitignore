@@ -16,6 +16,12 @@ __pycache__/
 *.so
 .pytest_cache/
 
+# Virtual environments
+botenv/
+env/
+venv/
+.venv/
+
 # IDE
 .vscode/
 .idea/
@@ -33,3 +39,6 @@ chatbot.log
 # Temporary files
 *.tmp
 *.temp
+
+# Large data files (can be regenerated)
+comprehensive_iamparis_metadata.json

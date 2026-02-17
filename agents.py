@@ -12,8 +12,6 @@ from langchain.prompts import (
 from langchain_openai import ChatOpenAI
 from langchain_community.chat_message_histories import ChatMessageHistory
 
-from data_utils import data_query  # Import the existing data_query function
-
 
 class BaseAgent:
     def __init__(self, shared_resources: Dict[str, Any], streaming: bool = True):
@@ -26,10 +24,99 @@ class BaseAgent:
 
 
 class DataQueryAgent(BaseAgent):
-    def handle(self, query: str, history: Optional[List[Tuple[str, str]]] = None) -> str:
+    """Agent for querying IAM PARIS data using LLM intelligence."""
+    
+    def __init__(self, shared_resources: Dict[str, Any], streaming: bool = True):
+        super().__init__(shared_resources, streaming)
+        self.chain = self._create_qa_chain()
+
+    def _create_qa_chain(self) -> ConversationalRetrievalChain:
+        vs = self.resources.get("vector_store")
+        if not vs:
+            raise ValueError("Vector store not found in shared resources")
+        
+        # Get all available data for direct LLM access
         models = self.resources.get("models", [])
         ts = self.resources.get("ts", [])
-        return data_query(query, models, ts)
+        
+        model_names = sorted([m.get('modelName', '') for m in models if m and m.get('modelName')])
+        scenarios = sorted({r.get('scenario', '') for r in ts if r and r.get('scenario')})
+        variables = sorted({str(r.get('variable', '')) for r in ts if r and r.get('variable')})
+        regions = sorted({str(r.get('region', '')) for r in ts if r and r.get('region')})
+        
+        # Create concise summaries instead of full lists
+        model_list = ", ".join(model_names[:20]) + (f" ... and {len(model_names)-20} more" if len(model_names) > 20 else "")
+        scenario_list = ", ".join(scenarios[:15]) + (f" ... and {len(scenarios)-15} more" if len(scenarios) > 15 else "")
+        variable_list = ", ".join(variables[:20]) + (f" ... and {len(variables)-20} more" if len(variables) > 20 else "")
+        region_list = ", ".join(regions[:15]) + (f" ... and {len(regions)-15} more" if len(regions) > 15 else "")
+        
+        llm = ChatOpenAI(
+            model_name="gpt-4-turbo",
+            temperature=0,
+            streaming=self.streaming,
+            api_key=self.resources["env"]["OPENAI_API_KEY"],
+        )
+
+        message_history = ChatMessageHistory()
+        memory = ConversationSummaryBufferMemory(
+            llm=llm,
+            max_token_limit=1000,
+            chat_memory=message_history,
+            return_messages=True,
+            memory_key="chat_history"
+        )
+
+        system_tpl = f"""You are a data query assistant for IAM PARIS climate data (https://iamparis.eu/).
+
+## Available Data Summary:
+
+- **Models:** {len(model_names)} total - Examples: {model_list}
+- **Scenarios:** {len(scenarios)} total - Examples: {scenario_list}
+- **Variables:** {len(variables)} total - Examples: {variable_list}
+- **Regions:** {len(regions)} total - Examples: {region_list}
+
+## Your Task:
+
+1. Answer questions about what data is available
+2. Use the vector store context to find specific items
+3. Provide counts and examples when asked
+
+## Guidelines:
+
+- For "which/what/list models": Provide count and list from context
+- For "which/what/list scenarios": Provide count and examples
+- For "which/what/list variables": Provide count and relevant examples
+- For "which/what/list regions": Provide count and examples
+- Use Markdown formatting
+- Reference https://iamparis.eu/results for data access
+
+Context from vector store: ```{{context}}```"""
+
+        user_tpl = "Question: ```{question}```"
+
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                SystemMessagePromptTemplate.from_template(system_tpl),
+                HumanMessagePromptTemplate.from_template(user_tpl),
+            ]
+        )
+
+        retriever = vs.as_retriever(search_type="mmr", search_kwargs={"k": 5, "fetch_k": 20, "lambda_mult": 0.5})
+
+        return ConversationalRetrievalChain.from_llm(
+            llm=llm,
+            retriever=retriever,
+            memory=memory,
+            chain_type="stuff",
+            combine_docs_chain_kwargs={"prompt": prompt},
+            verbose=False,
+        )
+
+    def handle(self, query: str, history: Optional[List[Tuple[str, str]]] = None) -> str:
+        if history is None:
+            history = []
+        resp = self.chain.invoke({"question": query, "chat_history": history})
+        return resp.get("answer", "").strip()
 
 
 class ModelExplanationAgent(BaseAgent):
@@ -41,7 +128,12 @@ class ModelExplanationAgent(BaseAgent):
         vs = self.resources.get("vector_store")
         if not vs:
             raise ValueError("Vector store not found in shared resources")
-
+        
+        # Get all model names for the system prompt
+        models = self.resources.get("models", [])
+        model_names = sorted([m.get('modelName', '') for m in models if m and m.get('modelName')])
+        model_list = ", ".join(model_names)
+        
         llm = ChatOpenAI(
             model_name="gpt-4-turbo",
             temperature=0,
@@ -58,7 +150,15 @@ class ModelExplanationAgent(BaseAgent):
             memory_key="chat_history"
         )
 
-        system_tpl = """You are an expert climate policy assistant focused on IAM PARIS data and models (https://iamparis.eu/).
+        system_tpl = f"""You are an expert climate policy assistant focused on IAM PARIS data and models (https://iamparis.eu/).
+
+Available models in IAM PARIS database ({len(model_names)} total):
+{model_list}
+
+When users ask about models:
+- List ALL models by name when asked to list models
+- Provide details about specific models using the modelName field
+- Match user queries to the correct modelName
 
 Always:
 - Provide direct answers without restating the question
@@ -72,7 +172,7 @@ Always:
 Available IAM PARIS resources:
 - Results database: https://iamparis.eu/results
 
-Context: ```{context}```"""
+Context: ```{{context}}```"""
 
         user_tpl = "Question: ```{question}```"
 
@@ -108,6 +208,15 @@ class DataPlottingAgent(BaseAgent):
         models = self.resources.get("models", [])
         ts = self.resources.get("ts", [])
         return simple_plot_query(query, models, ts)
+
+    def handle_with_entities(self, query: str, entities: Dict[str, Any], history: Optional[List[Tuple[str, str]]] = None) -> str:
+        """
+        Handle plotting with pre-extracted entities for better accuracy.
+        """
+        from simple_plotter import simple_plot_query_with_entities
+        models = self.resources.get("models", [])
+        ts = self.resources.get("ts", [])
+        return simple_plot_query_with_entities(query, models, ts, entities)
 
     def handle_clarification(self, query: str, context: Dict[str, Any], history: Optional[List[Tuple[str, str]]] = None) -> str:
         """
@@ -151,7 +260,12 @@ class GeneralQAAgent(BaseAgent):
         vs = self.resources.get("vector_store")
         if not vs:
             raise ValueError("Vector store not found in shared resources")
-
+        
+        # Get all model names for the system prompt
+        models = self.resources.get("models", [])
+        model_names = sorted([m.get('modelName', '') for m in models if m and m.get('modelName')])
+        model_list = ", ".join(model_names)
+        
         llm = ChatOpenAI(
             model_name="gpt-4-turbo",
             temperature=0,
@@ -168,7 +282,14 @@ class GeneralQAAgent(BaseAgent):
             memory_key="chat_history"
         )
 
-        system_tpl = """You are an expert climate policy assistant focused on IAM PARIS data and models (https://iamparis.eu/).
+        system_tpl = f"""You are an expert climate policy assistant focused on IAM PARIS data and models (https://iamparis.eu/).
+
+Available models in IAM PARIS database ({len(model_names)} total):
+{model_list}
+
+When users ask about models:
+- List ALL models by name when asked to list models
+- Provide details about specific models using the modelName field
 
 Always:
 - Provide direct answers without restating the question
@@ -178,7 +299,7 @@ Always:
 - Format numbers with units
 - Promote https://iamparis.eu/results for detailed data access
 
-Context: ```{context}```"""
+Context: ```{{context}}```"""
 
         user_tpl = "Question: ```{question}```"
 
