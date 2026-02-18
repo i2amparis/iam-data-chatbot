@@ -79,8 +79,9 @@ def query_chatbot(req: QueryRequest):
         bot = IAMParisBot(streaming=False)
 
         # Load models and timeseries data (all workspaces)
+        # Use cache=True to avoid repeated API calls - cache is built on first run
         try:
-            models = bot.fetch_json(bot.env['REST_MODELS_URL'], params={'limit': -1}, cache=False)
+            models = bot.fetch_json(bot.env['REST_MODELS_URL'], params={'limit': -1}, cache=True)
             all_workspaces = [
                 "afolu", "buildings-transf", "covid-rec", "decarb-potentials", "decipher_1",
                 "energy-systems", "eu-headed", "index-decomp", "industrial-transf", "ndcs-impacts",
@@ -88,7 +89,7 @@ def query_chatbot(req: QueryRequest):
                 "study-4", "study-6", "study-7", "transp-transf", "world-headed"
             ]
             ts_payload = {'workspace_code': all_workspaces}
-            ts = bot.fetch_json(bot.env['REST_API_FULL'], payload=ts_payload, cache=False)
+            ts = bot.fetch_json(bot.env['REST_API_FULL'], payload=ts_payload, cache=True)
         except RuntimeError as e:
             logger.error(f"Failed to fetch data: {e}")
             raise HTTPException(status_code=503, detail=f"Data service unavailable: {str(e)}")
