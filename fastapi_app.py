@@ -109,7 +109,9 @@ def initialize_resources():
         
         logger.info("Building document chunks...")
         _check_timeout("document chunking")
-        all_docs = docs_from_records(models + ts) + region_docs + variable_docs
+        # NOTE: timeseries (ts) data is NOT embedded - it's numeric data, not semantic text
+        # ts is still available in _cached_resources for querying but not in vector store
+        all_docs = docs_from_records(models) + region_docs + variable_docs
         chunks = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=80).split_documents(all_docs)
         logger.info(f"Created {len(chunks)} document chunks")
         

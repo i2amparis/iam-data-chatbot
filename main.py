@@ -2,6 +2,7 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import requests.exceptions
+import time
 
 from pathlib import Path
 import re
@@ -96,8 +97,11 @@ def docs_from_records(records: list) -> List[Document]:
     for rec in records:
         if rec is None:
             continue
-        desc = (rec.get("description") or rec.get("modelName") or "").strip()
-        asum = (rec.get("assumptions") or "").strip()
+        # Handle case where description/modelName might be float (nan) instead of string
+        desc_val = rec.get("description") or rec.get("modelName") or ""
+        desc = str(desc_val).strip() if desc_val else ""
+        asum_val = rec.get("assumptions") or ""
+        asum = str(asum_val).strip() if asum_val else ""
         if not desc and not asum:
             continue
         content = desc + (f"\n\nAssumptions: {asum}" if asum else "")
@@ -310,7 +314,7 @@ def main():
     else:
         print("Creating new FAISS index...")
         region_docs, variable_docs = load_definitions()
-        all_docs = docs_from_records(models + ts) + region_docs + variable_docs
+        all_docs = docs_from_records(models) + region_docs + variable_docs
         chunks = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=80).split_documents(all_docs)
         embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=bot.env["OPENAI_API_KEY"])
         faiss_index = FAISS.from_documents(chunks, embeddings)
