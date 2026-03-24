@@ -3,6 +3,7 @@ import sys
 import pickle
 import time
 import asyncio
+import re
 from concurrent.futures import ThreadPoolExecutor
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -167,6 +168,46 @@ class QueryRequest(BaseModel):
 class QueryResponse(BaseModel):
     answer: str
     history: List[Tuple[str, str]] = []
+    plot_base64: str = ""
+    plot_caption: str = ""
+    notices: List[str] = []
+
+
+def _extract_notices(answer: str) -> List[str]:
+    """
+    Extract short UI-friendly notices from the bot response.
+    Frontends can display these as a toast/modal without parsing the whole answer.
+    """
+    text = str(answer or "")
+    notices: List[str] = []
+
+    assumptions_msg = "No explicit assumptions field is available in the model metadata."
+    if assumptions_msg in text:
+        notices.append(assumptions_msg)
+
+    return notices
+
+
+def _split_answer_payload(answer: str) -> tuple[str, str, str, List[str]]:
+    """
+    Split mixed text/plot markdown answers into API-friendly fields.
+    Returns: cleaned_answer, plot_base64, plot_caption, notices
+    """
+    text = str(answer or "").strip()
+    notices = _extract_notices(text)
+    for notice in notices:
+        text = re.sub(re.escape(notice), "", text, flags=re.IGNORECASE).strip()
+
+    plot_base64 = ""
+    plot_caption = ""
+    match = re.search(r"!\[Plot\]\((data:image/png;base64,[^)]+)\)", text, flags=re.IGNORECASE | re.DOTALL)
+    if match:
+        plot_base64 = match.group(1).split("data:image/png;base64,", 1)[-1]
+        text = (text[:match.start()] + text[match.end():]).strip()
+        plot_caption = text.splitlines()[0].strip() if text else "Generated plot."
+
+    text = re.sub(r"\n{3,}", "\n\n", text).strip()
+    return text, plot_base64, plot_caption, notices
 
 # FastAPI Setup
 app = FastAPI(
@@ -226,9 +267,16 @@ def query_chatbot(req: QueryRequest):
         
         # Route query
         response = manager.route_query(req.query, chat_history)
-        chat_history.append((req.query, response))
-        
-        return QueryResponse(answer=response, history=chat_history)
+        answer_text, plot_base64, plot_caption, notices = _split_answer_payload(response)
+        chat_history.append((req.query, answer_text))
+
+        return QueryResponse(
+            answer=answer_text,
+            history=chat_history,
+            plot_base64=plot_base64,
+            plot_caption=plot_caption,
+            notices=notices,
+        )
     
     except Exception as e:
         logger.error(f"Error processing query: {e}")

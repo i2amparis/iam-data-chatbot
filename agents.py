@@ -1,5 +1,6 @@
 import logging
 from typing import List, Tuple, Optional, Dict, Any
+from pathlib import Path
 
 from langchain.schema import Document
 from langchain.chains import ConversationalRetrievalChain
@@ -11,6 +12,24 @@ from langchain.prompts import (
 )
 from langchain_openai import ChatOpenAI
 from langchain_community.chat_message_histories import ChatMessageHistory
+
+
+def _load_skill_guidance(max_chars: int = 4000) -> str:
+    """
+    Load skill guidance to inject into system prompts.
+    """
+    skill_path = Path("skills/iam-timeseries-qa/SKILL.md")
+    if not skill_path.exists():
+        return ""
+    text = skill_path.read_text()
+    if text.lstrip().startswith("---"):
+        parts = text.split("---", 2)
+        if len(parts) == 3:
+            text = parts[2]
+    text = text.strip()
+    if len(text) > max_chars:
+        text = text[:max_chars].rstrip() + "\n\n[Skill guidance truncated]"
+    return text
 
 
 class BaseAgent:
@@ -28,7 +47,8 @@ class DataQueryAgent(BaseAgent):
     
     def __init__(self, shared_resources: Dict[str, Any], streaming: bool = True):
         super().__init__(shared_resources, streaming)
-        self.chain = self._create_qa_chain()
+        # Prefer deterministic data_utils pipeline over LLM for data queries
+        self.chain = None
 
     def _create_qa_chain(self) -> ConversationalRetrievalChain:
         vs = self.resources.get("vector_store")
@@ -66,6 +86,7 @@ class DataQueryAgent(BaseAgent):
             memory_key="chat_history"
         )
 
+        skill_guidance = _load_skill_guidance()
         system_tpl = f"""You are a data query assistant for IAM PARIS climate data (https://iamparis.eu/).
 
 ## Available Data Summary:
@@ -90,6 +111,9 @@ class DataQueryAgent(BaseAgent):
 - Use Markdown formatting
 - Reference https://iamparis.eu/results for data access
 
+Skill guidance:
+{skill_guidance}
+
 Context from vector store: ```{{context}}```"""
 
         user_tpl = "Question: ```{question}```"
@@ -113,16 +137,28 @@ Context from vector store: ```{{context}}```"""
         )
 
     def handle(self, query: str, history: Optional[List[Tuple[str, str]]] = None) -> str:
-        if history is None:
-            history = []
-        resp = self.chain.invoke({"question": query, "chat_history": history})
-        return resp.get("answer", "").strip()
+        from data_utils import data_query
+        models = self.resources.get("models", [])
+        ts = self.resources.get("ts", [])
+        return data_query(query, models, ts, history=history).strip()
+
+    def handle_with_entities(
+        self,
+        query: str,
+        entities: Dict[str, Any],
+        history: Optional[List[Tuple[str, str]]] = None,
+    ) -> str:
+        from data_utils import data_query
+        models = self.resources.get("models", [])
+        ts = self.resources.get("ts", [])
+        return data_query(query, models, ts, history=history, forced_entities=entities).strip()
 
 
 class ModelExplanationAgent(BaseAgent):
     def __init__(self, shared_resources: Dict[str, Any], streaming: bool = True):
         super().__init__(shared_resources, streaming)
-        self.chain = self._create_qa_chain()
+        # Prefer deterministic model metadata over LLM responses
+        self.chain = None
 
     def _create_qa_chain(self) -> ConversationalRetrievalChain:
         vs = self.resources.get("vector_store")
@@ -150,6 +186,7 @@ class ModelExplanationAgent(BaseAgent):
             memory_key="chat_history"
         )
 
+        skill_guidance = _load_skill_guidance()
         system_tpl = f"""You are an expert climate policy assistant focused on IAM PARIS data and models (https://iamparis.eu/).
 
 Available models in IAM PARIS database ({len(model_names)} total):
@@ -171,6 +208,9 @@ Always:
 
 Available IAM PARIS resources:
 - Results database: https://iamparis.eu/results
+
+Skill guidance:
+{skill_guidance}
 
 Context: ```{{context}}```"""
 
@@ -195,10 +235,10 @@ Context: ```{{context}}```"""
         )
 
     def handle(self, query: str, history: Optional[List[Tuple[str, str]]] = None) -> str:
-        if history is None:
-            history = []
-        resp = self.chain.invoke({"question": query, "chat_history": history})
-        return resp.get("answer", "").strip()
+        from data_utils import data_query
+        models = self.resources.get("models", [])
+        ts = self.resources.get("ts", [])
+        return data_query(query, models, ts, history=history).strip()
 
 
 class DataPlottingAgent(BaseAgent):
@@ -213,10 +253,38 @@ class DataPlottingAgent(BaseAgent):
         """
         Handle plotting with pre-extracted entities for better accuracy.
         """
-        from simple_plotter import simple_plot_query_with_entities
+        from simple_plotter import simple_plot_query_with_entities, simple_plot_query
+        from data_utils import _infer_variable_intent, _variable_matches_query_signal
         models = self.resources.get("models", [])
         ts = self.resources.get("ts", [])
-        return simple_plot_query_with_entities(query, models, ts, entities)
+        sanitized = dict(entities or {})
+        var = sanitized.get("variable")
+        if var:
+            ql = query.lower()
+            v = str(var).lower()
+            if "emission" in ql and "emission" not in v:
+                sanitized["variable"] = None
+            elif "co2" in ql and "co2" not in v:
+                sanitized["variable"] = None
+            if sanitized.get("variable") and "solar" in ql and "solar" not in v:
+                sanitized["variable"] = None
+            if sanitized.get("variable") and "wind" in ql and "wind" not in v:
+                sanitized["variable"] = None
+            if sanitized.get("variable") and "capacity" in ql and "capacity" not in v:
+                sanitized["variable"] = None
+            if sanitized.get("variable"):
+                intent = _infer_variable_intent(query)
+                if not _variable_matches_query_signal(
+                    str(sanitized["variable"]),
+                    query,
+                    intent,
+                ):
+                    sanitized["variable"] = None
+
+        if not sanitized.get("variable") and not sanitized.get("variables") and not sanitized.get("models"):
+            return simple_plot_query(query, models, ts)
+
+        return simple_plot_query_with_entities(query, models, ts, sanitized)
 
     def handle_clarification(self, query: str, context: Dict[str, Any], history: Optional[List[Tuple[str, str]]] = None) -> str:
         """
@@ -282,6 +350,7 @@ class GeneralQAAgent(BaseAgent):
             memory_key="chat_history"
         )
 
+        skill_guidance = _load_skill_guidance()
         system_tpl = f"""You are an expert climate policy assistant focused on IAM PARIS data and models (https://iamparis.eu/).
 
 Available models in IAM PARIS database ({len(model_names)} total):
@@ -298,6 +367,9 @@ Always:
 - Include IAM PARIS links
 - Format numbers with units
 - Promote https://iamparis.eu/results for detailed data access
+
+Skill guidance:
+{skill_guidance}
 
 Context: ```{{context}}```"""
 

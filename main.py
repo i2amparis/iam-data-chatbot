@@ -1,22 +1,21 @@
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import glob
 import requests.exceptions
 import time
-
-from pathlib import Path
+import hashlib
 import re
+from pathlib import Path
 import argparse
 import requests
+import subprocess
 import pandas as pd
-import matplotlib.pyplot as plt
 from dotenv import load_dotenv
 from typing import List, Tuple, Optional, Dict, Any
 from datetime import datetime
 import logging
 import base64
-from io import BytesIO
-from PIL import Image
 
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -119,6 +118,67 @@ def docs_from_records(records: list) -> List[Document]:
         docs.append(doc)
     return docs
 
+
+def load_best_cached_results(current_records: list | None = None) -> tuple[list, str]:
+    """
+    Merge all cached results files and prefer the richest deduplicated dataset.
+    This helps the live app use the fullest local cache for query clarification.
+    """
+    cache_files = sorted(glob.glob("cache/results*.json"))
+    if not cache_files:
+        return current_records or [], "current"
+
+    best_records = list(current_records or [])
+    best_source = "current"
+    seen = set()
+    merged = []
+
+    def _record_key(record: dict) -> tuple[str, str, str, str, str, str]:
+        return (
+            str(record.get("resultId", "")),
+            str(record.get("workspace_code", "")),
+            str(record.get("modelName", "")),
+            str(record.get("scenario", "")),
+            str(record.get("region", "")),
+            str(record.get("variable", "")),
+        )
+
+    for record in best_records:
+        if record is None:
+            continue
+        key = _record_key(record)
+        if key in seen:
+            continue
+        seen.add(key)
+        merged.append(record)
+
+    for cache_file in cache_files:
+        try:
+            records = pd.read_json(cache_file).to_dict("records")
+        except Exception:
+            continue
+        for record in records:
+            if record is None:
+                continue
+            key = _record_key(record)
+            if key in seen:
+                continue
+            seen.add(key)
+            merged.append(record)
+
+    if len(merged) > len(best_records):
+        best_records = merged
+        best_source = "merged-cache"
+
+    merged_cache_file = "cache/results_merged.json"
+    if best_source == "merged-cache":
+        try:
+            pd.DataFrame(best_records).to_json(merged_cache_file)
+        except Exception:
+            pass
+
+    return best_records, best_source
+
 def build_faiss_index(docs:list, embeddings) ->FAISS:
     #try file cache
     index_dir = 'cache/faiss_index'
@@ -149,21 +209,58 @@ def clear_cache():
 
 
 
-def display_plot_from_base64(base64_string: str):
+def _slugify_filename(text: str, fallback: str = "plot") -> str:
+    cleaned = (text or "").strip().lower()
+    cleaned = re.sub(r"^(plot|show|graph|chart|visualize|display|please)\s+", "", cleaned)
+    slug = re.sub(r"[^a-zA-Z0-9]+", "_", cleaned).strip("_")
+    return slug or fallback
+
+
+def save_plot_from_base64(base64_string: str, output_dir: str = "plots", label: str | None = None) -> str:
+    """
+    Save a base64 PNG plot to disk and return the file path.
+    """
     try:
         if "data:image/png;base64," in base64_string:
             base64_data = base64_string.split("data:image/png;base64,")[1]
         else:
             base64_data = base64_string
         image_bytes = base64.b64decode(base64_data)
-        image = Image.open(BytesIO(image_bytes))
-        plt.figure(figsize=(10, 6))
-        plt.imshow(image)
-        plt.axis('off')
-        plt.tight_layout()
-        plt.show()
+        os.makedirs(output_dir, exist_ok=True)
+        if label:
+            digest = hashlib.sha1(image_bytes).hexdigest()[:10]
+            file_name = f"plot_{_slugify_filename(label)}_{digest}.png"
+        else:
+            ts = int(time.time())
+            file_name = f"plot_{ts}.png"
+        file_path = os.path.join(output_dir, file_name)
+        with open(file_path, "wb") as f:
+            f.write(image_bytes)
+        return file_path
     except Exception as e:
-        print(f"Error displaying plot: {e}")
+        print(f"Error saving plot: {e}")
+        return ""
+
+
+def open_plot_file(file_path: str) -> None:
+    try:
+        if file_path and os.path.exists(file_path):
+            subprocess.Popen(["open", file_path])
+    except Exception as e:
+        print(f"Error opening plot: {e}")
+
+
+def _extract_plot_markdown(response: str) -> tuple[str, str]:
+    text = str(response or "")
+    match = re.search(r"!\[Plot\]\((data:image/png;base64,[^)]+)\)", text, flags=re.IGNORECASE | re.DOTALL)
+    if not match:
+        return text.strip(), ""
+    message = (text[:match.start()] + text[match.end():]).strip()
+    return message, match.group(1)
+
+
+def _normalize_cli_query(query: str) -> str:
+    return re.sub(r"^(?:\s*(?:you|query):\s*)+", "", str(query or ""), flags=re.IGNORECASE).strip()
 
 class IAMParisBot:
     def __init__(self, streaming: bool = True):
@@ -181,6 +278,35 @@ class IAMParisBot:
 
     def fetch_json(self, url: str, params=None, payload=None, cache=True, max_retries=3) -> list:
         os.makedirs("cache", exist_ok=True)
+        def _strip_internal(d: dict) -> dict:
+            return {k: v for k, v in d.items() if not str(k).startswith("_")}
+        def _expand_by_workspace(url: str, payload_clean: dict, timeout: int) -> list:
+            all_records = []
+            seen = set()
+            for ws in payload_clean.get("workspace_code", []):
+                ws_payload = dict(payload_clean)
+                ws_payload["workspace_code"] = [ws]
+                resp_ws = requests.post(url, json=ws_payload, timeout=timeout)
+                print(f"API call completed: status {resp_ws.status_code} (workspace={ws})")
+                if resp_ws.status_code >= 500:
+                    continue
+                resp_ws.raise_for_status()
+                data_ws = resp_ws.json()
+                records_ws = data_ws.get("data") if isinstance(data_ws, dict) else data_ws
+                for r in records_ws or []:
+                    key = (
+                        str(r.get("resultId", "")),
+                        str(r.get("workspace_code", "")),
+                        str(r.get("modelName", "")),
+                        str(r.get("scenario", "")),
+                        str(r.get("region", "")),
+                        str(r.get("variable", "")),
+                    )
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    all_records.append(r)
+            return all_records
         # Convert params and payload to strings for hashing if they contain dicts
         params_str = str(sorted(params.items())) if params is not None else ""
         payload_str = str(sorted(payload.items())) if payload is not None else ""
@@ -188,7 +314,16 @@ class IAMParisBot:
         import hashlib
         hash_key = hashlib.md5((params_str + payload_str).encode()).hexdigest()[:16]
         cache_file = f"cache/{url.split('/')[-1]}_{hash_key}.json"
-        if cache and os.path.exists(cache_file):
+        def _load_cache() -> list:
+            if cache and os.path.exists(cache_file):
+                with open(cache_file, 'r') as f:
+                    return pd.read_json(f).to_dict('records')
+            return []
+
+        if cache and payload and payload.get("_force_refresh"):
+            # Skip cache lookup when explicitly forced
+            pass
+        elif cache and os.path.exists(cache_file):
             with open(cache_file, 'r') as f:
                 return pd.read_json(f).to_dict('records')
         # Use POST if payload is provided, otherwise GET
@@ -200,13 +335,78 @@ class IAMParisBot:
         for attempt in range(max_retries):
             try:
                 if payload is not None:
-                    resp = requests.post(url, json=payload, timeout=timeout)
+                    payload_clean = _strip_internal(payload)
+                    # Support paged fetch when limit == -1 for POST endpoints
+                    if payload_clean.get("limit") == -1:
+                        combined = []
+                        seen_ids = set()
+                        page_limit = 1000
+                        offset = 0
+                        while True:
+                            paged_payload = dict(payload_clean)
+                            paged_payload["limit"] = page_limit
+                            paged_payload["offset"] = offset
+                            resp = requests.post(url, json=paged_payload, timeout=timeout)
+                            print(f"API call completed: status {resp.status_code}")
+                            if resp.status_code >= 500:
+                                cached = _load_cache()
+                                if cached:
+                                    print("API returned 5xx; using cached data.")
+                                    return cached
+                            resp.raise_for_status()
+                            data = resp.json()
+                            records = data.get("data") if isinstance(data, dict) else data
+                            if not records:
+                                break
+                            # If no id field, stop after first page to avoid duplicates
+                            if not isinstance(records, list) or not records or "id" not in records[0]:
+                                # If results API is capped and no id field, expand by workspace
+                                if (
+                                    "results" in url
+                                    and isinstance(payload_clean.get("workspace_code"), list)
+                                ):
+                                    combined = _expand_by_workspace(url, payload_clean, timeout)
+                                else:
+                                    combined.extend(records if isinstance(records, list) else [])
+                                break
+                            new_records = [r for r in records if r.get("id") not in seen_ids]
+                            for r in new_records:
+                                seen_ids.add(r.get("id"))
+                            combined.extend(new_records)
+                            if len(records) < page_limit or len(new_records) == 0:
+                                break
+                            offset += page_limit
+                        print(f"Records fetched: {len(combined)}")
+                        with open(cache_file, 'w') as f:
+                            pd.DataFrame(combined).to_json(f)
+                        return combined
+                    resp = requests.post(url, json=payload_clean, timeout=timeout)
                 else:
                     resp = requests.get(url, params=params, timeout=timeout)
                 print(f"API call completed: status {resp.status_code}")
+                # If server is down, fall back to cache when available
+                if resp.status_code >= 500:
+                    cached = _load_cache()
+                    if cached:
+                        print("API returned 5xx; using cached data.")
+                        return cached
                 resp.raise_for_status()
                 data = resp.json()
                 records = data.get("data") if isinstance(data, dict) else data
+                # If results API appears capped, expand by querying per workspace
+                if (
+                    isinstance(records, list)
+                    and "results" in url
+                    and payload is not None
+                    and isinstance(payload_clean.get("workspace_code"), list)
+                    and len(records) >= 1000
+                ):
+                    all_records = _expand_by_workspace(url, payload_clean, timeout)
+                    print(f"Records fetched: {len(all_records)} (expanded by workspace)")
+                    with open(cache_file, 'w') as f:
+                        pd.DataFrame(all_records).to_json(f)
+                    return all_records
+
                 print(f"Records fetched: {len(records)}")
                 with open(cache_file, 'w') as f:
                     pd.DataFrame(records).to_json(f)
@@ -217,6 +417,10 @@ class IAMParisBot:
                     print(f"Request failed ({type(e).__name__}), retrying in {wait_time}s... (attempt {attempt + 1}/{max_retries})")
                     time.sleep(wait_time)
                 else:
+                    cached = _load_cache()
+                    if cached:
+                        print("API connection failed; using cached data.")
+                        return cached
                     raise RuntimeError(f"Failed to fetch data after {max_retries} attempts: {e}")
         return []
 
@@ -265,6 +469,11 @@ def main():
     parser.add_argument("--debug", action="store_true")
     parser.add_argument("--query", type=str, help="Single query to process and exit")
     parser.add_argument("--clear-cache", action="store_true", help="Clear all cached data and exit")
+    parser.add_argument(
+        "--refresh-data",
+        action="store_true",
+        help="Force refresh API data instead of using cached responses",
+    )
     args = parser.parse_args()
 
     if args.clear_cache:
@@ -286,10 +495,15 @@ def main():
             "net-zero", "post-glasgow", "power-people", "study-1", "study-2", "study-3",
             "study-4", "study-6", "study-7", "transp-transf", "world-headed"
         ]
-        ts_payload = {"workspace_code": all_workspaces}
+        ts_payload = {
+            "workspace_code": all_workspaces,
+            "limit": -1,
+            "_force_refresh": args.refresh_data,
+        }
         ts = bot.fetch_json(bot.env["REST_API_FULL"], payload=ts_payload, cache=True)
+        ts, ts_source = load_best_cached_results(ts)
         
-        print(f"ts fetch: {len(ts)} records")
+        print(f"ts fetch: {len(ts)} records ({ts_source})")
 
         # Create workspace lookup for filtering
         workspace_lookup = {}
@@ -330,25 +544,25 @@ def main():
         "bot": bot
     }
 
-    shared_resources = {
-        "models": models,
-        "ts": ts,
-        "vector_store": faiss_index,
-        "env": bot.env,
-        "bot": bot
-    }
-
     manager = MultiAgentManager(shared_resources, streaming=not args.no_stream)
 
     if args.query:
         # Process single query and exit
         history = []
-        response = manager.route_query(args.query, history)
-        if response.startswith("![Plot]"):
-            display_plot_from_base64(response)
-            print("Response: [Plot Image]")
-        else:
-            print("Response:", response)
+        query = _normalize_cli_query(args.query)
+        response = manager.route_query(query, history)
+        message, plot_data = _extract_plot_markdown(response)
+        if "No explicit assumptions field is available in the model metadata." in message:
+            print("\nNOTICE: No explicit assumptions field is available in the model metadata.\n")
+        if message:
+            print("Response:", message)
+        if plot_data:
+            file_path = save_plot_from_base64(plot_data, label=query)
+            if file_path:
+                print(f"Response: [Plot saved at {file_path}]")
+                open_plot_file(file_path)
+            else:
+                print("Response: [Plot Image]")
         return
 
     print("\nWelcome to the IAM PARIS Climate Policy Assistant! Type 'exit' to quit.\n")
@@ -356,19 +570,29 @@ def main():
     history = []
     while True:
         try:
-            query = input("YOU: ").strip()
+            query = _normalize_cli_query(input("Query: "))
             if query.lower() in ("exit", "quit"):
                 break
             if not query:
                 continue
 
             response = manager.route_query(query, history)
-            if response.startswith("![Plot]"):
-                display_plot_from_base64(response)
-                history.append((query, "[Plot Image]"))
+            message, plot_data = _extract_plot_markdown(response)
+            if "No explicit assumptions field is available in the model metadata." in message:
+                print("\nNOTICE: No explicit assumptions field is available in the model metadata.\n")
+            if message:
+                print("\nBOT:", message, "\n")
+            if plot_data:
+                file_path = save_plot_from_base64(plot_data, label=query)
+                if file_path:
+                    print(f"\nBOT: [Plot saved at {file_path}]\n")
+                    open_plot_file(file_path)
+                    history.append((query, message or file_path))
+                else:
+                    print("\nBOT: [Plot Image]\n")
+                    history.append((query, message or "[Plot Image]"))
             else:
-                print("\nBOT:", response, "\n")
-                history.append((query, response))
+                history.append((query, message))
         except KeyboardInterrupt:
             print("\nExiting...")
             break

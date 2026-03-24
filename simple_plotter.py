@@ -1,16 +1,196 @@
 import re
+import warnings
+import logging
 import pandas as pd
 import matplotlib.pyplot as plt
 import base64
 from io import BytesIO
 from typing import List, Dict, Any, Optional, Tuple
-from utils_query import match_variable_from_yaml, extract_region_from_query, find_closest_variable_name, resolve_natural_language_variable_universal
+from utils_query import (
+    match_variable_from_yaml,
+    extract_region_from_query,
+    find_closest_variable_name,
+    resolve_natural_language_variable_universal,
+    resolve_natural_language_variable_candidates,
+    resolve_natural_language_variable_with_score,
+    resolve_natural_language_variable_ranked,
+    format_region_label,
+)
+
+
+def _is_capacity_additions_mismatch(question: str, variable: str | None) -> bool:
+    ql = str(question or "").lower()
+    vl = str(variable or "").lower()
+    if "capacity additions" not in vl:
+        return False
+    if "capacity" not in ql:
+        return False
+    return not any(
+        token in ql
+        for token in ["addition", "additions", "new capacity", "build rate", "annual build"]
+    )
+
+
+def _pretty_variable_name(variable: str) -> str:
+    value = str(variable or "").strip()
+    lower = value.lower()
+
+    if "capacity|electricity|solar" in lower:
+        return "Solar Capacity"
+    if "capacity|electricity|wind" in lower:
+        return "Wind Capacity"
+    if "secondary energy|electricity|solar" in lower:
+        return "Solar Electricity"
+    if "secondary energy|electricity|wind" in lower:
+        return "Wind Electricity"
+    if "secondary energy|electricity" in lower:
+        return "Electricity Generation"
+    if "emissions|co2" in lower or lower.startswith("gross emissions|co2"):
+        return "CO2 Emissions"
+    if "final energy" in lower and "oil" in lower:
+        return "Oil Final Energy Demand"
+    if "primary energy" in lower and "oil" in lower:
+        return "Oil Primary Energy"
+
+    parts = [part.strip() for part in value.split("|") if part.strip()]
+    if not parts:
+        return value
+    if parts[0].lower() == "capacity" and len(parts) >= 3:
+        return f"{parts[-1]} Capacity"
+    if parts[0].lower() == "secondary energy" and len(parts) >= 3 and parts[1].lower() == "electricity":
+        return f"{parts[-1]} Electricity"
+    if parts[0].lower().startswith("emissions") and len(parts) >= 2:
+        return f"{parts[1]} Emissions"
+    return parts[-1]
+
+
+def _year_range_text(start_year: int | None = None, end_year: int | None = None) -> str:
+    if start_year or end_year:
+        return f" ({start_year or '?'}-{end_year or '?'})"
+    return ""
+
+
+def _plot_subject(variable: str, region: str | None = None) -> str:
+    label = _pretty_variable_name(variable)
+    if region:
+        return f"{label} in {region}"
+    return label
+
+
+def _preferred_plot_family_matches(question: str, available_vars: set[str]) -> list[str]:
+    """
+    Keep plot-side variable resolution aligned with data-side resolution for
+    common plain-language requests like "solar energy" and "oil demand".
+    """
+    ql = str(question or "").lower()
+    candidates: list[str] = []
+
+    if "solar" in ql:
+        if "capacity" in ql:
+            candidates.extend(
+                v for v in available_vars
+                if "solar" in v.lower() and "capacity|electricity" in v.lower()
+            )
+        if any(token in ql for token in ["energy", "electricity", "power", "generation"]):
+            candidates.extend(
+                v for v in available_vars
+                if "solar" in v.lower()
+                and (
+                    "secondary energy|electricity" in v.lower()
+                    or "generation|electricity" in v.lower()
+                    or "capacity|electricity" in v.lower()
+                )
+                and "investment" not in v.lower()
+            )
+
+    if "oil" in ql and any(token in ql for token in ["demand", "consumption", "energy", "use"]):
+        candidates.extend(
+            v for v in available_vars
+            if "oil" in v.lower()
+            and any(token in v.lower() for token in ["final energy", "primary energy", "secondary energy", "demand"])
+            and "investment" not in v.lower()
+        )
+
+    if "electricity" in ql and not any(
+        token in ql for token in [
+            "solar", "wind", "hydro", "nuclear", "oil", "gas", "coal", "hydrogen", "bioenergy", "biomass",
+            "capacity", "generation", "demand", "supply", "emission", "emissions", "co2",
+            "price", "cost", "investment", "share",
+        ]
+    ):
+        candidates.extend(
+            v for v in available_vars
+            if v in {
+                "Secondary Energy|Electricity",
+                "Final Energy|Electricity",
+                "Capacity|Electricity",
+            }
+        )
+
+    deduped: list[str] = []
+    for candidate in candidates:
+        if candidate and candidate not in deduped:
+            deduped.append(candidate)
+
+    def _score(candidate: str) -> tuple[int, int, int, str]:
+        lower = candidate.lower()
+        exact_capacity = lower == "capacity|electricity|solar"
+        exact_solar_electricity = lower == "secondary energy|electricity|solar"
+        exact_oil_final = lower == "final energy|oil"
+        exact_oil_primary = lower == "primary energy|oil"
+        exact_electricity = lower == "secondary energy|electricity"
+        broad_energy = (
+            "secondary energy|electricity|solar" in lower
+            or "capacity|electricity|solar" in lower
+            or "final energy|oil" in lower
+            or "primary energy|oil" in lower
+            or lower == "secondary energy|electricity"
+            or lower == "final energy|electricity"
+            or lower == "capacity|electricity"
+        )
+        return (
+            0 if (exact_solar_electricity or exact_capacity or exact_oil_final or exact_oil_primary or exact_electricity) else 1,
+            0 if broad_energy else 1,
+            lower.count("|"),
+            len(lower),
+        )
+
+    return sorted(deduped, key=_score)
+
+
+def _wrap_plot_markdown(
+    plot_str: str,
+    variable: str,
+    region: str | None = None,
+    scenario: str | None = None,
+    scenarios_in_data: list | None = None,
+    start_year: int | None = None,
+    end_year: int | None = None,
+    prefix: str = "Showing",
+) -> str:
+    subject = _plot_subject(variable, region)
+    years = _year_range_text(start_year, end_year)
+    if scenario:
+        caption = f"{prefix} {subject} for scenario `{scenario}`{years}."
+    elif scenarios_in_data and len([s for s in scenarios_in_data if s]) > 1:
+        caption = f"{prefix} {subject} across available scenarios{years}."
+    else:
+        caption = f"{prefix} {subject}{years}."
+    return caption + "\n" + plot_str
 from utils.yaml_loader import load_all_yaml_files
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 
 # Global metadata instance (lazy loaded)
 _metadata = None
+logger = logging.getLogger(__name__)
+
+# Suppress tight_layout warnings globally for cleaner output
+warnings.filterwarnings(
+    "ignore",
+    message="Tight layout not applied.*",
+    category=UserWarning
+)
 
 def get_metadata(ts_data: List[Dict] = None, models: List[Dict] = None):
     """Get or create DataMetadata instance."""
@@ -106,6 +286,138 @@ def detect_multi_variable_comparison(query: str) -> List[str]:
     return []
 
 
+def detect_region_comparison(question: str, metadata) -> List[str]:
+    """
+    Detect region comparison like 'USA vs EU' and return matched regions.
+    """
+    if not metadata:
+        return []
+    ql = question.lower()
+
+    def _match_region(text: str) -> str | None:
+        t = text.lower()
+        if re.search(r"\\busa\\b|\\bunited\\s+states\\b|\\bu\\.s\\.\\b|\\bus\\b", t):
+            return "USA"
+        if re.search(r"\\beu\\b|\\beurope\\b|\\beuropean\\b", t):
+            return "EU"
+        if re.search(r"\\bchina\\b|\\bchn\\b", t):
+            return "CHN"
+        if re.search(r"\\bindia\\b|\\bind\\b", t):
+            return "IND"
+        # Prefer exact region names if present in text
+        all_regions = sorted({reg for regs in metadata.variable_regions.values() for reg in regs})
+        candidates = []
+        for r in all_regions:
+            if r and r.lower() in t:
+                candidates.append(r)
+        if candidates:
+            return max(candidates, key=len)
+        return metadata._find_best_region_match(text)
+
+    if " vs " in ql or " versus " in ql:
+        splitter = " vs " if " vs " in ql else " versus "
+        left, right = ql.split(splitter, 1)
+        r1 = _match_region(left)
+        r2 = _match_region(right)
+        if r1 and r2 and r1 != r2:
+            return [r1, r2]
+    # Handle "for X and Y" or "in X and Y"
+    if " and " in ql and (" for " in ql or " in " in ql):
+        anchor = " for " if " for " in ql else " in "
+        tail = ql.rsplit(anchor, 1)[-1]
+        parts = [p.strip() for p in tail.split(" and ") if p.strip()]
+        if len(parts) >= 2:
+            r1 = _match_region(parts[0])
+            r2 = _match_region(parts[1])
+            if r1 and r2 and r1 != r2:
+                return [r1, r2]
+    return []
+
+
+def plot_variable_across_regions(question: str, model_data: List[Dict], ts_data: List[Dict],
+                                 variable: str, regions: List[str],
+                                 scenario: str = None, start_year: int = None,
+                                 end_year: int = None) -> str:
+    """
+    Plot a single variable across multiple regions.
+    """
+    if not variable or not regions:
+        return "Could not identify enough regions to compare."
+
+    # Collect data for each region
+    all_data = {}
+    unit = None
+    for region in regions:
+        filtered = []
+        for r in ts_data:
+            if r is None:
+                continue
+            if str(r.get('variable', '')) != variable:
+                continue
+            if scenario and r.get('scenario') != scenario:
+                continue
+            if region and str(r.get('region', '')).lower() != region.lower():
+                continue
+            filtered.append(r)
+        if filtered:
+            all_data[region] = filtered
+            if unit is None:
+                unit = filtered[0].get('unit', '')
+
+    if not all_data:
+        return f"No data found for **{variable}** in the requested regions."
+
+    plt.figure(figsize=(12, 7))
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b']
+    markers = ['o', 's', '^', 'D', 'v', '<']
+    scenarios_in_data = set()
+
+    for idx, (region, data) in enumerate(all_data.items()):
+        df = pd.DataFrame(data)
+        if 'years' in df.columns:
+            years_df = df['years'].apply(pd.Series)
+            df = df.drop('years', axis=1).join(years_df)
+
+        year_cols = [col for col in df.columns if str(col).isdigit()]
+        if start_year or end_year:
+            filtered_year_cols = []
+            for col in year_cols:
+                year_int = int(col)
+                if start_year and year_int < start_year:
+                    continue
+                if end_year and year_int > end_year:
+                    continue
+                filtered_year_cols.append(col)
+            if filtered_year_cols:
+                year_cols = filtered_year_cols
+
+        if len(df) > 1:
+            df = df.groupby('scenario').first().reset_index()
+
+        # Plot first row per region (scenario already filtered above)
+        row = df.iloc[0]
+        if 'scenario' in row:
+            scenarios_in_data.add(str(row.get('scenario', '')).strip())
+        values = [row.get(str(year), 0) for year in sorted(year_cols, key=int)]
+        plt.plot(sorted(year_cols, key=int), values,
+                 label=region,
+                 color=colors[idx % len(colors)],
+                 marker=markers[idx % len(markers)],
+                 linewidth=2)
+
+    title = f"{_pretty_variable_name(variable)}: " + " vs ".join(format_region_label(r) for r in regions)
+    plt.title(title, fontsize=12, fontweight='bold')
+    plt.xlabel("Year", fontsize=10)
+    if unit:
+        plt.ylabel(f"Value ({unit})", fontsize=10)
+    plt.legend()
+    plt.grid(alpha=0.3)
+    plt.tight_layout()
+
+    plot_str = save_plot_to_base64()
+    return _wrap_plot_markdown(plot_str, variable, None, scenario, list(scenarios_in_data), start_year, end_year, prefix="Showing")
+
+
 def plot_multiple_variables(question: str, model_data: List[Dict], ts_data: List[Dict], 
                             variables: List[str], region: str = None, 
                             scenario: str = None, start_year: int = None, 
@@ -138,7 +450,7 @@ def plot_multiple_variables(question: str, model_data: List[Dict], ts_data: List
             if r and r.get('variable') == var:
                 resolved_variables.append(var)
                 exact_match = True
-                print(f"DEBUG: Using exact variable: '{var}'")
+                logger.debug("Using exact variable: '%s'", var)
                 break
         
         # If not exact, try to resolve using metadata
@@ -146,7 +458,7 @@ def plot_multiple_variables(question: str, model_data: List[Dict], ts_data: List
             suggestions = metadata.suggest_variables(var, limit=3)
             if suggestions:
                 resolved_variables.append(suggestions[0][0])
-                print(f"DEBUG: Resolved '{var}' to '{suggestions[0][0]}'")
+                logger.debug("Resolved '%s' to '%s'", var, suggestions[0][0])
     
     if len(resolved_variables) < 2:
         return f"Could not identify enough variables to compare. Found: {resolved_variables}"
@@ -171,7 +483,7 @@ def plot_multiple_variables(question: str, model_data: List[Dict], ts_data: List
         if region is None and metadata:
             region = metadata._find_best_region_match(question)
     
-    print(f"DEBUG: Using region: {region}")
+    logger.debug("Using region: %s", region)
     
     # Collect data for each variable
     all_data = {}
@@ -205,6 +517,7 @@ def plot_multiple_variables(question: str, model_data: List[Dict], ts_data: List
     colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b']
     markers = ['o', 's', '^', 'D', 'v', '<']
     
+    scenarios_in_data = set()
     for idx, (variable, data) in enumerate(all_data.items()):
         df = pd.DataFrame(data)
         
@@ -241,6 +554,8 @@ def plot_multiple_variables(question: str, model_data: List[Dict], ts_data: List
             label = variable
             if len(df) > 1:
                 label = f"{variable} ({row.get('scenario', '')})"
+            if 'scenario' in row:
+                scenarios_in_data.add(str(row.get('scenario', '')).strip())
             
             values = [row.get(str(year), 0) for year in sorted(year_cols, key=int)]
             plt.plot(sorted(year_cols, key=int), values, 
@@ -250,9 +565,9 @@ def plot_multiple_variables(question: str, model_data: List[Dict], ts_data: List
                     linewidth=2)
     
     # Build title
-    title = f"Comparison: {' vs '.join([v.split('|')[-1] if '|' in v else v for v in all_data.keys()])}"
+    title = f"Comparison: {' vs '.join([_pretty_variable_name(v) for v in all_data.keys()])}"
     if region:
-        title += f" for {region}"
+        title += f" for {format_region_label(region)}"
     
     plt.title(title, fontsize=12, fontweight='bold')
     plt.xlabel("Year", fontsize=10)
@@ -273,7 +588,9 @@ def plot_multiple_variables(question: str, model_data: List[Dict], ts_data: List
     img_base64 = base64.b64encode(buf.read()).decode('utf-8')
     plt.close()
     
-    return f"![Plot](data:image/png;base64,{img_base64})"
+    plot_str = f"![Plot](data:image/png;base64,{img_base64})"
+    caption_var = " vs ".join([_pretty_variable_name(v) for v in all_data.keys()])
+    return _wrap_plot_markdown(plot_str, caption_var, region, scenario, list(scenarios_in_data), start_year, end_year, prefix="Showing comparison of")
 
 
 def plot_model_comparison(question: str, model_data: List[Dict], ts_data: List[Dict],
@@ -310,7 +627,7 @@ def plot_model_comparison(question: str, model_data: List[Dict], ts_data: List[D
         suggestions = metadata.suggest_variables(variable, limit=3)
         if suggestions:
             resolved_variable = suggestions[0][0]
-            print(f"DEBUG: Resolved variable '{variable}' to '{resolved_variable}'")
+            logger.debug("Resolved variable '%s' to '%s'", variable, resolved_variable)
     
     if not resolved_variable:
         return f"Could not identify variable '{variable}'."
@@ -319,34 +636,34 @@ def plot_model_comparison(question: str, model_data: List[Dict], ts_data: List[D
     # Note: ts_data uses 'modelName' field, not 'model'
     resolved_models = []
     available_models = sorted({str(r.get('modelName', '') or r.get('model', '')) for r in ts_data if r and (r.get('modelName') or r.get('model'))})
-    print(f"DEBUG: ts_data length: {len(ts_data)}")
-    print(f"DEBUG: Available models in ts_data: {available_models[:20]}...")
-    print(f"DEBUG: Looking for models: {models}")
+    logger.debug("ts_data length: %s", len(ts_data))
+    logger.debug("Available models in ts_data: %s...", available_models[:20])
+    logger.debug("Looking for models: %s", models)
     
     # If ts_data is empty, try to get models from model_data
     if not available_models and model_data:
         available_models = sorted({str(m.get('modelName', '')) for m in model_data if m and m.get('modelName')})
-        print(f"DEBUG: Using model_data instead. Available models: {available_models[:20]}...")
+        logger.debug("Using model_data instead. Available models: %s...", available_models[:20])
     
     for model_name in models:
         # Try exact match first
         if model_name in available_models:
             resolved_models.append(model_name)
-            print(f"DEBUG: Using exact model: '{model_name}'")
+            logger.debug("Using exact model: '%s'", model_name)
             continue
         
         # Try case-insensitive match
         for avail in available_models:
             if avail.lower() == model_name.lower():
                 resolved_models.append(avail)
-                print(f"DEBUG: Matched model '{model_name}' to '{avail}'")
+                logger.debug("Matched model '%s' to '%s'", model_name, avail)
                 break
         else:
             # Try partial match
             for avail in available_models:
                 if model_name.lower() in avail.lower() or avail.lower() in model_name.lower():
                     resolved_models.append(avail)
-                    print(f"DEBUG: Partial matched model '{model_name}' to '{avail}'")
+                    logger.debug("Partial matched model '%s' to '%s'", model_name, avail)
                     break
     
     if len(resolved_models) < 2:
@@ -356,7 +673,7 @@ def plot_model_comparison(question: str, model_data: List[Dict], ts_data: List[D
     if region is None and metadata:
         region = metadata._find_best_region_match(question)
     
-    print(f"DEBUG: Model comparison - variable: {resolved_variable}, models: {resolved_models}, region: {region}")
+    logger.debug("Model comparison - variable: %s, models: %s, region: %s", resolved_variable, resolved_models, region)
     
     # Collect data for each model
     all_data = {}
@@ -394,6 +711,7 @@ def plot_model_comparison(question: str, model_data: List[Dict], ts_data: List[D
     colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b']
     markers = ['o', 's', '^', 'D', 'v', '<']
     
+    scenarios_in_data = set()
     for idx, (model_name, data) in enumerate(all_data.items()):
         df = pd.DataFrame(data)
         
@@ -430,6 +748,8 @@ def plot_model_comparison(question: str, model_data: List[Dict], ts_data: List[D
             label = model_name
             if len(df) > 1:
                 label = f"{model_name} ({row.get('scenario', '')})"
+            if 'scenario' in row:
+                scenarios_in_data.add(str(row.get('scenario', '')).strip())
             
             values = [row.get(str(year), 0) for year in sorted(year_cols, key=int)]
             plt.plot(sorted(year_cols, key=int), values, 
@@ -439,9 +759,9 @@ def plot_model_comparison(question: str, model_data: List[Dict], ts_data: List[D
                     linewidth=2)
     
     # Build title
-    title = f"Model Comparison: {resolved_variable}"
+    title = f"Model Comparison: {_pretty_variable_name(resolved_variable)}"
     if region:
-        title += f" for {region}"
+        title += f" for {format_region_label(region)}"
     if start_year or end_year:
         title += f" ({start_year or '?'}-{end_year or '?'})"
     
@@ -451,7 +771,7 @@ def plot_model_comparison(question: str, model_data: List[Dict], ts_data: List[D
     # Use first unit as Y-axis label
     if units:
         first_unit = list(units.values())[0]
-        plt.ylabel(f"{resolved_variable} ({first_unit})", fontsize=10)
+        plt.ylabel(f"{_pretty_variable_name(resolved_variable)} ({first_unit})", fontsize=10)
     
     plt.legend(loc='best', fontsize=9)
     plt.grid(True, alpha=0.3)
@@ -464,11 +784,12 @@ def plot_model_comparison(question: str, model_data: List[Dict], ts_data: List[D
     img_base64 = base64.b64encode(buf.read()).decode('utf-8')
     plt.close()
     
-    return f"![Plot](data:image/png;base64,{img_base64})"
+    plot_str = f"![Plot](data:image/png;base64,{img_base64})"
+    return _wrap_plot_markdown(plot_str, f"model comparison of {_pretty_variable_name(resolved_variable)}", region, scenario, list(scenarios_in_data), start_year, end_year, prefix="Showing")
 
 
 def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_data: List[Dict], 
-                                     entities: Dict[str, Any], region: str = None) -> str:
+                                    entities: Dict[str, Any], region: str = None) -> str:
     """
     Generate a plot using pre-extracted entities for better accuracy.
     
@@ -489,7 +810,7 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
     
     # Check for model comparison
     if models_list and len(models_list) >= 2:
-        print(f"DEBUG: LLM detected multi-model comparison: {models_list}")
+        logger.debug("LLM detected multi-model comparison: %s", models_list)
         variable = entities.get('variable')
         scenario = entities.get('scenario')
         region_from_entities = entities.get('region')
@@ -499,8 +820,19 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
                                     region or region_from_entities, scenario,
                                     start_year, end_year)
     
+    metadata = get_metadata(ts_data, model_data)
+    region_compare = detect_region_comparison(question, metadata)
+    available_vars = {str(r.get('variable', '')).strip() for r in ts_data if r and r.get('variable')}
+    ranked_vars = []
+    significant_words = []
     if variables_list and len(variables_list) >= 2:
-        print(f"DEBUG: LLM detected multi-variable comparison: {variables_list}")
+        region_keywords = {
+            "usa", "us", "united", "states", "eu", "europe", "china", "chn", "india", "ind",
+            "asia", "africa", "world", "global", "oecd", "latin", "america", "european"
+        }
+        if any(v.lower() in region_keywords for v in variables_list):
+            variables_list = []
+        logger.debug("LLM detected multi-variable comparison: %s", variables_list)
         scenario = entities.get('scenario')
         region_from_entities = entities.get('region')
         start_year = entities.get('start_year')
@@ -511,8 +843,15 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
     
     # Fallback: Check for multi-variable comparison using regex patterns
     comparison_vars = detect_multi_variable_comparison(question)
+    if region_compare and comparison_vars:
+        region_keywords = {
+            "usa", "us", "united", "states", "eu", "europe", "china", "chn", "india", "ind",
+            "asia", "africa", "world", "global", "oecd", "latin", "america", "european"
+        }
+        if any(v.lower() in region_keywords for v in comparison_vars):
+            comparison_vars = []
     if len(comparison_vars) >= 2:
-        print(f"DEBUG: Regex detected multi-variable comparison: {comparison_vars}")
+        logger.debug("Regex detected multi-variable comparison: %s", comparison_vars)
         scenario = entities.get('scenario')
         start_year = entities.get('start_year')
         end_year = entities.get('end_year')
@@ -521,16 +860,39 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
     
     # Use extracted entities directly
     variable = entities.get('variable')
+    if isinstance(variable, str):
+        variable = variable.strip()
     scenario = entities.get('scenario')
     model = entities.get('model')
     start_year = entities.get('start_year')
     end_year = entities.get('end_year')
     unit = entities.get('unit')
     comparison = entities.get('comparison')
+
+    if variable:
+        v = str(variable).lower()
+        ql = question.lower()
+        if "emission" in ql and "emission" not in v:
+            variable = None
+        elif "co2" in ql and "co2" not in v:
+            variable = None
+        if variable and "solar" in ql and "solar" not in v:
+            variable = None
+        if variable and "wind" in ql and "wind" not in v:
+            variable = None
+        if variable and "capacity" in ql and "capacity" not in v:
+            variable = None
+        if variable and _is_capacity_additions_mismatch(question, variable):
+            variable = None
     
     # Use region from entities if not overridden
     if region is None:
         region = entities.get('region')
+
+    if not variable:
+        preferred_family = _preferred_plot_family_matches(question, available_vars)
+        if preferred_family:
+            variable = preferred_family[0]
     
     # If no variable extracted, fall back to keyword extraction
     if not variable:
@@ -538,21 +900,57 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
         variable_path = Path('definitions/variable').resolve()
         variable_dict = load_all_yaml_files(str(variable_path))
         
-        natural_variable = resolve_natural_language_variable_universal(question, variable_dict)
+        ranked_vars = resolve_natural_language_variable_ranked(question, variable_dict, top_k=5)
+        natural_variable, var_score, _, significant_words = resolve_natural_language_variable_with_score(question, variable_dict)
         if natural_variable and isinstance(natural_variable, str):
-            available_vars = {str(r.get('variable', '')) for r in ts_data if r and r.get('variable') is not None}
+            natural_variable = natural_variable.strip()
             if natural_variable in available_vars:
-                variable = natural_variable
-    
-    # Try metadata-based variable matching if still no match
-    if not variable:
-        metadata = get_metadata(ts_data, model_data)
-        if metadata:
-            suggestions = metadata.suggest_variables(question, limit=5)
-            if suggestions:
-                # Use the highest-scored variable
-                variable = suggestions[0][0]
-                print(f"DEBUG: Metadata suggested variable: {variable} (score: {suggestions[0][1]})")
+                var_lower = natural_variable.lower()
+                if any(t in significant_words for t in ["emission", "emissions"]) and "emission" not in var_lower:
+                    natural_variable = None
+                elif "co2" in significant_words and "co2" not in var_lower:
+                    natural_variable = None
+                if "capacity" in significant_words and "capacity" not in var_lower:
+                    natural_variable = None
+                if "solar" in significant_words and "solar" not in var_lower:
+                    natural_variable = None
+                if "wind" in significant_words and "wind" not in var_lower:
+                    natural_variable = None
+                if natural_variable and _is_capacity_additions_mismatch(question, natural_variable):
+                    natural_variable = None
+                explicit_variable = "|" in question
+                min_conf = 6
+                if any(w in significant_words for w in ["capacity", "investment", "investments", "invest"]):
+                    min_conf = 4
+                if var_score is not None and not explicit_variable:
+                    top1 = ranked_vars[0][1] if ranked_vars else None
+                    top2 = ranked_vars[1][1] if ranked_vars and len(ranked_vars) > 1 else None
+                    ambiguous = top1 is not None and top2 is not None and (top1 - top2) < 3
+                    if var_score < min_conf or ambiguous:
+                        natural_variable = None
+                if natural_variable:
+                    variable = natural_variable
+
+        if not variable:
+            candidates = []
+            preferred_family = _preferred_plot_family_matches(question, available_vars)
+            if preferred_family:
+                candidates = preferred_family[:3]
+            if ranked_vars:
+                ranked_candidates = [name for name, _, _, _ in ranked_vars if name in available_vars][:3]
+                for candidate in ranked_candidates:
+                    if candidate not in candidates:
+                        candidates.append(candidate)
+                candidates = candidates[:3]
+            if not candidates:
+                candidates = resolve_natural_language_variable_candidates(question, variable_dict, top_k=3)
+            if candidates:
+                sample = ", ".join(candidates)
+                return (
+                    "Which variable should I use?\n"
+                    f"Recommended variables: {sample}\n"
+                    "Reply with the variable you want."
+                )
     
     if not variable:
         # Final attempt: use metadata to suggest similar variables
@@ -562,7 +960,44 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
             if similar:
                 return f"Could not identify a variable to plot. Did you mean: {', '.join(similar[:3])}?"
         return "Could not identify a variable to plot. Please specify a variable like 'solar capacity' or 'CO2 emissions'."
+
+    metadata = get_metadata(ts_data, model_data)
+    region_compare = detect_region_comparison(question, metadata)
+    if region_compare and variable:
+        return plot_variable_across_regions(question, model_data, ts_data, variable, region_compare, scenario, start_year, end_year)
     
+    # Guard: if variable doesn't exist in loaded data, ask for a valid one
+    available_vars = {str(r.get('variable', '')).strip() for r in ts_data if r and r.get('variable')}
+    if variable and variable not in available_vars:
+        candidates = []
+        if ranked_vars:
+            key_terms = {"methane", "ch4", "demand", "electricity", "emission", "emissions", "co2", "capacity",
+                         "solar", "wind", "oil", "gas", "transport", "industry", "buildings", "final", "primary"}
+            query_terms = {w for w in significant_words if w in key_terms}
+            ranked_names = [name for name, _, _, _ in ranked_vars if name in available_vars]
+            if query_terms:
+                filtered = [n for n in ranked_names if any(t in n.lower() for t in query_terms)]
+                candidates = filtered[:3]
+            else:
+                candidates = ranked_names[:3]
+        if not candidates:
+            try:
+                variable_dict
+            except NameError:
+                from pathlib import Path
+                variable_path = Path('definitions/variable').resolve()
+                variable_dict = load_all_yaml_files(str(variable_path))
+            candidates = resolve_natural_language_variable_candidates(question, variable_dict, top_k=3)
+        if candidates:
+            sample = ", ".join(candidates)
+            return (
+                f"Variable '{variable}' not found in loaded data.\n"
+                "Which variable should I use?\n"
+                f"Recommended variables: {sample}\n"
+                "Reply with the variable you want."
+            )
+        return f"Variable '{variable}' not found in loaded data. Try `list variables`."
+
     # Filter data using extracted entities
     filtered_data = []
     for r in ts_data:
@@ -582,35 +1017,17 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
         filtered_data.append(r)
     
     if not filtered_data:
-        # Provide helpful suggestions using LLM
         available_regions = sorted(set(str(r.get('region', '')) for r in ts_data if r and r.get('region') and r.get('variable') == variable))
         available_scenarios = sorted(set(str(r.get('scenario', '')) for r in ts_data if r and r.get('scenario') and r.get('variable') == variable))
-        
-        # Use LLM to generate helpful suggestions
-        try:
-            import os
-            api_key = os.environ.get('OPENAI_API_KEY')
-            if api_key:
-                return generate_llm_suggestion(
-                    query=question,
-                    variable=variable,
-                    region=region or "not specified",
-                    available_regions=available_regions,
-                    available_scenarios=available_scenarios,
-                    api_key=api_key
-                )
-        except Exception as e:
-            print(f"DEBUG: LLM suggestion failed: {e}")
-        
-        # Fallback to basic suggestions
+
         suggestions = []
         if available_regions:
-            suggestions.append(f"Available regions for '{variable}': {', '.join(available_regions[:5])}")
+            suggestions.append(f"Recommended regions: {', '.join(format_region_label(r) for r in available_regions[:3])}")
         if available_scenarios:
-            suggestions.append(f"Available scenarios: {', '.join(available_scenarios[:5])}")
-        
-        suggestion_text = " | ".join(suggestions) if suggestions else "Try 'list variables' to see available options."
-        return f"No data found for variable '{variable}'. {suggestion_text}"
+            suggestions.append(f"Recommended scenarios: {', '.join(available_scenarios[:3])}")
+
+        suggestion_text = "\n".join(suggestions) if suggestions else "Try `list variables` to see available options."
+        return f"No data found for variable '{variable}'.\n{suggestion_text}"
     
     # Get unit from data if not in entities
     if not unit:
@@ -639,9 +1056,15 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
             filtered_year_cols.append(col)
         if filtered_year_cols:
             year_cols = filtered_year_cols
-            print(f"DEBUG: Filtered years to range {start_year}-{end_year}: {year_cols[:5]}...{year_cols[-5:] if len(year_cols) > 5 else ''}")
+            logger.debug(
+                "Filtered years to range %s-%s: %s...%s",
+                start_year,
+                end_year,
+                year_cols[:5],
+                year_cols[-5:] if len(year_cols) > 5 else "",
+            )
         else:
-            print(f"DEBUG: No years in range {start_year}-{end_year}, using all years")
+            logger.debug("No years in range %s-%s, using all years", start_year, end_year)
     
     # Create plot
     plt.figure(figsize=(12, 7))
@@ -698,11 +1121,11 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
             plt.plot(sorted(year_cols, key=int), values, label=label, marker='o')
     
     # Build title with context
-    title_parts = [variable]
+    title_parts = [_pretty_variable_name(variable)]
     if scenario and len(scenarios_in_data) == 1:
         title_parts.append(f"({scenario})")
     if region and len(regions_in_data) == 1:
-        title_parts.append(f"- {region}")
+        title_parts.append(f"- {format_region_label(region)}")
     if start_year or end_year:
         year_range = f"({start_year or '?'}-{end_year or '?'})"
         title_parts.append(year_range)
@@ -711,9 +1134,9 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
     plt.xlabel("Year", fontsize=10)
     
     # Use unit in Y-axis label
-    ylabel = variable
+    ylabel = _pretty_variable_name(variable)
     if unit:
-        ylabel = f"{variable} ({unit})"
+        ylabel = f"{_pretty_variable_name(variable)} ({unit})"
     plt.ylabel(ylabel, fontsize=10)
     
     plt.legend(loc='best', fontsize=9)
@@ -727,7 +1150,8 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
     img_base64 = base64.b64encode(buf.read()).decode('utf-8')
     plt.close()
     
-    return f"![Plot](data:image/png;base64,{img_base64})"
+    plot_str = f"![Plot](data:image/png;base64,{img_base64})"
+    return _wrap_plot_markdown(plot_str, variable, region, scenario, list(scenarios_in_data), start_year, end_year)
 
 
 def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict], region: str = None) -> str:
@@ -746,48 +1170,128 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
     """
     from pathlib import Path
     from utils_query import extract_region_from_query, find_closest_variable_name, resolve_natural_language_variable_universal
+
+    def _extract_year_range(text: str) -> tuple[Optional[int], Optional[int]]:
+        m = re.search(r"\b(19\d{2}|20\d{2})\s*(?:-|to|–|—)\s*(19\d{2}|20\d{2})\b", text)
+        if m:
+            return int(m.group(1)), int(m.group(2))
+        m = re.search(r"\b(19\d{2}|20\d{2})\b", text)
+        if m:
+            y = int(m.group(1))
+            return y, y
+        return None, None
     
+    metadata = get_metadata(ts_data, model_data)
+    region_compare = detect_region_comparison(question, metadata)
+
     # Check for multi-variable comparison first
     comparison_vars = detect_multi_variable_comparison(question)
+    if region_compare and comparison_vars:
+        region_keywords = {
+            "usa", "us", "united", "states", "eu", "europe", "china", "chn", "india", "ind",
+            "asia", "africa", "world", "global", "oecd", "latin", "america", "european"
+        }
+        if any(v.lower() in region_keywords for v in comparison_vars):
+            comparison_vars = []
     if len(comparison_vars) >= 2:
-        print(f"DEBUG: Detected multi-variable comparison: {comparison_vars}")
-        return plot_multiple_variables(question, model_data, ts_data, comparison_vars, region)
+        logger.debug("Detected multi-variable comparison: %s", comparison_vars)
+        start_year, end_year = _extract_year_range(question.lower())
+        return plot_multiple_variables(question, model_data, ts_data, comparison_vars, region, None, start_year, end_year)
     
     # Extract region from query if not provided
     if region is None:
-        region = extract_region_from_query(question)
+        region_path = Path('definitions/region').resolve()
+        region_dict = load_all_yaml_files(str(region_path))
+        region_candidates = sorted({str(r.get('region', '')).strip() for r in ts_data if r and r.get('region')})
+        region = extract_region_from_query(question, region_dict, region_candidates)
+        if re.search(r"\b(world|global)\b", question.lower()):
+            region = "World"
     
     # Load variable definitions
     variable_path = Path('definitions/variable').resolve()
     variable_dict = load_all_yaml_files(str(variable_path))
+    available_vars = {str(r.get('variable', '')).strip() for r in ts_data if r and r.get('variable')}
     
     # Try to match variable from query
     variable = None
     
     # First try natural language resolution
-    natural_variable = resolve_natural_language_variable_universal(question, variable_dict)
+    ranked_vars = resolve_natural_language_variable_ranked(question, variable_dict, top_k=5)
+    natural_variable, var_score, _, significant_words = resolve_natural_language_variable_with_score(question, variable_dict)
     if natural_variable and isinstance(natural_variable, str):
-        available_vars = {str(r.get('variable', '')) for r in ts_data if r and r.get('variable') is not None}
+        natural_variable = natural_variable.strip()
         if natural_variable in available_vars:
-            variable = natural_variable
+            var_lower = natural_variable.lower()
+            if any(t in significant_words for t in ["emission", "emissions"]) and "emission" not in var_lower:
+                natural_variable = None
+            elif "co2" in significant_words and "co2" not in var_lower:
+                natural_variable = None
+            if "capacity" in significant_words and "capacity" not in var_lower:
+                natural_variable = None
+            if "solar" in significant_words and "solar" not in var_lower:
+                natural_variable = None
+            if "wind" in significant_words and "wind" not in var_lower:
+                natural_variable = None
+            explicit_variable = "|" in question
+            min_conf = 6
+            if any(w in significant_words for w in ["capacity", "investment", "investments", "invest"]):
+                min_conf = 4
+            if var_score is not None and not explicit_variable:
+                top1 = ranked_vars[0][1] if ranked_vars else None
+                top2 = ranked_vars[1][1] if ranked_vars and len(ranked_vars) > 1 else None
+                ambiguous = top1 is not None and top2 is not None and (top1 - top2) < 3
+                if var_score < min_conf or ambiguous:
+                    natural_variable = None
+            if natural_variable:
+                variable = natural_variable
     
     # Fall back to keyword matching
     if not variable:
-        variable = match_variable_from_yaml(question, variable_dict)
-    
-    # Try to find closest match
+        preferred_family = _preferred_plot_family_matches(question, available_vars)
+        if preferred_family:
+            variable = preferred_family[0]
+
     if not variable:
+        variable = match_variable_from_yaml(question, variable_dict)
+        if isinstance(variable, dict):
+            variable = variable.get('matched_variable') or ""
+
+    # If matched variable isn't in available data, reset and continue
+    if variable:
+        if variable not in available_vars:
+            variable = ""
+    
+    # If still no variable and the user gave an explicit variable format, try a closest match
+    if not variable and "|" in question:
         available_vars = sorted(set(str(r.get('variable', '')) for r in ts_data if r and r.get('variable')))
         variable = find_closest_variable_name(question, available_vars)
     
+    # If region comparison detected and variable resolved, plot across regions
+    if region_compare and variable:
+        start_year, end_year = _extract_year_range(question.lower())
+        return plot_variable_across_regions(question, model_data, ts_data, variable, region_compare, None, start_year, end_year)
+
     # Try metadata-based variable matching if still no match
     if not variable:
-        metadata = get_metadata(ts_data, model_data)
-        if metadata:
-            suggestions = metadata.suggest_variables(question, limit=5)
-            if suggestions:
-                variable = suggestions[0][0]
-                print(f"DEBUG: Metadata suggested variable: {variable} (score: {suggestions[0][1]})")
+        candidates = []
+        preferred_family = _preferred_plot_family_matches(question, available_vars)
+        if preferred_family:
+            candidates = preferred_family[:3]
+        if ranked_vars:
+            ranked_candidates = [name for name, _, _, _ in ranked_vars if name in available_vars][:3]
+            for candidate in ranked_candidates:
+                if candidate not in candidates:
+                    candidates.append(candidate)
+            candidates = candidates[:3]
+        if not candidates:
+            candidates = resolve_natural_language_variable_candidates(question, variable_dict, top_k=3)
+        if candidates:
+            sample = ", ".join(candidates)
+            return (
+                "Which variable should I use?\n"
+                f"Recommended variables: {sample}\n"
+                "Reply with the variable you want."
+            )
     
     if not variable:
         # Final attempt: use metadata to suggest similar variables
@@ -798,19 +1302,47 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
                 return f"Could not identify a variable to plot. Did you mean: {', '.join(similar[:3])}?"
         return "Could not identify a variable to plot. Please specify a variable like 'solar capacity' or 'CO2 emissions'."
     
+    # Extract model from query if mentioned
+    model_match = None
+    model_names = sorted({m.get('modelName', '') for m in model_data if m and m.get('modelName')})
+    if model_names:
+        q_lower = question.lower()
+        # Prefer explicit patterns like "for GCAM" or "using REMIND"
+        for m in model_names:
+            if not m:
+                continue
+            pattern = r"(?:for|in|using)\s+" + re.escape(m.lower())
+            if re.search(pattern, q_lower):
+                model_match = m
+                break
+        if not model_match and "model" in q_lower:
+            for m in model_names:
+                if m and m.lower() in q_lower:
+                    model_match = m
+                    break
+
     # Extract scenario from query if mentioned
     scenario = None
-    scenario_keywords = ['ssp1', 'ssp2', 'ssp3', 'ssp4', 'ssp5', 'rcp', 'scenario']
     question_lower = question.lower()
-    for kw in scenario_keywords:
-        if kw in question_lower:
-            # Try to find matching scenario in data
-            for r in ts_data:
-                if r and r.get('scenario') and kw in str(r.get('scenario', '')).lower():
-                    scenario = r.get('scenario')
+    scenarios = sorted({str(r.get('scenario', '')).strip() for r in ts_data if r and r.get('scenario')})
+    m = re.search(r"(?:under|scenario)\s+([\w\-\.]+)", question_lower)
+    if m:
+        token = m.group(1)
+        for s in scenarios:
+            if token.lower() in s.lower():
+                scenario = s
+                break
+    if not scenario:
+        for token in re.findall(r"(ssp\d|rcp\d(?:\.\d)?)", question_lower):
+            for s in scenarios:
+                if token.lower() in s.lower():
+                    scenario = s
                     break
             if scenario:
                 break
+
+    # Extract year range if mentioned
+    start_year, end_year = _extract_year_range(question_lower)
     
     # Filter data
     filtered_data = []
@@ -819,6 +1351,8 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
             continue
         if str(r.get('variable', '')) != variable:
             continue
+        if model_match and r.get('modelName') != model_match:
+            continue
         if scenario and r.get('scenario') != scenario:
             continue
         if region and r.get('region') != region:
@@ -826,35 +1360,67 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
         filtered_data.append(r)
     
     if not filtered_data:
-        # Provide helpful suggestions using LLM
-        available_regions = sorted(set(str(r.get('region', '')) for r in ts_data if r and r.get('region') and r.get('variable') == variable))
-        available_scenarios = sorted(set(str(r.get('scenario', '')) for r in ts_data if r and r.get('scenario') and r.get('variable') == variable))
-        
-        # Use LLM to generate helpful suggestions
-        try:
-            import os
-            api_key = os.environ.get('OPENAI_API_KEY')
-            if api_key:
-                return generate_llm_suggestion(
-                    query=question,
-                    variable=variable,
-                    region=region or "not specified",
-                    available_regions=available_regions,
-                    available_scenarios=available_scenarios,
-                    api_key=api_key
-                )
-        except Exception as e:
-            print(f"DEBUG: LLM suggestion failed: {e}")
-        
-        # Fallback to basic suggestions
-        suggestions = []
-        if available_regions:
-            suggestions.append(f"Available regions for '{variable}': {', '.join(available_regions[:5])}")
-        if available_scenarios:
-            suggestions.append(f"Available scenarios: {', '.join(available_scenarios[:5])}")
-        
-        suggestion_text = " | ".join(suggestions) if suggestions else "Try 'list variables' to see available options."
-        return f"No data found for variable '{variable}'. {suggestion_text}"
+        from collections import Counter
+        from difflib import get_close_matches
+
+        scoped_regions = sorted({
+            str(r.get('region', '')) for r in ts_data
+            if r and r.get('region') and r.get('variable') == variable
+            and (not model_match or r.get('modelName') == model_match)
+            and (not scenario or r.get('scenario') == scenario)
+        })
+        scoped_scenarios = sorted({
+            str(r.get('scenario', '')) for r in ts_data
+            if r and r.get('scenario') and r.get('variable') == variable
+            and (not model_match or r.get('modelName') == model_match)
+            and (not region or r.get('region') == region)
+        })
+
+        def _top_values(key: str, limit: int = 3, filter_region: bool = False) -> list:
+            records = [
+                r for r in ts_data
+                if r and r.get('variable') == variable
+                and (not model_match or r.get('modelName') == model_match)
+                and (not scenario or r.get('scenario') == scenario)
+                and (not filter_region or (region and r.get('region') == region))
+            ]
+            counts = Counter([str(r.get(key, '')).strip() for r in records if r and r.get(key)])
+            return [k for k, _ in counts.most_common(limit)]
+
+        if model_match and not scoped_regions and not scoped_scenarios:
+            all_regions = _top_values("region", limit=3)
+            all_scenarios = _top_values("scenario", limit=3)
+            region_suggestion = ", ".join(all_regions) if all_regions else "none"
+            scenario_suggestion = ", ".join(all_scenarios) if all_scenarios else "none"
+            return (
+                f"No data found for **{variable}** in model `{model_match}`.\n\n"
+                f"Across all models, recommended regions: {region_suggestion}\n"
+                f"Across all models, recommended scenarios: {scenario_suggestion}\n\n"
+                "Tell me which region or scenario you want."
+            )
+
+        if region and region not in scoped_regions:
+            close_regions = get_close_matches(region, scoped_regions, n=3, cutoff=0.6)
+            region_candidates = close_regions or _top_values("region", limit=3)
+            scenario_candidates = _top_values("scenario", limit=3)
+            region_suggestion = ", ".join(format_region_label(r) for r in region_candidates) if region_candidates else "none"
+            scenario_suggestion = ", ".join(scenario_candidates) if scenario_candidates else "none"
+            return (
+                f"No data found for **{variable}** in region `{region}`.\n\n"
+                f"Recommended regions: {region_suggestion}\n"
+                f"Recommended scenarios: {scenario_suggestion}\n\n"
+                "Tell me which region or scenario you want."
+            )
+
+        region_suggestion = ", ".join(format_region_label(r) for r in _top_values("region", limit=3)) if scoped_regions else "none"
+        scenario_suggestion = ", ".join(_top_values("scenario", limit=3, filter_region=bool(region))) if scoped_scenarios else "none"
+        model_note = f" for model `{model_match}`" if model_match else ""
+        return (
+            f"No data found for **{variable}**{model_note}.\n\n"
+            f"Recommended regions: {region_suggestion}\n"
+            f"Recommended scenarios: {scenario_suggestion}\n\n"
+            "Tell me which region or scenario you want."
+        )
     
     # Get unit from data
     unit = filtered_data[0].get('unit', '')
@@ -867,6 +1433,20 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
     
     # Get year columns
     year_cols = [col for col in df.columns if str(col).isdigit()]
+    if start_year or end_year:
+        filtered_years = []
+        for y in year_cols:
+            try:
+                yi = int(y)
+            except Exception:
+                continue
+            if start_year and yi < start_year:
+                continue
+            if end_year and yi > end_year:
+                continue
+            filtered_years.append(y)
+        if filtered_years:
+            year_cols = filtered_years
     if not year_cols:
         return "No time series data available for plotting."
     
@@ -925,19 +1505,19 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
             plt.plot(sorted(year_cols, key=int), values, label=label, marker='o')
     
     # Build title
-    title_parts = [variable]
+    title_parts = [_pretty_variable_name(variable)]
     if scenario and len(scenarios_in_data) == 1:
         title_parts.append(f"({scenario})")
     if region and len(regions_in_data) == 1:
-        title_parts.append(f"- {region}")
+        title_parts.append(f"- {format_region_label(region)}")
     
     plt.title(" ".join(title_parts), fontsize=12, fontweight='bold')
     plt.xlabel("Year", fontsize=10)
     
     # Use unit in Y-axis label
-    ylabel = variable
+    ylabel = _pretty_variable_name(variable)
     if unit:
-        ylabel = f"{variable} ({unit})"
+        ylabel = f"{_pretty_variable_name(variable)} ({unit})"
     plt.ylabel(ylabel, fontsize=10)
     
     plt.legend(loc='best', fontsize=9)
@@ -951,4 +1531,5 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
     img_base64 = base64.b64encode(buf.read()).decode('utf-8')
     plt.close()
     
-    return f"![Plot](data:image/png;base64,{img_base64})"
+    plot_str = f"![Plot](data:image/png;base64,{img_base64})"
+    return _wrap_plot_markdown(plot_str, variable, region, scenario, list(scenarios_in_data), start_year, end_year)

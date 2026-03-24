@@ -17,6 +17,8 @@ import json
 
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
+from utils.yaml_loader import load_all_yaml_files
+from utils_query import extract_region_from_query, resolve_natural_language_variable_candidates
 
 
 class QueryEntityExtractor:
@@ -67,6 +69,8 @@ class QueryEntityExtractor:
             for r in self.ts_data 
             if r and r.get('region')
         })
+        self.variable_dict = load_all_yaml_files('definitions/variable')
+        self.region_dict = load_all_yaml_files('definitions/region')
         
         # Extract years from data
         self.available_years = set()
@@ -104,10 +108,64 @@ class QueryEntityExtractor:
                     self.variable_scenarios[var] = set()
                 self.variable_scenarios[var].add(scen)
         
-        self.logger.info(f"Built lookups: {len(self.available_models)} models, "
+        self.logger.debug(f"Built lookups: {len(self.available_models)} models, "
                         f"{len(self.available_scenarios)} scenarios, "
                         f"{len(self.available_variables)} variables, "
                         f"{len(self.available_regions)} regions")
+        self.model_alias_map = self._build_model_alias_map(self.available_models)
+
+    def _normalize_model(self, text: str) -> str:
+        return re.sub(r"[^a-z0-9]+", "", (text or "").lower())
+
+    def _build_model_alias_map(self, models: List[str]) -> Dict[str, Set[str]]:
+        alias_map: Dict[str, Set[str]] = {}
+        for model in models:
+            raw = str(model or "").strip()
+            if not raw:
+                continue
+            low = raw.lower()
+            tokens = [t for t in re.split(r"[^a-z0-9]+", low) if t]
+            aliases = {low, self._normalize_model(raw)}
+            if tokens:
+                aliases.add(tokens[0])
+                if len(tokens) >= 2:
+                    aliases.add(" ".join(tokens[:2]))
+                    aliases.add("".join(tokens[:2]))
+            for alias in aliases:
+                if alias:
+                    alias_map.setdefault(alias, set()).add(raw)
+        return alias_map
+
+    def _match_model_alias(self, query_or_model: str) -> Optional[str]:
+        text = str(query_or_model or "").lower()
+        if not text:
+            return None
+
+        # Exact model-name containment first.
+        for model in self.available_models:
+            if re.search(r"(?<!\w)" + re.escape(model.lower()) + r"(?!\w)", text):
+                return model
+
+        tokens = [t for t in re.split(r"[^a-z0-9]+", text) if t]
+        spans: Set[str] = set(tokens)
+        for i in range(len(tokens)):
+            if i + 1 < len(tokens):
+                spans.add(tokens[i] + " " + tokens[i + 1])
+                spans.add(tokens[i] + tokens[i + 1])
+        spans.add(self._normalize_model(text))
+
+        candidates: Set[str] = set()
+        for span in spans:
+            candidates.update(self.model_alias_map.get(span, set()))
+        if not candidates:
+            return None
+
+        def _rank(name: str) -> tuple[int, int, str]:
+            low = name.lower()
+            exact = 1 if low in spans or self._normalize_model(name) in spans else 0
+            return (exact, -len(name), name)
+
+        return sorted(candidates, key=_rank, reverse=True)[0]
     
     def _create_prompt(self):
         """Create the LLM extraction prompt."""
@@ -266,9 +324,9 @@ Return ONLY valid JSON, no other text."""
             result = json.loads(content)
             
             # Validate and enhance the result
-            result = self._validate_result(result)
+            result = self._validate_result(result, query)
             
-            self.logger.info(f"Extracted entities: {result}")
+            self.logger.debug(f"Extracted entities: {result}")
             return result
             
         except json.JSONDecodeError as e:
@@ -278,7 +336,7 @@ Return ONLY valid JSON, no other text."""
             self.logger.error(f"Extraction error: {e}")
             return self._fallback_extraction(query)
     
-    def _validate_result(self, result: Dict[str, Any]) -> Dict[str, Any]:
+    def _validate_result(self, result: Dict[str, Any], query: str) -> Dict[str, Any]:
         """Validate and enhance the extraction result."""
         
         # Validate variable
@@ -298,10 +356,16 @@ Return ONLY valid JSON, no other text."""
         if result.get('region'):
             region = result['region']
             if region not in self.available_regions:
-                matched = self._fuzzy_match(region, self.available_regions)
-                if matched:
-                    result['region'] = matched
+                # Try alias/region definition mapping before fuzzy
+                mapped = extract_region_from_query(query, self.region_dict, self.available_regions)
+                if mapped:
+                    result['region'] = mapped
                     result['region_matched'] = True
+                else:
+                    matched = self._fuzzy_match(region, self.available_regions)
+                    if matched:
+                        result['region'] = matched
+                        result['region_matched'] = True
         
         # Validate scenario
         if result.get('scenario'):
@@ -316,7 +380,9 @@ Return ONLY valid JSON, no other text."""
         if result.get('model'):
             model = result['model']
             if model not in self.available_models:
-                matched = self._fuzzy_match(model, self.available_models)
+                matched = self._match_model_alias(model) or self._match_model_alias(query)
+                if not matched:
+                    matched = self._fuzzy_match(model, self.available_models)
                 if matched:
                     result['model'] = matched
                     result['model_matched'] = True
@@ -370,38 +436,50 @@ Return ONLY valid JSON, no other text."""
         
         q = query.lower()
         
+        tokens = {tok for tok in re.findall(r"[a-z0-9]+", q) if tok}
+        explicit_data_query = bool(
+            tokens & {
+                'data', 'value', 'values', 'timeseries', 'time', 'series',
+                'show', 'display', 'give', 'provide', 'retrieve', 'fetch'
+            }
+        ) or bool(re.search(r'\btime\s+series\b', q))
         # Detect action
-        if any(word in q for word in ['plot', 'graph', 'chart', 'visualize', 'show']):
+        if any(word in tokens for word in ['plot', 'graph', 'chart', 'visualize', 'visualise']):
             result['action'] = 'plot'
         
-        # Try to match variables
-        for var in self.available_variables:
-            var_lower = var.lower()
-            # Check for key terms
-            if 'solar' in q and 'solar' in var_lower:
-                result['variable'] = var
+        # Try to match variables with the shared candidate resolver first.
+        variable_candidates = resolve_natural_language_variable_candidates(query, self.variable_dict, top_k=3)
+        for candidate in variable_candidates:
+            if candidate in self.available_variables:
+                result['variable'] = candidate
                 break
-            elif 'wind' in q and 'wind' in var_lower:
-                result['variable'] = var
-                break
-            elif 'co2' in q and 'co2' in var_lower:
-                result['variable'] = var
-                break
-            elif 'emission' in q and 'emission' in var_lower:
-                result['variable'] = var
-                break
+        if not result['variable']:
+            query_terms = {tok for tok in tokens if len(tok) > 2}
+            scored = []
+            for var in self.available_variables:
+                var_terms = {tok for tok in re.findall(r"[a-z0-9]+", var.lower()) if len(tok) > 2}
+                overlap = len(query_terms & var_terms)
+                if overlap:
+                    scored.append((overlap, var))
+            if scored:
+                scored.sort(key=lambda item: (-item[0], item[1]))
+                result['variable'] = scored[0][1]
         
-        # Try to match regions
-        for region in self.available_regions:
-            if region.lower() in q:
-                result['region'] = region
-                break
+        # Try to match regions (use shared extractor with alias support)
+        region_match = extract_region_from_query(query, self.region_dict, self.available_regions)
+        if region_match:
+            result['region'] = region_match
         
         # Try to match scenarios
         for scenario in self.available_scenarios:
             if scenario.lower() in q:
                 result['scenario'] = scenario
                 break
+
+        # Try to match model names/aliases.
+        model_match = self._match_model_alias(query)
+        if model_match:
+            result['model'] = model_match
         
         # Extract years and year ranges
         year_match = re.search(r'\b(20\d{2})\s*(?:to|-|until|through)\s*(20\d{2})\b', q)
