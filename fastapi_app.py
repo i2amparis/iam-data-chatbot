@@ -15,7 +15,7 @@ from pydantic import BaseModel
 import requests.exceptions
 import logging
 logger = logging.getLogger(__name__)
-from main import IAMParisBot, docs_from_records, build_faiss_index
+from main import IAMParisBot, docs_from_records, build_faiss_index, load_best_cached_results
 from utils.yaml_loader import load_all_yaml_files, yaml_to_documents
 from langchain_openai import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -98,9 +98,13 @@ def initialize_resources():
             "net-zero", "post-glasgow", "power-people", "study-1", "study-2", "study-3",
             "study-4", "study-6", "study-7", "transp-transf", "world-headed"
         ]
-        ts_payload = {'workspace_code': all_workspaces}
+        ts_payload = {
+            'workspace_code': all_workspaces,
+            'limit': -1,
+        }
         ts = bot.fetch_json(bot.env['REST_API_FULL'], payload=ts_payload, cache=True)
-        logger.info(f"Loaded {len(ts)} timeseries records")
+        ts, ts_source = load_best_cached_results(ts)
+        logger.info(f"Loaded {len(ts)} timeseries records ({ts_source})")
         
         # Build FAISS index
         logger.info("Loading YAML definitions...")
