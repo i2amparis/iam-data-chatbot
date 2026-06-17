@@ -1,0 +1,2173 @@
+{
+  "generated": "20260617_223540",
+  "count": 41,
+  "rows": [
+    {
+      "query": "what is an integrated assessment model",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "model_explanation",
+        "confidence": 0.6,
+        "source": "llm",
+        "reason": "unclear deterministic route"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "llm"
+      },
+      "data_provenance": {},
+      "answer_preview": "An Integrated Assessment Model (IAM) is a tool used to evaluate the interactions between human and environmental systems. These models integrate data and theories from various disciplines such as economics, environmental science, and technology to assess the impacts of human activities on the environment and to evaluate the effectiveness of policies aimed at sustainable development. IAMs are parti",
+      "session_id": "smoke_1"
+    },
+    {
+      "query": "what is REMIND",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "model_explanation",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "model information request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": "REMIND",
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "model": 0.9,
+          "action": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "llm"
+      },
+      "data_provenance": {},
+      "answer_preview": "### REMIND\n\nDescription:\nREMIND is a global integrated assessment model that links macroeconomic development, the energy system, climate policy and technology choices. It is commonly used to assess mitigation pathways, carbon pricing, energy transitions and technology deployment across regions and sectors.\n\nModel scope:\n- energy\n- economy\n- climate\n- land-use interactions\n\nUseful for:\n- global and",
+      "session_id": "smoke_2"
+    },
+    {
+      "query": "information on GCAM",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.82,
+        "source": "deterministic",
+        "reason": "vague model information request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": "GCAM",
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "model": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "GCAM",
+          "model": "GCAM"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.82,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "GCAM"
+          },
+          {
+            "label": "Model",
+            "value": "GCAM"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### GCAM\n\nDescription:\nGCAM is a dynamic-recursive model with technology-rich representations of the economy, energy sector, land use and water linked to a climate model that can be used to explore climate change mitigation policies including carbon taxes, carbon trading, regulations and accelerated deployment of energy technology. Regional population and labour productivity growth assumptions dri",
+      "session_id": "smoke_3"
+    },
+    {
+      "query": "tell me about message ix",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "model_explanation",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "model information request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": "MESSAGEix-GLOBIOM",
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "model": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {},
+      "answer_preview": "I found multiple model matches: E3ME 6.1, E3ME-FTT, E4SMA-EU-TIMES 1.0, HU-TIMES, MEDEAS. Which one do you want details for?\n\nRelevant IAM PARIS links:\n- [Models](https://iamparis.eu/models) - Open the IAM PARIS Models page and search for `MESSAGEix-GLOBIOM`. Search for: MESSAGEix-GLOBIOM.",
+      "session_id": "smoke_4"
+    },
+    {
+      "query": "which models are available",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "model availability request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "There are 74 models available. Examples: 42, AIM/Enduse India 3.3, ALADIN, ATOM, CHANCE, CLEWs, CLEWs - Ethiopia, CLEWs - Kenya. You can ask for details about a specific model using `info [model name]`, or say `list variables` to see the kinds of outputs available.\n\nShowing 8 of 74. Say `show all models` if you need the full list.\n\nRelevant IAM PARIS links:\n- [SDG Model Coverage Matrix](https://ia",
+      "session_id": "smoke_5"
+    },
+    {
+      "query": "CO2 emissions for EU",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "variables": null,
+        "region": "EU",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 30,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "EU",
+          "years": "2005-2100",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "30"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Emissions|CO2 in EU\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\n**E3ME 6.1 - PR_WWH_CP**\n| Year | Value | Unit |\n|------|-------|------|\n| 2010 | 4.3K | Mt CO2/yr |\n| 2015 | 4.0K | Mt CO2/yr |\n| 2020 | 3.4K | Mt CO2/yr |\n| 2025 | 3.2K | Mt CO2/yr |\n| 2030 | 3.0K | Mt CO2/yr |\n| 2035 | 2.9K | Mt CO2/yr |\n| 2040 | 2.7K | Mt CO2/yr |\n| 2045 | 2.5K |",
+      "session_id": "smoke_6"
+    },
+    {
+      "query": "GDP for China",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "GDP|MER",
+        "variables": null,
+        "region": "CHN",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 26,
+        "selected_filters": {
+          "variable": "GDP|MER",
+          "region": "CHN",
+          "years": "2005-2100"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "GDP|MER"
+          },
+          {
+            "label": "Region",
+            "value": "CHN"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Matched records",
+            "value": "26"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### GDP|MER in CHN\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `multiple`\n\nAnswer:\n**e3me - PR_Baseline**\n| Year | Value | Unit |\n|------|-------|------|\n| 2010 | 6.1K | billion US$2010/yr |\n| 2015 | 8.9K | billion US$2010/yr |\n| 2020 | 12.6K | billion US$2010/yr |\n| 2025 | 15.8K | billion US$2010/yr |\n| 2030 | 18.7K | billion US$2010/yr |\n| 2035 | 21.5K | billion US$201",
+      "session_id": "smoke_7"
+    },
+    {
+      "query": "population projection for World",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.75,
+        "source": "deterministic",
+        "reason": "extracted data entities"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Population",
+        "variables": null,
+        "region": "World",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 37,
+        "selected_filters": {
+          "variable": "Population",
+          "region": "World",
+          "years": "2005-2100",
+          "unit": "million"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.75,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Population"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "million"
+          },
+          {
+            "label": "Matched records",
+            "value": "37"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Population in World\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `million`\n\nAnswer:\n**42 - PR_Baseline**\n| Year | Value | Unit |\n|------|-------|------|\n| 2005 | 6.5K | million |\n| 2010 | 7.0K | million |\n| 2015 | 7.4K | million |\n| 2020 | 7.8K | million |\n| 2025 | 8.2K | million |\n| 2030 | 8.5K | million |\n| 2035 | 8.8K | million |\n| 2040 | 9.1K | million |\n| 2045 | ",
+      "session_id": "smoke_8"
+    },
+    {
+      "query": "final energy demand in India",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Final Energy",
+        "variables": null,
+        "region": "IND",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.8,
+          "region": 0.85
+        },
+        "confidence": 0.825,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 46,
+        "selected_filters": {
+          "variable": "Final Energy",
+          "region": "IND",
+          "years": "2005-2100"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Final Energy"
+          },
+          {
+            "label": "Region",
+            "value": "IND"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Matched records",
+            "value": "46"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Final Energy in IND\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `multiple`\n\nAnswer:\n**42 - PR_Baseline**\n| Year | Value | Unit |\n|------|-------|------|\n| 2005 | 15.26 | EJ/yr |\n| 2010 | 20.33 | EJ/yr |\n| 2015 | 24.45 | EJ/yr |\n| 2020 | 27.54 | EJ/yr |\n| 2025 | 33.16 | EJ/yr |\n| 2030 | 38.85 | EJ/yr |\n| 2035 | 45.08 | EJ/yr |\n| 2040 | 51.23 | EJ/yr |\n| 2045 | 57.02 |",
+      "session_id": "smoke_9"
+    },
+    {
+      "query": "show me carbon dioxide emissions for Europe",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "variables": null,
+        "region": "EU",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 30,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "EU",
+          "years": "2005-2100",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "30"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Emissions|CO2 in EU\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\n**E3ME 6.1 - PR_WWH_CP**\n| Year | Value | Unit |\n|------|-------|------|\n| 2010 | 4.3K | Mt CO2/yr |\n| 2015 | 4.0K | Mt CO2/yr |\n| 2020 | 3.4K | Mt CO2/yr |\n| 2025 | 3.2K | Mt CO2/yr |\n| 2030 | 3.0K | Mt CO2/yr |\n| 2035 | 2.9K | Mt CO2/yr |\n| 2040 | 2.7K | Mt CO2/yr |\n| 2045 | 2.5K |",
+      "session_id": "smoke_10"
+    },
+    {
+      "query": "gross domestic product for India",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "GDP|MER",
+        "variables": null,
+        "region": "IND",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 26,
+        "selected_filters": {
+          "variable": "GDP|MER",
+          "region": "IND",
+          "years": "2005-2100"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "GDP|MER"
+          },
+          {
+            "label": "Region",
+            "value": "IND"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Matched records",
+            "value": "26"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### GDP|MER in IND\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `multiple`\n\nAnswer:\n**e3me - PR_Baseline**\n| Year | Value | Unit |\n|------|-------|------|\n| 2010 | 1.7K | billion US$2010/yr |\n| 2015 | 2.3K | billion US$2010/yr |\n| 2020 | 3.5K | billion US$2010/yr |\n| 2025 | 4.9K | billion US$2010/yr |\n| 2030 | 6.2K | billion US$2010/yr |\n| 2035 | 7.7K | billion US$2010/yr",
+      "session_id": "smoke_11"
+    },
+    {
+      "query": "solar PV capacity for Greece",
+      "plot_present": false,
+      "no_data": true,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "variable": "Capacity|Electricity|Solar",
+        "region": "GREECE"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Capacity|Electricity|Solar",
+          "region": "GREECE"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "no_data_reason": "scenario combination unavailable",
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Capacity|Electricity|Solar"
+          },
+          {
+            "label": "Region",
+            "value": "GREECE"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          },
+          {
+            "label": "No-data reason",
+            "value": "scenario combination unavailable"
+          }
+        ]
+      },
+      "answer_preview": "I could not find data for `Capacity|Electricity|Solar` in `GREECE`.\n\nReason: the exact scenario combination is not available for this data slice.\n\nClosest valid options:\n\n1. variable `Capacity|Electricity|Solar|Commercial` (power capacity, buildings, solar)\n\n2. variable `Capacity|Electricity|Solar|Rooftop` (power capacity, solar)\n\n3. variable `Capacity|Electricity|Solar|Utility` (power capacity, s",
+      "session_id": "smoke_12"
+    },
+    {
+      "query": "wind power for Germany",
+      "plot_present": false,
+      "no_data": true,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "variable": "Secondary Energy|Electricity|Wind",
+        "region": "Germany"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Secondary Energy|Electricity|Wind",
+          "region": "Germany"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "no_data_reason": "scenario combination unavailable",
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Secondary Energy|Electricity|Wind"
+          },
+          {
+            "label": "Region",
+            "value": "Germany"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          },
+          {
+            "label": "No-data reason",
+            "value": "scenario combination unavailable"
+          }
+        ]
+      },
+      "answer_preview": "I could not find data for `Secondary Energy|Electricity|Wind` in `Germany`.\n\nReason: the exact scenario combination is not available for this data slice.\n\nClosest valid options:\n\n1. region `AGO` (AGO (Angola))\n\n2. region `ARE` (ARE (United Arab Emirates))\n\n3. region `ARG` (ARG (Argentina))\n\nReply with `1`, `2`, or `3`, or type the region you want.",
+      "session_id": "smoke_13"
+    },
+    {
+      "query": "electricity capacity for Germany",
+      "plot_present": false,
+      "no_data": true,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "variable": "Capacity|Electricity",
+        "region": "Germany"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Capacity|Electricity",
+          "region": "Germany"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "no_data_reason": "scenario combination unavailable",
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Capacity|Electricity"
+          },
+          {
+            "label": "Region",
+            "value": "Germany"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          },
+          {
+            "label": "No-data reason",
+            "value": "scenario combination unavailable"
+          }
+        ]
+      },
+      "answer_preview": "I could not find data for `Capacity|Electricity` in `Germany`.\n\nReason: the exact scenario combination is not available for this data slice.\n\nClosest valid options:\n\n1. region `ARG` (ARG (Argentina))\n\n2. region `AUS` (AUS (Australia))\n\n3. region `Africa_Eastern`\n\nReply with `1`, `2`, or `3`, or type the region you want.",
+      "session_id": "smoke_14"
+    },
+    {
+      "query": "emissions under current policies for EU",
+      "plot_present": false,
+      "no_data": true,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "variable": "Emissions|CO2",
+        "region": "EU",
+        "scenario": "Current Policies"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "EU",
+          "scenario": "Current Policies"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "no_data_reason": "scenario combination unavailable",
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Scenario",
+            "value": "Current Policies"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          },
+          {
+            "label": "No-data reason",
+            "value": "scenario combination unavailable"
+          }
+        ]
+      },
+      "answer_preview": "I could not find data for `Emissions|CO2` in `EU` under `Current Policies`.\n\nReason: the exact scenario combination is not available for this data slice.\n\nClosest valid options:\n\n1. scenario `PR_Baseline` (baseline)\n\n2. scenario `PR_CurPol_CP` (current policy)\n\n3. scenario `PR_CurPol_CPO` (current policy)\n\nReply with `1`, `2`, or `3`, or type the scenario you want.",
+      "session_id": "smoke_15"
+    },
+    {
+      "query": "CO2 for Greece under current policies",
+      "plot_present": false,
+      "no_data": true,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "variable": "Emissions|CO2",
+        "region": "GREECE",
+        "scenario": "Current Policies"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "GREECE",
+          "scenario": "Current Policies"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "no_data_reason": "scenario combination unavailable",
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "GREECE"
+          },
+          {
+            "label": "Scenario",
+            "value": "Current Policies"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          },
+          {
+            "label": "No-data reason",
+            "value": "scenario combination unavailable"
+          }
+        ]
+      },
+      "answer_preview": "I could not find data for `Emissions|CO2` in `GREECE` under `Current Policies`.\n\nReason: the exact scenario combination is not available for this data slice.\n\nClosest valid options:\n\n1. scenario `PR_Baseline` (baseline)\n\n2. scenario `PR_CurPol_CP` (current policy)\n\n3. scenario `PR_CurPol_CPO` (current policy)\n\nReply with `1`, `2`, or `3`, or type the scenario you want.",
+      "session_id": "smoke_16"
+    },
+    {
+      "query": "plot CO2 emissions for EU",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "Emissions|CO2",
+        "variables": null,
+        "region": "EU",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 30,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "EU"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Matched records",
+            "value": "30"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing CO2 Emissions in EU across available scenarios.\n\nReply with a scenario, model, region, or year to narrow the answer.\n\nRelevant IAM PARIS links:\n- [Comparison of Fit-for-55 Policy and Cost Optimal Scenarios for the EU](https://iamparis.eu/results/iam-compact/comparison-of-fit-for-55-policy-and-cost-optimal-scenarios-for-the-eu/policy_questions) - Matched: Comparison of Fit-for-55 Policy and",
+      "session_id": "smoke_17"
+    },
+    {
+      "query": "visualize final energy demand for India",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "Final Energy",
+        "variables": null,
+        "region": "IND",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9,
+          "variable": 0.8,
+          "region": 0.85
+        },
+        "confidence": 0.825,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 46,
+        "selected_filters": {
+          "variable": "Final Energy",
+          "region": "IND"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Final Energy"
+          },
+          {
+            "label": "Region",
+            "value": "IND"
+          },
+          {
+            "label": "Matched records",
+            "value": "46"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing Final Energy in IND across available scenarios.\n\nReply with a scenario, model, region, or year to narrow the answer.\n\nRelevant IAM PARIS links:\n- [Buildings Transformation](https://iamparis.eu/results/ndc-aspects/buildings-transformation/policy_questions) - Matched: energy demand\n- [Enhancing renewable energy system metrics](https://iamparis.eu/results/iam-compact/enhancing-renewable-energ",
+      "session_id": "smoke_18"
+    },
+    {
+      "query": "chart GDP for China",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "GDP|MER",
+        "variables": null,
+        "region": "CHN",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 26,
+        "selected_filters": {
+          "variable": "GDP|MER",
+          "region": "CHN"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "GDP|MER"
+          },
+          {
+            "label": "Region",
+            "value": "CHN"
+          },
+          {
+            "label": "Matched records",
+            "value": "26"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing MER in CHN across available scenarios.\n\nReply with a scenario, model, region, or year to narrow the answer.\n\nRelevant IAM PARIS links:\n- [Comparison of Fit-for-55 Policy and Cost Optimal Scenarios for the EU](https://iamparis.eu/results/iam-compact/comparison-of-fit-for-55-policy-and-cost-optimal-scenarios-for-the-eu/policy_questions) - Matched: Comparison of Fit-for-55 Policy and Cost Opt",
+      "session_id": "smoke_19"
+    },
+    {
+      "query": "compare CO2 emissions between China and India",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "comparison plot request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "variables": null,
+        "region": "CHN",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 26,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "CHN"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "CHN"
+          },
+          {
+            "label": "Matched records",
+            "value": "26"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing CO2 Emissions.\n\nReply with a scenario, model, region, or year to narrow the answer.\n\nRelevant IAM PARIS links:\n- [EU-CHINA BRIDGE](https://iamparis.eu/results/eu-china-bridge) - Matched: EU-CHINA BRIDGE, EU-China climate/energy bridge project results\n- [Comparison of Fit-for-55 Policy and Cost Optimal Scenarios for the EU](https://iamparis.eu/results/iam-compact/comparison-of-fit-for-55-po",
+      "session_id": "smoke_20"
+    },
+    {
+      "query": "compare wind power and solar PV for Greece",
+      "plot_present": false,
+      "no_data": true,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "comparison plot request"
+      },
+      "entities": {
+        "variable": "Capacity|Electricity|Wind",
+        "region": "GREECE"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Capacity|Electricity|Wind",
+          "region": "GREECE"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "no_data_reason": "region combination unavailable",
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Capacity|Electricity|Wind"
+          },
+          {
+            "label": "Region",
+            "value": "GREECE"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          },
+          {
+            "label": "No-data reason",
+            "value": "region combination unavailable"
+          }
+        ]
+      },
+      "answer_preview": "No data found for the requested variables in region 'GREECE'.\n\nReply with a scenario, model, region, or year to narrow the answer.\n\nRelevant IAM PARIS links:\n- [Comparison of Fit-for-55 Policy and Cost Optimal Scenarios for the EU](https://iamparis.eu/results/iam-compact/comparison-of-fit-for-55-policy-and-cost-optimal-scenarios-for-the-eu/policy_questions) - Matched: Comparison of Fit-for-55 Poli",
+      "session_id": "smoke_21"
+    },
+    {
+      "query": "where can I find Climate Watch",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.88,
+        "source": "deterministic",
+        "reason": "site/navigation link request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Use these IAM PARIS links for this request:\n\nRelevant IAM PARIS links:\n- [Climate Watch](https://iamparis.eu/application_library) - Matched: Climate Watch, Climate Watch Search for: Climate Watch.\n- [Behavioural changes for climate policy](https://iamparis.eu/results/iam-compact/behavioural-changes-for-climate-policy/policy_questions) - Matched: Behavioural changes for climate policy, climate poli",
+      "session_id": "smoke_22"
+    },
+    {
+      "query": "open the Aqueduct raw data application",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.88,
+        "source": "deterministic",
+        "reason": "site/navigation link request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Use these IAM PARIS links for this request:\n\nRelevant IAM PARIS links:\n- [Aqueduct](https://iamparis.eu/application_library/474) - Matched: Aqueduct, Aqueduct, Raw Data\n- [CDP Open Data Portal](https://iamparis.eu/application_library) - Matched: CDP Open Data Portal, Raw Data Search for: CDP Open Data Portal.\n- [Open Air Quality Datasets](https://iamparis.eu/application_library) - Matched: Open Ai",
+      "session_id": "smoke_23"
+    },
+    {
+      "query": "link to the model documentation",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.88,
+        "source": "deterministic",
+        "reason": "site/navigation link request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Use these IAM PARIS links for this request:\n\nRelevant IAM PARIS links:\n- [Model Comparison](https://iamparis.eu/models/comparison) - Matched: Side-by-side model comparison, Use when user wants to compare models\n- [GEMINI-E3 EU](https://iamparis.eu/models) - Matched: General Equilibrium Model of International-National Interactions between Economy, Energy and Environment in the EU Search for: GEMINI",
+      "session_id": "smoke_24"
+    },
+    {
+      "query": "policy catalogue climate policies",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.88,
+        "source": "deterministic",
+        "reason": "site/navigation link request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Use these IAM PARIS links for this request:\n\nRelevant IAM PARIS links:\n- [Policy Catalogue Interactive Explorer](https://iamparis.eu/datastories/policyCatalog) - Matched: Policy Catalogue Interactive Explorer, Explore climate policy catalogue entries, policy catalogue\n- [Recovery Policy DB](https://iamparis.eu/datastories/recoveryDB) - Matched: Recovery Policy DB, COVID-19 recovery policy database",
+      "session_id": "smoke_25"
+    },
+    {
+      "query": "emisions for europ",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.75,
+        "source": "deterministic",
+        "reason": "extracted data entities"
+      },
+      "entities": {
+        "region": "EU"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 7668,
+        "selected_filters": {
+          "region": "EU"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.75,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Matched records",
+            "value": "7668"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "I need one more detail to continue. Please specify the variable, region, or scenario.",
+      "session_id": "smoke_26"
+    },
+    {
+      "query": "oil",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": "EST",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.55,
+          "region": 0.85
+        },
+        "confidence": 0.7,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 558,
+        "selected_filters": {
+          "region": "EST"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Region",
+            "value": "EST"
+          },
+          {
+            "label": "Matched records",
+            "value": "558"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Based on your wording, I think one of these is the closest match. Choose the variable: 1. `Secondary Energy|Electricity|Oil` (electricity output, oil) 2. `Primary Energy|Oil` (primary energy, oil) 3. `Secondary Energy|Electricity|Oil|w/o CCS` (electricity output, oil) Reply with a number (1-3), or `yes` for option 1.",
+      "session_id": "smoke_27"
+    },
+    {
+      "query": "emissions",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.7
+        },
+        "confidence": 0.7,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 825,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "years": "2005-2100",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "825"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Emissions|CO2\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\n**E3ME 6.1 - PR_WWH_CP**\n| Year | Value | Unit |\n|------|-------|------|\n| 2010 | 4.3K | Mt CO2/yr |\n| 2015 | 4.0K | Mt CO2/yr |\n| 2020 | 3.4K | Mt CO2/yr |\n| 2025 | 3.2K | Mt CO2/yr |\n| 2030 | 3.0K | Mt CO2/yr |\n| 2035 | 2.9K | Mt CO2/yr |\n| 2040 | 2.7K | Mt CO2/yr |\n| 2045 | 2.5K | Mt CO",
+      "session_id": "smoke_28"
+    },
+    {
+      "query": "policy",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "scenario": "Policy"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "scenario": "Policy"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Scenario",
+            "value": "Policy"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "I need one more detail. Are you looking for policy results, NDC ASPECTS workspaces, or a scenario such as `Current Policies`? Try `current policy emissions for EU` or `global impacts of NDCs`.",
+      "session_id": "smoke_29"
+    },
+    {
+      "query": "NDC",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "scenario": "NDC_LTT_TRANS"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 242,
+        "selected_filters": {
+          "scenario": "NDC_LTT_TRANS"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Scenario",
+            "value": "NDC_LTT_TRANS"
+          },
+          {
+            "label": "Matched records",
+            "value": "242"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "I need one more detail. Are you looking for policy results, NDC ASPECTS workspaces, or a scenario such as `Current Policies`? Try `current policy emissions for EU` or `global impacts of NDCs`.",
+      "session_id": "smoke_30"
+    },
+    {
+      "query": "CO2 emissions for EU",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "variables": null,
+        "region": "EU",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 30,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "EU",
+          "years": "2005-2100",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "30"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Emissions|CO2 in EU\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\n**E3ME 6.1 - PR_WWH_CP**\n| Year | Value | Unit |\n|------|-------|------|\n| 2010 | 4.3K | Mt CO2/yr |\n| 2015 | 4.0K | Mt CO2/yr |\n| 2020 | 3.4K | Mt CO2/yr |\n| 2025 | 3.2K | Mt CO2/yr |\n| 2030 | 3.0K | Mt CO2/yr |\n| 2035 | 2.9K | Mt CO2/yr |\n| 2040 | 2.7K | Mt CO2/yr |\n| 2045 | 2.5K |",
+      "session_id": "smoke_31"
+    },
+    {
+      "query": "same for China",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.75,
+        "source": "deterministic",
+        "reason": "extracted data entities"
+      },
+      "entities": {
+        "region": "CHN"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 6446,
+        "selected_filters": {
+          "region": "CHN"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.75,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Region",
+            "value": "CHN"
+          },
+          {
+            "label": "Matched records",
+            "value": "6446"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "I need one more detail to continue. Please specify the variable, region, or scenario.",
+      "session_id": "smoke_32"
+    },
+    {
+      "query": "GDP for India",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "GDP|MER",
+        "variables": null,
+        "region": "IND",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 26,
+        "selected_filters": {
+          "variable": "GDP|MER",
+          "region": "IND",
+          "years": "2005-2100"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "GDP|MER"
+          },
+          {
+            "label": "Region",
+            "value": "IND"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Matched records",
+            "value": "26"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### GDP|MER in IND\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `multiple`\n\nAnswer:\n**e3me - PR_Baseline**\n| Year | Value | Unit |\n|------|-------|------|\n| 2010 | 1.7K | billion US$2010/yr |\n| 2015 | 2.3K | billion US$2010/yr |\n| 2020 | 3.5K | billion US$2010/yr |\n| 2025 | 4.9K | billion US$2010/yr |\n| 2030 | 6.2K | billion US$2010/yr |\n| 2035 | 7.7K | billion US$2010/yr",
+      "session_id": "smoke_33"
+    },
+    {
+      "query": "what about 2050",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.6,
+        "source": "llm",
+        "reason": "unclear deterministic route"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2050,
+        "end_year": 2050,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.55,
+          "years": 0.9
+        },
+        "confidence": 0.725,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {},
+      "answer_preview": "The question \"what about 2050\" is too vague to provide a specific answer. Could you please clarify what specific information or data you are looking for regarding the year 2050? For example, are you interested in energy projections, CO2 emissions, or something else for a specific region or globally?\n\nRelevant IAM PARIS links:\n- [Home](https://iamparis.eu/) - Matched: General overview / entry page,",
+      "session_id": "smoke_34"
+    },
+    {
+      "query": "CO2 emissions for World",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "variables": null,
+        "region": "World",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 38,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "World",
+          "years": "2005-2100",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "38"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Emissions|CO2 in World\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\n**e3me - PR_Baseline**\n| Year | Value | Unit |\n|------|-------|------|\n| 2010 | 31.5K | Mt CO2/yr |\n| 2015 | 34.4K | Mt CO2/yr |\n| 2020 | 34.4K | Mt CO2/yr |\n| 2025 | 35.4K | Mt CO2/yr |\n| 2030 | 36.9K | Mt CO2/yr |\n| 2035 | 38.1K | Mt CO2/yr |\n| 2040 | 38.8K | Mt CO2/yr |\n| 2045 ",
+      "session_id": "smoke_35"
+    },
+    {
+      "query": "now plot it",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "llm"
+      },
+      "data_provenance": {},
+      "answer_preview": "Could not identify a variable to plot. Did you mean: Price|Secondary Energy|Electricity, Investment|Energy Supply|Electricity|Battery|Rootop, Capacity|Electricity|Solar|CSP?\n\nReply with a scenario, model, region, or year to narrow the answer.\n\nRelevant IAM PARIS links:\n- [Global impacts of NDCs](https://iamparis.eu/results/ndc-aspects/global-impacts-of-ndcs/policy_questions) - Relevant results pag",
+      "session_id": "smoke_36"
+    },
+    {
+      "query": "emissions for EU under current policies",
+      "plot_present": false,
+      "no_data": true,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "variable": "Emissions|CO2",
+        "region": "EU",
+        "scenario": "Current Policies"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "EU",
+          "scenario": "Current Policies"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "no_data_reason": "scenario combination unavailable",
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Scenario",
+            "value": "Current Policies"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          },
+          {
+            "label": "No-data reason",
+            "value": "scenario combination unavailable"
+          }
+        ]
+      },
+      "answer_preview": "I could not find data for `Emissions|CO2` in `EU` under `Current Policies`.\n\nReason: the exact scenario combination is not available for this data slice.\n\nClosest valid options:\n\n1. scenario `PR_Baseline` (baseline)\n\n2. scenario `PR_CurPol_CP` (current policy)\n\n3. scenario `PR_CurPol_CPO` (current policy)\n\nReply with `1`, `2`, or `3`, or type the scenario you want.",
+      "session_id": "smoke_37"
+    },
+    {
+      "query": "compare with baseline",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.75,
+        "source": "deterministic",
+        "reason": "extracted data entities"
+      },
+      "entities": {
+        "scenario": "Baseline"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 3319,
+        "selected_filters": {
+          "scenario": "Baseline"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.75,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Scenario",
+            "value": "Baseline"
+          },
+          {
+            "label": "Matched records",
+            "value": "3319"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Which variable should I use?\nRecommended variables: Policy Cost|GDP Loss w/o Transfers\nReply with the variable you want.",
+      "session_id": "smoke_38"
+    },
+    {
+      "query": "CO2 World",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.75,
+        "source": "deterministic",
+        "reason": "extracted data entities"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "variables": null,
+        "region": "World",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.7,
+          "region": 0.85
+        },
+        "confidence": 0.775,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 38,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "World",
+          "years": "2005-2100",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.75,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "38"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Emissions|CO2 in World\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\n**e3me - PR_Baseline**\n| Year | Value | Unit |\n|------|-------|------|\n| 2010 | 31.5K | Mt CO2/yr |\n| 2015 | 34.4K | Mt CO2/yr |\n| 2020 | 34.4K | Mt CO2/yr |\n| 2025 | 35.4K | Mt CO2/yr |\n| 2030 | 36.9K | Mt CO2/yr |\n| 2035 | 38.1K | Mt CO2/yr |\n| 2040 | 38.8K | Mt CO2/yr |\n| 2045 ",
+      "session_id": "smoke_39"
+    },
+    {
+      "query": "now plot it",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "llm"
+      },
+      "data_provenance": {},
+      "answer_preview": "Could not identify a variable to plot. Did you mean: Price|Secondary Energy|Electricity, Investment|Energy Supply|Electricity|Battery|Rootop, Capacity|Electricity|Solar|CSP?\n\nReply with a scenario, model, region, or year to narrow the answer.\n\nRelevant IAM PARIS links:\n- [Global impacts of NDCs](https://iamparis.eu/results/ndc-aspects/global-impacts-of-ndcs/policy_questions) - Relevant results pag",
+      "session_id": "smoke_40"
+    },
+    {
+      "query": "same for India",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.75,
+        "source": "deterministic",
+        "reason": "extracted data entities"
+      },
+      "entities": {
+        "region": "IND"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-06-17T18:52:29.914742+00:00",
+        "matched_record_count": 6405,
+        "selected_filters": {
+          "region": "IND"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.75,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Region",
+            "value": "IND"
+          },
+          {
+            "label": "Matched records",
+            "value": "6405"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-06-17T18:52:29.914742+00:00"
+          }
+        ]
+      },
+      "answer_preview": "I need one more detail to continue. Please specify the variable, region, or scenario.",
+      "session_id": "smoke_41"
+    }
+  ]
+}

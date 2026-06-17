@@ -17,8 +17,11 @@ import json
 
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
+from canonical_aliases import REGION_ALIASES, canonical_scenario_from_query, preferred_variable_from_query
+from model_aliases import build_model_alias_map, match_model_name, normalize_model_name
 from utils.yaml_loader import load_all_yaml_files
 from utils_query import extract_region_from_query, resolve_natural_language_variable_candidates
+from year_filters import extract_year_range
 
 
 class QueryEntityExtractor:
@@ -37,6 +40,8 @@ class QueryEntityExtractor:
         self.llm = ChatOpenAI(
             model_name="gpt-4-turbo",
             temperature=0,
+            timeout=30,
+            max_retries=1,
             api_key=api_key
         )
         
@@ -115,57 +120,17 @@ class QueryEntityExtractor:
         self.model_alias_map = self._build_model_alias_map(self.available_models)
 
     def _normalize_model(self, text: str) -> str:
-        return re.sub(r"[^a-z0-9]+", "", (text or "").lower())
+        return normalize_model_name(text)
 
     def _build_model_alias_map(self, models: List[str]) -> Dict[str, Set[str]]:
-        alias_map: Dict[str, Set[str]] = {}
-        for model in models:
-            raw = str(model or "").strip()
-            if not raw:
-                continue
-            low = raw.lower()
-            tokens = [t for t in re.split(r"[^a-z0-9]+", low) if t]
-            aliases = {low, self._normalize_model(raw)}
-            if tokens:
-                aliases.add(tokens[0])
-                if len(tokens) >= 2:
-                    aliases.add(" ".join(tokens[:2]))
-                    aliases.add("".join(tokens[:2]))
-            for alias in aliases:
-                if alias:
-                    alias_map.setdefault(alias, set()).add(raw)
-        return alias_map
+        return build_model_alias_map(models)
 
     def _match_model_alias(self, query_or_model: str) -> Optional[str]:
-        text = str(query_or_model or "").lower()
-        if not text:
-            return None
-
-        # Exact model-name containment first.
-        for model in self.available_models:
-            if re.search(r"(?<!\w)" + re.escape(model.lower()) + r"(?!\w)", text):
-                return model
-
-        tokens = [t for t in re.split(r"[^a-z0-9]+", text) if t]
-        spans: Set[str] = set(tokens)
-        for i in range(len(tokens)):
-            if i + 1 < len(tokens):
-                spans.add(tokens[i] + " " + tokens[i + 1])
-                spans.add(tokens[i] + tokens[i + 1])
-        spans.add(self._normalize_model(text))
-
-        candidates: Set[str] = set()
-        for span in spans:
-            candidates.update(self.model_alias_map.get(span, set()))
-        if not candidates:
-            return None
-
-        def _rank(name: str) -> tuple[int, int, str]:
-            low = name.lower()
-            exact = 1 if low in spans or self._normalize_model(name) in spans else 0
-            return (exact, -len(name), name)
-
-        return sorted(candidates, key=_rank, reverse=True)[0]
+        if re.search(r"\bgcam\s*[- ]?\s*pr\b", str(query_or_model or ""), re.IGNORECASE):
+            gcam_pr_models = [model for model in self.available_models if "gcam-pr" in model.lower()]
+            if gcam_pr_models:
+                return next((model for model in sorted(gcam_pr_models, reverse=True) if "7.0" in model), sorted(gcam_pr_models, reverse=True)[0])
+        return match_model_name(query_or_model, self.available_models) or None
     
     def _create_prompt(self):
         """Create the LLM extraction prompt."""
@@ -308,6 +273,11 @@ Return ONLY valid JSON, no other text."""
         Returns:
             Dict with keys: action, variable, region, scenario, model, years, comparison
         """
+        deterministic = self._fallback_extraction(query)
+        if self._deterministic_result_is_sufficient(deterministic):
+            deterministic["extraction_method"] = "deterministic"
+            return deterministic
+
         try:
             # Use LLM to extract entities
             chain = self.prompt | self.llm
@@ -325,72 +295,144 @@ Return ONLY valid JSON, no other text."""
             
             # Validate and enhance the result
             result = self._validate_result(result, query)
+            result = self._finalize_confidence(result)
+            result["extraction_method"] = "llm"
             
             self.logger.debug(f"Extracted entities: {result}")
             return result
             
         except json.JSONDecodeError as e:
             self.logger.error(f"JSON parse error: {e}")
-            return self._fallback_extraction(query)
+            deterministic["extraction_method"] = "fallback"
+            return deterministic
         except Exception as e:
             self.logger.error(f"Extraction error: {e}")
-            return self._fallback_extraction(query)
+            deterministic["extraction_method"] = "fallback"
+            return deterministic
+
+    def _deterministic_result_is_sufficient(self, result: Dict[str, Any]) -> bool:
+        confidence = result.get("entity_confidence") or {}
+        strong_fields = {
+            field for field in ("variable", "region", "scenario", "model", "years")
+            if result.get(field) and confidence.get(field, 0) >= 0.7
+        }
+        if result.get("start_year") is not None or result.get("end_year") is not None:
+            if confidence.get("years", 0) >= 0.7:
+                strong_fields.add("years")
+        if result.get("action") == "plot" and (result.get("variable") or result.get("region")):
+            return True
+        return bool(strong_fields)
     
     def _validate_result(self, result: Dict[str, Any], query: str) -> Dict[str, Any]:
         """Validate and enhance the extraction result."""
+        entity_confidence = dict(result.get("entity_confidence") or {})
+        result["entity_confidence"] = entity_confidence
         
         # Validate variable
         if result.get('variable'):
             var = result['variable']
             # Check if exact match
             if var in self.available_variables:
-                pass  # Valid
+                entity_confidence.setdefault("variable", 0.95)
             else:
                 # Try fuzzy match
                 matched = self._fuzzy_match(var, self.available_variables)
                 if matched:
                     result['variable'] = matched
                     result['variable_matched'] = True
+                    entity_confidence["variable"] = 0.75
+                else:
+                    entity_confidence["variable"] = 0.35
         
         # Validate region
         if result.get('region'):
             region = result['region']
-            if region not in self.available_regions:
+            if region in self.available_regions:
+                entity_confidence.setdefault("region", 0.95)
+            else:
                 # Try alias/region definition mapping before fuzzy
                 mapped = extract_region_from_query(query, self.region_dict, self.available_regions)
                 if mapped:
                     result['region'] = mapped
                     result['region_matched'] = True
+                    entity_confidence["region"] = 0.85
                 else:
                     matched = self._fuzzy_match(region, self.available_regions)
                     if matched:
                         result['region'] = matched
                         result['region_matched'] = True
+                        entity_confidence["region"] = 0.75
+                    else:
+                        entity_confidence["region"] = 0.35
         
         # Validate scenario
         if result.get('scenario'):
             scenario = result['scenario']
-            if scenario not in self.available_scenarios:
+            if scenario in self.available_scenarios:
+                entity_confidence.setdefault("scenario", 0.95)
+            else:
                 matched = self._fuzzy_match(scenario, self.available_scenarios)
                 if matched:
                     result['scenario'] = matched
                     result['scenario_matched'] = True
+                    entity_confidence["scenario"] = 0.75
+                else:
+                    entity_confidence["scenario"] = 0.35
         
         # Validate model
+        strong_model_alias_query = re.search(r"\b(message\s*ix|messageix|message-ix)\b", query, re.IGNORECASE)
+        if strong_model_alias_query and not result.get("model"):
+            result["model"] = "MESSAGEix-GLOBIOM 2.0"
+            result["model_matched"] = True
+            entity_confidence["model"] = 0.75
+
         if result.get('model'):
             model = result['model']
-            if model not in self.available_models:
-                matched = self._match_model_alias(model) or self._match_model_alias(query)
+            query_alias_match = self._match_model_alias(query)
+            if strong_model_alias_query and query_alias_match:
+                result['model'] = query_alias_match
+                result['model_matched'] = True
+                entity_confidence["model"] = 0.8
+            elif strong_model_alias_query:
+                result['model'] = "MESSAGEix-GLOBIOM 2.0"
+                result['model_matched'] = True
+                entity_confidence["model"] = 0.75
+            elif model in self.available_models:
+                entity_confidence.setdefault("model", 0.95)
+            else:
+                matched = self._match_model_alias(model) or query_alias_match
                 if not matched:
                     matched = self._fuzzy_match(model, self.available_models)
                 if matched:
                     result['model'] = matched
                     result['model_matched'] = True
+                    entity_confidence["model"] = 0.8
+                else:
+                    entity_confidence["model"] = 0.35
         
         # Add unit if variable is found
         if result.get('variable') and result['variable'] in self.variable_units:
             result['unit'] = self.variable_units[result['variable']]
         
+        return result
+
+    def _finalize_confidence(self, result: Dict[str, Any]) -> Dict[str, Any]:
+        entity_confidence = dict(result.get("entity_confidence") or {})
+        if result.get("action"):
+            entity_confidence.setdefault("action", 0.9)
+        if result.get("comparison"):
+            entity_confidence.setdefault("comparison", 0.8)
+        if result.get("start_year") or result.get("end_year"):
+            entity_confidence.setdefault("years", 0.9)
+
+        scored = [
+            score for field, score in entity_confidence.items()
+            if field != "action" and isinstance(score, (int, float))
+        ]
+        if not scored and isinstance(entity_confidence.get("action"), (int, float)):
+            scored = [entity_confidence["action"]]
+        result["entity_confidence"] = entity_confidence
+        result["confidence"] = round(sum(scored) / len(scored), 3) if scored else 0.0
         return result
     
     def _fuzzy_match(self, value: str, options: List[str]) -> Optional[str]:
@@ -418,6 +460,65 @@ Return ONLY valid JSON, no other text."""
                     return opt
         
         return None
+
+    def _fuzzy_variable_from_tokens(self, q: str) -> Optional[str]:
+        """N8: resolve a variable when the query contains a misspelled keyword by
+        fuzzy-matching query tokens against variable-name tokens."""
+        from difflib import get_close_matches
+
+        query_terms = [tok for tok in re.findall(r"[a-z0-9]+", q.lower()) if len(tok) > 3]
+        if not query_terms:
+            return None
+        scored = []
+        for var in self.available_variables:
+            var_terms = {tok for tok in re.findall(r"[a-z0-9]+", var.lower()) if len(tok) > 3}
+            if not var_terms:
+                continue
+            hits = 0
+            for term in query_terms:
+                if get_close_matches(term, var_terms, n=1, cutoff=0.82):
+                    hits += 1
+            if hits:
+                scored.append((hits, -len(var), var))
+        if not scored:
+            return None
+        scored.sort(reverse=True)
+        return scored[0][2]
+
+    def _fuzzy_region_from_tokens(self, q: str) -> Optional[str]:
+        """N8: resolve a region from a misspelled token (e.g. "europ" -> "EU")."""
+        from difflib import get_close_matches
+
+        query_terms = [tok for tok in re.findall(r"[a-z]+", q.lower()) if len(tok) > 3]
+        if not query_terms:
+            return None
+        # Match against alias keys first (so "europ" maps via the canonical alias),
+        # then against the raw available region names.
+        for phrases, canonical in REGION_ALIASES:
+            for phrase in phrases:
+                if " " in phrase:
+                    continue
+                for term in query_terms:
+                    if get_close_matches(term, [phrase], n=1, cutoff=0.82):
+                        if not self.available_regions or canonical in self.available_regions:
+                            return canonical
+                        match = self._fuzzy_match(canonical, self.available_regions)
+                        if match:
+                            return match
+        region_names_lower = {r.lower(): r for r in self.available_regions}
+        for term in query_terms:
+            matches = get_close_matches(term, list(region_names_lower.keys()), n=1, cutoff=0.85)
+            if matches:
+                return region_names_lower[matches[0]]
+        return None
+
+    def _query_allows_model_match(self, query: str) -> bool:
+        q = str(query or "").lower()
+        if not q.strip():
+            return False
+        if re.search(r"\b(model|models|using|use|with|about|explain|assumptions?|information|info)\b", q):
+            return True
+        return bool(re.search(r"\b(gcam|remind|message\s*ix|messageix|witch|prometheus|leap|gemini|gem-e3|e3me)\b", q))
     
     def _fallback_extraction(self, query: str) -> Dict[str, Any]:
         """Fallback keyword-based extraction when LLM fails."""
@@ -431,7 +532,8 @@ Return ONLY valid JSON, no other text."""
             'models': None,
             'start_year': None,
             'end_year': None,
-            'comparison': None
+            'comparison': None,
+            'entity_confidence': {'action': 0.75}
         }
         
         q = query.lower()
@@ -446,13 +548,21 @@ Return ONLY valid JSON, no other text."""
         # Detect action
         if any(word in tokens for word in ['plot', 'graph', 'chart', 'visualize', 'visualise']):
             result['action'] = 'plot'
+            result['entity_confidence']['action'] = 0.9
+
+        preferred_variable = self._preferred_variable_from_query(query)
+        if preferred_variable:
+            result['variable'] = preferred_variable
+            result['entity_confidence']['variable'] = 0.9
         
         # Try to match variables with the shared candidate resolver first.
-        variable_candidates = resolve_natural_language_variable_candidates(query, self.variable_dict, top_k=3)
-        for candidate in variable_candidates:
-            if candidate in self.available_variables:
-                result['variable'] = candidate
-                break
+        if not result['variable']:
+            variable_candidates = resolve_natural_language_variable_candidates(query, self.variable_dict, top_k=3)
+            for candidate in variable_candidates:
+                if candidate in self.available_variables:
+                    result['variable'] = candidate
+                    result['entity_confidence']['variable'] = 0.7
+                    break
         if not result['variable']:
             query_terms = {tok for tok in tokens if len(tok) > 2}
             scored = []
@@ -464,52 +574,80 @@ Return ONLY valid JSON, no other text."""
             if scored:
                 scored.sort(key=lambda item: (-item[0], item[1]))
                 result['variable'] = scored[0][1]
-        
+                result['entity_confidence']['variable'] = 0.55
+
+        # N8: typo tolerance. If no variable resolved, fuzzy-match query tokens
+        # against variable-name tokens (e.g. "emisions" -> "emissions").
+        if not result['variable']:
+            fuzzy_var = self._fuzzy_variable_from_tokens(q)
+            if fuzzy_var:
+                result['variable'] = fuzzy_var
+                result['entity_confidence']['variable'] = 0.5
+
+        # Guard: an energy question ("final/primary/secondary energy") must not
+        # resolve to an emissions variable just because the variable name
+        # contains "Energy" (e.g. "final energy demand" -> Emissions|CO2|Energy|Demand).
+        if (
+            result['variable']
+            and 'emission' in str(result['variable']).lower()
+            and 'emission' not in q
+            and 'co2' not in q
+        ):
+            for fam in ('final energy', 'primary energy', 'secondary energy'):
+                if fam in q:
+                    base = next((v for v in self.available_variables if v.lower() == fam), None)
+                    candidates = [v for v in self.available_variables if v.lower().startswith(fam)]
+                    if base:
+                        result['variable'] = base
+                    elif candidates:
+                        result['variable'] = min(candidates, key=len)
+                    else:
+                        break
+                    result['entity_confidence']['variable'] = 0.8
+                    break
+
         # Try to match regions (use shared extractor with alias support)
         region_match = extract_region_from_query(query, self.region_dict, self.available_regions)
         if region_match:
             result['region'] = region_match
-        
+            result['entity_confidence']['region'] = 0.85
+        else:
+            # N8: typo tolerance for region tokens (e.g. "europ" -> "Europe"/"EU").
+            fuzzy_region = self._fuzzy_region_from_tokens(q)
+            if fuzzy_region:
+                result['region'] = fuzzy_region
+                result['entity_confidence']['region'] = 0.6
+
         # Try to match scenarios
+        scenario_match = canonical_scenario_from_query(query, self.available_scenarios)
+        if scenario_match:
+            result['scenario'] = scenario_match
+            result['entity_confidence']['scenario'] = 0.9
         for scenario in self.available_scenarios:
-            if scenario.lower() in q:
+            if not result['scenario'] and scenario.lower() in q:
                 result['scenario'] = scenario
+                result['entity_confidence']['scenario'] = 0.95
                 break
 
         # Try to match model names/aliases.
-        model_match = self._match_model_alias(query)
+        model_match = self._match_model_alias(query) if self._query_allows_model_match(query) else None
+        if not model_match and re.search(r"\b(message\s*ix|messageix|message-ix)\b", query, re.IGNORECASE):
+            model_match = "MESSAGEix-GLOBIOM 2.0"
         if model_match:
             result['model'] = model_match
+            result['entity_confidence']['model'] = 0.8
         
         # Extract years and year ranges
-        year_match = re.search(r'\b(20\d{2})\s*(?:to|-|until|through)\s*(20\d{2})\b', q)
-        if year_match:
-            result['start_year'] = int(year_match.group(1))
-            result['end_year'] = int(year_match.group(2))
-        else:
-            # Check for "from X to Y" pattern
-            year_match = re.search(r'from\s+(20\d{2})\s*(?:to|-|until|through)\s*(20\d{2})\b', q)
-            if year_match:
-                result['start_year'] = int(year_match.group(1))
-                result['end_year'] = int(year_match.group(2))
-            else:
-                # Check for "after X" pattern
-                year_match = re.search(r'after\s+(20\d{2})\b', q)
-                if year_match:
-                    result['start_year'] = int(year_match.group(1))
-                else:
-                    # Check for "before X" pattern
-                    year_match = re.search(r'before\s+(20\d{2})\b', q)
-                    if year_match:
-                        result['end_year'] = int(year_match.group(1))
-                    else:
-                        # Single year
-                        years = re.findall(r'\b(20\d{2})\b', q)
-                        if years:
-                            result['start_year'] = int(years[0])
-                            result['end_year'] = int(years[0])
-        
-        return result
+        start_year, end_year = extract_year_range(query)
+        if start_year is not None or end_year is not None:
+            result['start_year'] = start_year
+            result['end_year'] = end_year
+            result['entity_confidence']['years'] = 0.9
+
+        return self._finalize_confidence(result)
+
+    def _preferred_variable_from_query(self, query: str) -> Optional[str]:
+        return preferred_variable_from_query(query, self.available_variables)
     
     def get_available_for_variable(self, variable: str) -> Dict[str, Any]:
         """Get available regions, scenarios, models, and unit for a variable."""

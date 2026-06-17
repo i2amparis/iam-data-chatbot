@@ -1,0 +1,5094 @@
+[
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: 1.5\u00b0C National Pathway Explorer",
+    "id": "app-1-5-c-national-pathway-explorer-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "1.5\u00b0C National Pathway Explorer",
+      "Interactive Charts",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "1.5\u00b0C National Pathway Explorer",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "1.5\u00b0C National Pathway Explorer",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "",
+    "id": "app-aqueduct-iamparis-eu-application-library-474",
+    "item_type": "application",
+    "keywords": [
+      "Aqueduct",
+      "Raw Data",
+      "Interactive Charts",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "05_App_Library",
+    "status": "direct app detail page verified",
+    "title": "Aqueduct",
+    "url": "https://iamparis.eu/application_library/474",
+    "verified_direct_url": true,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: AR5 Scenario Database",
+    "id": "app-ar5-scenario-database-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "AR5 Scenario Database",
+      "Unspecified / catalogue item",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "AR5 Scenario Database",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "AR5 Scenario Database",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: AR6 Scenario Explorer and Database",
+    "id": "app-ar6-scenario-explorer-and-database-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "AR6 Scenario Explorer and Database",
+      "Unspecified / catalogue item",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "AR6 Scenario Explorer and Database",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "AR6 Scenario Explorer and Database",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Atlas of Climate Policy Barriers",
+    "id": "app-atlas-of-climate-policy-barriers-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Atlas of Climate Policy Barriers",
+      "Unspecified / catalogue item",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "Atlas of Climate Policy Barriers",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Atlas of Climate Policy Barriers",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: ATLAS of Global Development 2026",
+    "id": "app-atlas-of-global-development-2026-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "ATLAS of Global Development 2026",
+      "Interactive Charts"
+    ],
+    "project": "",
+    "search_hint": "ATLAS of Global Development 2026",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "ATLAS of Global Development 2026",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Barriers & Enablers in Global South Countries",
+    "id": "app-barriers-enablers-in-global-south-countries-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Barriers & Enablers in Global South Countries",
+      "Raw Data",
+      "Interactive Charts",
+      "IAM PARIS"
+    ],
+    "project": "",
+    "search_hint": "Barriers & Enablers in Global South Countries",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Barriers & Enablers in Global South Countries",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: C-ROADS",
+    "id": "app-c-roads-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "C-ROADS",
+      "Interactive Charts",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "C-ROADS",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "C-ROADS",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Carbon Monitor",
+    "id": "app-carbon-monitor-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Carbon Monitor",
+      "Interactive Charts",
+      "Raw Data",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Carbon Monitor",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Carbon Monitor",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: CD-LINKS Scenario Explorer",
+    "id": "app-cd-links-scenario-explorer-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "CD-LINKS Scenario Explorer",
+      "Unspecified / catalogue item",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "CD-LINKS Scenario Explorer",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "CD-LINKS Scenario Explorer",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: CDP Open Data Portal",
+    "id": "app-cdp-open-data-portal-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "CDP Open Data Portal",
+      "Interactive Maps",
+      "Raw Data",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "CDP Open Data Portal",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "CDP Open Data Portal",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: CEDS \u2013 Community Earth atmospheric Data System",
+    "id": "app-ceds-community-earth-atmospheric-data-system-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "CEDS \u2013 Community Earth atmospheric Data System",
+      "Unspecified / catalogue item",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "CEDS \u2013 Community Earth atmospheric Data System",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "CEDS \u2013 Community Earth atmospheric Data System",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: CEOS Global Stocktake Portal",
+    "id": "app-ceos-global-stocktake-portal-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "CEOS Global Stocktake Portal",
+      "Raw Data",
+      "Report",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "CEOS Global Stocktake Portal",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "CEOS Global Stocktake Portal",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Circular Carbon Economy Index 2022",
+    "id": "app-circular-carbon-economy-index-2022-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Circular Carbon Economy Index 2022",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "Report",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "Circular Carbon Economy Index 2022",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Circular Carbon Economy Index 2022",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Circularity & Climate Action for EU Industries",
+    "id": "app-circularity-climate-action-for-eu-industries-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Circularity & Climate Action for EU Industries",
+      "Raw Data",
+      "Interactive Charts",
+      "IAM PARIS"
+    ],
+    "project": "",
+    "search_hint": "Circularity & Climate Action for EU Industries",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Circularity & Climate Action for EU Industries",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Climate Action Tracker",
+    "id": "app-climate-action-tracker-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Climate Action Tracker",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Climate Action Tracker",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Climate Action Tracker",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Climate Central Data Tools",
+    "id": "app-climate-central-data-tools-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Climate Central Data Tools",
+      "Interactive Maps",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Climate Central Data Tools",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Climate Central Data Tools",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Climate Chance Cartography",
+    "id": "app-climate-chance-cartography-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Climate Chance Cartography",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "Report",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Climate Chance Cartography",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Climate Chance Cartography",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Climate Change Knowledge Portal (CCKP)",
+    "id": "app-climate-change-knowledge-portal-cckp-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Climate Change Knowledge Portal (CCKP)",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Climate Change Knowledge Portal (CCKP)",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Climate Change Knowledge Portal (CCKP)",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Climate Change Performance Index (CCPI)",
+    "id": "app-climate-change-performance-index-ccpi-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Climate Change Performance Index (CCPI)",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Climate Change Performance Index (CCPI)",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Climate Change Performance Index (CCPI)",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Climate Data Store - Copernicus",
+    "id": "app-climate-data-store-copernicus-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Climate Data Store - Copernicus",
+      "Interactive Charts",
+      "Raw Data"
+    ],
+    "project": "",
+    "search_hint": "Climate Data Store - Copernicus",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Climate Data Store - Copernicus",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Climate Equity Reference Calculator",
+    "id": "app-climate-equity-reference-calculator-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Climate Equity Reference Calculator",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Climate Equity Reference Calculator",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Climate Equity Reference Calculator",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Climate Funds Update",
+    "id": "app-climate-funds-update-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Climate Funds Update",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Climate Funds Update",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Climate Funds Update",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Climate Impact Explorer",
+    "id": "app-climate-impact-explorer-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Climate Impact Explorer",
+      "Interactive Maps",
+      "Report",
+      "Raw Data",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Climate Impact Explorer",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Climate Impact Explorer",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Climate Impact Lab",
+    "id": "app-climate-impact-lab-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Climate Impact Lab",
+      "Report",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Climate Impact Lab",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Climate Impact Lab",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Climate Policy Database",
+    "id": "app-climate-policy-database-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Climate Policy Database",
+      "Raw Data",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Climate Policy Database",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Climate Policy Database",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Climate Policy Radar",
+    "id": "app-climate-policy-radar-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Climate Policy Radar",
+      "Unspecified / catalogue item",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Climate Policy Radar",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Climate Policy Radar",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Climate Risk Dashboard",
+    "id": "app-climate-risk-dashboard-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Climate Risk Dashboard",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "Report",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "Climate Risk Dashboard",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Climate Risk Dashboard",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Climate Trace",
+    "id": "app-climate-trace-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Climate Trace",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Climate Trace",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Climate Trace",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Climate Transparency Reports",
+    "id": "app-climate-transparency-reports-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Climate Transparency Reports",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "Report",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Climate Transparency Reports",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Climate Transparency Reports",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Climate Watch",
+    "id": "app-climate-watch-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Climate Watch",
+      "Interactive Charts",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Climate Watch",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Climate Watch",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: ClimateScope",
+    "id": "app-climatescope-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "ClimateScope",
+      "Interactive Maps",
+      "Raw Data",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "ClimateScope",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "ClimateScope",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Climdex",
+    "id": "app-climdex-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Climdex",
+      "Unspecified / catalogue item",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Climdex",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Climdex",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: COACCH Climate Change Impact Scenario Explorer",
+    "id": "app-coacch-climate-change-impact-scenario-explorer-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "COACCH Climate Change Impact Scenario Explorer",
+      "Unspecified / catalogue item",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "COACCH Climate Change Impact Scenario Explorer",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "COACCH Climate Change Impact Scenario Explorer",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: CoCO2 Hot spot emission detection",
+    "id": "app-coco2-hot-spot-emission-detection-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "CoCO2 Hot spot emission detection",
+      "Unspecified / catalogue item",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "CoCO2 Hot spot emission detection",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "CoCO2 Hot spot emission detection",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: COP21 RIPPLES Scenario Explorer",
+    "id": "app-cop21-ripples-scenario-explorer-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "COP21 RIPPLES Scenario Explorer",
+      "Unspecified / catalogue item",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "COP21 RIPPLES Scenario Explorer",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "COP21 RIPPLES Scenario Explorer",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Country-level Social Cost of Carbon / Database Explorer",
+    "id": "app-country-level-social-cost-of-carbon-database-explorer-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Country-level Social Cost of Carbon / Database Explorer",
+      "Raw Data",
+      "Report",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "Country-level Social Cost of Carbon / Database Explorer",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Country-level Social Cost of Carbon / Database Explorer",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: COVID-19 Recovery Policies in Europe",
+    "id": "app-covid-19-recovery-policies-in-europe-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "COVID-19 Recovery Policies in Europe",
+      "Raw Data",
+      "Interactive Charts",
+      "IAM PARIS"
+    ],
+    "project": "",
+    "search_hint": "COVID-19 Recovery Policies in Europe",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "COVID-19 Recovery Policies in Europe",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: CPI Climate Finance Landscape",
+    "id": "app-cpi-climate-finance-landscape-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "CPI Climate Finance Landscape",
+      "Interactive Charts",
+      "Raw Data",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "CPI Climate Finance Landscape",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "CPI Climate Finance Landscape",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Data Portal for Cities",
+    "id": "app-data-portal-for-cities-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Data Portal for Cities",
+      "Unspecified / catalogue item",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Data Portal for Cities",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Data Portal for Cities",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: DDS \u2013 Data Delivery System",
+    "id": "app-dds-data-delivery-system-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "DDS \u2013 Data Delivery System",
+      "Unspecified / catalogue item",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "DDS \u2013 Data Delivery System",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "DDS \u2013 Data Delivery System",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: DPET \u2013 Decarbonisation Policy Evaluation Tool",
+    "id": "app-dpet-decarbonisation-policy-evaluation-tool-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "DPET \u2013 Decarbonisation Policy Evaluation Tool",
+      "Unspecified / catalogue item",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "DPET \u2013 Decarbonisation Policy Evaluation Tool",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "DPET \u2013 Decarbonisation Policy Evaluation Tool",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Earth System Model Evaluation Tool (ESMValTool)",
+    "id": "app-earth-system-model-evaluation-tool-esmvaltool-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Earth System Model Evaluation Tool (ESMValTool)",
+      "Interactive Maps",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "Earth System Model Evaluation Tool (ESMValTool)",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Earth System Model Evaluation Tool (ESMValTool)",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: EarthTime",
+    "id": "app-earthtime-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "EarthTime",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "EarthTime",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "EarthTime",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: EDGAR (Emissions Database for Global Atmospheric Research)",
+    "id": "app-edgar-emissions-database-for-global-atmospheric-research-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "EDGAR (Emissions Database for Global Atmospheric Research)",
+      "Interactive Maps",
+      "Raw Data",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "EDGAR (Emissions Database for Global Atmospheric Research)",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "EDGAR (Emissions Database for Global Atmospheric Research)",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: EDX Spatial",
+    "id": "app-edx-spatial-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "EDX Spatial",
+      "Interactive Maps",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "EDX Spatial",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "EDX Spatial",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: EJAtlas",
+    "id": "app-ejatlas-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "EJAtlas",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "EJAtlas",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "EJAtlas",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Electricity Map Live CO2 intensity map",
+    "id": "app-electricity-map-live-co2-intensity-map-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Electricity Map Live CO2 intensity map",
+      "Interactive Charts",
+      "Raw Data",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Electricity Map Live CO2 intensity map",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Electricity Map Live CO2 intensity map",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: En-ROADS",
+    "id": "app-en-roads-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "En-ROADS",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "En-ROADS",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "En-ROADS",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Energy Access Explorer",
+    "id": "app-energy-access-explorer-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Energy Access Explorer",
+      "Resource aggregator",
+      "Raw Data",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Energy Access Explorer",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Energy Access Explorer",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Energy Data Info",
+    "id": "app-energy-data-info-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Energy Data Info",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Energy Data Info",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Energy Data Info",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Energy Policy Tracker",
+    "id": "app-energy-policy-tracker-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Energy Policy Tracker",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Energy Policy Tracker",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Energy Policy Tracker",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Energy Progress Report",
+    "id": "app-energy-progress-report-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Energy Progress Report",
+      "Unspecified / catalogue item",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Energy Progress Report",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Energy Progress Report",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: EnerOutlook",
+    "id": "app-eneroutlook-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "EnerOutlook",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "Report",
+      "Resource aggregator",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "EnerOutlook",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "EnerOutlook",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Environmental Performance Index (EPI)",
+    "id": "app-environmental-performance-index-epi-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Environmental Performance Index (EPI)",
+      "Unspecified / catalogue item",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Environmental Performance Index (EPI)",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Environmental Performance Index (EPI)",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: ESABCC Scenario Explorer",
+    "id": "app-esabcc-scenario-explorer-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "ESABCC Scenario Explorer",
+      "Interactive Maps",
+      "Raw Data",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "ESABCC Scenario Explorer",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "ESABCC Scenario Explorer",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: European OpenGHGMap",
+    "id": "app-european-openghgmap-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "European OpenGHGMap",
+      "Unspecified / catalogue item",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "European OpenGHGMap",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "European OpenGHGMap",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Fair Mitigation Finance Explorer",
+    "id": "app-fair-mitigation-finance-explorer-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Fair Mitigation Finance Explorer",
+      "Interactive Charts",
+      "Raw Data",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "Fair Mitigation Finance Explorer",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Fair Mitigation Finance Explorer",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: FAOSTAT",
+    "id": "app-faostat-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "FAOSTAT",
+      "Unspecified / catalogue item",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "FAOSTAT",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "FAOSTAT",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: GENIE CDR Knowledge Hub",
+    "id": "app-genie-cdr-knowledge-hub-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "GENIE CDR Knowledge Hub",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "Report",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "GENIE CDR Knowledge Hub",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "GENIE CDR Knowledge Hub",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Global Carbon Atlas",
+    "id": "app-global-carbon-atlas-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Global Carbon Atlas",
+      "Interactive Maps",
+      "Report",
+      "Interactive Charts",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Global Carbon Atlas",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Global Carbon Atlas",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Global Climate Action Portal - NAZCA",
+    "id": "app-global-climate-action-portal-nazca-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Global Climate Action Portal - NAZCA",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Global Climate Action Portal - NAZCA",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Global Climate Action Portal - NAZCA",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Global Climate Risk Index",
+    "id": "app-global-climate-risk-index-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Global Climate Risk Index",
+      "Unspecified / catalogue item",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Global Climate Risk Index",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Global Climate Risk Index",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Global Energy and Climate Outlook visualisation",
+    "id": "app-global-energy-and-climate-outlook-visualisation-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Global Energy and Climate Outlook visualisation",
+      "Interactive Maps",
+      "Raw Data",
+      "Report",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "Global Energy and Climate Outlook visualisation",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Global Energy and Climate Outlook visualisation",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Global Energy Monitor Trackers",
+    "id": "app-global-energy-monitor-trackers-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Global Energy Monitor Trackers",
+      "Interactive Charts",
+      "Raw Data",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Global Energy Monitor Trackers",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Global Energy Monitor Trackers",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Global Energy Outlook",
+    "id": "app-global-energy-outlook-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Global Energy Outlook",
+      "Unspecified / catalogue item",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Global Energy Outlook",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Global Energy Outlook",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Global Energy Statistical Yearbook",
+    "id": "app-global-energy-statistical-yearbook-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Global Energy Statistical Yearbook",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "Report",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "Global Energy Statistical Yearbook",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Global Energy Statistical Yearbook",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Global Forest Watch (GFW)",
+    "id": "app-global-forest-watch-gfw-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Global Forest Watch (GFW)",
+      "Unspecified / catalogue item",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Global Forest Watch (GFW)",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Global Forest Watch (GFW)",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Global Hotspots Explorer",
+    "id": "app-global-hotspots-explorer-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Global Hotspots Explorer",
+      "Interactive Maps",
+      "Raw Data",
+      "Report",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "Global Hotspots Explorer",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Global Hotspots Explorer",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Global Infrastructure Emission Database",
+    "id": "app-global-infrastructure-emission-database-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Global Infrastructure Emission Database",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Global Infrastructure Emission Database",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Global Infrastructure Emission Database",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Global Solar Atlas",
+    "id": "app-global-solar-atlas-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Global Solar Atlas",
+      "Unspecified / catalogue item",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Global Solar Atlas",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Global Solar Atlas",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Global Stocktake Indicator Tool",
+    "id": "app-global-stocktake-indicator-tool-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Global Stocktake Indicator Tool",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "Global Stocktake Indicator Tool",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Global Stocktake Indicator Tool",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Global Surface Water Explorer",
+    "id": "app-global-surface-water-explorer-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Global Surface Water Explorer",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Global Surface Water Explorer",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Global Surface Water Explorer",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Global Wind Atlas",
+    "id": "app-global-wind-atlas-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Global Wind Atlas",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Global Wind Atlas",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Global Wind Atlas",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Google Environmental Insights Explorer (EIE)",
+    "id": "app-google-environmental-insights-explorer-eie-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Google Environmental Insights Explorer (EIE)",
+      "Raw Data",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Google Environmental Insights Explorer (EIE)",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Google Environmental Insights Explorer (EIE)",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Green Climate Fund Data Library",
+    "id": "app-green-climate-fund-data-library-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Green Climate Fund Data Library",
+      "Interactive Charts",
+      "Report",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Green Climate Fund Data Library",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Green Climate Fund Data Library",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Green Economy Tracker",
+    "id": "app-green-economy-tracker-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Green Economy Tracker",
+      "Online Model",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Green Economy Tracker",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Green Economy Tracker",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: HectorUI for climate model simulation",
+    "id": "app-hectorui-for-climate-model-simulation-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "HectorUI for climate model simulation",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "HectorUI for climate model simulation",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "HectorUI for climate model simulation",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Human Climate Horizons",
+    "id": "app-human-climate-horizons-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Human Climate Horizons",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Human Climate Horizons",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Human Climate Horizons",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Humanitarian Data Exchange Database",
+    "id": "app-humanitarian-data-exchange-database-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Humanitarian Data Exchange Database",
+      "Unspecified / catalogue item",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Humanitarian Data Exchange Database",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Humanitarian Data Exchange Database",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: IAM Validation UI",
+    "id": "app-iam-validation-ui-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "IAM Validation UI",
+      "Utility",
+      "IAM PARIS"
+    ],
+    "project": "",
+    "search_hint": "IAM Validation UI",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "IAM Validation UI",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: IAMC 1.5\u00b0C Scenario Explorer",
+    "id": "app-iamc-1-5-c-scenario-explorer-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "IAMC 1.5\u00b0C Scenario Explorer",
+      "Unspecified / catalogue item",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "IAMC 1.5\u00b0C Scenario Explorer",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "IAMC 1.5\u00b0C Scenario Explorer",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: IAMC Nomenclature package",
+    "id": "app-iamc-nomenclature-package-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "IAMC Nomenclature package",
+      "Unspecified / catalogue item",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "IAMC Nomenclature package",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "IAMC Nomenclature package",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: IAMC Tools",
+    "id": "app-iamc-tools-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "IAMC Tools",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "Report",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "IAMC Tools",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "IAMC Tools",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: ICAP Emissions Trading Systems Map",
+    "id": "app-icap-emissions-trading-systems-map-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "ICAP Emissions Trading Systems Map",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "ICAP Emissions Trading Systems Map",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "ICAP Emissions Trading Systems Map",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: IMF Climate Dashboard",
+    "id": "app-imf-climate-dashboard-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "IMF Climate Dashboard",
+      "Report",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "IMF Climate Dashboard",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "IMF Climate Dashboard",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Initiative for Climate Action Transparency (ICAT)",
+    "id": "app-initiative-for-climate-action-transparency-icat-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Initiative for Climate Action Transparency (ICAT)",
+      "Interactive Charts",
+      "Raw Data",
+      "Report",
+      "Interactive Maps",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Initiative for Climate Action Transparency (ICAT)",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Initiative for Climate Action Transparency (ICAT)",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: International Energy Agency (IEA) Datasets",
+    "id": "app-international-energy-agency-iea-datasets-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "International Energy Agency (IEA) Datasets",
+      "Interactive Charts",
+      "Raw Data",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "International Energy Agency (IEA) Datasets",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "International Energy Agency (IEA) Datasets",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: International Renewable Energy Agency (IRENA) Datasets",
+    "id": "app-international-renewable-energy-agency-irena-datasets-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "International Renewable Energy Agency (IRENA) Datasets",
+      "Unspecified / catalogue item",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "International Renewable Energy Agency (IRENA) Datasets",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "International Renewable Energy Agency (IRENA) Datasets",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: IPCC climate-assessment Python package",
+    "id": "app-ipcc-climate-assessment-python-package-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "IPCC climate-assessment Python package",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "IPCC climate-assessment Python package",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "IPCC climate-assessment Python package",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: IRI Climate and Society Map Room",
+    "id": "app-iri-climate-and-society-map-room-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "IRI Climate and Society Map Room",
+      "Unspecified / catalogue item",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "IRI Climate and Society Map Room",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "IRI Climate and Society Map Room",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: ISWEL Nexus Basins Scenario Explorer",
+    "id": "app-iswel-nexus-basins-scenario-explorer-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "ISWEL Nexus Basins Scenario Explorer",
+      "Unspecified / catalogue item",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "ISWEL Nexus Basins Scenario Explorer",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "ISWEL Nexus Basins Scenario Explorer",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: iTEM Open Database",
+    "id": "app-item-open-database-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "iTEM Open Database",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "iTEM Open Database",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "iTEM Open Database",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Jodi",
+    "id": "app-jodi-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Jodi",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Jodi",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Jodi",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Kapsarc Data Portal",
+    "id": "app-kapsarc-data-portal-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Kapsarc Data Portal",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Kapsarc Data Portal",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Kapsarc Data Portal",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Local Sea-Level Rise Projections",
+    "id": "app-local-sea-level-rise-projections-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Local Sea-Level Rise Projections",
+      "Unspecified / catalogue item",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Local Sea-Level Rise Projections",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Local Sea-Level Rise Projections",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: mipplot: open-source tool for visualization of climate mitigation scenarios",
+    "id": "app-mipplot-open-source-tool-for-visualization-of-climate-mitigation-scenarios-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "mipplot: open-source tool for visualization of climate mitigation scenarios",
+      "Unspecified / catalogue item",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "mipplot: open-source tool for visualization of climate mitigation scenarios",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "mipplot: open-source tool for visualization of climate mitigation scenarios",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: MIT Climate Portal",
+    "id": "app-mit-climate-portal-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "MIT Climate Portal",
+      "Interactive Maps",
+      "Raw Data",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "MIT Climate Portal",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "MIT Climate Portal",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: NASA Prediction Of Worldwide Energy Resources (POWER) Project",
+    "id": "app-nasa-prediction-of-worldwide-energy-resources-power-project-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "NASA Prediction Of Worldwide Energy Resources (POWER) Project",
+      "Unspecified / catalogue item",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "NASA Prediction Of Worldwide Energy Resources (POWER) Project",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "NASA Prediction Of Worldwide Energy Resources (POWER) Project",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Nature-based Solutions platform",
+    "id": "app-nature-based-solutions-platform-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Nature-based Solutions platform",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "Report",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "Nature-based Solutions platform",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Nature-based Solutions platform",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: ND-GAIN Climate Vulnerability Indexes",
+    "id": "app-nd-gain-climate-vulnerability-indexes-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "ND-GAIN Climate Vulnerability Indexes",
+      "Interactive Charts",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "ND-GAIN Climate Vulnerability Indexes",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "ND-GAIN Climate Vulnerability Indexes",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: NDC Ambition Explorer",
+    "id": "app-ndc-ambition-explorer-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "NDC Ambition Explorer",
+      "Interactive Maps",
+      "Interactive Charts",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "NDC Ambition Explorer",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "NDC Ambition Explorer",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: NDC Explorer",
+    "id": "app-ndc-explorer-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "NDC Explorer",
+      "Interactive Maps",
+      "Raw Data",
+      "Report",
+      "Interactive Charts",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "NDC Explorer",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "NDC Explorer",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Net Zero Tracker",
+    "id": "app-net-zero-tracker-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Net Zero Tracker",
+      "Interactive Charts",
+      "Raw Data",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Net Zero Tracker",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Net Zero Tracker",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: NGFS Scenarios Portal",
+    "id": "app-ngfs-scenarios-portal-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "NGFS Scenarios Portal",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "NGFS Scenarios Portal",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "NGFS Scenarios Portal",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: NOAA Climate.gov",
+    "id": "app-noaa-climate-gov-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "NOAA Climate.gov",
+      "Interactive Maps",
+      "Raw Data",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "NOAA Climate.gov",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "NOAA Climate.gov",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Open Air Quality Datasets",
+    "id": "app-open-air-quality-datasets-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Open Air Quality Datasets",
+      "Raw Data",
+      "Report",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Open Air Quality Datasets",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Open Air Quality Datasets",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Open Energy Information (OpenEI)",
+    "id": "app-open-energy-information-openei-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Open Energy Information (OpenEI)",
+      "Raw Data",
+      "Interactive Charts",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Open Energy Information (OpenEI)",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Open Energy Information (OpenEI)",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: OpenClimate",
+    "id": "app-openclimate-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "OpenClimate",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "OpenClimate",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "OpenClimate",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Paris Equity Check",
+    "id": "app-paris-equity-check-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Paris Equity Check",
+      "Unspecified / catalogue item"
+    ],
+    "project": "",
+    "search_hint": "Paris Equity Check",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Paris Equity Check",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: PBL Climate Pledge NDC tool",
+    "id": "app-pbl-climate-pledge-ndc-tool-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "PBL Climate Pledge NDC tool",
+      "Interactive Maps",
+      "Interactive Charts",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "PBL Climate Pledge NDC tool",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "PBL Climate Pledge NDC tool",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: PBL Global Stocktake Tool",
+    "id": "app-pbl-global-stocktake-tool-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "PBL Global Stocktake Tool",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "PBL Global Stocktake Tool",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "PBL Global Stocktake Tool",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Policy Response Mechanism in IAM COMPACT",
+    "id": "app-policy-response-mechanism-in-iam-compact-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Policy Response Mechanism in IAM COMPACT",
+      "Analysis",
+      "Interactive Charts",
+      "IAM PARIS"
+    ],
+    "project": "",
+    "search_hint": "Policy Response Mechanism in IAM COMPACT",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Policy Response Mechanism in IAM COMPACT",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Power for All",
+    "id": "app-power-for-all-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Power for All",
+      "Interactive Charts",
+      "Raw Data",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Power for All",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Power for All",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Power Reactor Information System (PRIS)",
+    "id": "app-power-reactor-information-system-pris-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Power Reactor Information System (PRIS)",
+      "Resource aggregator",
+      "Interactive Maps",
+      "Raw Data",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Power Reactor Information System (PRIS)",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Power Reactor Information System (PRIS)",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: PREPdata",
+    "id": "app-prepdata-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "PREPdata",
+      "Interactive Maps",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "PREPdata",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "PREPdata",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Protected Carbon",
+    "id": "app-protected-carbon-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Protected Carbon",
+      "Unspecified / catalogue item",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Protected Carbon",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Protected Carbon",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: PROVIDE Climate Risk Dashboard",
+    "id": "app-provide-climate-risk-dashboard-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "PROVIDE Climate Risk Dashboard",
+      "Unspecified / catalogue item",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "PROVIDE Climate Risk Dashboard",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "PROVIDE Climate Risk Dashboard",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: pyam \u2013 Analysis and Visualization",
+    "id": "app-pyam-analysis-and-visualization-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "pyam \u2013 Analysis and Visualization",
+      "Unspecified / catalogue item",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "pyam \u2013 Analysis and Visualization",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "pyam \u2013 Analysis and Visualization",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: RCP Database",
+    "id": "app-rcp-database-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "RCP Database",
+      "Interactive Charts",
+      "Raw Data",
+      "Resource aggregator",
+      "Report",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "RCP Database",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "RCP Database",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Regulatory Indicators for Sustainable Energy (RISE)",
+    "id": "app-regulatory-indicators-for-sustainable-energy-rise-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Regulatory Indicators for Sustainable Energy (RISE)",
+      "Interactive Charts",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Regulatory Indicators for Sustainable Energy (RISE)",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Regulatory Indicators for Sustainable Energy (RISE)",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: REN21 Renewable Energy Data",
+    "id": "app-ren21-renewable-energy-data-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "REN21 Renewable Energy Data",
+      "Interactive Maps",
+      "Interactive Charts",
+      "Raw Data",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "REN21 Renewable Energy Data",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "REN21 Renewable Energy Data",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Renewable Ninja",
+    "id": "app-renewable-ninja-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Renewable Ninja",
+      "Interactive Maps",
+      "Raw Data",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Renewable Ninja",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Renewable Ninja",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Resource Watch",
+    "id": "app-resource-watch-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Resource Watch",
+      "Interactive Maps",
+      "Interactive Charts",
+      "Raw Data",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Resource Watch",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Resource Watch",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: RMI - Oil Climate Index plus (OCI\u207a ) Gas",
+    "id": "app-rmi-oil-climate-index-plus-oci-gas-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "RMI - Oil Climate Index plus (OCI\u207a ) Gas",
+      "Analysis",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "RMI - Oil Climate Index plus (OCI\u207a ) Gas",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "RMI - Oil Climate Index plus (OCI\u207a ) Gas",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Scenario Compass",
+    "id": "app-scenario-compass-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Scenario Compass",
+      "Report",
+      "Resource aggregator"
+    ],
+    "project": "",
+    "search_hint": "Scenario Compass",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Scenario Compass",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Science Based Targets Initiative (SBTi) Target Dashboard",
+    "id": "app-science-based-targets-initiative-sbti-target-dashboard-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Science Based Targets Initiative (SBTi) Target Dashboard",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Report",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Science Based Targets Initiative (SBTi) Target Dashboard",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Science Based Targets Initiative (SBTi) Target Dashboard",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: SENSES Toolkit",
+    "id": "app-senses-toolkit-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "SENSES Toolkit",
+      "Unspecified / catalogue item",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "SENSES Toolkit",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "SENSES Toolkit",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Silicone Python package",
+    "id": "app-silicone-python-package-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Silicone Python package",
+      "Unspecified / catalogue item",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "Silicone Python package",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Silicone Python package",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Spine Toolbox",
+    "id": "app-spine-toolbox-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Spine Toolbox",
+      "Unspecified / catalogue item",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "Spine Toolbox",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Spine Toolbox",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: SSP Database",
+    "id": "app-ssp-database-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "SSP Database",
+      "Unspecified / catalogue item",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "SSP Database",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "SSP Database",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Stakeholder-Tailored Results from IAM COMPACT",
+    "id": "app-stakeholder-tailored-results-from-iam-compact-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Stakeholder-Tailored Results from IAM COMPACT",
+      "Analysis",
+      "Interactive Charts",
+      "IAM PARIS"
+    ],
+    "project": "",
+    "search_hint": "Stakeholder-Tailored Results from IAM COMPACT",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Stakeholder-Tailored Results from IAM COMPACT",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: STITCHES emulator",
+    "id": "app-stitches-emulator-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "STITCHES emulator",
+      "Raw Data",
+      "Resource aggregator",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "STITCHES emulator",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "STITCHES emulator",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Subak Data Catalogue",
+    "id": "app-subak-data-catalogue-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Subak Data Catalogue",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Report",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Subak Data Catalogue",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Subak Data Catalogue",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Systems Change Lab",
+    "id": "app-systems-change-lab-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Systems Change Lab",
+      "Interactive Charts",
+      "Interactive Maps",
+      "Raw Data",
+      "Report",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "Systems Change Lab",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Systems Change Lab",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Technologies for Industrial Transformation",
+    "id": "app-technologies-for-industrial-transformation-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Technologies for Industrial Transformation",
+      "Raw Data",
+      "Interactive Charts",
+      "IAM PARIS"
+    ],
+    "project": "",
+    "search_hint": "Technologies for Industrial Transformation",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Technologies for Industrial Transformation",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: U.S. Energy Information Administration (EIA)",
+    "id": "app-u-s-energy-information-administration-eia-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "U.S. Energy Information Administration (EIA)",
+      "Raw Data",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "U.S. Energy Information Administration (EIA)",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "U.S. Energy Information Administration (EIA)",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: UN Stats Climate Data",
+    "id": "app-un-stats-climate-data-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "UN Stats Climate Data",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "UN Stats Climate Data",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "UN Stats Climate Data",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: UNEP Emissions Gap Report",
+    "id": "app-unep-emissions-gap-report-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "UNEP Emissions Gap Report",
+      "Raw Data",
+      "Resource aggregator",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "UNEP Emissions Gap Report",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "UNEP Emissions Gap Report",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: UNFCCC Climate Finance Data Portal",
+    "id": "app-unfccc-climate-finance-data-portal-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "UNFCCC Climate Finance Data Portal",
+      "Interactive Maps",
+      "Resource aggregator",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "UNFCCC Climate Finance Data Portal",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "UNFCCC Climate Finance Data Portal",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: weAdapt Adaptation Layer",
+    "id": "app-weadapt-adaptation-layer-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "weAdapt Adaptation Layer",
+      "Unspecified / catalogue item",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "weAdapt Adaptation Layer",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "weAdapt Adaptation Layer",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: Weather, Climate and Energy Tracker",
+    "id": "app-weather-climate-and-energy-tracker-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "Weather, Climate and Energy Tracker",
+      "Interactive Charts",
+      "Interactive Maps",
+      "IAMC"
+    ],
+    "project": "",
+    "search_hint": "Weather, Climate and Energy Tracker",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "Weather, Climate and Energy Tracker",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: World Energy & Climate Statistics",
+    "id": "app-world-energy-climate-statistics-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "World Energy & Climate Statistics",
+      "Report",
+      "WRI"
+    ],
+    "project": "",
+    "search_hint": "World Energy & Climate Statistics",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "World Energy & Climate Statistics",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "Open the Application Library and search for: WRI Resources",
+    "id": "app-wri-resources-iamparis-eu-application-library",
+    "item_type": "application",
+    "keywords": [
+      "WRI Resources",
+      "Unspecified / catalogue item"
+    ],
+    "project": "",
+    "search_hint": "WRI Resources",
+    "source_sheet": "05_App_Library",
+    "status": "general library link; detail URL not exposed",
+    "title": "WRI Resources",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "application_library",
+    "fallback_instruction": "",
+    "id": "main-application-library-iamparis-eu-application-library",
+    "item_type": "route",
+    "keywords": [
+      "Top navigation",
+      "Catalogue of 144 climate-policy tools/apps",
+      "Use when user asks for tools, maps, datasets, dashboards, reports"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "01_Main_Routes",
+    "status": "Verified",
+    "title": "Application Library",
+    "url": "https://iamparis.eu/application_library",
+    "verified_direct_url": true,
+    "workspace": ""
+  },
+  {
+    "category": "analysis",
+    "fallback_instruction": "",
+    "id": "main-configurable-analysis-iamparis-eu-analysis",
+    "item_type": "route",
+    "keywords": [
+      "Top navigation",
+      "User workspace for chart/visualization creation",
+      "Use when user wants to build/customize charts or compare indicators"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "01_Main_Routes",
+    "status": "Verified",
+    "title": "Configurable Analysis",
+    "url": "https://iamparis.eu/analysis",
+    "verified_direct_url": true,
+    "workspace": ""
+  },
+  {
+    "category": "contact",
+    "fallback_instruction": "",
+    "id": "main-contact-iamparis-eu-contact",
+    "item_type": "route",
+    "keywords": [
+      "Top navigation",
+      "Support/contact page",
+      "Use when user asks for help, account/support, registration"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "01_Main_Routes",
+    "status": "Verified",
+    "title": "Contact",
+    "url": "https://iamparis.eu/contact",
+    "verified_direct_url": true,
+    "workspace": ""
+  },
+  {
+    "category": "data_stories",
+    "fallback_instruction": "",
+    "id": "main-data-stories-iamparis-eu-datastories",
+    "item_type": "route",
+    "keywords": [
+      "Top navigation",
+      "Curated interactive story pages / curated datasets",
+      "Use for guided pages: recovery policies, circularity, policy catalogue, barriers, tech inventories, scenario metadata"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "01_Main_Routes",
+    "status": "Verified",
+    "title": "Data Stories",
+    "url": "https://iamparis.eu/datastories",
+    "verified_direct_url": true,
+    "workspace": ""
+  },
+  {
+    "category": "main",
+    "fallback_instruction": "",
+    "id": "main-decipher-project-decipher-horizon-eu",
+    "item_type": "route",
+    "keywords": [
+      "Footer / external",
+      "Project website",
+      "External project info"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "01_Main_Routes",
+    "status": "Observed",
+    "title": "DECIPHER project",
+    "url": "https://decipher-horizon.eu",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "main",
+    "fallback_instruction": "",
+    "id": "main-diamond-project-climate-diamond-eu",
+    "item_type": "route",
+    "keywords": [
+      "Footer / external",
+      "Project website",
+      "External project info"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "01_Main_Routes",
+    "status": "Observed",
+    "title": "DIAMOND project",
+    "url": "https://climate-diamond.eu",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "main",
+    "fallback_instruction": "",
+    "id": "main-enclude-project-encludeproject-eu",
+    "item_type": "route",
+    "keywords": [
+      "Footer / external",
+      "Project website",
+      "External project info"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "01_Main_Routes",
+    "status": "Observed",
+    "title": "ENCLUDE project",
+    "url": "https://encludeproject.eu",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "main",
+    "fallback_instruction": "",
+    "id": "main-eu-china-bridge-project-eu-china-bridge-eu",
+    "item_type": "route",
+    "keywords": [
+      "Footer / external",
+      "Project website",
+      "External project info"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "01_Main_Routes",
+    "status": "Observed",
+    "title": "EU-CHINA BRIDGE project",
+    "url": "https://eu-china-bridge.eu",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "main",
+    "fallback_instruction": "",
+    "id": "main-home-iamparis-eu",
+    "item_type": "route",
+    "keywords": [
+      "Top navigation",
+      "General overview / entry page",
+      "Use for broad/general IAM PARIS questions"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "01_Main_Routes",
+    "status": "Verified in rendered crawl",
+    "title": "Home",
+    "url": "https://iamparis.eu/",
+    "verified_direct_url": true,
+    "workspace": ""
+  },
+  {
+    "category": "main",
+    "fallback_instruction": "",
+    "id": "main-iam-compact-project-iam-compact-eu",
+    "item_type": "route",
+    "keywords": [
+      "Footer / external",
+      "Project website",
+      "External project info"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "01_Main_Routes",
+    "status": "Observed",
+    "title": "IAM COMPACT project",
+    "url": "https://iam-compact.eu",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "main-model-comparison-iamparis-eu-models-comparison",
+    "item_type": "route",
+    "keywords": [
+      "Models",
+      "Side-by-side model comparison",
+      "Use when user wants to compare models"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "01_Main_Routes",
+    "status": "Observed link",
+    "title": "Model Comparison",
+    "url": "https://iamparis.eu/models/comparison",
+    "verified_direct_url": true,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "main-models-iamparis-eu-models",
+    "item_type": "route",
+    "keywords": [
+      "Top navigation",
+      "Model documentation directory",
+      "Use when user asks about climate/energy/economic models, model comparison, SDGs"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "01_Main_Routes",
+    "status": "Verified",
+    "title": "Models",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": true,
+    "workspace": ""
+  },
+  {
+    "category": "main",
+    "fallback_instruction": "",
+    "id": "main-ndc-aspects-project-www-ndc-aspects-eu",
+    "item_type": "route",
+    "keywords": [
+      "Footer / external",
+      "Project website",
+      "External project info"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "01_Main_Routes",
+    "status": "Observed",
+    "title": "NDC ASPECTS project",
+    "url": "https://www.ndc-aspects.eu",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "main",
+    "fallback_instruction": "",
+    "id": "main-old-i2am-paris-platform-old-i2am-paris-eu",
+    "item_type": "route",
+    "keywords": [
+      "Footer / project",
+      "Legacy platform",
+      "Use only if user searches old platform/resources"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "01_Main_Routes",
+    "status": "Observed footer link",
+    "title": "Old I2AM PARIS platform",
+    "url": "https://old.i2am-paris.eu",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "main",
+    "fallback_instruction": "",
+    "id": "main-paris-reinforce-project-paris-reinforce-eu",
+    "item_type": "route",
+    "keywords": [
+      "Footer / external",
+      "Project website",
+      "External project info"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "01_Main_Routes",
+    "status": "Observed",
+    "title": "PARIS REINFORCE project",
+    "url": "https://paris-reinforce.eu",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "main-results-iamparis-eu-results",
+    "item_type": "route",
+    "keywords": [
+      "Top navigation",
+      "Project results/workspaces hub",
+      "Use for scenario results, project outputs, workspaces"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "01_Main_Routes",
+    "status": "Verified",
+    "title": "Results",
+    "url": "https://iamparis.eu/results",
+    "verified_direct_url": true,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "main-sdg-model-coverage-matrix-iamparis-eu-models-sdg",
+    "item_type": "route",
+    "keywords": [
+      "Models",
+      "Model coverage against SDGs",
+      "Use when user asks which model covers which SDG/topic"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "01_Main_Routes",
+    "status": "Observed link, detailed page not fetched",
+    "title": "SDG Model Coverage Matrix",
+    "url": "https://iamparis.eu/models/sdg",
+    "verified_direct_url": true,
+    "workspace": ""
+  },
+  {
+    "category": "main",
+    "fallback_instruction": "",
+    "id": "main-transience-project-www-transience-eu",
+    "item_type": "route",
+    "keywords": [
+      "Footer / external",
+      "Project website",
+      "External project info"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "01_Main_Routes",
+    "status": "Observed",
+    "title": "TRANSIENCE project",
+    "url": "https://www.transience.eu",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-42-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "42",
+      "IEF-RAS"
+    ],
+    "project": "",
+    "search_hint": "42",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "42",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-aim-enduse-india-3-3-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "AIM/Enduse India 3.3",
+      "Asia-Pacific Integrated Assessment Model/Enduse India 3.3 (National Model)",
+      "Indian Institute of Management Ahmedabad"
+    ],
+    "project": "",
+    "search_hint": "AIM/Enduse India 3.3",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "AIM/Enduse India 3.3",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-aladin-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "ALADIN",
+      "Alternative Automobiles Diffusion and Infrastructure",
+      "Fraunhofer ISI"
+    ],
+    "project": "",
+    "search_hint": "ALADIN",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "ALADIN",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-atom-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "ATOM",
+      "Agent-based Technology adOption Model",
+      "TEESlab, University of Piraeus Research Center"
+    ],
+    "project": "",
+    "search_hint": "ATOM",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "ATOM",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-chance-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "CHANCE",
+      "BC3"
+    ],
+    "project": "",
+    "search_hint": "CHANCE",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "CHANCE",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-china-more-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "China-MORE",
+      "China Multi-gas Optimal Reduction Evaluation model",
+      "Tsinghua University"
+    ],
+    "project": "",
+    "search_hint": "China-MORE",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "China-MORE",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-clews-ethiopia-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "CLEWs - Ethiopia",
+      "Climate-Land-Energy-Water modelling framework",
+      "KTH Royal Institute of Technology"
+    ],
+    "project": "",
+    "search_hint": "CLEWs - Ethiopia",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "CLEWs - Ethiopia",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-clews-eu-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "CLEWs-EU",
+      "Climate-Land-Energy-Water modelling framework - EU version",
+      "Imperial College London",
+      "The Cyprus Institute",
+      "ICCS-NTUA"
+    ],
+    "project": "",
+    "search_hint": "CLEWs-EU",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "CLEWs-EU",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-clews-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "CLEWs",
+      "Climate-Land-Energy-Water modelling framework",
+      "KTH Royal Institute of Technology"
+    ],
+    "project": "",
+    "search_hint": "CLEWs",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "CLEWs",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-clews-kenya-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "CLEWs - Kenya",
+      "Climate-Land-Energy-Water modelling framework",
+      "Technical University of Mombasa"
+    ],
+    "project": "",
+    "search_hint": "CLEWs - Kenya",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "CLEWs - Kenya",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-clews-sri-lanka-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "CLEWs - Sri Lanka",
+      "Climate-Land-Energy-Water modelling framework for Sri Lanka",
+      "Rajarata University of Sri Lanka"
+    ],
+    "project": "",
+    "search_hint": "CLEWs - Sri Lanka",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "CLEWs - Sri Lanka",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-climacred-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "CLIMACRED",
+      "CLIMACRED_1",
+      "CLIMAFIN"
+    ],
+    "project": "",
+    "search_hint": "CLIMACRED",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "CLIMACRED",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-conto-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "CONTO",
+      "IEF-RAS"
+    ],
+    "project": "",
+    "search_hint": "CONTO",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "CONTO",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-dice-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "DICE",
+      "Dynamic Integrated model of Climate and the Economy",
+      "BC3"
+    ],
+    "project": "",
+    "search_hint": "DICE",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "DICE",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-diva-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "DIVA",
+      "Dynamic Interactive Vulnerability Assessment",
+      "Global Climate Forum"
+    ],
+    "project": "",
+    "search_hint": "DIVA",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "DIVA",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-dreem-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "DREEM",
+      "Dynamic high-Resolution dEmand-sidE Management",
+      "TEESlab, University of Piraeus Research Center"
+    ],
+    "project": "",
+    "search_hint": "DREEM",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "DREEM",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-dynerio-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "DYNERIO",
+      "Dynamic Extraction and Recycling Input Output model",
+      "Politecnico di Milano"
+    ],
+    "project": "",
+    "search_hint": "DYNERIO",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "DYNERIO",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-e3me-6-1-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "E3ME 6.1",
+      "Energy-Environment-Economy global Macro-Economic model",
+      "Cambridge Econometrics"
+    ],
+    "project": "",
+    "search_hint": "E3ME 6.1",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "E3ME 6.1",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-e3me-ftt-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "E3ME-FTT",
+      "Energy-Environment-Economy global Macro-Econometric model",
+      "Cambridge Econometrics"
+    ],
+    "project": "",
+    "search_hint": "E3ME-FTT",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "E3ME-FTT",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-e4sma-eu-times-1-0-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "E4SMA-EU-TIMES 1.0",
+      "EU-TIMES",
+      "E4SMA"
+    ],
+    "project": "",
+    "search_hint": "E4SMA-EU-TIMES 1.0",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "E4SMA-EU-TIMES 1.0",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-egmm-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "EGMM",
+      "European Gas Market Model",
+      "REKK"
+    ],
+    "project": "",
+    "search_hint": "EGMM",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "EGMM",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-energyplan-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "EnergyPLAN",
+      "Sustainable Energy Planning Group, Aalborg University"
+    ],
+    "project": "",
+    "search_hint": "EnergyPLAN",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "EnergyPLAN",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-epmm-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "EPMM",
+      "European Power Market Model",
+      "REKK"
+    ],
+    "project": "",
+    "search_hint": "EPMM",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "EPMM",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-etcu-rice-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "ETCU-RICE",
+      "Endogenous Technical Change with Uncertainty RICE model",
+      "FEEM"
+    ],
+    "project": "",
+    "search_hint": "ETCU-RICE",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "ETCU-RICE",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-euro-calliope-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "Euro-Calliope",
+      "Euro Calliope",
+      "Politecnico di Milano"
+    ],
+    "project": "",
+    "search_hint": "Euro-Calliope",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "Euro-Calliope",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-expanse-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "EXPANSE",
+      "EXploration of PAtterns in Near-optimal energy ScEnarios",
+      "University of Geneva"
+    ],
+    "project": "",
+    "search_hint": "EXPANSE",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "EXPANSE",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-forecast-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "FORECAST",
+      "Forecasting Energy Consumption Analysis and Simulation Tool",
+      "Fraunhofer ISI"
+    ],
+    "project": "",
+    "search_hint": "FORECAST",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "FORECAST",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-gcam-europe-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "GCAM-Europe",
+      "The Global Change Assessment Model - EU version",
+      "BC3",
+      "Joint Global Change Research Institute"
+    ],
+    "project": "",
+    "search_hint": "GCAM-Europe",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "GCAM-Europe",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-gcam-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "GCAM",
+      "The Global Change Assessment Model",
+      "Joint Global Change Research Institute"
+    ],
+    "project": "",
+    "search_hint": "GCAM",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "GCAM",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-gem-e3-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "GEM-E3",
+      "General Equilibrium Model - Energy Economy Environment",
+      "E3Modelling - RICARDO"
+    ],
+    "project": "",
+    "search_hint": "GEM-E3",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "GEM-E3",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-gemini-e3-eu-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "GEMINI-E3 EU",
+      "General Equilibrium Model of International-National Interactions between Economy, Energy and Environment in the EU",
+      "EPFL"
+    ],
+    "project": "",
+    "search_hint": "GEMINI-E3 EU",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "GEMINI-E3 EU",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-gemini-e3-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "GEMINI-E3",
+      "General Equilibrium Model of International-National Interactions between Economy, Energy and Environment",
+      "EPFL"
+    ],
+    "project": "",
+    "search_hint": "GEMINI-E3",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "GEMINI-E3",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-globio-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "GLOBIO",
+      "Global biodiversity model for policy support",
+      "PBL Netherlands Environmental Assessment Agency",
+      "Radboud University",
+      "Netherlands Environmental Assessment Agency"
+    ],
+    "project": "",
+    "search_hint": "GLOBIO",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "GLOBIO",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-heb-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "HEB",
+      "High Efficiency Buildings Model",
+      "Central European University (CEU)"
+    ],
+    "project": "",
+    "search_hint": "HEB",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "HEB",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-hu-times-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "HU-TIMES",
+      "Hungarian TIMES model",
+      "REKK"
+    ],
+    "project": "",
+    "search_hint": "HU-TIMES",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "HU-TIMES",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-ices-xps-1-0-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "ICES-XPS 1.0",
+      "Intertemporal Computable Equilibrium System",
+      "CMCC"
+    ],
+    "project": "",
+    "search_hint": "ICES-XPS 1.0",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "ICES-XPS 1.0",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-imaclim-china-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "IMACLIM-China",
+      "Tsinghua University"
+    ],
+    "project": "",
+    "search_hint": "IMACLIM-China",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "IMACLIM-China",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-leap-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "LEAP",
+      "Long-range Energy Alternatives Planning",
+      "Stockholm Environment Institute"
+    ],
+    "project": "",
+    "search_hint": "LEAP",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "LEAP",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-manage-iamparis-eu-models-manage",
+    "item_type": "model",
+    "keywords": [
+      "MANAGE",
+      "National Technical University of Athens"
+    ],
+    "project": "",
+    "search_hint": "MANAGE",
+    "source_sheet": "04_Models",
+    "status": "direct route observed in site/search",
+    "title": "MANAGE",
+    "url": "https://iamparis.eu/models/manage",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-maple-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "MAPLE",
+      "China-MAPLE",
+      "CUP"
+    ],
+    "project": "",
+    "search_hint": "MAPLE",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "MAPLE",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-mario-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "MARIO",
+      "Multifunctional Analysis of Regions through Input-Output",
+      "Politecnico di Milano",
+      "eNextGen"
+    ],
+    "project": "",
+    "search_hint": "MARIO",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "MARIO",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-markal-india-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "MARKAL-India",
+      "TERI"
+    ],
+    "project": "",
+    "search_hint": "MARKAL-India",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "MARKAL-India",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-medeas-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "MEDEAS",
+      "Modelling Energy System Development under Environmental and Socioeconomic constraints",
+      "Unknown"
+    ],
+    "project": "",
+    "search_hint": "MEDEAS",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "MEDEAS",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-mena-eds-model-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "MENA-EDS model",
+      "Energy Demand and Supply Model for Middle East and North Africa",
+      "E3Modelling S.A."
+    ],
+    "project": "",
+    "search_hint": "MENA-EDS model",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "MENA-EDS model",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-microgridspy-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "MicroGridsPy",
+      "University of Liege",
+      "Universidad Mayor de San Simon",
+      "Politecnico di Milano"
+    ],
+    "project": "",
+    "search_hint": "MicroGridsPy",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "MicroGridsPy",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-muse-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "MUSE",
+      "Modular energy system Simulation Environment",
+      "Grantham Institute"
+    ],
+    "project": "",
+    "search_hint": "MUSE",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "MUSE",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-natem-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "NATEM",
+      "North-American TIMES Energy Model",
+      "ESMIA"
+    ],
+    "project": "",
+    "search_hint": "NATEM",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "NATEM",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-nemesis-5-0-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "NEMESIS 5.0",
+      "New Econometric Model of Evaluation by Sectoral Interdependency and Supply",
+      "SEURECO"
+    ],
+    "project": "",
+    "search_hint": "NEMESIS 5.0",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "NEMESIS 5.0",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-nemesis-world-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "NEMESIS-World",
+      "New Econometric Model of Evaluation by Sectoral Interdependency and Supply - World version",
+      "SEURECO"
+    ],
+    "project": "",
+    "search_hint": "NEMESIS-World",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "NEMESIS-World",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-omnia-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "OMNIA",
+      "Open-source MuNdus Integrated Assessment model",
+      "E4SMA"
+    ],
+    "project": "",
+    "search_hint": "OMNIA",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "OMNIA",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-onsset-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "OnSSET",
+      "Open Source Spatial Electrification Tool",
+      "KTH Royal Institute of Technology",
+      "Addis Ababa Institute of Technology"
+    ],
+    "project": "",
+    "search_hint": "OnSSET",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "OnSSET",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-open-prom-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "OPEN-PROM",
+      "Open Prometheus",
+      "E3Modelling/RICARDO"
+    ],
+    "project": "",
+    "search_hint": "OPEN-PROM",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "OPEN-PROM",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-osemosys-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "OSeMOSYS",
+      "Open Source Energy Modeling System",
+      "KTH Royal Institute of Technology"
+    ],
+    "project": "",
+    "search_hint": "OSeMOSYS",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "OSeMOSYS",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-osemosys-osembe-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "OSeMOSYS OSeMBE",
+      "Open Source Energy Model Base for European Union",
+      "KTH Royal Institute of Technology"
+    ],
+    "project": "",
+    "search_hint": "OSeMOSYS OSeMBE",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "OSeMOSYS OSeMBE",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-osemosys-ukraine-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "OSeMOSYS-Ukraine",
+      "The Open Source Energy Modelling System",
+      "KTH",
+      "KSE Institute",
+      "others"
+    ],
+    "project": "",
+    "search_hint": "OSeMOSYS-Ukraine",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "OSeMOSYS-Ukraine",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-poles-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "POLES",
+      "Prospective outlook for long term energy systems",
+      "GAEL-CNRS"
+    ],
+    "project": "",
+    "search_hint": "POLES",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "POLES",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-powerplan-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "PowerPlan",
+      "-"
+    ],
+    "project": "",
+    "search_hint": "PowerPlan",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "PowerPlan",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-prometheus-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "PROMETHEUS",
+      "E3Modelling S.A."
+    ],
+    "project": "",
+    "search_hint": "PROMETHEUS",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "PROMETHEUS",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-psm-eu-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "PSM-EU",
+      "Power System Simulation model implementation for EU27+3, western Europe, NW Europe",
+      "RUG/ESRIG"
+    ],
+    "project": "",
+    "search_hint": "PSM-EU",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "PSM-EU",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-sisgema-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "SISGEMA",
+      "CDS/UnB"
+    ],
+    "project": "",
+    "search_hint": "SISGEMA",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "SISGEMA",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-tiam-grantham-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "TIAM_Grantham",
+      "TIMES Integrated Assessment Model",
+      "Grantham Institute",
+      "E4SMA"
+    ],
+    "project": "",
+    "search_hint": "TIAM_Grantham",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "TIAM_Grantham",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-times-cac-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "TIMES-CAC",
+      "TIMES-Central Asian Caspian",
+      "E4SMA"
+    ],
+    "project": "",
+    "search_hint": "TIMES-CAC",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "TIMES-CAC",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-times-geo-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "TIMES-GEO",
+      "University College Cork",
+      "E4SMA"
+    ],
+    "project": "",
+    "search_hint": "TIMES-GEO",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "TIMES-GEO",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-wiliam-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "WILIAM",
+      "\"Within limits\" Integrated Assessment Model",
+      "LOCOMOTION Project consortium"
+    ],
+    "project": "",
+    "search_hint": "WILIAM",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "WILIAM",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-wisee-edm-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "WISEE-EDM",
+      "Wuppertal Institute System Model Architecture for Energy and Emission Scenarios - Energy Demand Model (Industry Modules)",
+      "Wuppertal Institute"
+    ],
+    "project": "",
+    "search_hint": "WISEE-EDM",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "WISEE-EDM",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-wisee-esm-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "WISEE-ESM",
+      "Wuppertal Institute System Model Architecture for Energy and Emission Scenarios - Energy Supply Model",
+      "Wuppertal Institute"
+    ],
+    "project": "",
+    "search_hint": "WISEE-ESM",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "WISEE-ESM",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-wisee-global-steel-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "WISEE-Global Steel",
+      "Wuppertal Institute"
+    ],
+    "project": "",
+    "search_hint": "WISEE-Global Steel",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "WISEE-Global Steel",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "models",
+    "fallback_instruction": "",
+    "id": "model-wtmbt-iamparis-eu-models",
+    "item_type": "model",
+    "keywords": [
+      "WTMBT",
+      "World Trade Model with Bilateral Trade",
+      "Politecnico di Milano",
+      "FEEM"
+    ],
+    "project": "",
+    "search_hint": "WTMBT",
+    "source_sheet": "04_Models",
+    "status": "general model directory; per-model route not exposed",
+    "title": "WTMBT",
+    "url": "https://iamparis.eu/models",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-afolu-transformation-iamparis-eu-results-ndc-aspects-afolu-transformation-policy-questions",
+    "item_type": "workspace",
+    "keywords": [
+      "AFOLU transformation",
+      "Workspace/policy questions",
+      "AFOLU",
+      "land use",
+      "agriculture",
+      "forestry",
+      "NDCs"
+    ],
+    "project": "NDC ASPECTS",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Route observed; detailed page cache miss",
+    "title": "AFOLU transformation",
+    "url": "https://iamparis.eu/results/ndc-aspects/afolu-transformation/policy_questions",
+    "verified_direct_url": false,
+    "workspace": "afolu-transformation"
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-behavioural-changes-for-climate-policy-iamparis-eu-results-iam-compact-behavioural-changes-for-climate-policy-policy-questions",
+    "item_type": "workspace",
+    "keywords": [
+      "Behavioural changes for climate policy",
+      "Workspace/policy questions",
+      "behaviour",
+      "lifestyle",
+      "behavioural change",
+      "climate policy"
+    ],
+    "project": "IAM COMPACT",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Route observed; detailed page cache miss",
+    "title": "Behavioural changes for climate policy",
+    "url": "https://iamparis.eu/results/iam-compact/behavioural-changes-for-climate-policy/policy_questions",
+    "verified_direct_url": false,
+    "workspace": "behavioural-changes-for-climate-policy"
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-buildings-transformation-iamparis-eu-results-ndc-aspects-buildings-transformation-policy-questions",
+    "item_type": "workspace",
+    "keywords": [
+      "Buildings Transformation",
+      "Workspace/policy questions",
+      "buildings",
+      "energy demand",
+      "NDCs"
+    ],
+    "project": "NDC ASPECTS",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Inferred from project card route pattern; verify in browser",
+    "title": "Buildings Transformation",
+    "url": "https://iamparis.eu/results/ndc-aspects/buildings-transformation/policy_questions",
+    "verified_direct_url": false,
+    "workspace": "buildings-transformation"
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-comparison-of-fit-for-55-policy-and-cost-optimal-scenarios-for-the-eu-iamparis-eu-results-iam-compact-comparison-of-fit-for-55-policy-and-cost-optimal-scenarios-for-the-eu-policy-questions",
+    "item_type": "workspace",
+    "keywords": [
+      "Comparison of Fit-for-55 Policy and Cost Optimal Scenarios for the EU",
+      "Workspace/policy questions",
+      "Fit-for-55",
+      "EU policy",
+      "cost optimal",
+      "EU scenarios"
+    ],
+    "project": "IAM COMPACT",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Route observed; detailed page cache miss",
+    "title": "Comparison of Fit-for-55 Policy and Cost Optimal Scenarios for the EU",
+    "url": "https://iamparis.eu/results/iam-compact/comparison-of-fit-for-55-policy-and-cost-optimal-scenarios-for-the-eu/policy_questions",
+    "verified_direct_url": false,
+    "workspace": "comparison-of-fit-for-55-policy-and-cost-optimal-scenarios-for-the-eu"
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-cost-of-capital-evolution-effects-on-regional-mitigation-pathways-iamparis-eu-results-iam-compact-cost-of-capital-evolution-effects-on-regional-mitigation-pathways-policy-questions",
+    "item_type": "workspace",
+    "keywords": [
+      "Cost of capital evolution effects on regional mitigation pathways",
+      "Workspace/policy questions",
+      "cost of capital",
+      "finance",
+      "regional mitigation pathways"
+    ],
+    "project": "IAM COMPACT",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Route observed; detailed page cache miss",
+    "title": "Cost of capital evolution effects on regional mitigation pathways",
+    "url": "https://iamparis.eu/results/iam-compact/cost-of-capital-evolution-effects-on-regional-mitigation-pathways/policy_questions",
+    "verified_direct_url": false,
+    "workspace": "cost-of-capital-evolution-effects-on-regional-mitigation-pathways"
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-decipher-iamparis-eu-results-decipher",
+    "item_type": "project",
+    "keywords": [
+      "DECIPHER",
+      "Project result section",
+      "DECIPHER project results"
+    ],
+    "project": "DECIPHER",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Route observed; detailed page cache miss",
+    "title": "DECIPHER",
+    "url": "https://iamparis.eu/results/decipher",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-diamond-iamparis-eu-results-diamond",
+    "item_type": "project",
+    "keywords": [
+      "DIAMOND",
+      "Project result section",
+      "DIAMOND project results"
+    ],
+    "project": "DIAMOND",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Route observed; detailed page cache miss",
+    "title": "DIAMOND",
+    "url": "https://iamparis.eu/results/diamond",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-enclude-iamparis-eu-results-enclude",
+    "item_type": "project",
+    "keywords": [
+      "ENCLUDE",
+      "Project result section",
+      "ENCLUDE project results"
+    ],
+    "project": "ENCLUDE",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Route observed; detailed page cache miss",
+    "title": "ENCLUDE",
+    "url": "https://iamparis.eu/results/enclude",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-enhancing-renewable-energy-system-metrics-iamparis-eu-results-iam-compact-enhancing-renewable-energy-system-metrics-policy-questions",
+    "item_type": "workspace",
+    "keywords": [
+      "Enhancing renewable energy system metrics",
+      "Workspace/policy questions",
+      "renewable energy",
+      "metrics",
+      "energy system"
+    ],
+    "project": "IAM COMPACT",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Route observed; detailed page cache miss",
+    "title": "Enhancing renewable energy system metrics",
+    "url": "https://iamparis.eu/results/iam-compact/enhancing-renewable-energy-system-metrics/policy_questions",
+    "verified_direct_url": false,
+    "workspace": "enhancing-renewable-energy-system-metrics"
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-eu-china-bridge-iamparis-eu-results-eu-china-bridge",
+    "item_type": "project",
+    "keywords": [
+      "EU-CHINA BRIDGE",
+      "Project result section",
+      "EU-China climate/energy bridge project results"
+    ],
+    "project": "EU-CHINA BRIDGE",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Route observed; detailed page cache miss",
+    "title": "EU-CHINA BRIDGE",
+    "url": "https://iamparis.eu/results/eu-china-bridge",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-global-impacts-of-ndcs-iamparis-eu-results-ndc-aspects-global-impacts-of-ndcs-policy-questions",
+    "item_type": "workspace",
+    "keywords": [
+      "Global impacts of NDCs",
+      "Workspace/policy questions",
+      "global impacts",
+      "NDCs",
+      "emissions gap",
+      "mitigation ambition"
+    ],
+    "project": "NDC ASPECTS",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Verified",
+    "title": "Global impacts of NDCs",
+    "url": "https://iamparis.eu/results/ndc-aspects/global-impacts-of-ndcs/policy_questions",
+    "verified_direct_url": true,
+    "workspace": "global-impacts-of-ndcs"
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-iam-compact-iamparis-eu-results-iam-compact",
+    "item_type": "project",
+    "keywords": [
+      "IAM COMPACT",
+      "Project result section",
+      "IAM COMPACT results",
+      "Glasgow targets",
+      "Fit-for-55",
+      "EU net-zero"
+    ],
+    "project": "IAM COMPACT",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Verified project page",
+    "title": "IAM COMPACT",
+    "url": "https://iamparis.eu/results/iam-compact",
+    "verified_direct_url": true,
+    "workspace": ""
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-implications-of-eu-steel-industry-relocation-iamparis-eu-results-iam-compact-implications-of-eu-steel-industry-relocation-policy-questions",
+    "item_type": "workspace",
+    "keywords": [
+      "Implications of EU steel industry relocation",
+      "Workspace/policy questions",
+      "steel industry",
+      "relocation",
+      "EU industry",
+      "emissions leakage"
+    ],
+    "project": "IAM COMPACT",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Route observed; detailed page cache miss",
+    "title": "Implications of EU steel industry relocation",
+    "url": "https://iamparis.eu/results/iam-compact/implications-of-eu-steel-industry-relocation/policy_questions",
+    "verified_direct_url": false,
+    "workspace": "implications-of-eu-steel-industry-relocation"
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-industrial-transformation-iamparis-eu-results-ndc-aspects-industrial-transformation-policy-questions",
+    "item_type": "workspace",
+    "keywords": [
+      "Industrial transformation",
+      "Workspace/policy questions",
+      "industry",
+      "NDCs"
+    ],
+    "project": "NDC ASPECTS",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Route observed; detailed page cache miss",
+    "title": "Industrial transformation",
+    "url": "https://iamparis.eu/results/ndc-aspects/industrial-transformation/policy_questions",
+    "verified_direct_url": false,
+    "workspace": "industrial-transformation"
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-ndc-aspects-iamparis-eu-results-ndc-aspects",
+    "item_type": "project",
+    "keywords": [
+      "NDC ASPECTS",
+      "Project result section",
+      "NDCs",
+      "sectoral transformations",
+      "global impacts"
+    ],
+    "project": "NDC ASPECTS",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Verified project page",
+    "title": "NDC ASPECTS",
+    "url": "https://iamparis.eu/results/ndc-aspects",
+    "verified_direct_url": true,
+    "workspace": ""
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-paris-reinforce-iamparis-eu-results-paris-reinforce",
+    "item_type": "project",
+    "keywords": [
+      "PARIS REINFORCE",
+      "Project result section",
+      "EU Paris-compatible pathways",
+      "stakeholder-driven IAM"
+    ],
+    "project": "PARIS REINFORCE",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Route observed; detailed page cache miss",
+    "title": "PARIS REINFORCE",
+    "url": "https://iamparis.eu/results/paris-reinforce",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-post-glasgow-targets-iamparis-eu-results-iam-compact-post-glasgow-targets-policy-questions",
+    "item_type": "workspace",
+    "keywords": [
+      "Post-Glasgow targets",
+      "Workspace/policy questions",
+      "Glasgow targets",
+      "Paris Agreement",
+      "ambition",
+      "climate targets"
+    ],
+    "project": "IAM COMPACT",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Route observed; detailed page cache miss",
+    "title": "Post-Glasgow targets",
+    "url": "https://iamparis.eu/results/iam-compact/post-glasgow-targets/policy_questions",
+    "verified_direct_url": false,
+    "workspace": "post-glasgow-targets"
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-tech-constrained-eu-pathways-to-net-zero-iamparis-eu-results-iam-compact-tech-constrained-eu-pathways-to-net-zero-policy-questions",
+    "item_type": "workspace",
+    "keywords": [
+      "Tech-constrained EU pathways to net zero",
+      "Workspace/policy questions",
+      "net zero",
+      "EU pathways",
+      "technology constraints"
+    ],
+    "project": "IAM COMPACT",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Route observed; detailed page cache miss",
+    "title": "Tech-constrained EU pathways to net zero",
+    "url": "https://iamparis.eu/results/iam-compact/tech-constrained-eu-pathways-to-net-zero/policy_questions",
+    "verified_direct_url": false,
+    "workspace": "tech-constrained-eu-pathways-to-net-zero"
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-transience-iamparis-eu-results-transience",
+    "item_type": "project",
+    "keywords": [
+      "TRANSIENCE",
+      "Project result section",
+      "TRANSIENCE project results"
+    ],
+    "project": "TRANSIENCE",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Route observed; detailed page cache miss",
+    "title": "TRANSIENCE",
+    "url": "https://iamparis.eu/results/transience",
+    "verified_direct_url": false,
+    "workspace": ""
+  },
+  {
+    "category": "results",
+    "fallback_instruction": "",
+    "id": "result-transportation-transformation-iamparis-eu-results-ndc-aspects-transportation-transformation-policy-questions",
+    "item_type": "workspace",
+    "keywords": [
+      "Transportation Transformation",
+      "Workspace/policy questions",
+      "transport",
+      "mobility",
+      "NDCs",
+      "transport transformation"
+    ],
+    "project": "NDC ASPECTS",
+    "search_hint": "",
+    "source_sheet": "03_Results",
+    "status": "Inferred from project card route pattern; verify in browser",
+    "title": "Transportation Transformation",
+    "url": "https://iamparis.eu/results/ndc-aspects/transportation-transformation/policy_questions",
+    "verified_direct_url": false,
+    "workspace": "transportation-transformation"
+  },
+  {
+    "category": "data_stories",
+    "fallback_instruction": "",
+    "id": "story-barriers-enablers-policy-analysis-iamparis-eu-datastories-mitigation-barriers",
+    "item_type": "data_story",
+    "keywords": [
+      "Barriers, Enablers & Policy Analysis",
+      "Barriers/enablers to mitigation and policy analysis",
+      "barriers",
+      "enablers",
+      "mitigation",
+      "policy barriers",
+      "Global South"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "02_Data_Stories",
+    "status": "Verified",
+    "title": "Barriers, Enablers & Policy Analysis",
+    "url": "https://iamparis.eu/datastories/mitigation_barriers",
+    "verified_direct_url": true,
+    "workspace": ""
+  },
+  {
+    "category": "data_stories",
+    "fallback_instruction": "",
+    "id": "story-circularity-decarbonisation-interventions-iamparis-eu-datastories-ce-intervention",
+    "item_type": "data_story",
+    "keywords": [
+      "Circularity & decarbonisation interventions",
+      "Circular economy and industrial decarbonisation interventions database",
+      "circularity",
+      "circular economy",
+      "industry",
+      "steel",
+      "cement",
+      "plastics",
+      "decarbonisation"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "02_Data_Stories",
+    "status": "Verified",
+    "title": "Circularity & decarbonisation interventions",
+    "url": "https://iamparis.eu/datastories/CE_intervention",
+    "verified_direct_url": true,
+    "workspace": ""
+  },
+  {
+    "category": "data_stories",
+    "fallback_instruction": "",
+    "id": "story-policy-catalogue-interactive-explorer-iamparis-eu-datastories-policycatalog",
+    "item_type": "data_story",
+    "keywords": [
+      "Policy Catalogue Interactive Explorer",
+      "Explore climate policy catalogue entries",
+      "policy catalogue",
+      "policies",
+      "policy instruments",
+      "climate policy"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "02_Data_Stories",
+    "status": "Verified",
+    "title": "Policy Catalogue Interactive Explorer",
+    "url": "https://iamparis.eu/datastories/policyCatalog",
+    "verified_direct_url": true,
+    "workspace": ""
+  },
+  {
+    "category": "data_stories",
+    "fallback_instruction": "",
+    "id": "story-recovery-policy-db-iamparis-eu-datastories-recoverydb",
+    "item_type": "data_story",
+    "keywords": [
+      "Recovery Policy DB",
+      "COVID-19 recovery policy database and dashboard",
+      "recovery policies",
+      "COVID",
+      "European recovery",
+      "green recovery",
+      "policy database"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "02_Data_Stories",
+    "status": "Verified",
+    "title": "Recovery Policy DB",
+    "url": "https://iamparis.eu/datastories/recoveryDB",
+    "verified_direct_url": true,
+    "workspace": ""
+  },
+  {
+    "category": "data_stories",
+    "fallback_instruction": "",
+    "id": "story-scenario-metadata-tool-iamparis-eu-datastories-result-indicators",
+    "item_type": "data_story",
+    "keywords": [
+      "Scenario Metadata Tool",
+      "Scenario/result indicators and metadata exploration",
+      "scenario metadata",
+      "indicators",
+      "results",
+      "IAM scenario metadata"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "02_Data_Stories",
+    "status": "Verified",
+    "title": "Scenario Metadata Tool",
+    "url": "https://iamparis.eu/datastories/result_indicators",
+    "verified_direct_url": true,
+    "workspace": ""
+  },
+  {
+    "category": "data_stories",
+    "fallback_instruction": "",
+    "id": "story-technology-inventories-explorer-iamparis-eu-datastories-tech-inventories",
+    "item_type": "data_story",
+    "keywords": [
+      "Technology Inventories Explorer",
+      "Explore technology inventories",
+      "technology inventories",
+      "industrial technologies",
+      "mitigation technologies"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "02_Data_Stories",
+    "status": "Verified",
+    "title": "Technology Inventories Explorer",
+    "url": "https://iamparis.eu/datastories/tech_inventories",
+    "verified_direct_url": true,
+    "workspace": ""
+  }
+]

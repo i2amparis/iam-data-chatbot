@@ -1,0 +1,293 @@
+{
+  "conversations": [
+    {
+      "id": "conv-001",
+      "title": "CO2 Europe Follow-Ups",
+      "turns": [
+        {
+          "query": "show me carbon dioxide emissions for Europe",
+          "expected_route": "data_query",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "EU",
+      "useful_clarification": "yes",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+      "query": "same for China",
+      "expected_route": "data_query",
+      "expected_variable": "Emissions|CO2",
+      "expected_region": "China",
+      "useful_clarification": "yes",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "what about 2050",
+          "expected_route": "data_query",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "China",
+          "useful_clarification": "yes",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "plot it",
+          "expected_route": "data_plotting",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "China",
+          "useful_clarification": "yes",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    },
+    {
+      "id": "conv-002",
+      "title": "Clarify Electricity Variable Then Plot",
+      "turns": [
+        {
+          "query": "electricity for India",
+          "expected_route": "data_query",
+          "expected_region": "India",
+          "useful_clarification": "yes",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "1",
+          "expected_route": "data_query",
+          "expected_variable": "Secondary Energy|Electricity",
+          "expected_region": "India",
+          "useful_clarification": "no",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "plot it",
+          "expected_route": "data_plotting",
+          "expected_variable": "Secondary Energy|Electricity",
+          "expected_region": "India",
+          "useful_clarification": "yes",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    },
+    {
+      "id": "conv-003",
+      "title": "Baseline Year Follow-Ups",
+      "turns": [
+        {
+          "query": "show Emissions|CO2 for World under Baseline in 2030",
+          "expected_route": "data_query",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "World",
+          "expected_scenario": "Baseline",
+          "useful_clarification": "no",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "after 2030",
+          "expected_route": "data_query",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "World",
+          "expected_scenario": "Baseline",
+          "useful_clarification": "no",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+      "query": "compare with current policy",
+      "expected_route": "data_plotting",
+      "expected_variable": "Emissions|CO2",
+      "expected_region": "World",
+      "expected_scenario": "Current Policies",
+      "useful_clarification": "no",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    },
+    {
+      "id": "conv-004",
+      "title": "Application Library Grounded Links",
+      "turns": [
+        {
+          "query": "open Aqueduct details",
+          "expected_route": "general_qa",
+          "useful_clarification": "no",
+          "useful_link": "application_library",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "where can I find Climate Watch",
+          "expected_route": "general_qa",
+          "useful_clarification": "no",
+          "useful_link": "application_library",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    },
+    {
+      "id": "conv-005",
+      "title": "IAM COMPACT Workspaces",
+      "turns": [
+        {
+          "query": "Fit-for-55 EU net zero results",
+          "expected_route": "general_qa",
+          "expected_region": "EU",
+          "useful_clarification": "no",
+          "useful_link": "iam_compact",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "cost of capital mitigation pathways",
+          "expected_route": "general_qa",
+          "useful_clarification": "no",
+          "useful_link": "iam_compact",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "technology constrained pathways to net zero",
+          "expected_route": "general_qa",
+          "useful_clarification": "no",
+          "useful_link": "iam_compact",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    },
+    {
+      "id": "conv-006",
+      "title": "NDC ASPECTS Workspaces",
+      "turns": [
+        {
+          "query": "global impacts of NDCs",
+          "expected_route": "general_qa",
+          "useful_clarification": "no",
+          "useful_link": "ndc_aspects",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "NDC ASPECTS transport results",
+          "expected_route": "general_qa",
+          "useful_clarification": "no",
+          "useful_link": "ndc_aspects",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "AFOLU land use results",
+          "expected_route": "general_qa",
+          "useful_clarification": "no",
+          "useful_link": "afolu",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    },
+    {
+      "id": "conv-007",
+      "title": "Model Metadata Then Data",
+      "turns": [
+        {
+          "query": "tell me about GCAM model assumptions",
+          "expected_route": "model_explanation",
+          "expected_model": "GCAM",
+          "useful_clarification": "no",
+          "useful_link": "models",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "show data using GCAM",
+          "expected_route": "data_query",
+          "expected_model": "GCAM",
+          "useful_clarification": "yes",
+          "useful_link": "models",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "show CO2 emissions for World",
+          "expected_route": "data_query",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "World",
+          "useful_clarification": "yes",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    },
+    {
+      "id": "conv-008",
+      "title": "No Data Recovery",
+      "turns": [
+        {
+          "query": "show Emissions|CO2 for World under Policy",
+          "expected_route": "data_query",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "World",
+          "expected_scenario": "Policy",
+          "useful_clarification": "yes",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "use the first scenario",
+          "expected_route": "data_query",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "World",
+          "useful_clarification": "yes",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    },
+    {
+      "id": "conv-009",
+      "title": "Stale Clarification Reset",
+      "turns": [
+        {
+          "query": "oil demand for EU",
+          "expected_route": "data_query",
+          "expected_region": "EU",
+          "useful_clarification": "yes",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "which models are available",
+          "expected_route": "data_query",
+          "useful_clarification": "no",
+          "useful_link": "models",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "1",
+          "expected_route": "data_query",
+          "useful_clarification": "yes",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    },
+    {
+      "id": "conv-010",
+      "title": "Contact And Analysis Links",
+      "turns": [
+        {
+          "query": "custom analysis service",
+          "expected_route": "general_qa",
+          "useful_clarification": "no",
+          "useful_link": "analysis",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "contact IAM PARIS team",
+          "expected_route": "general_qa",
+          "useful_clarification": "no",
+          "useful_link": "contact",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    }
+  ]
+}

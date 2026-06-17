@@ -1,0 +1,39 @@
+name: Quality Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # The unit-test gate is hermetic (tests stub resources and make no real
+      # OpenAI/network calls), but several modules call load_env() at import,
+      # which raises if these are unset. Dummy values keep the gate self-contained.
+      OPENAI_API_KEY: sk-dummy-ci-key
+      REST_MODELS_URL: http://localhost/models
+      REST_API_FULL: http://localhost/results
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10.13"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run quality gate (unit tests)
+        # Static eval reports need the data cache and are not run in CI;
+        # the unit-test gate is the hermetic correctness check.
+        run: python quality_gate.py --skip-static-eval

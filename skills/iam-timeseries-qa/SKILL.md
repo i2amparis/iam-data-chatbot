@@ -1,43 +1,47 @@
 ---
 name: iam-timeseries-qa
-description: Answer IAM PARIS questions about Integrated Assessment Models (IAMs) and IAM PARIS time-series results. Use when a user asks for model metadata, available models/scenarios/variables, region- or scenario-specific time-series values, comparisons across technologies (e.g., solar vs wind), or plotting/visualizing IAM PARIS results sourced via REST_MODELS_URL/REST_API_FULL.
+description: Answer IAM PARIS questions about Integrated Assessment Models (IAMs), validated IAM PARIS time-series results, relevant iamparis.eu links, and guided follow-ups. Use when a user asks for model metadata, available models/scenarios/variables, region- or scenario-specific values, comparisons, plots, Application Library/results links, or multi-turn English-only IAM PARIS data guidance.
 ---
 
 # Iam Timeseries Qa
 
 ## Overview
 
-Provide reliable answers and plots for IAM PARIS climate/economic model metadata and time-series results. Use existing data fetch, caching, variable/region matching, and plotting utilities in this repo to avoid reinventing query logic.
+Provide reliable English-only answers and plots for IAM PARIS climate/economic model metadata, time-series results, and relevant `iamparis.eu` routes. Use the repo's shared runtime context, link catalog/router, availability matrix, query normalization, caching, matching, and plotting utilities instead of reinventing query logic.
 
 Companion reference:
 - `skills/iam-timeseries-qa/query-behavior.md` summarizes the current implemented behavior in the codebase. Prefer that file when you need to check what the app actually does today.
 
 ## Quick Workflow
 
-1. Identify whether the user asks about model metadata, time-series values, or a plot/comparison.
+1. Identify whether the user asks about model metadata, time-series values, a plot/comparison, discovery, or an IAM PARIS site link.
 2. Expect plain-language queries, not exact IAM variable strings.
-3. Use existing helpers (see references) to resolve variables/regions/scenarios when ambiguous.
-4. If the query contains enough semantic signal, offer the top 3 relevant choices and let the user answer with `1`, `2`, `3`, or `yes` for option 1.
-5. If the query is too vague, ask only for the next missing piece instead of guessing.
-6. Fetch data through existing API helpers with caching enabled.
-7. Return concise results with units, region, scenario, and any assumptions called out.
-8. Prefer intent- and token-based interpretation over literal example matching. Treat example phrasings in this skill as guidance, not hardcoded trigger strings.
+3. Normalize English phrasing through existing helpers before matching entities.
+4. Use `RuntimeContext` resources and existing helpers (see references) to resolve variables/regions/scenarios/models when ambiguous.
+5. Validate requested variable/region/scenario/model combinations before answering or plotting.
+6. If the query contains enough semantic signal, offer the top 3 relevant choices and let the user answer with `1`, `2`, `3`, or `yes` for option 1.
+7. If the query is too vague, ask only for the next missing piece instead of guessing.
+8. Attach relevant IAM PARIS links through `link_router.py` when useful.
+9. Return concise results with units, region, scenario, links, and any assumptions called out.
+10. Prefer intent- and token-based interpretation over literal example matching. Treat example phrasings in this skill as guidance, not hardcoded trigger strings.
 
 ## Routing Order
 
 When a query could fit more than one category, prefer this order:
 
 1. Clarification follow-up
-2. Discovery / "what is available" question
-3. Model metadata question
-4. Plot or visualization request
-5. Data lookup question
-6. Fallback recovery prompt
+2. Plot or visualization request
+3. Data lookup question
+4. Model metadata question
+5. Discovery / "what is available" question
+6. Study/link suggestion
+7. General QA fallback
 
 Why this order:
 - discovery questions like `What variables can you plot?` should not fall into the plotter
 - short replies like `1` or `yes` should continue the current clarification
 - plot and data lookup should use the same plain-language variable families when possible
+- obvious data/plot/model/link routes should be deterministic before using LLM fallback
 
 ## Multi-Query Handling
 
@@ -60,6 +64,7 @@ Do:
 - Fetch model metadata from `REST_MODELS_URL` via the project helper.
 - Provide model description and assumptions when available.
 - If asked “what models are available,” list a short sample and offer to show all.
+- Include the IAM PARIS Models link when returning model explanations.
 
 Avoid:
 - Guessing model details not present in metadata.
@@ -71,8 +76,9 @@ Use when users ask for values like “CO2 emissions for World” or “capacity 
 Do:
 - Resolve meaning from the user’s text first; do not require API-style variable syntax.
 - Resolve variable and region using YAML definitions and fuzzy matching helpers.
+- Validate availability with the matrix before answering.
 - Filter results by variable, region, and scenario if provided.
-- Return a concise summary (latest year if not specified) with unit.
+- Return a concise standard answer with heading, scope, unit, answer, next step, and relevant links.
 
 Ask a clarifying question if:
 - Variable is ambiguous or not found.
@@ -90,6 +96,7 @@ Ask in this order, only if needed:
 2. Region (where?)
 3. Scenario (which pathway?)
 4. Model (only if the user explicitly wants a model and multiple exist)
+5. Year (only when needed for filtering)
 
 ### 2b) Plain-Language Follow-Ups
 
@@ -113,10 +120,10 @@ Use when users say “plot/show/graph/visualize.”
 
 Do:
 - Route through the existing plot utilities.
-- Return the generated base64 plot (or follow the app’s display mechanism).
+- Return the generated base64 plot through the API fields and keep plot text concise.
 
 If data missing:
-- Provide a short message explaining the missing combination and suggest alternatives.
+- Use the standard no-data recovery prompt with closest valid options from the availability matrix.
 
 ### 4) Comparisons (Multiple Variables)
 
@@ -189,6 +196,27 @@ If the user does not know what data exists:
 - Keep it short and actionable so the user can continue without needing domain knowledge.
 - Tailor the examples to the user's wording when possible, for example energy-related examples for energy questions and emissions examples for climate-policy questions.
 
+## Link Guidance
+
+Use `link_router.py` and the Excel-derived catalog for relevant links.
+
+Include links in:
+- final data answers
+- model explanations
+- no-data recovery when the link helps the user continue
+- study, results, workspace, Application Library, and methodology questions
+
+Avoid links in pure clarification prompts unless directly useful.
+
+Use these routing rules:
+- model documentation / assumptions / model comparison -> Models
+- numeric results / scenarios / variables / workspaces -> Results
+- tools / dashboards / raw data / maps / online models -> Application Library
+- explainers / policy databases / technology inventories -> Data Stories
+- custom analysis -> Analysis
+
+For Application Library items without a verified direct URL, link to `https://iamparis.eu/application_library` and include the catalog `search_hint`.
+
 ## Clarification State
 
 Clarification prompts should be short-lived and predictable.
@@ -212,9 +240,9 @@ Examples:
 ## Not Available Handling
 
 If the specific combination is missing (variable + region + scenario):
-1. Say it is not available.
-2. Offer a compact recovery prompt with up to 2–3 closest options for variable, region, or scenario as available.
-3. Ask a single follow-up question to proceed (e.g., “Reply with the variable, region, or scenario you want next.”).
+1. Say the exact combination was not found.
+2. Offer up to 2–3 closest valid options for variable, region, scenario, or model as available.
+3. Use numbered options and ask the user to reply with `1`, `2`, or `3`.
 4. If the user rejects the first suggestion (`no`), offer the next closest alternatives instead of resetting the whole flow.
 
 If multiple scenarios exist for a variable and the user didn’t specify one:
@@ -227,9 +255,24 @@ If a model name does not match available model metadata:
 
 ## Data Retrieval and Caching
 
-1. Always use the existing `fetch_json` helper with caching enabled.
-2. Respect the cache files and FAISS index; avoid rebuilding unless needed.
-3. If the user asks to “refresh” or “reload,” clear cache with the built-in utility.
+1. Prefer the shared `RuntimeContext` built by `runtime_context.py`.
+2. Always use the existing `fetch_json` helper with caching enabled for API retrieval.
+3. Respect cache files, generated link catalog JSON, metadata, and FAISS index; avoid rebuilding unless needed.
+4. If the user asks to “refresh” or “reload,” clear cache with the built-in utility.
+
+## Structured API Output
+
+FastAPI answers should expose structured fields so frontends do not parse markdown:
+
+- `answer`
+- `plot_base64`
+- `plot_caption`
+- `notices`
+- `relevant_links`
+- `entities`
+- `suggested_next_questions`
+- `data_scope`
+- `route`
 
 ## Plot Output
 
@@ -279,6 +322,9 @@ Use this exact notice text when appropriate:
 
 Use these existing repo tools to answer questions accurately and consistently:
 
+- `build_runtime_context` in `runtime_context.py`
+  - use for shared startup resources: models, time-series records, metadata, vector store, link catalog, env, and bot
+
 - `IAMParisBot.fetch_json` in `main.py`
   - use for model metadata and time-series API retrieval
   - keep caching enabled unless the user explicitly asks to refresh
@@ -296,9 +342,19 @@ Use these existing repo tools to answer questions accurately and consistently:
   - use for multi-intent routing
   - use for follow-up handling across turns
   - use for numbered clarification choices and `yes` / `no` behavior
+  - keep FastAPI session behavior aligned with CLI behavior
 
 - `QueryEntityExtractor` in `query_extractor.py`
   - use to extract region, scenario, model, years, and action from plain-language questions
+
+- `normalize_query` in `query_normalizer.py`
+  - use for English-only synonyms such as carbon dioxide/CO2, photovoltaic/solar, gross domestic product/GDP, and graph/plot
+
+- `link_catalog.py` and `link_router.py`
+  - use for Excel-derived IAM PARIS links and scored top 1-3 link suggestions
+
+- `model_aliases.py` and `year_filters.py`
+  - use for shared model alias and year-filter behavior
 
 - matching helpers in `utils_query.py`
   - use for fuzzy variable resolution
@@ -327,10 +383,14 @@ Guidance:
 
 Use the existing regression checks after query-flow changes:
 
-- `MPLCONFIGDIR=/tmp/mplcache python -m unittest test_query_regressions.py`
+- `MPLCONFIGDIR=/tmp/mplcache python -m unittest test_query_regressions.py test_year_filters.py test_clarification_prompts.py test_data_metadata.py`
+- `MPLCONFIGDIR=/tmp/mplcache python -m unittest test_manager_fallback.py test_fastapi_smoke.py`
+- `MPLCONFIGDIR=/tmp/mplcache python -m unittest test_query_extractor_confidence.py test_query_normalizer.py test_model_aliases.py test_link_catalog.py test_link_router.py test_runtime_context.py`
+- `python run_eval.py`
 
 Expected:
 
 - tests pass for vague-query follow-up behavior
 - tests pass for ranked top-3 suggestions
 - tests pass for scenario clarification prompts
+- tests pass for link routing, sessions, English synonyms, and structured API fields

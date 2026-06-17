@@ -6,9 +6,13 @@ This document summarizes the current query behavior implemented in the project. 
 
 The chatbot supports IAM PARIS model metadata, time-series lookup, discovery questions, clarification follow-ups, and plots. The behavior below reflects the current implementation in:
 
+- `runtime_context.py`
 - `manager.py`
 - `data_utils.py`
 - `simple_plotter.py`
+- `link_catalog.py`
+- `link_router.py`
+- `query_normalizer.py`
 - `main.py`
 - `fastapi_app.py`
 
@@ -29,6 +33,7 @@ Current behavior:
 
 - Routes to dataset discovery, not plotting.
 - Returns short summaries such as available variables, models, scenarios, or regions.
+- Avoids overlong lists by default and offers `show all ...` when many items exist.
 - Keeps the answer compact and actionable.
 
 ### Data lookup queries
@@ -43,10 +48,13 @@ Examples:
 
 Current behavior:
 
+- Normalizes English synonyms before matching, for example `carbon dioxide` -> CO2, `photovoltaic` -> solar, and `gross domestic product` -> GDP.
 - Resolves variables from plain language when possible.
 - Uses existing variable and region matching logic.
+- Validates requested variable/region/scenario/model combinations before returning values.
 - If a required piece is missing, asks only for the next missing item.
 - Prefers short clarification prompts with numbered options.
+- Uses the standard answer shape: heading, scope, unit, answer, next step, and relevant IAM PARIS links.
 
 ### Plot queries
 
@@ -62,6 +70,8 @@ Current behavior:
 - Routes through `simple_plotter.py`.
 - Uses plain-language matching before falling back to raw IAM variable names.
 - Produces cleaner captions such as `Showing Solar Capacity in EU for scenario \`PR_WWH_CP\`.`
+- Reuses recent session scope for follow-ups such as `plot it`.
+- API responses separate `plot_base64` and `plot_caption` from the text answer.
 
 ### Model metadata queries
 
@@ -76,8 +86,26 @@ Current behavior:
 
 - Returns available model metadata when a model can be matched.
 - If assumptions are not explicitly present, it does not invent them.
+- Includes a related IAM PARIS Models link.
 - Uses the notice text:
   - `No explicit assumptions field is available in the model metadata.`
+
+### Link and study/navigation queries
+
+These ask where to find project pages, result hubs, Application Library tools, Data Stories, or analysis support.
+
+Examples:
+
+- `where can I find Climate Watch`
+- `open the Aqueduct raw data application`
+- `AFOLU agriculture land forestry transformation results`
+- `custom analysis for decarbonisation options`
+
+Current behavior:
+
+- Uses `link_router.py` over the Excel-derived `docs/iamparis_link_catalog.json`.
+- Returns top relevant links with title, URL, reason, confidence, and optional search hint.
+- Uses direct Application Library URLs only when verified; otherwise links to `https://iamparis.eu/application_library` with a search hint.
 
 ### Clarification follow-ups
 
@@ -96,6 +124,7 @@ Current behavior:
 - Continues the active clarification only when the reply clearly answers the current prompt.
 - Clarification expires if the user does not answer on the very next turn.
 - A fresh full question resets the previous clarification thread.
+- FastAPI keeps this state per `session_id` and supports `reset_session`.
 
 ## Clarification Rules
 
@@ -119,18 +148,40 @@ But:
 
 ## Plain-Language Mapping
 
-The project currently includes extra support for a few common plain-language phrases.
+The project currently includes English-only normalization and extra support for common plain-language phrases.
 
 Examples:
 
+- `carbon dioxide`
+  - maps toward CO2 variables
+- `greenhouse gas`
+  - maps toward GHG variables
 - `solar energy`
   - prefers solar electricity / solar capacity families
 - `solar capacity`
   - prefers `Capacity|Electricity|Solar`
+- `photovoltaic`
+  - maps toward solar/PV capacity or generation families
+- `gross domestic product`
+  - maps toward GDP variables
 - `oil demand`
   - prefers oil-related energy families over unrelated matches
+- `chart`, `graph`, `visualize`
+  - map toward plot intent
 
 This is implemented as ranking preference, not hardcoded one-off example matching.
+
+## No-Data Recovery
+
+When a requested combination is unavailable, the chatbot should not hallucinate values.
+
+Current behavior:
+
+- Uses an availability matrix before answering or plotting.
+- Returns `I could not find data for ...`.
+- Shows `Closest valid options:` with numbered choices.
+- Lets the user continue with `1`, `2`, or `3`.
+- Prioritizes suggestions by current scope where possible: same variable + same region first, same variable next, sector fallback last.
 
 ## Plot Output
 
@@ -151,8 +202,33 @@ In `fastapi_app.py`, plot metadata is returned separately:
 - `plot_base64`
 - `plot_caption`
 - `notices`
+- `relevant_links`
+- `entities`
+- `suggested_next_questions`
+- `data_scope`
+- `route`
 
 This avoids forcing the API/UI layer to parse embedded markdown image strings.
+
+## Structured Logging and Evaluation
+
+The API logs a structured `query_trace` with:
+
+- `session_id`
+- `query`
+- `route`
+- `route_confidence`
+- `route_source`
+- `entities`
+- `entity_confidence`
+- selected variable/region/scenario/model
+- matched records placeholder
+- no-data reason
+- selected links and link scores
+
+The baseline evaluation set is in `eval_queries.csv`. Generate the pending-review report with:
+
+- `python run_eval.py`
 
 ## Notices
 
@@ -172,10 +248,12 @@ Current behavior:
 The current routing prioritizes detection of:
 
 - clarification follow-ups
-- discovery/list questions
-- model metadata questions
 - plot requests
-- general data lookup
+- data lookup
+- model metadata questions
+- discovery/list questions
+- study/link suggestions
+- general QA fallback
 
 This is important because many user-facing bugs in this project are routing bugs rather than data bugs.
 
@@ -185,6 +263,9 @@ These two test files are intentionally kept because they lock in the critical qu
 
 - `test_manager_fallback.py` covers clarification lifecycle, follow-up handling (`plot it`), and numeric replies.
 - `test_query_regressions.py` covers variable matching (solar capacity vs additions), discovery queries, plot parsing, and notices.
+- `test_fastapi_smoke.py` covers session reuse, reset behavior, structured response fields, and query trace shape.
+- `test_link_router.py` covers IAM PARIS link routing and Application Library direct/fallback behavior.
+- `test_query_normalizer.py` and `test_query_extractor_confidence.py` cover English normalization and extraction confidence.
 
 ## Scope of This Document
 

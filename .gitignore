@@ -1,7 +1,8 @@
 # Environment and secrets
 .env
 .env.local
-
+/env
+/env.local
 # Cache directories (should not be committed)
 cache/
 faiss_index/

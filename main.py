@@ -34,6 +34,7 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from data_utils import data_query
 from utils.yaml_loader import load_all_yaml_files, yaml_to_documents
 from manager import MultiAgentManager
+from runtime_context import build_runtime_context
 from utils_query import (
     get_available_models,
     get_available_scenarios,
@@ -55,12 +56,17 @@ def load_definitions():
     #try file cache
     cache_file ='cache/yaml_definitions.pkl'
     if os.path.exists(cache_file):
-        print('loading yaml definitions from file cache..')
-        with open(cache_file,'rb') as f:
-            return pickle.load(f)
-        
+        logging.getLogger(__name__).info('loading yaml definitions from file cache..')
+        try:
+            with open(cache_file,'rb') as f:
+                return pickle.load(f)
+        except Exception:
+            logging.getLogger(__name__).warning(
+                'Failed to load %s; regenerating from YAML.', cache_file, exc_info=True
+            )
+
     #print and parse yaml files
-    print('loading and parsing yaml files..')
+    logging.getLogger(__name__).info('loading and parsing yaml files..')
     region_path = Path('definitions/region').resolve()
     variable_path = Path('definitions/variable').resolve()
     region_yaml = load_all_yaml_files(str(region_path))
@@ -185,11 +191,11 @@ def build_faiss_index(docs:list, embeddings) ->FAISS:
     index_file = os.path.join(index_dir, 'index.faiss')
     
     if os.path.exists(index_file):
-        print('Loading FAISS index from file cache ..')
+        logger.info('Loading FAISS index from file cache ..')
         return FAISS.load_local(index_dir, embeddings, allow_dangerous_deserialization=True)
-    
+
     # Create FAISS index if cache doesn't exist
-    print('Creating FAISS index...')
+    logger.info('Creating FAISS index...')
     faiss_index = FAISS.from_documents(docs, embeddings)
     
     # Save to cache using FAISS native save method
@@ -238,7 +244,7 @@ def save_plot_from_base64(base64_string: str, output_dir: str = "plots", label: 
             f.write(image_bytes)
         return file_path
     except Exception as e:
-        print(f"Error saving plot: {e}")
+        logger.error("Error saving plot: %s", e)
         return ""
 
 
@@ -247,7 +253,7 @@ def open_plot_file(file_path: str) -> None:
         if file_path and os.path.exists(file_path):
             subprocess.Popen(["open", file_path])
     except Exception as e:
-        print(f"Error opening plot: {e}")
+        logger.error("Error opening plot: %s", e)
 
 
 def _extract_plot_markdown(response: str) -> tuple[str, str]:
@@ -287,7 +293,7 @@ class IAMParisBot:
                 ws_payload = dict(payload_clean)
                 ws_payload["workspace_code"] = [ws]
                 resp_ws = requests.post(url, json=ws_payload, timeout=timeout)
-                print(f"API call completed: status {resp_ws.status_code} (workspace={ws})")
+                self.logger.info("API call completed: status %s (workspace=%s)", resp_ws.status_code, ws)
                 if resp_ws.status_code >= 500:
                     continue
                 resp_ws.raise_for_status()
@@ -329,7 +335,7 @@ class IAMParisBot:
         # Use POST if payload is provided, otherwise GET
         # Use longer timeout for large data fetches
         timeout = 300 if payload is not None else 60
-        print(f"Fetching data from {url}...")
+        self.logger.info("Fetching data from %s ...", url)
         
         # Retry logic with exponential backoff
         for attempt in range(max_retries):
@@ -347,11 +353,11 @@ class IAMParisBot:
                             paged_payload["limit"] = page_limit
                             paged_payload["offset"] = offset
                             resp = requests.post(url, json=paged_payload, timeout=timeout)
-                            print(f"API call completed: status {resp.status_code}")
+                            self.logger.info("API call completed: status %s", resp.status_code)
                             if resp.status_code >= 500:
                                 cached = _load_cache()
                                 if cached:
-                                    print("API returned 5xx; using cached data.")
+                                    self.logger.warning("API returned 5xx; using cached data.")
                                     return cached
                             resp.raise_for_status()
                             data = resp.json()
@@ -376,19 +382,19 @@ class IAMParisBot:
                             if len(records) < page_limit or len(new_records) == 0:
                                 break
                             offset += page_limit
-                        print(f"Records fetched: {len(combined)}")
+                        self.logger.info("Records fetched: %s", len(combined))
                         with open(cache_file, 'w') as f:
                             pd.DataFrame(combined).to_json(f)
                         return combined
                     resp = requests.post(url, json=payload_clean, timeout=timeout)
                 else:
                     resp = requests.get(url, params=params, timeout=timeout)
-                print(f"API call completed: status {resp.status_code}")
+                self.logger.info("API call completed: status %s", resp.status_code)
                 # If server is down, fall back to cache when available
                 if resp.status_code >= 500:
                     cached = _load_cache()
                     if cached:
-                        print("API returned 5xx; using cached data.")
+                        self.logger.warning("API returned 5xx; using cached data.")
                         return cached
                 resp.raise_for_status()
                 data = resp.json()
@@ -402,24 +408,24 @@ class IAMParisBot:
                     and len(records) >= 1000
                 ):
                     all_records = _expand_by_workspace(url, payload_clean, timeout)
-                    print(f"Records fetched: {len(all_records)} (expanded by workspace)")
+                    self.logger.info("Records fetched: %s (expanded by workspace)", len(all_records))
                     with open(cache_file, 'w') as f:
                         pd.DataFrame(all_records).to_json(f)
                     return all_records
 
-                print(f"Records fetched: {len(records)}")
+                self.logger.info("Records fetched: %s", len(records))
                 with open(cache_file, 'w') as f:
                     pd.DataFrame(records).to_json(f)
                 return records
             except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
                 if attempt < max_retries - 1:
                     wait_time = (2 ** attempt) * 5  # Exponential backoff: 5, 10, 20 seconds...
-                    print(f"Request failed ({type(e).__name__}), retrying in {wait_time}s... (attempt {attempt + 1}/{max_retries})")
+                    self.logger.warning("Request failed (%s), retrying in %ss... (attempt %s/%s)", type(e).__name__, wait_time, attempt + 1, max_retries)
                     time.sleep(wait_time)
                 else:
                     cached = _load_cache()
                     if cached:
-                        print("API connection failed; using cached data.")
+                        self.logger.warning("API connection failed; using cached data.")
                         return cached
                     raise RuntimeError(f"Failed to fetch data after {max_retries} attempts: {e}")
         return []
@@ -451,6 +457,8 @@ Context: ```{context}```"""
             model_name="gpt-4-turbo",
             temperature=0,
             streaming=self.streaming,
+            timeout=30,
+            max_retries=1,
             callbacks=[StreamingStdOutCallbackHandler()] if self.streaming else None,
             api_key=self.env["OPENAI_API_KEY"]
         )
@@ -523,26 +531,26 @@ def main():
     index_dir = "cache/faiss_index"
     if os.path.exists(os.path.join(index_dir, "index.faiss")):
         print("Loading FAISS index from cache...")
-        embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=bot.env["OPENAI_API_KEY"])
+        embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=bot.env["OPENAI_API_KEY"], timeout=30, max_retries=1)
         faiss_index = FAISS.load_local(index_dir, embeddings, allow_dangerous_deserialization=True)
     else:
         print("Creating new FAISS index...")
         region_docs, variable_docs = load_definitions()
         all_docs = docs_from_records(models) + region_docs + variable_docs
         chunks = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=80).split_documents(all_docs)
-        embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=bot.env["OPENAI_API_KEY"])
+        embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=bot.env["OPENAI_API_KEY"], timeout=30, max_retries=1)
         faiss_index = FAISS.from_documents(chunks, embeddings)
         os.makedirs(index_dir, exist_ok=True)
         faiss_index.save_local(index_dir)
 
-    shared_resources = {
-        "models": models,
-        "ts": ts,
-        "workspace_lookup": workspace_lookup,
-        "vector_store": faiss_index,
-        "env": bot.env,
-        "bot": bot
-    }
+    shared_resources = build_runtime_context(
+        models=models,
+        ts=ts,
+        workspace_lookup=workspace_lookup,
+        vector_store=faiss_index,
+        env=bot.env,
+        bot=bot,
+    )
 
     manager = MultiAgentManager(shared_resources, streaming=not args.no_stream)
 

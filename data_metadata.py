@@ -12,6 +12,7 @@ This helps validate queries and provide helpful suggestions.
 
 import os
 import pickle
+import hashlib
 from typing import Dict, List, Set, Optional, Tuple
 from collections import defaultdict
 import logging
@@ -52,6 +53,7 @@ class DataMetadata:
         self.region_variables: Dict[str, Set[str]] = defaultdict(set)
         self.scenario_variables: Dict[str, Set[str]] = defaultdict(set)
         self.model_variables: Dict[str, Set[str]] = defaultdict(set)
+        self.availability_matrix: Dict[str, Dict[str, Dict[str, Dict[str, Set[str]]]]] = {}
         
         # All unique values
         self.all_variables: Set[str] = set()
@@ -77,8 +79,9 @@ class DataMetadata:
             variable = record.get('variable', '')
             region = record.get('region', '')
             scenario = record.get('scenario', '')
-            model = record.get('model', '')
+            model = record.get('modelName') or record.get('model', '')
             unit = record.get('unit', '')
+            years = self._extract_years(record)
             
             if variable:
                 self.all_variables.add(variable)
@@ -100,6 +103,16 @@ class DataMetadata:
                 
                 if unit and variable not in self.variable_units:
                     self.variable_units[variable] = unit
+
+                region_key = region or ""
+                scenario_key = scenario or ""
+                model_key = model or ""
+                self.availability_matrix \
+                    .setdefault(variable, {}) \
+                    .setdefault(region_key, {}) \
+                    .setdefault(scenario_key, {}) \
+                    .setdefault(model_key, set()) \
+                    .update(years)
         
         # Add model names from models list
         for model in self.models:
@@ -110,6 +123,13 @@ class DataMetadata:
                    f"{len(self.all_regions)} regions, "
                    f"{len(self.all_scenarios)} scenarios, "
                    f"{len(self.all_model_names)} models")
+
+    def _extract_years(self, record: dict) -> Set[str]:
+        years = set()
+        if isinstance(record.get("years"), dict):
+            years.update(str(year) for year in record["years"].keys() if str(year).isdigit())
+        years.update(str(key) for key in record.keys() if str(key).isdigit())
+        return years
     
     def _categorize_variables(self):
         """Categorize variables by topic for better suggestions."""
@@ -255,6 +275,158 @@ class DataMetadata:
                 )
         
         return result
+
+    def combination_exists(
+        self,
+        variable: str,
+        region: str | None = None,
+        scenario: str | None = None,
+        model: str | None = None,
+    ) -> bool:
+        matched_var = self._find_best_variable_match(variable)
+        if not matched_var:
+            return False
+        regions = self.availability_matrix.get(matched_var, {})
+        for region_key, scenarios in regions.items():
+            if region and region_key != region:
+                continue
+            for scenario_key, models in scenarios.items():
+                if scenario and scenario_key != scenario:
+                    continue
+                for model_key in models:
+                    if model and model_key != model:
+                        continue
+                    return True
+        return False
+
+    def get_available_years(
+        self,
+        variable: str,
+        region: str | None = None,
+        scenario: str | None = None,
+        model: str | None = None,
+    ) -> List[str]:
+        matched_var = self._find_best_variable_match(variable)
+        if not matched_var:
+            return []
+        years: Set[str] = set()
+        regions = self.availability_matrix.get(matched_var, {})
+        for region_key, scenarios in regions.items():
+            if region and region_key != region:
+                continue
+            for scenario_key, models in scenarios.items():
+                if scenario and scenario_key != scenario:
+                    continue
+                for model_key, model_years in models.items():
+                    if model and model_key != model:
+                        continue
+                    years.update(model_years)
+        return sorted(years)
+
+    def suggest_valid_options(
+        self,
+        variable: str | None = None,
+        region: str | None = None,
+        scenario: str | None = None,
+        model: str | None = None,
+        limit: int = 3,
+    ) -> Dict[str, List[str]]:
+        """
+        Suggest valid alternatives from the availability matrix.
+
+        Suggestions are constrained by any dimensions the user already supplied.
+        """
+        regions: Set[str] = set()
+        scenarios: Set[str] = set()
+        models: Set[str] = set()
+        variables: Set[str] = set()
+
+        matched_var = self._find_best_variable_match(variable) if variable else None
+        variable_items = (
+            [(matched_var, self.availability_matrix.get(matched_var, {}))]
+            if matched_var
+            else list(self.availability_matrix.items())
+        )
+
+        for var_name, region_map in variable_items:
+            if not var_name:
+                continue
+            for region_key, scenario_map in region_map.items():
+                region_matches = not region or region_key == region
+                for scenario_key, model_map in scenario_map.items():
+                    scenario_matches = not scenario or scenario_key == scenario
+                    for model_key in model_map:
+                        model_matches = not model or model_key == model
+                        if scenario_matches and model_matches and region_key:
+                            regions.add(region_key)
+                        if region_matches and model_matches and scenario_key:
+                            scenarios.add(scenario_key)
+                        if region_matches and scenario_matches and model_key:
+                            models.add(model_key)
+                        if region_matches and scenario_matches and model_matches:
+                            variables.add(var_name)
+
+        return {
+            "variables": sorted(variables)[:limit],
+            "regions": sorted(regions)[:limit],
+            "scenarios": sorted(scenarios)[:limit],
+            "models": sorted(models)[:limit],
+        }
+
+    def suggest_scenarios_by_scope(
+        self,
+        variable: str | None = None,
+        region: str | None = None,
+        model: str | None = None,
+        exclude: str | None = None,
+        limit: int = 3,
+    ) -> List[str]:
+        """
+        Suggest scenarios in the order most useful for recovery:
+        same variable + same region, same variable, then same variable category.
+        """
+        matched_var = self._find_best_variable_match(variable) if variable else None
+        ordered: List[str] = []
+        seen: Set[str] = set()
+
+        def add_scenarios(candidate_variable: str, candidate_region: str | None = None):
+            region_map = self.availability_matrix.get(candidate_variable, {})
+            for region_key in sorted(region_map):
+                if candidate_region and region_key != candidate_region:
+                    continue
+                for scenario_key in sorted(region_map[region_key]):
+                    if not scenario_key or scenario_key == exclude or scenario_key in seen:
+                        continue
+                    model_map = region_map[region_key][scenario_key]
+                    if model and model not in model_map:
+                        continue
+                    ordered.append(scenario_key)
+                    seen.add(scenario_key)
+                    if len(ordered) >= limit:
+                        return
+
+        if matched_var and region:
+            add_scenarios(matched_var, region)
+        if matched_var and len(ordered) < limit:
+            add_scenarios(matched_var)
+
+        if matched_var and len(ordered) < limit:
+            sector_variables: List[str] = []
+            for variables in self.variable_categories.values():
+                if matched_var in variables:
+                    sector_variables = sorted(v for v in variables if v != matched_var)
+                    break
+            for sector_variable in sector_variables:
+                add_scenarios(sector_variable, region)
+                if len(ordered) >= limit:
+                    break
+            if len(ordered) < limit:
+                for sector_variable in sector_variables:
+                    add_scenarios(sector_variable)
+                    if len(ordered) >= limit:
+                        break
+
+        return ordered[:limit]
     
     def suggest_variables(self, query: str, limit: int = 10) -> List[Tuple[str, int]]:
         """
@@ -430,8 +602,81 @@ class DataMetadata:
         """Get all variables in a category."""
         return sorted(self.variable_categories.get(category, []))
 
+    # Map free-text topic qualifiers to the internal variable categories.
+    _TOPIC_CATEGORY_KEYWORDS = {
+        'Buildings': ['building', 'buildings', 'residential', 'commercial', 'heating', 'cooling'],
+        'Transport': ['transport', 'transportation', 'mobility', 'vehicle', 'vehicles', 'travel', 'aviation', 'shipping'],
+        'Industry': ['industry', 'industrial', 'steel', 'cement', 'manufacturing'],
+        'Agriculture': ['agriculture', 'agricultural', 'crop', 'crops', 'livestock', 'farming'],
+        'Land Use': ['land use', 'land-use', 'land', 'forestry', 'forest', 'afolu'],
+        'Renewables': ['renewable', 'renewables', 'solar', 'wind', 'hydro', 'biomass', 'geothermal', 'photovoltaic'],
+        'Emissions': ['emission', 'emissions', 'co2', 'ghg', 'greenhouse', 'methane', 'ch4'],
+        'Economic': ['gdp', 'economy', 'economic', 'investment', 'price', 'cost'],
+        'Population': ['population', 'urban', 'urbanisation', 'urbanization', 'household'],
+        'Climate': ['temperature', 'warming', 'forcing'],
+        'Energy Supply': ['electricity', 'power', 'energy supply', 'capacity', 'generation'],
+        'Energy Demand': ['final energy', 'primary energy', 'energy demand', 'energy use'],
+    }
 
-def build_metadata_with_cache(ts_data: List[dict], models: List[dict] = None, 
+    def detect_topic_category(self, text: str) -> Optional[str]:
+        """Return the internal variable category implied by a topic qualifier, if any."""
+        lowered = (text or "").lower()
+        for category, keywords in self._TOPIC_CATEGORY_KEYWORDS.items():
+            if any(kw in lowered for kw in keywords):
+                return category
+        return None
+
+    def models_covering_topic(self, text: str) -> Tuple[Optional[str], List[str]]:
+        """
+        Given a free-text topic/sector qualifier, return the matched category and
+        the sorted list of models that report at least one variable in that category.
+        Returns (None, []) when no topic is detected.
+        """
+        category = self.detect_topic_category(text)
+        if not category:
+            return None, []
+        # Match the topic keywords directly against full variable names so sector
+        # variables (e.g. "Final Energy|Residential") are not lost to the single
+        # category bucket assigned in _categorize_variables.
+        keywords = self._TOPIC_CATEGORY_KEYWORDS.get(category, [])
+        models: Set[str] = set()
+        for variable in self.all_variables:
+            lowered = variable.lower()
+            if any(kw in lowered for kw in keywords):
+                models |= self.variable_models.get(variable, set())
+        return category, sorted(m for m in models if m)
+
+
+def _metadata_signature(ts_data: List[dict], models: List[dict] = None) -> str:
+    digest = hashlib.sha1()
+    digest.update(str(len(ts_data or [])).encode())
+    digest.update(str(len(models or [])).encode())
+
+    for record in ts_data or []:
+        if not record:
+            continue
+        parts = (
+            record.get("resultId", ""),
+            record.get("workspace_code", ""),
+            record.get("modelName") or record.get("model", ""),
+            record.get("scenario", ""),
+            record.get("region", ""),
+            record.get("variable", ""),
+            record.get("unit", ""),
+        )
+        digest.update("|".join(str(part) for part in parts).encode())
+        digest.update(b"\n")
+
+    for model in models or []:
+        if not model:
+            continue
+        digest.update(str(model.get("modelName", "")).encode())
+        digest.update(b"\n")
+
+    return digest.hexdigest()
+
+
+def build_metadata_with_cache(ts_data: List[dict], models: List[dict] = None,
                                cache_file: str = 'cache/data_metadata.pkl') -> DataMetadata:
     """
     Build or load DataMetadata with caching.
@@ -444,11 +689,25 @@ def build_metadata_with_cache(ts_data: List[dict], models: List[dict] = None,
     Returns:
         DataMetadata instance
     """
-    # Check cache
+    signature = _metadata_signature(ts_data, models)
+
+    # Check cache. A corrupt/incompatible cache must not crash; fall through
+    # to rebuilding from source instead.
     if os.path.exists(cache_file):
         logger.info(f"Loading metadata from cache: {cache_file}")
-        with open(cache_file, 'rb') as f:
-            return pickle.load(f)
+        payload = None
+        try:
+            with open(cache_file, 'rb') as f:
+                payload = pickle.load(f)
+        except Exception:
+            logger.warning("Failed to load metadata cache %s; rebuilding.", cache_file, exc_info=True)
+        if (
+            isinstance(payload, dict)
+            and payload.get("signature") == signature
+            and isinstance(payload.get("metadata"), DataMetadata)
+        ):
+            return payload["metadata"]
+        logger.info("Metadata cache is stale; rebuilding.")
     
     # Build new metadata
     logger.info("Building new data metadata...")
@@ -457,7 +716,7 @@ def build_metadata_with_cache(ts_data: List[dict], models: List[dict] = None,
     # Save to cache
     os.makedirs(os.path.dirname(cache_file), exist_ok=True)
     with open(cache_file, 'wb') as f:
-        pickle.dump(metadata, f)
+        pickle.dump({"signature": signature, "metadata": metadata}, f)
     logger.info(f"Metadata cached to: {cache_file}")
     
     return metadata

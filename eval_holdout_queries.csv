@@ -1,0 +1,61 @@
+id,query,expected_route,expected_variable,expected_region,expected_scenario,expected_model,useful_clarification,useful_link,no_hallucinated_data
+h001,show greenhouse gas emissions for World,data_query,Emissions|GHG,World,,,yes,results,yes
+h002,plot CO2 emissions for China,data_plotting,Emissions|CO2,China,,,yes,results,yes
+h003,electricity,data_query,,,,,yes,results,yes
+h004,oil,data_query,,,,,yes,results,yes
+h005,emissions,data_query,,,,,yes,results,yes
+h006,policy,data_query,,,,,yes,results,yes
+h007,NDC,data_query,,,,,yes,ndc_aspects,yes
+h008,show current policy emissions for EU,data_query,Emissions|CO2,EU,Current Policies,,yes,results,yes
+h009,what scenarios exist for solar capacity,data_query,Capacity|Electricity|Solar,,,,no,results,yes
+h010,plot wind capacity for India,data_plotting,Capacity|Electricity|Wind,India,,,yes,results,yes
+h011,show methane emissions for World,data_query,,World,,,yes,results,yes
+h012,compare solar and wind electricity capacity,data_plotting,Capacity|Electricity|Solar,,,,yes,results,yes
+h013,what is the WITCH model,model_explanation,,,,WITCH,no,models,yes
+h014,explain MESSAGEix assumptions,model_explanation,,,,MESSAGEix-GLOBIOM,no,models,yes
+h015,tell me about GCAM-PR 7,model_explanation,,,,GCAM-PR,no,models,yes
+h016,what are REMIND CCS assumptions,model_explanation,,,,REMIND,no,models,yes
+h017,which models are available,data_query,,,,,no,models,yes
+h018,list all scenarios,data_query,,,,,no,results,yes
+h019,list all regions,data_query,,,,,no,results,yes
+h020,list variables related to electricity,data_query,Electricity,,,,no,results,yes
+h021,show GDP for World,data_query,GDP|MER,World,,,no,results,yes
+h022,plot GDP for EU,data_plotting,GDP|MER,EU,,,yes,results,yes
+h023,show solar photovoltaic capacity for Greece,data_query,Capacity|Electricity|Solar,Greece,,,yes,results,yes
+h024,plot renewable electricity for Europe,data_plotting,,EU,,,yes,results,yes
+h025,show final energy in transport for EU,data_query,,EU,,,no,transport,yes
+h026,industry emissions in Europe,data_query,,EU,,,yes,results,yes
+h027,buildings energy demand for EU,data_query,,EU,,,yes,buildings,yes
+h028,AFOLU land use results,general_qa,,,,,no,afolu,yes
+h029,transportation transformation workspace,general_qa,,,,,no,transport,yes
+h030,buildings transformation results,general_qa,,,,,no,buildings,yes
+h031,where can I find Aqueduct,general_qa,,,,,no,application_library,yes
+h032,open Climate Watch,general_qa,,,,,no,application_library,yes
+h033,CDP Open Data Portal,general_qa,,,,,no,application_library,yes
+h034,policy catalogue explorer,general_qa,,,,,no,data_stories,yes
+h035,recovery policy database,general_qa,,,,,no,data_stories,yes
+h036,technology inventories data story,general_qa,,,,,no,data_stories,yes
+h037,barriers and enablers,general_qa,,,,,no,data_stories,yes
+h038,scenario metadata data story,general_qa,,,,,no,data_stories,yes
+h039,Fit for 55 results,general_qa,,EU,,,no,iam_compact,yes
+h040,cost of capital pathways,general_qa,,,,,no,iam_compact,yes
+h041,technology constrained net zero pathways,general_qa,,,,,no,iam_compact,yes
+h042,global impacts of NDCs,general_qa,,,,,no,ndc_aspects,yes
+h043,NDC transport results,general_qa,,,,,no,ndc_aspects,yes
+h044,NDC buildings results,general_qa,,,,,no,ndc_aspects,yes
+h045,show Emissions|CO2 for World under Baseline in 2050,data_query,Emissions|CO2,World,Baseline,,no,results,yes
+h046,show Emissions|CO2 for World under Baseline after 2030,data_query,Emissions|CO2,World,Baseline,,no,results,yes
+h047,latest available CO2 emissions for World,data_query,Emissions|CO2,World,,,no,results,yes
+h048,plot Emissions|CO2 for World under Baseline,data_plotting,Emissions|CO2,World,Baseline,,no,results,yes
+h049,CO2 emissions for EU28 under WWH,data_query,Emissions|CO2,EU28,WWH,,yes,results,yes
+h050,CO2 emissions for World using REMIND,data_query,Emissions|CO2,World,,REMIND,yes,results,yes
+h051,show data using GCAM,data_query,,,,GCAM,yes,results,yes
+h052,compare GCAM and MESSAGE for emissions,data_plotting,Emissions|CO2,,,,yes,results,yes
+h053,what countries are included,data_query,,,,,no,results,yes
+h054,what variables can you plot,data_query,,,,,no,results,yes
+h055,show all data categories,data_query,,,,,no,results,yes
+h056,custom analysis service,general_qa,,,,,no,analysis,yes
+h057,contact IAM PARIS team,general_qa,,,,,no,contact,yes
+h058,how can I browse online models,general_qa,,,,,no,application_library,yes
+h059,show electricity for India,data_query,,India,,,no,results,yes
+h060,show oil demand for EU,data_query,,EU,,,no,results,yes

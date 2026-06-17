@@ -342,7 +342,16 @@ def extract_region_from_query(query: str, region_dict: dict, region_candidates: 
     logger = logging.getLogger(__name__)
     logger.debug(f"Extracting region for query: '{query}'")
 
-    query_lower = query.lower()
+    query_text = str(query or "")
+    query_lower = query_text.lower()
+
+    def _explicit_region_name_match(name: str) -> bool:
+        name = str(name or "").strip()
+        if not name:
+            return False
+        if re.fullmatch(r"[A-Z0-9-]{2,4}", name):
+            return re.search(r"\b" + re.escape(name) + r"\b", query_text) is not None
+        return re.search(r"\b" + re.escape(name.lower()) + r"\b", query_lower) is not None
 
     # Optional fast-path: match explicit region codes from candidates (e.g., CHN, USA)
     if region_candidates:
@@ -367,6 +376,8 @@ def extract_region_from_query(query: str, region_dict: dict, region_candidates: 
             "united kingdom": "GBR",
             "uk": "GBR",
             "russia": "RUS",
+            "greece": "GREECE",
+            "greek": "GREECE",
         }
         for name in sorted(name_to_code.keys(), key=len, reverse=True):
             if re.search(r"\b" + re.escape(name) + r"\b", query_lower):
@@ -378,6 +389,8 @@ def extract_region_from_query(query: str, region_dict: dict, region_candidates: 
         for token in re.findall(r"[A-Za-z0-9-]{2,8}", query):
             token_lower = token.lower()
             if token_lower in candidate_set:
+                if len(token) <= 3 and not (token.isupper() or any(ch.isdigit() or ch == "-" for ch in token)):
+                    continue
                 logger.debug(f"Region candidate match: {candidate_set[token_lower]}")
                 return candidate_set[token_lower]
         # Fuzzy match for misspelled region codes
@@ -429,6 +442,8 @@ def extract_region_from_query(query: str, region_dict: dict, region_candidates: 
         "VN": "Viet Nam", "TH": "Thailand",
     }
     for token in re.findall(r"[A-Za-z]{2,4}", query):
+        if len(token) <= 3 and not token.isupper():
+            continue
         mapped = iso_code_map.get(token.upper())
         if mapped:
             # Try to resolve mapped country name to a region
@@ -449,7 +464,7 @@ def extract_region_from_query(query: str, region_dict: dict, region_candidates: 
             for region_name, region_info in region_group.items():
                 if isinstance(region_info, dict):
                     # Check region name
-                    if region_name.lower() in query_lower:
+                    if _explicit_region_name_match(region_name):
                         logger.debug(f"Exact region match: {region_name}")
                         return region_name
                     # Check countries with better matching
@@ -457,7 +472,7 @@ def extract_region_from_query(query: str, region_dict: dict, region_candidates: 
                     for country in countries:
                         # Check for exact country match or common variations
                         country_lower = country.lower()
-                        if country_lower in query_lower or query_lower in country_lower:
+                        if re.search(r"\b" + re.escape(country_lower) + r"\b", query_lower) or query_lower == country_lower:
                             logger.debug(f"Country match: {country} -> {region_name}")
                             return region_name
                         # Special handling for Greece (common in energy systems)
@@ -471,7 +486,7 @@ def extract_region_from_query(query: str, region_dict: dict, region_candidates: 
                 elif isinstance(region_info, list):
                     # Handle list format
                     for item in region_info:
-                        if isinstance(item, str) and item.lower() in query_lower:
+                        if isinstance(item, str) and _explicit_region_name_match(item):
                             logger.debug(f"List item match: {item} -> {region_name}")
                             return region_name
 

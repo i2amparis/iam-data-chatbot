@@ -1,0 +1,38 @@
+id,query,expected_route,expected_variable,expected_region,expected_scenario,expected_model,useful_clarification,useful_link,no_hallucinated_data
+feedback-001,show wind data for Greece,data_query,Capacity Additions|Electricity|Wind,GREECE,,,yes,results,yes
+feedback-002,show solar data for Greece,data_query,,GREECE,,,yes,results,yes
+feedback-003,show GDP for World under Baseline,data_query,GDP|MER,World,Baseline,,yes,results,yes
+feedback-004,net zero emissions for Europe,data_query,Emissions|CO2,EU,NZE_EUPol_Stand,,yes,iam_compact,yes
+feedback-005,current policy CO2 for Europe,data_query,Emissions|CO2,EU,Current Policies,,yes,results,yes
+feedback-006,current policies emissions for EU,data_query,Emissions|CO2,EU,Current Policies,,yes,results,yes
+feedback-007,show emissions in Greece,data_query,Emissions|CO2,GREECE,,,yes,results,yes
+feedback-008,display co2 emission trend for China,data_query,Emissions|CO2,CHN,,,yes,results,yes
+feedback-009,show greenhouse gases for World,data_query,Emissions|GHG,World,,,yes,results,yes
+feedback-010,current policy scenario emissions for EU,data_query,Emissions|CO2,EU,Current Policies,,yes,results,yes
+feedback-011,greenhouse gas pathways by country,data_query,Emissions|GHG,SE,,,yes,results,yes
+feedback-012,plot wind capacity for EU under Baseline,data_plotting,Capacity|Electricity|Wind,EU,Baseline,,yes,results,yes
+feedback-013,plot solar capacity for EU under Baseline,data_plotting,Capacity|Electricity|Solar,EU,Baseline,,yes,results,yes
+feedback-014,plot Emissions|CO2 for World under Policy,data_plotting,Emissions|CO2,World,Policy,,yes,results,yes
+feedback-015,show Emissions|CO2 for World under Policy,data_query,Emissions|CO2,World,Policy,,yes,results,yes
+feedback-016,energy in buildings for EU,data_query,Benchmarking|Buildings|Energy per capita,EU,,,yes,results,yes
+feedback-017,show greenhouse gas emissions for World,data_query,Emissions|GHG,World,,,yes,results,yes
+feedback-018,plot photovoltaic capacity for Greece,data_plotting,Capacity|Electricity|Solar,GREECE,,,yes,results,yes
+feedback-019,show current policy emissions for EU,data_query,Emissions|CO2,EU,Current Policies,,yes,results,yes
+feedback-020,show solar photovoltaic capacity for Greece,data_query,Capacity|Electricity|Solar,GREECE,,,yes,results,yes
+feedback-021,buildings energy demand for EU,data_query,IDA|Emissions|CO2|Energy|Demand|Buildings|CO2 intensity,EU,,,yes,results,yes
+feedback-022,CO2 emissions for EU28 under WWH,data_query,Emissions|CO2,EU28,WWH,,yes,results,yes
+feedback-023,CO2 emissions for World using REMIND,data_query,Emissions|CO2,World,,REMIND,yes,results,yes
+feedback-024,compare solar and wind capacity,data_plotting,Capacity|Electricity|Wind,,,,yes,results,yes
+feedback-025,nationally determined contributions emissions,data_query,Emissions|CO2,,NDC,,yes,results,yes
+feedback-026,NDC emissions for World,data_query,Emissions|CO2,World,NDC,,yes,ndc_aspects,yes
+feedback-027,plot co2 emission trend for China,data_plotting,Emissions|CO2,CHN,,,yes,results,yes
+feedback-028,NDC impacts for transport and buildings,data_query,Energy Service|Transportation|Freight,,NDC,,yes,ndc_aspects,yes
+feedback-029,compare wind power and solar PV,data_plotting,Capacity|Electricity|Wind,,,,yes,results,yes
+feedback-030,compare solar and wind electricity capacity,data_plotting,Capacity|Electricity|Wind,,,,yes,results,yes
+feedback-031,plot CO2 emissions for China,data_plotting,Emissions|CO2,CHN,,,yes,results,yes
+feedback-032,tell me about WITCH model,model_explanation,,,,WITCH,no,models,yes
+feedback-033,tell me about REMIND model,model_explanation,,,,REMIND,no,models,yes
+feedback-034,NDC buildings results,general_qa,,,,,no,ndc_aspects,yes
+feedback-035,buildings transformation results,general_qa,,,,,no,results,yes
+feedback-036,transportation transformation workspace,general_qa,,,,,no,results,yes
+feedback-037,AFOLU land use results,general_qa,,,,,no,results,yes

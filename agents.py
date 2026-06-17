@@ -74,6 +74,8 @@ class DataQueryAgent(BaseAgent):
             model_name="gpt-4-turbo",
             temperature=0,
             streaming=self.streaming,
+            timeout=30,
+            max_retries=1,
             api_key=self.resources["env"]["OPENAI_API_KEY"],
         )
 
@@ -140,7 +142,8 @@ Context from vector store: ```{{context}}```"""
         from data_utils import data_query
         models = self.resources.get("models", [])
         ts = self.resources.get("ts", [])
-        return data_query(query, models, ts, history=history).strip()
+        metadata = self.resources.get("metadata")
+        return data_query(query, models, ts, history=history, metadata=metadata).strip()
 
     def handle_with_entities(
         self,
@@ -151,7 +154,15 @@ Context from vector store: ```{{context}}```"""
         from data_utils import data_query
         models = self.resources.get("models", [])
         ts = self.resources.get("ts", [])
-        return data_query(query, models, ts, history=history, forced_entities=entities).strip()
+        metadata = self.resources.get("metadata")
+        return data_query(
+            query,
+            models,
+            ts,
+            history=history,
+            forced_entities=entities,
+            metadata=metadata,
+        ).strip()
 
 
 class ModelExplanationAgent(BaseAgent):
@@ -174,6 +185,8 @@ class ModelExplanationAgent(BaseAgent):
             model_name="gpt-4-turbo",
             temperature=0,
             streaming=self.streaming,
+            timeout=30,
+            max_retries=1,
             api_key=self.resources["env"]["OPENAI_API_KEY"],
         )
 
@@ -238,7 +251,8 @@ Context: ```{{context}}```"""
         from data_utils import data_query
         models = self.resources.get("models", [])
         ts = self.resources.get("ts", [])
-        return data_query(query, models, ts, history=history).strip()
+        metadata = self.resources.get("metadata")
+        return data_query(query, models, ts, history=history, metadata=metadata).strip()
 
 
 class DataPlottingAgent(BaseAgent):
@@ -271,6 +285,16 @@ class DataPlottingAgent(BaseAgent):
             if sanitized.get("variable") and "wind" in ql and "wind" not in v:
                 sanitized["variable"] = None
             if sanitized.get("variable") and "capacity" in ql and "capacity" not in v:
+                sanitized["variable"] = None
+            # Query asks about energy (final/primary/secondary) but the resolved
+            # variable is an emissions variable -> reject, so we never silently
+            # plot CO2 for an energy question.
+            if (
+                sanitized.get("variable")
+                and any(t in ql for t in ("final energy", "primary energy", "secondary energy"))
+                and "emission" not in ql
+                and "emission" in v
+            ):
                 sanitized["variable"] = None
             if sanitized.get("variable"):
                 intent = _infer_variable_intent(query)
@@ -338,6 +362,8 @@ class GeneralQAAgent(BaseAgent):
             model_name="gpt-4-turbo",
             temperature=0,
             streaming=True,
+            timeout=30,
+            max_retries=1,
             api_key=self.resources["env"]["OPENAI_API_KEY"],
         )
 

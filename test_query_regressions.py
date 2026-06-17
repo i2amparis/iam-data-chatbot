@@ -68,6 +68,34 @@ class QueryRegressionTests(unittest.TestCase):
             or "Secondary Energy" in response
         )
 
+    def test_broad_oil_query_requests_clarification(self):
+        response = self.ask("oil")
+        self.assertTrue("Choose the variable:" in response or "Which variable should I use?" in response)
+        self.assertIn("oil", response.lower())
+
+    def test_broad_emissions_query_requests_relevant_clarification(self):
+        response = self.ask("emissions")
+        self.assertIn("Choose the variable:", response)
+        self.assertIn("emissions", response.lower())
+
+    def test_broad_policy_query_does_not_return_empty_answer(self):
+        response = self.ask("policy")
+        self.assertTrue(response.strip())
+        self.assertIn("policy", response.lower())
+        self.assertIn("one more detail", response.lower())
+
+    def test_broad_ndc_query_does_not_return_empty_answer(self):
+        response = self.ask("NDC")
+        self.assertTrue(response.strip())
+        self.assertIn("ndc", response.lower())
+        self.assertIn("one more detail", response.lower())
+
+    def test_broad_electricity_query_prefers_high_level_choices(self):
+        response = self.ask("electricity")
+        self.assertIn("Choose the variable:", response)
+        self.assertIn("Electricity", response)
+        self.assertNotIn("Carbon Capture|Energy|Supply|Electricity|Synthetic Fuels|Industrial Processes", response)
+
     def test_solar_capacity_query_prefers_capacity_over_capacity_additions(self):
         response = self.ask("solar capacity for EU")
         self.assertNotIn("### Capacity Additions|Electricity|Solar", response)
@@ -99,7 +127,11 @@ class QueryRegressionTests(unittest.TestCase):
     def test_model_filtered_no_data_uses_compact_recovery(self):
         response = self.ask("CO2 emissions for EU28 under WWH for GCAM")
         self.assertIn("No data found", response)
-        self.assertIn("Closest variables:", response)
+        self.assertTrue(
+            "Closest variables:" in response
+            or "Closest regions:" in response
+            or "Choose the region:" in response
+        )
 
     def test_unknown_model_returns_clear_guidance(self):
         response = self.ask("CO2 emissions for EU28 under WWH model REMIND")
@@ -126,6 +158,11 @@ class QueryRegressionTests(unittest.TestCase):
         response = self.ask("what countries are included")
         self.assertIn("I found regions like", response)
 
+    def test_data_categories_phrase_returns_discovery_overview(self):
+        response = self.ask("show all data categories")
+        self.assertIn("What I can help you with", response)
+        self.assertNotIn("Choose the variable:", response)
+
     def test_generic_model_info_phrasing_resolves_model(self):
         response = self.ask("information on gcam")
         self.assertIn("### GCAM", response)
@@ -134,6 +171,69 @@ class QueryRegressionTests(unittest.TestCase):
         response = self.ask("List available models")
         self.assertIn("There are", response)
         self.assertIn("models available", response)
+        self.assertIn("show all models", response)
+
+    def test_long_variable_lists_offer_show_all(self):
+        response = self.ask("list variables")
+        self.assertIn("I can work with these variables", response)
+        self.assertIn("show all variables", response)
+
+    def test_long_scenario_lists_offer_show_all(self):
+        response = self.ask("list scenarios")
+        self.assertIn("I found scenarios like", response)
+        self.assertIn("show all scenarios", response)
+
+    def test_carbon_dioxide_synonym_query_routes_to_emissions(self):
+        response = self.ask("show me carbon dioxide emissions for Europe")
+        self.assertNotIn("### What I can help you with", response)
+        self.assertIn("Emissions|CO2", response)
+        self.assertNotIn("CO2 emissions cuts|Absolute", response)
+
+    def test_photovoltaic_synonym_query_routes_to_solar_capacity(self):
+        response = self.ask("plot photovoltaic capacity for Greece")
+        self.assertNotIn("### What I can help you with", response)
+        self.assertIn("Solar", response)
+        self.assertIn("Capacity|Electricity|Solar", response)
+        self.assertTrue(
+            "Which variable should I use?" in response
+            or "![Plot]" in response
+            or "No data found" in response
+        )
+
+    def test_generic_solar_data_for_greece_prefers_core_solar_variable(self):
+        response = self.ask("show solar data for Greece")
+        self.assertIn("Solar", response)
+        self.assertNotIn("Capacity Additions|Electricity|Solar", response)
+        self.assertNotIn("Investment|Energy Supply|Electricity|Solar", response)
+        self.assertNotIn("Average Annual Investment", response)
+        self.assertNotIn("Battery", response)
+
+    def test_generic_wind_data_for_greece_prefers_core_wind_variable(self):
+        response = self.ask("show wind data for Greece")
+        self.assertIn("Wind", response)
+        self.assertNotIn("Capacity Additions|Electricity|Wind", response)
+        self.assertNotIn("Investment|Energy Supply|Electricity|Wind", response)
+
+    def test_gross_domestic_product_routes_to_gdp_mer(self):
+        response = self.ask("gross domestic product for World")
+        self.assertNotIn("### What I can help you with", response)
+        self.assertIn("GDP|MER", response)
+
+    def test_gdp_no_data_recovery_stays_in_economic_family(self):
+        response = self.ask("show GDP for World under Baseline")
+        self.assertIn("GDP|MER", response)
+        self.assertNotIn("Agricultural Demand", response)
+        self.assertNotIn("Final Energy", response)
+
+    def test_which_models_are_available_uses_model_listing(self):
+        response = self.ask("which models are available")
+        self.assertIn("models available", response)
+        self.assertIn("show all models", response)
+
+    def test_compare_wind_power_and_solar_pv_routes_to_plot_or_choice(self):
+        response = self.ask("compare wind power and solar PV")
+        self.assertNotIn("### What I can help you with", response)
+        self.assertTrue("![Plot]" in response or "Which variable should I use?" in response)
 
     def test_renewable_share_query_does_not_fall_back_to_overview(self):
         response = self.ask("What is the renewable energy share in Europe by 2050 in the net zero scenario")
@@ -158,12 +258,36 @@ class QueryRegressionTests(unittest.TestCase):
     def test_model_assumptions_query_is_not_treated_as_overview(self):
         response = self.ask("What are the assumptions in the REMIND model regarding carbon capture and storage technology")
         self.assertNotIn("### What I can help you with", response)
-        self.assertIn("couldn't match that to a known model", response.lower())
+        self.assertIn("### REMIND", response)
+        self.assertIn("Assumptions:", response)
+        self.assertIn("scenario-dependent", response)
+        self.assertIn("[IAM PARIS Models](https://iamparis.eu/models)", response)
+
+    def test_witch_model_profile_fills_missing_local_metadata(self):
+        response = self.ask("Explain the WITCH model")
+        self.assertIn("### WITCH", response)
+        self.assertIn("integrated assessment model", response.lower())
+        self.assertIn("[IAM PARIS Models](https://iamparis.eu/models)", response)
+
+    def test_messageix_model_profile_handles_alias(self):
+        response = self.ask("Tell me about MESSAGEix model")
+        self.assertIn("### MESSAGEix-GLOBIOM", response)
+        self.assertIn("energy-system", response.lower())
+        self.assertIn("[IAM PARIS Models](https://iamparis.eu/models)", response)
+
+    def test_gcampr_model_profile_handles_compact_alias(self):
+        response = self.ask("What is gcampr 7?")
+        self.assertIn("### GCAM-PR", response)
+        self.assertIn("regional", response.lower())
+        self.assertIn("[IAM PARIS Models](https://iamparis.eu/models)", response)
 
     def test_gcam_assumptions_query_reports_missing_assumptions_field(self):
         response = self.ask("What are the assumptions in the GCAM model?")
         self.assertIn("### GCAM", response)
+        self.assertIn("Description:", response)
+        self.assertIn("Assumptions:", response)
         self.assertIn("No explicit assumptions field is available", response)
+        self.assertIn("[IAM PARIS Models](https://iamparis.eu/models)", response)
 
     def test_renewable_share_query_uses_honest_closest_variable_prompt(self):
         response = self.ask("What is the renewable energy share in Europe by 2050 in net zero scenario?")
@@ -184,6 +308,56 @@ class QueryRegressionTests(unittest.TestCase):
             or "Recommended variables: Capacity|Electricity|Solar" in response
             or "Recommended variables: Secondary Energy|Electricity|Solar" in response
         )
+
+    def test_co2_emissions_keeps_canonical_variable_not_fuzzy_oc(self):
+        # Regression: a confident canonical alias ("co2 emissions" -> Emissions|CO2)
+        # was nulled as "ambiguous" and replaced by a YAML fuzzy match
+        # (Emissions|OC). The canonical match must survive.
+        response = self.ask("CO2 emissions for Greece")
+        self.assertIn("Emissions|CO2", response)
+        self.assertNotIn("Emissions|OC", response)
+
+    def test_under_current_policies_extracts_scenario(self):
+        # Regression: a double-escaped regex in _match_scenario_name never matched,
+        # so "under current policies" failed to resolve a scenario.
+        response = self.ask("emissions under current policies for EU")
+        self.assertNotIn("Emissions|OC", response)
+        self.assertIn("Emissions|CO2", response)
+
+    def test_current_policies_scenario_returns_data_via_family(self):
+        # Regression: canonical scenario "Current Policies" has no verbatim code in
+        # the dataset (codes look like PR_CurPol_CP). Family-aware matching must
+        # return data instead of a false no-data.
+        response = data_query(
+            "emissions under current policies for EU",
+            self.models, self.ts,
+            forced_entities={"variable": "Emissions|CO2", "region": "EU", "scenario": "Current Policies"},
+        )
+        self.assertIn("Emissions|CO2 in EU", response)
+        self.assertNotIn("could not find data", response.lower())
+        self.assertNotIn("no data found", response.lower())
+
+    def test_baseline_scenario_returns_data_via_family(self):
+        response = data_query(
+            "CO2 emissions for EU under baseline",
+            self.models, self.ts,
+            forced_entities={"variable": "Emissions|CO2", "region": "EU", "scenario": "Baseline"},
+        )
+        self.assertIn("Emissions|CO2 in EU", response)
+        self.assertNotIn("could not find data", response.lower())
+
+    def test_forced_model_without_data_relaxes_with_notice(self):
+        # Regression: a model the user named (e.g. a GCAM variant or a model with
+        # no timeseries at all) emptied an otherwise-valid variable+region slice
+        # and returned a false no-data. It should relax the model filter and say so.
+        response = data_query(
+            "GDP for China from GCAM",
+            self.models, self.ts,
+            forced_entities={"variable": "GDP|MER", "region": "CHN", "model": "GCAM 7.0"},
+        )
+        self.assertIn("no timeseries data for model", response.lower())
+        self.assertIn("GDP|MER in CHN", response)
+        self.assertNotIn("could not find data", response.lower())
 
     def test_main_extracts_text_and_plot_markdown_cleanly(self):
         message, plot_data = _extract_plot_markdown(

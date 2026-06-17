@@ -1,10 +1,29 @@
 import re
 import warnings
 import logging
+import functools
+import threading
 import pandas as pd
+import matplotlib
+matplotlib.use("Agg", force=True)
 import matplotlib.pyplot as plt
 import base64
 from io import BytesIO
+
+# matplotlib's pyplot keeps global figure state that is NOT thread-safe. FastAPI
+# runs sync endpoints in a worker threadpool, so concurrent plot requests could
+# interleave plt.figure()/savefig()/close() and corrupt each other's output.
+# Serialize all plot entrypoints behind a reentrant lock (entrypoints can call
+# one another, hence RLock).
+_PLOT_LOCK = threading.RLock()
+
+
+def _serialized_plot(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        with _PLOT_LOCK:
+            return func(*args, **kwargs)
+    return wrapper
 from typing import List, Dict, Any, Optional, Tuple
 from utils_query import (
     match_variable_from_yaml,
@@ -16,6 +35,8 @@ from utils_query import (
     resolve_natural_language_variable_ranked,
     format_region_label,
 )
+from model_aliases import match_model_name
+from year_filters import extract_year_range, select_years
 
 
 def _is_capacity_additions_mismatch(question: str, variable: str | None) -> bool:
@@ -70,6 +91,106 @@ def _year_range_text(start_year: int | None = None, end_year: int | None = None)
     return ""
 
 
+def _format_compact_options(label: str, values: list[str]) -> str:
+    if not values:
+        return ""
+    formatted = ", ".join(f"`{str(value).strip()}`" for value in values[:3] if str(value).strip())
+    if not formatted:
+        return ""
+    return f"\n- Closest {label}: {formatted}"
+
+
+def _compact_plot_recovery_prompt(
+    message: str,
+    variable_options: list[str] | None = None,
+    region_options: list[str] | None = None,
+    scenario_options: list[str] | None = None,
+) -> str:
+    parts = [message.strip()]
+    parts.append(_format_compact_options("variables", variable_options or []))
+    parts.append(_format_compact_options("regions", region_options or []))
+    parts.append(_format_compact_options("scenarios", scenario_options or []))
+    parts.append("\nReply with the option you want to use.")
+    return "".join(part for part in parts if part)
+
+
+def _matrix_plot_recovery_prompt(
+    metadata: Any | None,
+    message: str,
+    variable: str | None = None,
+    region: str | None = None,
+    scenario: str | None = None,
+    model: str | None = None,
+) -> str | None:
+    if not metadata:
+        return None
+
+    def _same_family_variable_options(limit: int = 3) -> list[str]:
+        if not variable:
+            return []
+        base = str(variable or "").strip()
+        base_lower = base.lower()
+        all_variables = sorted(getattr(metadata, "all_variables", set()) or [])
+        if not all_variables:
+            return []
+
+        def valid(candidate: str) -> bool:
+            candidate_lower = candidate.lower()
+            if candidate == base:
+                return False
+            if "solar" in base_lower:
+                return "solar" in candidate_lower and "investment" not in candidate_lower and "additions" not in candidate_lower
+            if "wind" in base_lower:
+                return "wind" in candidate_lower and "investment" not in candidate_lower and "additions" not in candidate_lower
+            if base_lower.startswith("gdp"):
+                return candidate_lower.startswith("gdp")
+            if base_lower.startswith("emissions|co2"):
+                return candidate_lower.startswith("emissions|co2")
+            family = base.split("|", 1)[0].lower()
+            return bool(family and candidate_lower.startswith(family))
+
+        return [candidate for candidate in all_variables if valid(candidate)][:limit]
+
+    options = metadata.suggest_valid_options(
+        variable=variable,
+        region=region,
+        scenario=scenario,
+        model=model,
+        limit=3,
+    )
+    variable_options = [opt for opt in options.get("variables", []) if opt != variable]
+    if variable and not variable_options:
+        variable_options = _same_family_variable_options()
+    elif not variable_options:
+        variable_options = metadata.suggest_valid_options(
+            region=region,
+            scenario=scenario,
+            model=model,
+            limit=3,
+        ).get("variables", [])
+        variable_options = [opt for opt in variable_options if opt != variable]
+
+    region_options = [opt for opt in options.get("regions", []) if opt != region]
+    if hasattr(metadata, "suggest_scenarios_by_scope"):
+        scenario_options = metadata.suggest_scenarios_by_scope(
+            variable=variable,
+            region=region,
+            model=model,
+            exclude=scenario,
+            limit=3,
+        )
+    else:
+        scenario_options = [opt for opt in options.get("scenarios", []) if opt != scenario]
+    if not (variable_options or region_options or scenario_options):
+        return None
+    return _compact_plot_recovery_prompt(
+        message,
+        variable_options=variable_options,
+        region_options=region_options,
+        scenario_options=scenario_options,
+    )
+
+
 def _plot_subject(variable: str, region: str | None = None) -> str:
     label = _pretty_variable_name(variable)
     if region:
@@ -85,13 +206,15 @@ def _preferred_plot_family_matches(question: str, available_vars: set[str]) -> l
     ql = str(question or "").lower()
     candidates: list[str] = []
 
-    if "solar" in ql:
-        if "capacity" in ql:
+    solar_terms = ("solar", "pv", "photovoltaic", "photovoltaics")
+    if any(term in ql for term in solar_terms):
+        if any(token in ql for token in ["capacity", "data"]):
             candidates.extend(
                 v for v in available_vars
                 if "solar" in v.lower() and "capacity|electricity" in v.lower()
+                and "additions" not in v.lower()
             )
-        if any(token in ql for token in ["energy", "electricity", "power", "generation"]):
+        if any(token in ql for token in ["energy", "electricity", "power", "generation", "data"]):
             candidates.extend(
                 v for v in available_vars
                 if "solar" in v.lower()
@@ -101,6 +224,27 @@ def _preferred_plot_family_matches(question: str, available_vars: set[str]) -> l
                     or "capacity|electricity" in v.lower()
                 )
                 and "investment" not in v.lower()
+                and "additions" not in v.lower()
+            )
+
+    if "wind" in ql:
+        if any(token in ql for token in ["capacity", "data"]):
+            candidates.extend(
+                v for v in available_vars
+                if "wind" in v.lower() and "capacity|electricity" in v.lower()
+                and "additions" not in v.lower()
+            )
+        if any(token in ql for token in ["energy", "electricity", "power", "generation", "data"]):
+            candidates.extend(
+                v for v in available_vars
+                if "wind" in v.lower()
+                and (
+                    "secondary energy|electricity" in v.lower()
+                    or "generation|electricity" in v.lower()
+                    or "capacity|electricity" in v.lower()
+                )
+                and "investment" not in v.lower()
+                and "additions" not in v.lower()
             )
 
     if "oil" in ql and any(token in ql for token in ["demand", "consumption", "energy", "use"]):
@@ -177,12 +321,25 @@ def _wrap_plot_markdown(
     else:
         caption = f"{prefix} {subject}{years}."
     return caption + "\n" + plot_str
+
+
+def save_plot_to_base64() -> str:
+    """Return the current matplotlib figure as an inline markdown image."""
+    buf = BytesIO()
+    plt.savefig(buf, format="png", dpi=150, bbox_inches="tight")
+    buf.seek(0)
+    img_base64 = base64.b64encode(buf.read()).decode("utf-8")
+    plt.close()
+    return f"![Plot](data:image/png;base64,{img_base64})"
+
+
 from utils.yaml_loader import load_all_yaml_files
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 
 # Global metadata instance (lazy loaded)
 _metadata = None
+_metadata_signature = None
 logger = logging.getLogger(__name__)
 
 # Suppress tight_layout warnings globally for cleaner output
@@ -194,10 +351,24 @@ warnings.filterwarnings(
 
 def get_metadata(ts_data: List[Dict] = None, models: List[Dict] = None):
     """Get or create DataMetadata instance."""
-    global _metadata
-    if _metadata is None and ts_data is not None:
+    global _metadata, _metadata_signature
+    signature = None
+    if ts_data is not None:
+        sample = []
+        for record in list(ts_data[:3]) + list(ts_data[-3:] if len(ts_data) > 3 else []):
+            if not record:
+                continue
+            sample.append((
+                record.get("variable"),
+                record.get("region"),
+                record.get("scenario"),
+                record.get("modelName"),
+            ))
+        signature = (len(ts_data), tuple(sample))
+    if ts_data is not None and (_metadata is None or signature != _metadata_signature):
         from data_metadata import build_metadata_with_cache
         _metadata = build_metadata_with_cache(ts_data, models)
+        _metadata_signature = signature
     return _metadata
 
 
@@ -221,6 +392,8 @@ def generate_llm_suggestion(query: str, variable: str, region: str,
     llm = ChatOpenAI(
         model_name="gpt-4-turbo",
         temperature=0.7,
+        timeout=30,
+        max_retries=1,
         api_key=api_key
     )
     
@@ -296,13 +469,13 @@ def detect_region_comparison(question: str, metadata) -> List[str]:
 
     def _match_region(text: str) -> str | None:
         t = text.lower()
-        if re.search(r"\\busa\\b|\\bunited\\s+states\\b|\\bu\\.s\\.\\b|\\bus\\b", t):
+        if re.search(r"\busa\b|\bunited\s+states\b|\bu\.s\.\b|\bus\b", t):
             return "USA"
-        if re.search(r"\\beu\\b|\\beurope\\b|\\beuropean\\b", t):
+        if re.search(r"\beu\b|\beurope\b|\beuropean\b", t):
             return "EU"
-        if re.search(r"\\bchina\\b|\\bchn\\b", t):
+        if re.search(r"\bchina\b|\bchn\b", t):
             return "CHN"
-        if re.search(r"\\bindia\\b|\\bind\\b", t):
+        if re.search(r"\bindia\b|\bind\b", t):
             return "IND"
         # Prefer exact region names if present in text
         all_regions = sorted({reg for regs in metadata.variable_regions.values() for reg in regs})
@@ -321,9 +494,14 @@ def detect_region_comparison(question: str, metadata) -> List[str]:
         r2 = _match_region(right)
         if r1 and r2 and r1 != r2:
             return [r1, r2]
-    # Handle "for X and Y" or "in X and Y"
-    if " and " in ql and (" for " in ql or " in " in ql):
-        anchor = " for " if " for " in ql else " in "
+    # Handle "between X and Y", "for X and Y", or "in X and Y"
+    if " and " in ql and (" between " in ql or " for " in ql or " in " in ql):
+        if " between " in ql:
+            anchor = " between "
+        elif " for " in ql:
+            anchor = " for "
+        else:
+            anchor = " in "
         tail = ql.rsplit(anchor, 1)[-1]
         parts = [p.strip() for p in tail.split(" and ") if p.strip()]
         if len(parts) >= 2:
@@ -334,6 +512,7 @@ def detect_region_comparison(question: str, metadata) -> List[str]:
     return []
 
 
+@_serialized_plot
 def plot_variable_across_regions(question: str, model_data: List[Dict], ts_data: List[Dict],
                                  variable: str, regions: List[str],
                                  scenario: str = None, start_year: int = None,
@@ -343,6 +522,7 @@ def plot_variable_across_regions(question: str, model_data: List[Dict], ts_data:
     """
     if not variable or not regions:
         return "Could not identify enough regions to compare."
+    metadata = get_metadata(ts_data, model_data)
 
     # Collect data for each region
     all_data = {}
@@ -365,7 +545,15 @@ def plot_variable_across_regions(question: str, model_data: List[Dict], ts_data:
                 unit = filtered[0].get('unit', '')
 
     if not all_data:
-        return f"No data found for **{variable}** in the requested regions."
+        region_scope = regions[0] if len(regions) == 1 else None
+        recovery = _matrix_plot_recovery_prompt(
+            metadata,
+            f"No data found for **{variable}** in the requested regions.",
+            variable=variable,
+            region=region_scope,
+            scenario=scenario,
+        )
+        return recovery or f"No data found for **{variable}** in the requested regions."
 
     plt.figure(figsize=(12, 7))
     colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b']
@@ -418,7 +606,8 @@ def plot_variable_across_regions(question: str, model_data: List[Dict], ts_data:
     return _wrap_plot_markdown(plot_str, variable, None, scenario, list(scenarios_in_data), start_year, end_year, prefix="Showing")
 
 
-def plot_multiple_variables(question: str, model_data: List[Dict], ts_data: List[Dict], 
+@_serialized_plot
+def plot_multiple_variables(question: str, model_data: List[Dict], ts_data: List[Dict],
                             variables: List[str], region: str = None, 
                             scenario: str = None, start_year: int = None, 
                             end_year: int = None) -> str:
@@ -593,6 +782,7 @@ def plot_multiple_variables(question: str, model_data: List[Dict], ts_data: List
     return _wrap_plot_markdown(plot_str, caption_var, region, scenario, list(scenarios_in_data), start_year, end_year, prefix="Showing comparison of")
 
 
+@_serialized_plot
 def plot_model_comparison(question: str, model_data: List[Dict], ts_data: List[Dict],
                           variable: str, models: List[str], region: str = None,
                           scenario: str = None, start_year: int = None, 
@@ -788,7 +978,8 @@ def plot_model_comparison(question: str, model_data: List[Dict], ts_data: List[D
     return _wrap_plot_markdown(plot_str, f"model comparison of {_pretty_variable_name(resolved_variable)}", region, scenario, list(scenarios_in_data), start_year, end_year, prefix="Showing")
 
 
-def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_data: List[Dict], 
+@_serialized_plot
+def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_data: List[Dict],
                                     entities: Dict[str, Any], region: str = None) -> str:
     """
     Generate a plot using pre-extracted entities for better accuracy.
@@ -863,11 +1054,19 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
     if isinstance(variable, str):
         variable = variable.strip()
     scenario = entities.get('scenario')
+    comparison = entities.get('comparison')
+    scenarios_list = entities.get('scenarios')
+    if isinstance(scenarios_list, list):
+        scenarios_list = [str(item).strip() for item in scenarios_list if str(item or "").strip()]
+    else:
+        scenarios_list = []
+    if scenarios_list:
+        scenario = None
+        comparison = "scenario"
     model = entities.get('model')
     start_year = entities.get('start_year')
     end_year = entities.get('end_year')
     unit = entities.get('unit')
-    comparison = entities.get('comparison')
 
     if variable:
         v = str(variable).lower()
@@ -1007,7 +1206,11 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
             continue
         if model and r.get('model') != model:
             continue
-        if scenario and r.get('scenario') != scenario:
+        row_scenario = str(r.get('scenario', '') or '')
+        if scenarios_list:
+            if row_scenario not in scenarios_list:
+                continue
+        elif scenario and row_scenario != scenario:
             continue
         # Case-insensitive region matching
         if region:
@@ -1154,6 +1357,7 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
     return _wrap_plot_markdown(plot_str, variable, region, scenario, list(scenarios_in_data), start_year, end_year)
 
 
+@_serialized_plot
 def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict], region: str = None) -> str:
     """
     Generate a plot based on natural language query.
@@ -1172,14 +1376,7 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
     from utils_query import extract_region_from_query, find_closest_variable_name, resolve_natural_language_variable_universal
 
     def _extract_year_range(text: str) -> tuple[Optional[int], Optional[int]]:
-        m = re.search(r"\b(19\d{2}|20\d{2})\s*(?:-|to|–|—)\s*(19\d{2}|20\d{2})\b", text)
-        if m:
-            return int(m.group(1)), int(m.group(2))
-        m = re.search(r"\b(19\d{2}|20\d{2})\b", text)
-        if m:
-            y = int(m.group(1))
-            return y, y
-        return None, None
+        return extract_year_range(text)
     
     metadata = get_metadata(ts_data, model_data)
     region_compare = detect_region_comparison(question, metadata)
@@ -1306,20 +1503,7 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
     model_match = None
     model_names = sorted({m.get('modelName', '') for m in model_data if m and m.get('modelName')})
     if model_names:
-        q_lower = question.lower()
-        # Prefer explicit patterns like "for GCAM" or "using REMIND"
-        for m in model_names:
-            if not m:
-                continue
-            pattern = r"(?:for|in|using)\s+" + re.escape(m.lower())
-            if re.search(pattern, q_lower):
-                model_match = m
-                break
-        if not model_match and "model" in q_lower:
-            for m in model_names:
-                if m and m.lower() in q_lower:
-                    model_match = m
-                    break
+        model_match = match_model_name(question, model_names)
 
     # Extract scenario from query if mentioned
     scenario = None
@@ -1343,6 +1527,29 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
 
     # Extract year range if mentioned
     start_year, end_year = _extract_year_range(question_lower)
+
+    if (
+        metadata
+        and variable
+        and region
+        and scenario
+        and not metadata.combination_exists(
+            variable,
+            region=region,
+            scenario=scenario,
+            model=model_match or None,
+        )
+    ):
+        matrix_prompt = _matrix_plot_recovery_prompt(
+            metadata,
+            f"No data found for **{variable}** in region `{region}` under scenario `{scenario}`.",
+            variable=variable,
+            region=region,
+            scenario=scenario,
+            model=model_match or None,
+        )
+        if matrix_prompt:
+            return matrix_prompt
     
     # Filter data
     filtered_data = []
@@ -1362,6 +1569,17 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
     if not filtered_data:
         from collections import Counter
         from difflib import get_close_matches
+
+        matrix_prompt = _matrix_plot_recovery_prompt(
+            metadata,
+            f"No data found for **{variable}** in region `{region}` under scenario `{scenario}`.",
+            variable=variable,
+            region=region,
+            scenario=scenario,
+            model=model_match or None,
+        )
+        if matrix_prompt:
+            return matrix_prompt
 
         scoped_regions = sorted({
             str(r.get('region', '')) for r in ts_data
@@ -1434,17 +1652,7 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
     # Get year columns
     year_cols = [col for col in df.columns if str(col).isdigit()]
     if start_year or end_year:
-        filtered_years = []
-        for y in year_cols:
-            try:
-                yi = int(y)
-            except Exception:
-                continue
-            if start_year and yi < start_year:
-                continue
-            if end_year and yi > end_year:
-                continue
-            filtered_years.append(y)
+        filtered_years = select_years([str(year) for year in year_cols], start_year, end_year)
         if filtered_years:
             year_cols = filtered_years
     if not year_cols:
