@@ -60,6 +60,8 @@ _rate_lock = threading.Lock()
 # --- CORS -------------------------------------------------------------------
 _origins_env = os.getenv("IAM_ALLOWED_ORIGINS", "").strip()
 ALLOWED_ORIGINS = [o.strip() for o in _origins_env.split(",") if o.strip()] or [
+    "https://iamparis.eu",
+    "https://www.iamparis.eu",
     "http://localhost:3000",
     "http://localhost:8000",
 ]
