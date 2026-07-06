@@ -182,14 +182,27 @@ def suggest_links(
         )
     )
 
+    # Minimum-relevance gate: absolute floor filters unrelated queries (junk
+    # token overlap tops out well below 10), the relative floor drops weak
+    # tail links when one link clearly dominates.
+    min_score = 10.0
+    top_score = scored[0][0] if scored else 0.0
+
     selected: list[RelevantLink] = []
-    seen: set[tuple[str, str, str]] = set()
+    seen: set[str] = set()
     for score, item, matched_keywords in scored:
-        key = (
-            str(item.get("title", "")),
-            str(item.get("url", "")),
-            str(item.get("search_hint", "")),
-        )
+        if score < min_score or score < top_score * 0.2:
+            continue
+        # Category boosts alone (e.g. +10 for any results page on a data query)
+        # must not qualify a link: require query-specific evidence beyond the
+        # boost and the flat verified-URL/search-hint bonuses (±1 point).
+        category_boost = boosts.get(str(item.get("category", "")), 0.0)
+        if score - category_boost <= 1.5:
+            continue
+        # Dedup by URL so the same page never appears twice under different
+        # titles; fall back to title+hint for items without a URL.
+        url = str(item.get("url", ""))
+        key = url or f"{item.get('title', '')}|{item.get('search_hint', '')}"
         if key in seen:
             continue
         seen.add(key)
@@ -261,7 +274,9 @@ def suggest_links(
                 )
                 selected = selected[:limit]
 
-    if not selected:
+    # Only pad with the generic results page for data-centric answers; a general
+    # question with no real match is better served by no link than a wrong one.
+    if not selected and agent_name in {"data_query", "data_plotting", "modelling_suggestions"}:
         fallback = next((item for item in catalog if item.get("url") == "https://iamparis.eu/results"), None)
         if fallback:
             selected.append(

@@ -13,6 +13,8 @@ from langchain.prompts import (
 from langchain_openai import ChatOpenAI
 from langchain_community.chat_message_histories import ChatMessageHistory
 
+from llm_config import QA_MODEL
+
 
 def _load_skill_guidance(max_chars: int = 4000) -> str:
     """
@@ -71,7 +73,7 @@ class DataQueryAgent(BaseAgent):
         region_list = ", ".join(regions[:15]) + (f" ... and {len(regions)-15} more" if len(regions) > 15 else "")
         
         llm = ChatOpenAI(
-            model_name="gpt-4-turbo",
+            model_name=QA_MODEL,
             temperature=0,
             streaming=self.streaming,
             timeout=30,
@@ -182,7 +184,7 @@ class ModelExplanationAgent(BaseAgent):
         model_list = ", ".join(model_names)
         
         llm = ChatOpenAI(
-            model_name="gpt-4-turbo",
+            model_name=QA_MODEL,
             temperature=0,
             streaming=self.streaming,
             timeout=30,
@@ -268,42 +270,12 @@ class DataPlottingAgent(BaseAgent):
         Handle plotting with pre-extracted entities for better accuracy.
         """
         from simple_plotter import simple_plot_query_with_entities, simple_plot_query
-        from data_utils import _infer_variable_intent, _variable_matches_query_signal
+        from data_utils import sanitize_variable_for_query
         models = self.resources.get("models", [])
         ts = self.resources.get("ts", [])
         sanitized = dict(entities or {})
-        var = sanitized.get("variable")
-        if var:
-            ql = query.lower()
-            v = str(var).lower()
-            if "emission" in ql and "emission" not in v:
-                sanitized["variable"] = None
-            elif "co2" in ql and "co2" not in v:
-                sanitized["variable"] = None
-            if sanitized.get("variable") and "solar" in ql and "solar" not in v:
-                sanitized["variable"] = None
-            if sanitized.get("variable") and "wind" in ql and "wind" not in v:
-                sanitized["variable"] = None
-            if sanitized.get("variable") and "capacity" in ql and "capacity" not in v:
-                sanitized["variable"] = None
-            # Query asks about energy (final/primary/secondary) but the resolved
-            # variable is an emissions variable -> reject, so we never silently
-            # plot CO2 for an energy question.
-            if (
-                sanitized.get("variable")
-                and any(t in ql for t in ("final energy", "primary energy", "secondary energy"))
-                and "emission" not in ql
-                and "emission" in v
-            ):
-                sanitized["variable"] = None
-            if sanitized.get("variable"):
-                intent = _infer_variable_intent(query)
-                if not _variable_matches_query_signal(
-                    str(sanitized["variable"]),
-                    query,
-                    intent,
-                ):
-                    sanitized["variable"] = None
+        if sanitized.get("variable"):
+            sanitized["variable"] = sanitize_variable_for_query(sanitized["variable"], query)
 
         if not sanitized.get("variable") and not sanitized.get("variables") and not sanitized.get("models"):
             return simple_plot_query(query, models, ts)
@@ -346,34 +318,32 @@ class DataPlottingAgent(BaseAgent):
 class GeneralQAAgent(BaseAgent):
     def __init__(self, shared_resources: Dict[str, Any], streaming: bool = True):
         super().__init__(shared_resources, streaming)
-        self.chain = self._create_qa_chain()
+        # Built lazily: a missing vector store must not crash agent/manager
+        # initialization, only general-QA answers.
+        self.chain = None
+
+    def _ensure_chain(self) -> ConversationalRetrievalChain:
+        if self.chain is None:
+            self.chain = self._create_qa_chain()
+        return self.chain
 
     def _create_qa_chain(self) -> ConversationalRetrievalChain:
         vs = self.resources.get("vector_store")
         if not vs:
             raise ValueError("Vector store not found in shared resources")
-        
+
         # Get all model names for the system prompt
         models = self.resources.get("models", [])
         model_names = sorted([m.get('modelName', '') for m in models if m and m.get('modelName')])
         model_list = ", ".join(model_names)
-        
+
         llm = ChatOpenAI(
-            model_name="gpt-4-turbo",
+            model_name=QA_MODEL,
             temperature=0,
             streaming=True,
             timeout=30,
             max_retries=1,
             api_key=self.resources["env"]["OPENAI_API_KEY"],
-        )
-
-        message_history = ChatMessageHistory()
-        memory = ConversationSummaryBufferMemory(
-            llm=llm,
-            max_token_limit=2000,
-            chat_memory=message_history,
-            return_messages=True,
-            memory_key="chat_history"
         )
 
         skill_guidance = _load_skill_guidance()
@@ -410,10 +380,11 @@ Context: ```{{context}}```"""
 
         retriever = vs.as_retriever(search_type="similarity", search_kwargs={"k": 5})
 
+        # No internal memory: the session's chat_history (passed to handle) is
+        # the single source of conversation state, so the two never diverge.
         return ConversationalRetrievalChain.from_llm(
             llm=llm,
             retriever=retriever,
-            memory=memory,
             chain_type="stuff",
             combine_docs_chain_kwargs={"prompt": prompt},
             verbose=False,
@@ -422,25 +393,118 @@ Context: ```{{context}}```"""
     def handle(self, query: str, history: Optional[List[Tuple[str, str]]] = None) -> str:
         if history is None:
             history = []
-        resp = self.chain.invoke({"question": query, "chat_history": history})
+        try:
+            chain = self._ensure_chain()
+        except ValueError:
+            return (
+                "General Q&A is unavailable because the knowledge index is not loaded. "
+                "You can still ask data questions like `show CO2 emissions for Europe`."
+            )
+        # Keep only the recent turns to bound prompt size.
+        resp = chain.invoke({"question": query, "chat_history": history[-10:]})
         return resp.get("answer", "").strip()
 
 
 class ModellingSuggestionsAgent(BaseAgent):
+    DEFAULT_SUGGESTIONS = [
+        "Explore the impact of different carbon pricing scenarios on emission reductions.",
+        "Investigate the role of renewable energy adoption in achieving climate targets.",
+        "Analyze the effects of land-use changes on greenhouse gas emissions.",
+        "Study the implications of energy efficiency improvements across sectors.",
+        "Examine the potential of negative emissions technologies in climate mitigation pathways.",
+        "Assess the outcomes of different policy mixes on achieving net-zero targets.",
+    ]
+
+    TOPIC_SUGGESTIONS = {
+        "transport": (
+            ("transport", "transportation", "mobility", "vehicle", "vehicles", "freight", "aviation", "shipping"),
+            [
+                "Compare transport final energy demand across scenarios (try `show Final Energy|Transportation for Europe`).",
+                "Investigate electrification of road transport and its effect on transport CO2 emissions.",
+                "Compare transport decarbonisation pathways between models (e.g. `compare GCAM and REMIND for transport emissions`).",
+            ],
+        ),
+        "buildings": (
+            ("building", "buildings", "residential", "commercial", "heating", "cooling"),
+            [
+                "Study energy demand reductions in the buildings sector across scenarios.",
+                "Investigate heat-pump and electrification uptake in residential energy use.",
+                "Compare buildings final energy between regions (try `show Final Energy|Residential and Commercial`).",
+            ],
+        ),
+        "industry": (
+            ("industry", "industrial", "steel", "cement", "manufacturing"),
+            [
+                "Analyze industrial emissions pathways under different policy scenarios.",
+                "Investigate fuel switching and efficiency improvements in industry.",
+                "Compare industrial final energy demand across models and regions.",
+            ],
+        ),
+        "land use": (
+            ("land", "land-use", "afolu", "forest", "forestry", "agriculture", "agricultural", "crop"),
+            [
+                "Analyze the effects of land-use changes on greenhouse gas emissions.",
+                "Investigate afforestation and land-based mitigation potential across scenarios.",
+                "Explore the AFOLU transformation results workspace for sectoral pathways.",
+            ],
+        ),
+        "power and renewables": (
+            ("electricity", "power", "renewable", "renewables", "solar", "wind", "grid"),
+            [
+                "Investigate the role of renewable energy adoption in achieving climate targets (try `plot solar and wind capacity for Europe`).",
+                "Compare electricity generation mixes across scenarios and models.",
+                "Study the pace of coal phase-out in power generation under different policies.",
+            ],
+        ),
+        "emissions and carbon pricing": (
+            ("emission", "emissions", "co2", "ghg", "carbon", "price", "pricing", "tax"),
+            [
+                "Explore the impact of different carbon pricing scenarios on emission reductions.",
+                "Compare CO2 emissions pathways between scenarios (try `show Emissions|CO2 for World under Baseline`).",
+                "Examine the potential of negative emissions technologies in mitigation pathways.",
+            ],
+        ),
+    }
+
     def handle(self, query: str, history: Optional[List[Tuple[str, str]]] = None) -> str:
-        suggestions = [
-            "Explore the impact of different carbon pricing scenarios on emission reductions. See details at https://iamparis.eu/results.",
-            "Investigate the role of renewable energy adoption in achieving climate targets. More info at https://iamparis.eu/results.",
-            "Analyze the effects of land-use changes on greenhouse gas emissions. Relevant studies can be found at https://iamparis.eu/results.",
-            "Study the implications of energy efficiency improvements across sectors. Visit https://iamparis.eu/results for related data.",
-            "Examine the potential of negative emissions technologies in climate mitigation pathways. See https://iamparis.eu/results for studies.",
-            "Assess the outcomes of different policy mixes on achieving net-zero targets. Explore https://iamparis.eu/results for modelling results."
-        ]
-        # Always promote the results page
-        for i, suggestion in enumerate(suggestions):
-            if "https://iamparis.eu/results" not in suggestion:
-                suggestions[i] = suggestion.replace("https://iamparis.eu/results", "https://iamparis.eu/results")
-        response = "Here are some modelling study suggestions you could explore:\n\n"
-        for idx, suggestion in enumerate(suggestions, 1):
-            response += f"{idx}. {suggestion}\n"
-        return response
+        q = str(query or "").lower()
+        matched_topics: List[str] = []
+        suggestions: List[str] = []
+        for topic, (keywords, topic_suggestions) in self.TOPIC_SUGGESTIONS.items():
+            if any(keyword in q for keyword in keywords):
+                matched_topics.append(topic)
+                for suggestion in topic_suggestions:
+                    if suggestion not in suggestions:
+                        suggestions.append(suggestion)
+
+        if matched_topics:
+            intro = (
+                "Here are modelling study suggestions related to "
+                + ", ".join(matched_topics)
+                + ":"
+            )
+        else:
+            intro = "Here are some modelling study suggestions you could explore:"
+            suggestions = list(self.DEFAULT_SUGGESTIONS)
+
+        lines = [intro, ""]
+        for idx, suggestion in enumerate(suggestions[:6], 1):
+            lines.append(f"{idx}. {suggestion}")
+
+        # Ground the answer in what the loaded data actually covers.
+        metadata = self.resources.get("metadata")
+        if metadata is not None and hasattr(metadata, "models_covering_topic"):
+            try:
+                category, models = metadata.models_covering_topic(query)
+                if category and models:
+                    lines.append("")
+                    lines.append(
+                        f"{len(models)} IAM PARIS model(s) report {category.lower()} variables — "
+                        f"ask `which models cover {category.lower()}?` to see them."
+                    )
+            except Exception:
+                pass
+
+        lines.append("")
+        lines.append("Explore the underlying data at https://iamparis.eu/results.")
+        return "\n".join(lines)

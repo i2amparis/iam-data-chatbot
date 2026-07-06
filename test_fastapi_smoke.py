@@ -30,6 +30,7 @@ class _ManagerStub:
             }
         ]
         self.last_entities = {"region": "World"}
+        self.clarification_context = None
         self.last_route_decision = {
             "agent": "data_query",
             "confidence": 0.9,
@@ -41,9 +42,14 @@ class _ManagerStub:
         self.calls += 1
         if query == "needs clarification":
             self.last_entities = {}
+            self.clarification_context = {
+                "suggested_options": ["Emissions|CO2"],
+                "suggested_kind": "variable",
+            }
             return "Choose the variable: 1. `Emissions|CO2` (CO2 emissions) Reply with a number (1-1), or `yes` for option 1."
         if query == "1":
             self.last_entities = {"variable": "Emissions|CO2", "region": "World"}
+            self.clarification_context = None
             return "### Emissions|CO2 in World\n\nAnswer:\ncontinued from option 1"
         if query == "numeric answer":
             self.last_entities = {"variable": "Emissions|CO2", "region": "World", "scenario": "Baseline", "model": "GCAM"}
@@ -134,7 +140,7 @@ class FastAPISmokeTests(unittest.TestCase):
         self.assertEqual(body["route"]["agent"], "data_query")
         self.assertEqual(body["route"]["source"], "deterministic")
         self.assertEqual(body["route"]["confidence"], 0.9)
-        self.assertIn("Plot this result", body["suggested_next_questions"])
+        self.assertIn("Plot it", body["suggested_next_questions"])
         self.assertIn("matched_record_count", body["data_provenance"])
 
     def test_application_library_link_fallback_has_search_action(self):

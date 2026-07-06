@@ -783,6 +783,41 @@ def _variable_matches_query_signal(
     return score >= 12
 
 
+def sanitize_variable_for_query(variable, question: str, intent: str | None = None):
+    """Shared guard for extracted variables: return the variable when it is
+    consistent with explicit cues in the question, else None.
+
+    Single source of truth for the keyword sanity checks previously duplicated
+    in the manager and the plotting agent.
+    """
+    var = str(variable or "")
+    if not var:
+        return None
+    ql = str(question or "").lower()
+    vl = var.lower()
+    if any(t in ql for t in ("co2", "emission", "emissions")) and not ("co2" in vl or "emission" in vl):
+        return None
+    if "solar" in ql and "solar" not in vl:
+        return None
+    if "wind" in ql and "wind" not in vl:
+        return None
+    if "capacity" in ql and "capacity" not in vl:
+        return None
+    # An energy question (final/primary/secondary) must never resolve to an
+    # emissions variable just because its name contains "Energy".
+    if (
+        any(t in ql for t in ("final energy", "primary energy", "secondary energy"))
+        and "emission" not in ql
+        and "emission" in vl
+    ):
+        return None
+    if intent is None:
+        intent = _infer_variable_intent(question)
+    if not _variable_matches_query_signal(var, question, intent):
+        return None
+    return var
+
+
 def _is_capacity_additions_mismatch(question: str, variable: str | None) -> bool:
     ql = str(question or "").lower()
     vl = str(variable or "").lower()

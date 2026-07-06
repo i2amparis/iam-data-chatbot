@@ -36,6 +36,7 @@ _initialization_error = None
 _initialization_start_time = None
 SESSION_TTL_SECONDS = 3600
 MAX_SESSIONS = int(os.getenv("IAM_MAX_SESSIONS", "500"))
+HISTORY_MAX_TURNS = int(os.getenv("IAM_HISTORY_MAX_TURNS", "20"))
 _sessions: "OrderedDict[str, dict]" = OrderedDict()
 _sessions_lock = threading.Lock()
 
@@ -75,11 +76,27 @@ def require_api_key(x_api_key: str = Header(default="", alias="X-API-Key")) -> N
         raise HTTPException(status_code=401, detail="Invalid or missing API key.")
 
 
+# Behind a proxy/CDN every request shares the proxy's IP, so per-IP limiting
+# would throttle all users together. Trust X-Forwarded-For by default (set
+# IAM_TRUST_PROXY=0 when the API is exposed directly, since the header is
+# client-controlled in that case).
+TRUST_PROXY = os.getenv("IAM_TRUST_PROXY", "1").strip().lower() not in ("0", "false", "no")
+
+
+def _client_ip(request: Request) -> str:
+    if TRUST_PROXY:
+        forwarded = str(request.headers.get("x-forwarded-for") or "").strip()
+        if forwarded:
+            # First hop is the original client.
+            return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
 def enforce_rate_limit(request: Request) -> None:
     """Fixed-window per-IP rate limiter; raises HTTP 429 when exceeded."""
     if RATE_LIMIT_PER_MINUTE <= 0:
         return
-    client_ip = request.client.host if request.client else "unknown"
+    client_ip = _client_ip(request)
     now = time.time()
     with _rate_lock:
         window_start, count = _rate_buckets.get(client_ip, [now, 0])
@@ -591,16 +608,24 @@ def _suggested_next_questions(query: str, answer: str, manager: Any) -> List[str
         if item and item not in suggestions:
             suggestions.append(item)
 
+    available_scenarios = list(getattr(getattr(manager, "entity_extractor", None), "available_scenarios", []) or [])
+    baseline_scenario = next(
+        (scen for scen in available_scenarios if "baseline" in str(scen).lower()),
+        "",
+    )
+    current_scenario = str(entities.get("scenario") or "").lower()
+
     if agent in {"data_query", "data_plotting"}:
         if "I could not find data" in text or "No data found" in text:
             add("Show available scenarios")
             add("Show available regions")
-            add("Try the closest valid option")
+            add("Show available variables")
         else:
             if entities.get("variable") or entities.get("region"):
-                add("Plot this result")
-                add("Compare with Baseline")
-                add("Show this for 2050")
+                add("Plot it")
+                if baseline_scenario and "baseline" not in current_scenario:
+                    add(f"Compare with {baseline_scenario}")
+                add("By 2050")
             else:
                 add("Show available variables")
                 add("Show available regions")
@@ -615,7 +640,10 @@ def _suggested_next_questions(query: str, answer: str, manager: Any) -> List[str
         add("Help me find data")
         add("Open the related Application Library page")
 
-    if re.search(r"\b(reply with|choose the|which variable|which region|which scenario)\b", text, flags=re.IGNORECASE):
+    # Only offer option selection when a numbered choice is actually pending;
+    # otherwise the phrase has no handler and would confuse the router.
+    pending_clarification = dict(getattr(manager, "clarification_context", None) or {})
+    if pending_clarification.get("suggested_options"):
         add("Use the first option")
 
     return suggestions[:4]
@@ -679,6 +707,14 @@ def _split_answer_payload(answer: str) -> tuple[str, str, str, List[str]]:
     notices = _extract_notices(text)
     for notice in notices:
         text = re.sub(re.escape(notice), "", text, flags=re.IGNORECASE).strip()
+
+    # Links are returned separately in `relevant_links`; strip the inline list
+    # so frontends do not render the same links twice.
+    text = re.sub(
+        r"\n*Relevant IAM PARIS links:\n(?:- .*(?:\n|$))*",
+        "\n",
+        text,
+    ).strip()
 
     plot_base64 = ""
     plot_caption = ""
@@ -744,10 +780,21 @@ def _get_or_create_session(session_id: str = "", reset_session: bool = False):
     return session_id, new_state
 
 # FastAPI Setup
+from contextlib import asynccontextmanager
+
+
+@asynccontextmanager
+async def _lifespan(app: FastAPI):
+    """Initialize resources when the server starts."""
+    initialize_resources()
+    yield
+
+
 app = FastAPI(
     title='IAM Paris Data Chatbot API',
     description='Multi-agent conversational AI for IAM Paris climate data',
-    version='1.0.0'
+    version='1.0.0',
+    lifespan=_lifespan,
 )
 
 # CORS middleware
@@ -758,12 +805,6 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type", "X-API-Key"],
 )
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize resources when the server starts."""
-    initialize_resources()
 
 
 @app.post('/query', response_model=QueryResponse)
@@ -828,7 +869,9 @@ def query_chatbot(
         return QueryResponse(
             answer=answer_text,
             session_id=session_id,
-            history=chat_history,
+            # Cap the returned history so long conversations do not grow the
+            # payload unbounded; the full history stays in the session state.
+            history=chat_history[-HISTORY_MAX_TURNS:],
             plot_base64=plot_base64,
             plot_caption=plot_caption,
             notices=notices,

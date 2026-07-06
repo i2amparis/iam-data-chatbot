@@ -6,6 +6,7 @@ import requests.exceptions
 import time
 import hashlib
 import re
+from llm_config import QA_MODEL
 from pathlib import Path
 import argparse
 import requests
@@ -454,7 +455,7 @@ Context: ```{context}```"""
             HumanMessagePromptTemplate.from_template(user_tpl)
         ])
         llm = ChatOpenAI(
-            model_name="gpt-4-turbo",
+            model_name=QA_MODEL,
             temperature=0,
             streaming=self.streaming,
             timeout=30,

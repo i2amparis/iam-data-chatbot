@@ -1,4 +1,5 @@
 import re
+from llm_config import QA_MODEL
 import warnings
 import logging
 import functools
@@ -390,7 +391,7 @@ def generate_llm_suggestion(query: str, variable: str, region: str,
         Helpful suggestion message
     """
     llm = ChatOpenAI(
-        model_name="gpt-4-turbo",
+        model_name=QA_MODEL,
         temperature=0.7,
         timeout=30,
         max_retries=1,

@@ -22,6 +22,7 @@ from model_aliases import build_model_alias_map, match_model_name, normalize_mod
 from utils.yaml_loader import load_all_yaml_files
 from utils_query import extract_region_from_query, resolve_natural_language_variable_candidates
 from year_filters import extract_year_range
+from llm_config import EXTRACTOR_MODEL
 
 
 class QueryEntityExtractor:
@@ -38,7 +39,7 @@ class QueryEntityExtractor:
         
         # Initialize LLM
         self.llm = ChatOpenAI(
-            model_name="gpt-4-turbo",
+            model_name=EXTRACTOR_MODEL,
             temperature=0,
             timeout=30,
             max_retries=1,

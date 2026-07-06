@@ -709,7 +709,7 @@ class ManagerFallbackTests(unittest.TestCase):
         response = mgr._route_single("2")
         self.assertIn("don't have an active numbered choice", response.lower())
 
-    def test_clarification_expires_after_one_missed_turn(self):
+    def test_clarification_expires_after_grace_window(self):
         mgr = self._build_manager({})
         data_query_agent = _AgentStub(response="fresh question handled")
         mgr.agents = {
@@ -732,12 +732,30 @@ class ManagerFallbackTests(unittest.TestCase):
             "response": "Choose the variable: 1. `Final Energy|Non-Energy Use|Oil` 2. `Secondary Energy|Liquids|Oil`",
             "issued_turn": 1,
         }
+        # Within the grace window the numbered choice is still honoured.
         mgr.current_turn = 3
+        response = mgr._route_single("2")
+        self.assertNotIn("don't have an active numbered choice", response.lower())
+        self.assertEqual(data_query_agent.calls, 1)
 
+        # Past the grace window the pending choice expires.
+        mgr.clarification_context = {
+            "original_query": "Oil demand for EU",
+            "base_query": "Oil demand for EU",
+            "agent_type": "data_query",
+            "entities": {"region": "EU"},
+            "suggested_options": ["Final Energy|Non-Energy Use|Oil", "Secondary Energy|Liquids|Oil"],
+            "suggested_kind": "variable",
+            "suggested_variable": "Final Energy|Non-Energy Use|Oil",
+            "suggested_region": "EU",
+            "suggested_scenario": "",
+            "response": "Choose the variable: 1. `Final Energy|Non-Energy Use|Oil` 2. `Secondary Energy|Liquids|Oil`",
+            "issued_turn": 1,
+        }
+        mgr.current_turn = 5
         response = mgr._route_single("2")
         self.assertIn("don't have an active numbered choice", response.lower())
         self.assertIsNone(mgr.clarification_context)
-        self.assertEqual(data_query_agent.calls, 0)
 
     def test_repeated_query_prefixes_are_stripped(self):
         self.assertEqual(

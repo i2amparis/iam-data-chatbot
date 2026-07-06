@@ -14,11 +14,13 @@ from data_utils import (
     _looks_like_model_info_request,
     _looks_like_plot_request,
     _variable_matches_query_signal,
+    sanitize_variable_for_query,
 )
 from canonical_aliases import canonical_scenario_from_query, preferred_variable_from_query
 from link_router import format_relevant_links, suggest_links
 from model_profiles import find_model_profile, format_model_profile_answer
 from year_filters import extract_year_range
+from llm_config import ROUTER_MODEL
 
 
 def _looks_like_site_navigation_request(query: str) -> bool:
@@ -109,13 +111,45 @@ def _looks_like_site_navigation_request(query: str) -> bool:
     )
     if any(p in q for p in nav_phrases) and any(t in q for t in generic_site_targets):
         return True
-    if any(term in q for term in data_story_items):
+
+    # Guard: a data-shaped question ("find CO2 emissions data in the database",
+    # "show renewable energy metrics for EU") must stay a data query unless the
+    # user clearly asks for a page/link or names an unambiguous site item.
+    strong_nav_phrases = (
+        "where can i find", "where do i find", "where is",
+        "give me the link", "send me the link", "take me to", "navigate to",
+        "how do i access", "how can i access", "how do i open", "link to",
+    )
+    unambiguous_site_terms = named_site_items + (
+        "application library", "raw data application", "data story", "data stories",
+        "policy catalogue", "policy catalog", "recovery policy",
+        "technology inventories", "barriers and enablers", "scenario metadata",
+        "iam compact", "fit for 55", "fit-for-55", "post glasgow", "post-glasgow",
+        "ndc aspects", "global impacts of ndcs", "cost of capital", "steel relocation",
+    )
+    if (
+        _looks_like_data_request(q)
+        and not any(p in q for p in strong_nav_phrases)
+        and not any(t in q for t in unambiguous_site_terms)
+    ):
+        return False
+
+    # Multi-word data-story names are unambiguous; single-word ones (e.g.
+    # "circularity") additionally need navigation/data-story intent so that
+    # "what is circularity?" stays a general question.
+    if any(term in q for term in data_story_items if " " in term):
+        return True
+    if any(term in q for term in data_story_items if " " not in term) and (
+        "data story" in q or any(p in q for p in nav_phrases)
+    ):
         return True
     if "global impacts of ndcs" in q:
         return True
     if any(term in q for term in project_workspace_items) and any(term in q for term in ("results", "workspace", "policy questions", "metrics", "pathways", "targets", "aspects", "policy")):
         return True
-    if any(term in q for term in analysis_contact_items):
+    if any(term in q for term in ("custom analysis", "analysis service", "analysis support", "request analysis", "contact iam paris")):
+        return True
+    if re.search(r"\bcontact\b", q):
         return True
     if any(term in q for term in ("application library", "raw data application", "online model", "dashboard", "interactive map")):
         return True
@@ -166,17 +200,25 @@ class MultiAgentManager:
         self.last_route_decision: Dict[str, Any] = {}
         self.turn_counter: int = 0
         self.current_turn: int = 0
+        self.clarification_context: Optional[Dict[str, Any]] = None
 
-        # Initialize Query Entity Extractor
-        self.entity_extractor = QueryEntityExtractor(
-            models=shared_resources.get("models", []),
-            ts_data=shared_resources.get("ts", []),
-            api_key=shared_resources["env"]["OPENAI_API_KEY"]
-        )
+        # The extractor's lookups (variables/regions/scenarios over all ts
+        # records) are identical for every session; build once and share via
+        # shared_resources so per-session manager creation stays cheap.
+        shared_extractor = shared_resources.get("entity_extractor")
+        if shared_extractor is not None:
+            self.entity_extractor = shared_extractor
+        else:
+            self.entity_extractor = QueryEntityExtractor(
+                models=shared_resources.get("models", []),
+                ts_data=shared_resources.get("ts", []),
+                api_key=shared_resources["env"]["OPENAI_API_KEY"]
+            )
+            shared_resources["entity_extractor"] = self.entity_extractor
 
         # LLM for intelligent query routing
         self.router_llm = ChatOpenAI(
-            model_name="gpt-4-turbo",
+            model_name=ROUTER_MODEL,
             temperature=0,
             streaming=False,
             timeout=30,
@@ -216,10 +258,7 @@ class MultiAgentManager:
     Respond with ONLY the category name, nothing else.
 
     Skill guidance (for routing context):
-    {skill_guidance}
-
-    Question: {{query}}
-    Answer:"""),
+    {skill_guidance}"""),
                 HumanMessagePromptTemplate.from_template("Query: {query}")
             ])
 
@@ -353,8 +392,10 @@ class MultiAgentManager:
             link for link in links
             if str(link.get("url", "")) != result_link["url"]
         ]
+        # Never drop specific links to make room for the generic results page;
+        # only pad when there is space left.
         if len(deduped) >= 3:
-            deduped = deduped[:2]
+            return deduped
         return [*deduped, result_link]
 
     def _maybe_add_followup_guidance(self, response: str, query: str, agent_name: str) -> str:
@@ -428,7 +469,15 @@ class MultiAgentManager:
     def _workspace_result_answer(self, query: str, response: str) -> str:
         text = str(response or "").strip()
         q = str(query or "").lower()
-        if not any(term in q for term in ("fit-for-55", "fit for 55", "net zero", "net-zero", "iam compact")):
+        # Only redirect to the IAM COMPACT workspace when the query really is
+        # about it: an explicit project mention, or net-zero *in an EU context*.
+        # A generic failed "net zero" question must not get this answer.
+        explicit_project = any(term in q for term in ("fit-for-55", "fit for 55", "iam compact"))
+        net_zero_eu = (
+            any(term in q for term in ("net zero", "net-zero"))
+            and bool(re.search(r"\beu\b|europe", q))
+        )
+        if not (explicit_project or net_zero_eu):
             return response
         if not (
             not text
@@ -492,20 +541,43 @@ class MultiAgentManager:
                      f"(e.g. `{category.lower()} emissions for Europe`) to go deeper.")
         return "\n".join(lines)
 
+    def _closest_available_variable(
+        self,
+        canonical: str,
+        tokens: Tuple[str, ...],
+        available_variables: set,
+    ) -> str:
+        """Return `canonical` when availability is unknown or confirmed; else the
+        shortest available variable containing all `tokens`; else ""."""
+        if not available_variables or canonical in available_variables:
+            return canonical
+        candidates = [
+            variable for variable in available_variables
+            if all(token in variable.lower() for token in tokens)
+        ]
+        return min(candidates, key=len) if candidates else ""
+
     def _repair_comparison_entities(self, query: str, entities: Optional[Dict[str, Any]]) -> Dict[str, Any]:
         repaired = dict(entities or {})
         q = str(query or "").lower()
-        if re.search(r"\b(greenhouse gas|greenhouse gases|ghg)\b", q):
-            repaired["variable"] = "Emissions|GHG"
-            confidence = dict(repaired.get("entity_confidence") or {})
-            confidence["variable"] = max(float(confidence.get("variable", 0) or 0), 0.9)
-            repaired["entity_confidence"] = confidence
 
         available_variables = {
             str(record.get("variable", "") or "")
             for record in self.shared_resources.get("ts", [])
             if isinstance(record, dict) and record.get("variable")
         }
+
+        if re.search(r"\b(greenhouse gas|greenhouse gases|ghg)\b", q):
+            ghg_variable = self._closest_available_variable(
+                "Emissions|GHG", ("emissions", "ghg"), available_variables
+            ) or self._closest_available_variable(
+                "Emissions|Kyoto Gases", ("emissions", "kyoto"), available_variables
+            )
+            if ghg_variable:
+                repaired["variable"] = ghg_variable
+                confidence = dict(repaired.get("entity_confidence") or {})
+                confidence["variable"] = max(float(confidence.get("variable", 0) or 0), 0.9)
+                repaired["entity_confidence"] = confidence
         preferred_variable = preferred_variable_from_query(query, available_variables)
         existing_variable = str(repaired.get("variable", "") or "").strip()
         explicit_existing_variable = bool(existing_variable and existing_variable in str(query or ""))
@@ -527,7 +599,10 @@ class MultiAgentManager:
             confidence["scenario"] = max(float(confidence.get("scenario", 0) or 0), 0.9)
             repaired["entity_confidence"] = confidence
 
-        if not _looks_like_comparison_request(query):
+        if not (
+            _looks_like_comparison_request(query)
+            or self._is_textual_comparison_question(query)
+        ):
             return repaired
 
         scenario_pair = re.search(
@@ -556,17 +631,26 @@ class MultiAgentManager:
         if not (has_wind and has_solar and has_capacity_intent):
             return repaired
 
-        variables = [
-            "Capacity|Electricity|Wind",
-            "Capacity|Electricity|Solar",
-        ]
+        # Validate the canonical wind/solar capacity variables against the
+        # loaded data; fall back to the closest available variant instead of
+        # forcing names that would yield a "no data" answer.
+        wind_variable = self._closest_available_variable(
+            "Capacity|Electricity|Wind", ("capacity", "wind"), available_variables
+        )
+        solar_variable = self._closest_available_variable(
+            "Capacity|Electricity|Solar", ("capacity", "solar"), available_variables
+        )
+        if not wind_variable or not solar_variable:
+            return repaired
+
+        variables = [wind_variable, solar_variable]
         existing = repaired.get("variables")
         if isinstance(existing, list):
             for variable in existing:
                 if variable and variable not in variables:
                     variables.append(str(variable))
 
-        repaired["variable"] = "Capacity|Electricity|Wind"
+        repaired["variable"] = wind_variable
         repaired["variables"] = variables
         repaired["comparison"] = repaired.get("comparison") or "variable"
         confidence = dict(repaired.get("entity_confidence") or {})
@@ -574,6 +658,96 @@ class MultiAgentManager:
         confidence["comparison"] = max(float(confidence.get("comparison", 0) or 0), 0.85)
         repaired["entity_confidence"] = confidence
         return repaired
+
+    def _is_textual_comparison_question(self, query: str) -> bool:
+        """Interrogative comparisons ("which is higher, solar or wind?") expect a
+        numeric/textual answer, not a forced chart."""
+        q = str(query or "").lower()
+        if _looks_like_plot_request(query):
+            return False
+        comparative = r"(?:higher|larger|bigger|greater|lower|smaller|more|less)"
+        return bool(
+            re.search(r"\bwhich\s+(?:one\s+)?(?:is|was|will\s+be|has|had)\b.*\b" + comparative + r"\b", q)
+            or re.search(r"\bis\s+\S+.*\b" + comparative + r"\s+than\b", q)
+        )
+
+    def _textual_comparison_answer(self, query: str, entities: Optional[Dict[str, Any]]) -> str:
+        """Answer "which is higher, X or Y?" with values from the loaded data.
+        Returns "" when the question or data do not support a grounded answer."""
+        if not self._is_textual_comparison_question(query):
+            return ""
+        entities = entities or {}
+        variables = [str(v) for v in (entities.get("variables") or []) if v]
+        if len(variables) < 2:
+            return ""
+        var_a, var_b = variables[0], variables[1]
+        ts = self.shared_resources.get("ts") or []
+        region = str(entities.get("region") or "").strip()
+        scenario = str(entities.get("scenario") or "").strip()
+
+        def _slices(var: str) -> Dict[Tuple[str, str, str], Dict[str, Any]]:
+            out: Dict[Tuple[str, str, str], Dict[str, Any]] = {}
+            for rec in ts:
+                if not isinstance(rec, dict) or str(rec.get("variable") or "") != var:
+                    continue
+                if region and str(rec.get("region") or "") != region:
+                    continue
+                if scenario and str(rec.get("scenario") or "") != scenario:
+                    continue
+                key = (
+                    str(rec.get("region") or ""),
+                    str(rec.get("scenario") or ""),
+                    str(rec.get("modelName") or rec.get("model") or ""),
+                )
+                out.setdefault(key, rec)
+            return out
+
+        slices_a = _slices(var_a)
+        slices_b = _slices(var_b)
+        common = sorted(set(slices_a) & set(slices_b))
+        if not common:
+            return ""
+        if not region:
+            world_keys = [key for key in common if key[0].lower() == "world"]
+            if world_keys:
+                common = world_keys
+        key = common[0]
+        rec_a, rec_b = slices_a[key], slices_b[key]
+        years_a = {str(y): v for y, v in (rec_a.get("years") or {}).items()}
+        years_b = {str(y): v for y, v in (rec_b.get("years") or {}).items()}
+        common_years = sorted(set(years_a) & set(years_b))
+        if not common_years:
+            return ""
+        start_year, end_year = extract_year_range(query)
+        target = str(end_year or start_year or "")
+        year = target if target in common_years else common_years[-1]
+        try:
+            val_a = float(years_a[year])
+            val_b = float(years_b[year])
+        except (TypeError, ValueError):
+            return ""
+
+        unit_a = str(rec_a.get("unit") or "").strip()
+        unit_b = str(rec_b.get("unit") or "").strip()
+        region_key, scenario_key, model_key = key
+        if val_a == val_b:
+            verdict = f"Both are equal in {year}."
+        else:
+            higher = var_a if val_a > val_b else var_b
+            verdict = f"`{higher}` is higher in {year}."
+        lines = [
+            f"### Comparison — {var_a} vs {var_b} ({region_key})",
+            "",
+            f"In {year} under scenario `{scenario_key}` (model `{model_key}`):",
+            f"- `{var_a}`: {val_a:,.2f} {unit_a}".rstrip(),
+            f"- `{var_b}`: {val_b:,.2f} {unit_b}".rstrip(),
+            "",
+            verdict,
+        ]
+        if unit_a and unit_b and unit_a != unit_b:
+            lines.append("Note: the two variables use different units, so compare with care.")
+        lines.append(f"Ask `plot compare {var_a} versus {var_b}` to see the full trajectories.")
+        return "\n".join(lines)
 
     def _low_confidence_entity_prompt(self, entities: Optional[Dict[str, Any]]) -> str:
         entities = entities or {}
@@ -856,9 +1030,15 @@ class MultiAgentManager:
         """
         q = query.strip()
         lower = q.lower()
+        # Split only where a new intent verb begins, so "show solar and wind
+        # capacity and plot it" keeps "solar and wind" together.
+        intent_verb = r"(?:list|show|display|plot|graph|chart|visualize|visualise|compare|tell\s+me\s+about|explain|describe|what|available)"
         if " and plot " in lower or lower.endswith(" and plot it") or " and plot it" in lower:
-            import re
-            parts = re.split(r"\s+and\s+", q)
+            parts = re.split(
+                r"\s+and\s+(?=(?:plot|graph|chart|visualize|visualise)\b)",
+                q,
+                flags=re.IGNORECASE,
+            )
             parts = [p.strip() for p in parts if p and p.strip()]
             return parts if len(parts) > 1 else [q]
 
@@ -871,8 +1051,11 @@ class MultiAgentManager:
         if intent_hits < 2:
             return [q]
 
-        import re
-        parts = re.split(r"\s+(?:and|then|also)\s+|;|\n", q)
+        parts = re.split(
+            r";|\n|\s+(?:and|then|also)\s+(?=" + intent_verb + r"\b)",
+            q,
+            flags=re.IGNORECASE,
+        )
         parts = [p.strip() for p in parts if p and p.strip()]
 
         # If split produced segments without intent, merge them back to previous
@@ -1102,7 +1285,17 @@ class MultiAgentManager:
             return True
         return bool(
             re.fullmatch(
-                r"(?:plot|graph|chart|show|display|give|use)\s+(?:me\s+)?(?:it|this|that|those|them|the same)",
+                r"(?:plot|graph|chart|show|display|give|use)\s+(?:me\s+)?(?:it|this|that|those|them|the same)"
+                r"(?:\s+(?:both|all|together|again|too|data))?",
+                ql,
+            )
+            or re.fullmatch(
+                r"(?:make|draw|create|generate)\s+(?:me\s+)?an?\s+(?:plot|graph|chart)"
+                r"(?:\s+(?:of|for|with)\s+(?:it|this|that|them|those))?",
+                ql,
+            )
+            or re.fullmatch(
+                r"(?:plot|graph|chart|show|display)\s+(?:me\s+)?the\s+(?:same\s+)?data(?:\s+again)?",
                 ql,
             )
         )
@@ -1117,9 +1310,52 @@ class MultiAgentManager:
             or ql == "show all scenarios"
         )
 
+    _SMALL_TALK_GREETINGS = {
+        "hi", "hello", "hey", "hiya", "good morning", "good afternoon", "good evening",
+    }
+    _SMALL_TALK_THANKS = {
+        "thanks", "thank you", "thanks a lot", "many thanks", "thx", "ty", "cheers",
+    }
+    _SMALL_TALK_FAREWELLS = {"bye", "goodbye", "see you", "good night"}
+    _SMALL_TALK_CAPABILITIES = {
+        "help", "what can you do", "what can you do?", "who are you", "who are you?",
+        "what is this", "what is this?", "how do you work", "how do you work?",
+    }
+
+    def _is_small_talk(self, query: str) -> bool:
+        ql = re.sub(r"[!.?\s]+$", "", str(query or "").strip().lower())
+        return ql in (
+            self._SMALL_TALK_GREETINGS
+            | self._SMALL_TALK_THANKS
+            | self._SMALL_TALK_FAREWELLS
+            | self._SMALL_TALK_CAPABILITIES
+        )
+
+    def _small_talk_answer(self, query: str) -> str:
+        ql = re.sub(r"[!.?\s]+$", "", str(query or "").strip().lower())
+        capabilities = (
+            "I answer questions about IAM PARIS climate data (https://iamparis.eu/). "
+            "You can ask me to:\n"
+            "- Show data, e.g. `show CO2 emissions for Europe under Baseline`\n"
+            "- Plot data, e.g. `plot solar capacity in Greece`\n"
+            "- List what is available, e.g. `list models`, `show all scenarios`\n"
+            "- Explain a model, e.g. `what is GCAM?`\n"
+            "- Find IAM PARIS pages, e.g. `where can I find the policy catalogue?`"
+        )
+        if ql in self._SMALL_TALK_THANKS:
+            return "You're welcome! Ask me anything else about IAM PARIS data whenever you like."
+        if ql in self._SMALL_TALK_FAREWELLS:
+            return "Goodbye! Come back anytime to explore IAM PARIS data."
+        if ql in self._SMALL_TALK_CAPABILITIES:
+            return capabilities
+        return f"Hello! {capabilities}"
+
     def _is_clarification_followup(self, query: str, context: Optional[Dict[str, Any]] = None) -> bool:
         q = str(query or "").strip()
         if not q:
+            return False
+        # Greetings/thanks must never be consumed as a clarification answer.
+        if self._is_small_talk(q):
             return False
         if self._is_affirmation(q) or self._is_rejection(q) or self._is_generic_followup(q):
             return True
@@ -1239,7 +1475,12 @@ class MultiAgentManager:
         for word, index in ordinal_map.items():
             if re.search(r"\b" + re.escape(word) + r"\b", ql) and index < option_count:
                 return index
-        match = re.search(r"\b([1-9][0-9]*)\b", query or "")
+        # A bare number or "option N"/"number N" selects an option. A number
+        # embedded in a longer sentence ("show me 3 scenarios") must not.
+        match = re.fullmatch(
+            r"(?:yes,?\s+)?(?:(?:use\s+)?(?:the\s+)?(?:option|choice|number|no\.?)\s*)?([1-9][0-9]*)\s*[.)]?",
+            ql,
+        )
         if not match:
             return None
         num = int(match.group(1))
@@ -1322,9 +1563,21 @@ class MultiAgentManager:
         query = re.sub(r"^(?:\s*you:\s*)+", "", str(query or ""), flags=re.IGNORECASE).strip()
         q_lower = query.strip().lower()
 
+        # Greetings/thanks/help: answer directly and keep any pending
+        # clarification context intact for the next real message.
+        if self._is_small_talk(query):
+            self._record_route_decision("general_qa", 0.95, "deterministic", "greeting/small talk")
+            self.last_links = []
+            if self.clarification_context:
+                # A greeting should not burn the clarification window.
+                self.clarification_context["issued_turn"] = getattr(self, "current_turn", 0)
+            return self._small_talk_answer(query)
+
         if hasattr(self, "clarification_context") and self.clarification_context:
             issued_turn = int((self.clarification_context or {}).get("issued_turn", getattr(self, "current_turn", 0)))
-            if getattr(self, "current_turn", 0) > issued_turn + 1:
+            # Keep the pending choice alive for a few turns so an intervening
+            # message does not silently discard the user's next "2"/"yes".
+            if getattr(self, "current_turn", 0) > issued_turn + 3:
                 self.clarification_context = None
             elif not self._is_clarification_followup(query, self.clarification_context):
                 self.clarification_context = None
@@ -1397,31 +1650,31 @@ class MultiAgentManager:
 
         # Check for clarification responses first
         if hasattr(self, 'clarification_context') and self.clarification_context:
-            context = self.clarification_context
+            clar_ctx = self.clarification_context
             option_choice_idx = self._extract_option_choice(
                 query,
-                len(context.get("suggested_options", []) or []),
+                len(clar_ctx.get("suggested_options", []) or []),
             )
             if option_choice_idx is not None:
-                options = context.get("suggested_options", []) or []
+                options = clar_ctx.get("suggested_options", []) or []
                 selected = str(options[option_choice_idx]).strip()
                 if selected:
-                    kind = context.get("suggested_kind", "variable")
+                    kind = clar_ctx.get("suggested_kind", "variable")
                     if kind == "region":
-                        context["suggested_region"] = selected
+                        clar_ctx["suggested_region"] = selected
                     elif kind == "scenario":
-                        context["suggested_scenario"] = selected
+                        clar_ctx["suggested_scenario"] = selected
                     else:
-                        context["suggested_variable"] = selected
+                        clar_ctx["suggested_variable"] = selected
                     query = "yes"
             if self._is_affirmation(query):
-                pending_type = context.get("agent_type", "")
-                original_query = str(context.get("original_query", "")).strip()
-                base_query = str(context.get("base_query", "") or original_query).strip()
-                suggested_variable = str(context.get("suggested_variable", "")).strip()
-                suggested_region = str(context.get("suggested_region", "")).strip()
-                suggested_scenario = str(context.get("suggested_scenario", "")).strip()
-                merged_entities = dict(context.get("entities", {}) or {})
+                pending_type = clar_ctx.get("agent_type", "")
+                original_query = str(clar_ctx.get("original_query", "")).strip()
+                base_query = str(clar_ctx.get("base_query", "") or original_query).strip()
+                suggested_variable = str(clar_ctx.get("suggested_variable", "")).strip()
+                suggested_region = str(clar_ctx.get("suggested_region", "")).strip()
+                suggested_scenario = str(clar_ctx.get("suggested_scenario", "")).strip()
+                merged_entities = dict(clar_ctx.get("entities", {}) or {})
                 if suggested_variable:
                     merged_entities["variable"] = suggested_variable
                 if suggested_region:
@@ -1459,17 +1712,17 @@ class MultiAgentManager:
                 return self._route_single(followup_query, history, context={"last_entities": merged_entities})
 
             if self._is_rejection(query):
-                pending_type = context.get("agent_type", "")
-                remaining_options = list(context.get("suggested_options", []) or [])
-                used_kind = context.get("suggested_kind", "variable")
+                pending_type = clar_ctx.get("agent_type", "")
+                remaining_options = list(clar_ctx.get("suggested_options", []) or [])
+                used_kind = clar_ctx.get("suggested_kind", "variable")
                 if remaining_options:
                     rejected = ""
                     if used_kind == "region":
-                        rejected = str(context.get("suggested_region", "")).strip()
+                        rejected = str(clar_ctx.get("suggested_region", "")).strip()
                     elif used_kind == "scenario":
-                        rejected = str(context.get("suggested_scenario", "")).strip()
+                        rejected = str(clar_ctx.get("suggested_scenario", "")).strip()
                     else:
-                        rejected = str(context.get("suggested_variable", "")).strip()
+                        rejected = str(clar_ctx.get("suggested_variable", "")).strip()
                     if rejected and rejected in remaining_options:
                         remaining_options = [opt for opt in remaining_options if opt != rejected]
                     elif remaining_options:
@@ -1482,13 +1735,13 @@ class MultiAgentManager:
                         used_kind,
                         remaining_options[:3],
                     )
-                    updated_entities = dict(context.get("entities", {}) or {})
+                    updated_entities = dict(clar_ctx.get("entities", {}) or {})
                     self._update_clarification_context(
                         "data_query",
-                        str(context.get("base_query", "") or context.get("original_query", "") or ""),
+                        str(clar_ctx.get("base_query", "") or clar_ctx.get("original_query", "") or ""),
                         response,
                         updated_entities,
-                        base_query=str(context.get("base_query", "") or context.get("original_query", "") or ""),
+                        base_query=str(clar_ctx.get("base_query", "") or clar_ctx.get("original_query", "") or ""),
                     )
                     return response
                 if pending_type == "data_query":
@@ -1497,11 +1750,11 @@ class MultiAgentManager:
                     return "Okay. Which variable or region should I use instead?"
                 return "Okay. Please give me the variable you want."
 
-            # Treat non-yes/no follow-up text as clarification details to merge with context.
-            pending_type = context.get("agent_type", "")
-            original_query = str(context.get("original_query", "")).strip()
-            base_query = str(context.get("base_query", "") or original_query).strip()
-            merged_entities = dict(context.get("entities", {}) or {})
+            # Treat non-yes/no follow-up text as clarification details to merge with clar_ctx.
+            pending_type = clar_ctx.get("agent_type", "")
+            original_query = str(clar_ctx.get("original_query", "")).strip()
+            base_query = str(clar_ctx.get("base_query", "") or original_query).strip()
+            merged_entities = dict(clar_ctx.get("entities", {}) or {})
             try:
                 follow_entities = self.entity_extractor.extract(query)
             except Exception:
@@ -1598,30 +1851,17 @@ class MultiAgentManager:
 
             # Sanity-check extracted entities against explicit query cues
             ql = query.lower()
-            var = entities.get("variable")
-            if var:
-                v = str(var).lower()
-                if any(t in ql for t in ["co2", "emission", "emissions"]) and not ("co2" in v or "emission" in v):
-                    entities["variable"] = None
-                if "solar" in ql and "solar" not in v:
-                    entities["variable"] = None
-                if "wind" in ql and "wind" not in v:
-                    entities["variable"] = None
-                if "capacity" in ql and "capacity" not in v:
-                    entities["variable"] = None
-                if entities.get("variable"):
-                    intent = _infer_variable_intent(query)
-                    if not _variable_matches_query_signal(
-                        str(entities["variable"]),
-                        query,
-                        intent,
-                    ):
-                        entities["variable"] = None
+            if entities.get("variable"):
+                entities["variable"] = sanitize_variable_for_query(entities["variable"], query)
 
             entities = self._repair_comparison_entities(query, entities)
 
-            if "world" in ql or "global" in ql:
-                entities["region"] = "World"
+            if re.search(r"\b(world|global|globally)\b", ql):
+                existing_region = str(entities.get("region") or "").strip()
+                # Only override when no region was resolved, or the resolved one
+                # is not literally present in the query (i.e. it was guessed).
+                if not existing_region or existing_region.lower() not in ql:
+                    entities["region"] = "World"
             profile = find_model_profile(query)
             if profile:
                 entities["model"] = str(profile.get("name", "") or entities.get("model") or "")
@@ -1644,6 +1884,13 @@ class MultiAgentManager:
                 self._update_clarification_context("data_query", query, low_confidence_prompt, entities)
                 self._persist_last_entities(entities, low_confidence_prompt)
                 return low_confidence_prompt
+
+            textual_comparison = self._textual_comparison_answer(query, entities)
+            if textual_comparison:
+                self._record_route_decision("data_query", 0.9, "deterministic", "textual comparison question")
+                self._update_clarification_context("data_query", query, textual_comparison, entities)
+                self._persist_last_entities(entities, textual_comparison)
+                return self._append_relevant_links(textual_comparison, query, entities, "data_query")
 
             route_decision = self._deterministic_route_decision(query, entities)
             if route_decision:
@@ -1738,7 +1985,13 @@ class MultiAgentManager:
                     except Exception as fallback_err:
                         self.logger.error("Fallback data_query failed: %s", fallback_err)
             # Do not surface the raw exception text to the user (may contain
-            # internal details); it is already logged above.
+            # internal details); it is already logged above. Distinguish an
+            # outage (retry later) from a query problem (rephrase).
+            if self._is_provider_error(e):
+                return (
+                    "The AI service is temporarily unavailable, so I could not complete this request. "
+                    "Please try again in a moment — your question was fine."
+                )
             return "Sorry, I encountered an error while processing your request. Please try rephrasing your question."
 
     def _initialize_agents(self):
@@ -1750,11 +2003,42 @@ class MultiAgentManager:
         self.agents["modelling_suggestions"] = ModellingSuggestionsAgent(self.shared_resources, self.streaming)
         self.logger.debug("All agents initialized successfully.")
 
+    _GREEK_CHARS = re.compile(r"[Ͱ-Ͽἀ-῿]")
+
+    def _translate_to_english(self, query: str) -> str:
+        """Translate a non-English (Greek) query to English via the router LLM."""
+        try:
+            response = self.router_llm.invoke(
+                "Translate the following question for a climate-data chatbot into English. "
+                "Keep model, scenario, variable and region names unchanged. "
+                "Return ONLY the English translation, nothing else.\n\n"
+                f"Question: {query}"
+            )
+            return str(getattr(response, "content", "") or "").strip()
+        except Exception as err:
+            self.logger.warning("Query translation failed: %s", err)
+            return ""
+
     def route_query(self, query: str, history: Optional[List[Tuple[str, str]]] = None) -> str:
         """Route the query to the appropriate agent using LLM-based classification."""
         self.last_links = []
         self.turn_counter = getattr(self, "turn_counter", 0) + 1
         self.current_turn = self.turn_counter
+
+        # Greek queries: the normalizer/heuristics only understand English, so
+        # translate first instead of silently mis-routing a garbled query.
+        if self._GREEK_CHARS.search(str(query or "")):
+            translated = self._translate_to_english(query)
+            if translated and not self._GREEK_CHARS.search(translated):
+                self.logger.info("Translated Greek query to English: %s", translated)
+                query = translated
+            else:
+                return (
+                    "Προς το παρόν απαντώ αξιόπιστα μόνο σε ερωτήσεις στα αγγλικά. "
+                    "Παρακαλώ ξαναδιατύπωσε την ερώτησή σου στα αγγλικά.\n\n"
+                    "I currently answer questions in English only. "
+                    "Please rephrase your question in English."
+                )
 
         subqueries = self._split_multi_intent(query)
         if len(subqueries) > 1:
