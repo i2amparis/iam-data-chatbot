@@ -65,7 +65,7 @@ link_router.py, fastapi_app.py, query_normalizer.py, simple_plotter.py).
   (`_persist_last_entities` διαβάζει "### Var in Region" από το markdown). Αν αλλάξει το
   format απάντησης, σπάει σιωπηλά το context. Τα agents να επιστρέφουν δομημένα entities,
   όχι μόνο κείμενο.
-- [ ] 🟡 **`_maybe_add_followup_guidance` = σωρός από ειδικές περιπτώσεις** (hardcoded
+- [x] 🟡 **`_maybe_add_followup_guidance` = σωρός από ειδικές περιπτώσεις** (hardcoded
   "solar capacity", "fit-for-55" strings). Ασυνεπές: κάποιες απαντήσεις παίρνουν το
   «Reply with a scenario…», οι περισσότερες όχι. Θέλει ενιαίο κανόνα βάσει του αν η
   απάντηση είναι πλήρης ή όχι.
@@ -122,7 +122,7 @@ link_router.py, fastapi_app.py, query_normalizer.py, simple_plotter.py).
   λείπει το vector store (κρασάρει όλο το manager initialization).
 - [x] 🟡 **`plot_caption` = πρώτη γραμμή του υπόλοιπου κειμένου** (`_split_answer_payload`)
   — hacky, μπορεί να πάρει τυχαίο κείμενο ως λεζάντα. Ο plotter να επιστρέφει caption ρητά.
-- [ ] 🟡 **Το `_classify_no_data_reason` μαντεύει από substrings** του κειμένου απάντησης —
+- [x] 🟡 **Το `_classify_no_data_reason` μαντεύει από substrings** του κειμένου απάντησης —
   να επιστρέφεται δομημένος λόγος από το data_query pipeline.
 
 ## 6. API / Υποδομή

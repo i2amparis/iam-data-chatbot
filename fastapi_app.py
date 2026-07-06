@@ -337,11 +337,12 @@ def _build_query_trace(
     links = list(getattr(manager, "last_links", []) or [])
     text = str(answer or "")
     no_data = "I could not find data" in text or "No data found" in text
-    matched_records = _count_matching_records(
-        getattr(manager, "shared_resources", {}) or {},
-        entities,
-    )
-    no_data_reason = _classify_no_data_reason(text) if no_data else ""
+    resources = getattr(manager, "shared_resources", {}) or {}
+    matched_records = _count_matching_records(resources, entities)
+    no_data_reason = ""
+    if no_data:
+        # Prefer the structured diagnosis over guessing from answer text.
+        no_data_reason = _derive_no_data_reason(resources, entities) or _classify_no_data_reason(text)
 
     return {
         "session_id": session_id,
@@ -439,7 +440,9 @@ def _build_data_provenance(resources: Dict[str, Any], entities: Dict[str, Any], 
         },
     }
     if no_data:
-        provenance["no_data_reason"] = _classify_no_data_reason(answer)
+        provenance["no_data_reason"] = (
+            _derive_no_data_reason(resources, selected_filters) or _classify_no_data_reason(answer)
+        )
     provenance.update(_provenance_display_fields(provenance))
     return provenance
 
@@ -582,6 +585,28 @@ def _monitoring_snapshot() -> Dict[str, Any]:
         "status": "warning" if alerts else "ok",
         "feedback_candidates": _feedback_log_summary(),
     }
+
+
+def _derive_no_data_reason(resources: Dict[str, Any], entities: Dict[str, Any]) -> str:
+    """Structured no-data diagnosis: apply the requested filters one dimension
+    at a time and report the first one that eliminates every record. Falls back
+    to "" when the data cannot explain the miss (caller then uses the
+    text-based classifier)."""
+    labels = (
+        ("variable", "variable unavailable in current scope"),
+        ("region", "region combination unavailable"),
+        ("scenario", "scenario combination unavailable"),
+        ("model", "model combination unavailable"),
+    )
+    scope: Dict[str, Any] = {}
+    for key, label in labels:
+        value = str((entities or {}).get(key) or "").strip()
+        if not value:
+            continue
+        scope[key] = value
+        if _count_matching_records(resources, scope) == 0:
+            return label
+    return ""
 
 
 def _classify_no_data_reason(answer: str) -> str:

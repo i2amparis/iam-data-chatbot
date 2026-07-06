@@ -420,45 +420,36 @@ class MultiAgentManager:
         q = str(query or "").strip().lower()
         if not q or agent_name not in {"data_query", "data_plotting"}:
             return response
+
+        # Discovery/list answers carry their own hints already.
         if any(
             marker in q
             for marker in (
-                "list variables",
-                "list models",
-                "list regions",
-                "list scenarios",
-                "show all variables",
-                "show all models",
-                "show all regions",
+                "list variables", "list models", "list regions", "list scenarios",
+                "show all variables", "show all models", "show all regions",
                 "which models are available",
-                "fit-for-55",
-                "fit for 55",
-                "ndc impacts",
             )
-        ):
-            if q != "show all scenarios":
-                return response
+        ) and q != "show all scenarios":
+            return response
+
+        # Single rule: guide when the *answer* aggregates over an open scope
+        # (multiple scenarios/models, or no explicit scope line at all) and the
+        # *query* did not already pin scenario + year.
+        scope_is_open = bool(
+            re.search(r"(?:scenario|model)\s+`multiple`", text, re.IGNORECASE)
+            or (
+                "Scope:" not in text
+                and not re.search(r"for\s+scenario\s+`[^`]+`", text, re.IGNORECASE)
+            )
+        )
+        if not scope_is_open:
+            return response
 
         has_year_filter = bool(extract_year_range(query)[0] or extract_year_range(query)[1])
-        complete_baseline_query = "baseline" in q and (
-            has_year_filter
-            or any(term in q for term in ("solar capacity", "wind capacity", "under baseline"))
+        names_scenario = bool(self._match_scenario_from_text(query)) or any(
+            term in q for term in ("baseline", "current policy", "current policies")
         )
-        if complete_baseline_query or "latest" in q:
-            return response
-        if re.search(r"\bby\s+\d{4}\b", q) and not any(term in q for term in ("compare", "versus", "vs")):
-            return response
-
-        should_guide = bool(
-            self._is_generic_followup(query)
-            or self._is_contextual_dimension_followup(query)
-            or re.fullmatch(r"\d+", q)
-            or q == "show all scenarios"
-            or "help me find data" in q
-            or agent_name == "data_plotting"
-            or any(term in q for term in ("carbon dioxide", "co2", "emissions", "carbon from", "current policy"))
-        )
-        if not should_guide:
+        if (has_year_filter and names_scenario) or "latest" in q:
             return response
 
         return (
