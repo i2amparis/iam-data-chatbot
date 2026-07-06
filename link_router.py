@@ -19,6 +19,23 @@ class RelevantLink:
     fallback_instruction: str = ""
 
 
+# --- Scoring weights ---------------------------------------------------------
+# All link-ranking magic numbers live here so they can be tuned in one place.
+EXACT_TITLE_SCORE = 28.0            # full link title appears in the query
+KEYWORD_PHRASE_SCORE = 12.0         # catalog keyword phrase appears in the query
+KEYWORD_TOKEN_SCORE = 2.0           # per overlapping keyword token (max 4)
+TITLE_TOKEN_SCORE = 4.0             # per overlapping title token (max 4)
+MEANINGFUL_TOKEN_SCORE = 1.5        # per non-generic overlapping token (max 8)
+VERIFIED_URL_BONUS = 1.0
+SEARCH_HINT_PENALTY = 1.0           # generic application-library entry with a hint
+NDC_PROJECT_BONUS = 16.0
+NDC_OTHER_RESULTS_PENALTY = 8.0
+IAM_COMPACT_PROJECT_BONUS = 12.0
+MIN_LINK_SCORE = 10.0               # absolute relevance floor
+RELATIVE_SCORE_FLOOR = 0.2          # fraction of the top score a link must reach
+CATEGORY_EVIDENCE_MARGIN = 1.5      # query evidence required beyond category boost
+
+
 def _normalize(text: str) -> str:
     return re.sub(r"\s+", " ", str(text or "").strip().lower())
 
@@ -101,7 +118,7 @@ def _score_item(
 
     generic_titles = {"home", "models", "results", "application library", "analysis", "contact"}
     if title_norm and title_norm in query_text and title_norm not in generic_titles:
-        score += 28.0
+        score += EXACT_TITLE_SCORE
         matched_keywords.append(title)
 
     for keyword in keywords:
@@ -109,22 +126,22 @@ def _score_item(
         if not keyword_norm:
             continue
         if keyword_norm in query_text:
-            score += 12.0
+            score += KEYWORD_PHRASE_SCORE
             matched_keywords.append(keyword)
         else:
             overlap = _tokens(keyword) & query_tokens
             if overlap:
-                score += min(len(overlap), 4) * 2.0
+                score += min(len(overlap), 4) * KEYWORD_TOKEN_SCORE
                 if len(matched_keywords) < 3:
                     matched_keywords.append(keyword)
 
     title_overlap = _tokens(title) & query_tokens
     if title_overlap:
-        score += min(len(title_overlap), 4) * 4.0
+        score += min(len(title_overlap), 4) * TITLE_TOKEN_SCORE
 
     generic_terms = {"iam", "paris", "data", "model", "models", "result", "results"}
     meaningful_overlap = (haystack_tokens & query_tokens) - generic_terms
-    score += min(len(meaningful_overlap), 8) * 1.5
+    score += min(len(meaningful_overlap), 8) * MEANINGFUL_TOKEN_SCORE
 
     category = str(item.get("category", ""))
     score += category_boosts.get(category, 0.0)
@@ -132,17 +149,17 @@ def _score_item(
     project = str(item.get("project", "")).lower()
     if "ndc" in query_text:
         if "ndc aspects" in project:
-            score += 16.0
+            score += NDC_PROJECT_BONUS
         elif category == "results" and project:
-            score -= 8.0
+            score -= NDC_OTHER_RESULTS_PENALTY
     if any(term in query_text for term in ["fit for 55", "fit-for-55", "glasgow", "cost of capital", "behavioural", "net zero"]):
         if "iam compact" in project:
-            score += 12.0
+            score += IAM_COMPACT_PROJECT_BONUS
 
     if item.get("verified_direct_url"):
-        score += 1.0
+        score += VERIFIED_URL_BONUS
     if item.get("search_hint") and url.endswith("/application_library"):
-        score -= 1.0
+        score -= SEARCH_HINT_PENALTY
 
     return score, matched_keywords
 
@@ -168,6 +185,9 @@ def suggest_links(
 
     scored: list[tuple[float, dict[str, Any], list[str]]] = []
     for item in catalog:
+        # Skip URLs confirmed broken by validate_links.py --mark-dead.
+        if item.get("dead"):
+            continue
         score, matched_keywords = _score_item(item, query_text, query_tokens, boosts)
         if score <= 0:
             continue
@@ -185,19 +205,19 @@ def suggest_links(
     # Minimum-relevance gate: absolute floor filters unrelated queries (junk
     # token overlap tops out well below 10), the relative floor drops weak
     # tail links when one link clearly dominates.
-    min_score = 10.0
+    min_score = MIN_LINK_SCORE
     top_score = scored[0][0] if scored else 0.0
 
     selected: list[RelevantLink] = []
     seen: set[str] = set()
     for score, item, matched_keywords in scored:
-        if score < min_score or score < top_score * 0.2:
+        if score < min_score or score < top_score * RELATIVE_SCORE_FLOOR:
             continue
         # Category boosts alone (e.g. +10 for any results page on a data query)
         # must not qualify a link: require query-specific evidence beyond the
         # boost and the flat verified-URL/search-hint bonuses (±1 point).
         category_boost = boosts.get(str(item.get("category", "")), 0.0)
-        if score - category_boost <= 1.5:
+        if score - category_boost <= CATEGORY_EVIDENCE_MARGIN:
             continue
         # Dedup by URL so the same page never appears twice under different
         # titles; fall back to title+hint for items without a URL.

@@ -174,6 +174,29 @@ def _md(value: object) -> str:
     return str(value or "").replace("|", "\\|").replace("\n", " ")
 
 
+def mark_dead_links(catalog_path: Path, results: list[LinkValidationResult]) -> int:
+    """Write `dead: true/false` flags into the catalog so the link router can
+    skip URLs confirmed broken. Server errors are treated as transient and are
+    not marked dead. Returns the number of items whose flag changed."""
+    catalog = json.loads(catalog_path.read_text())
+    dead_urls = {result.url for result in results if result.status in {"broken", "error"}}
+    checked_urls = {result.url for result in results}
+    changed = 0
+    for item in catalog:
+        url = str(item.get("url") or "").strip()
+        if url not in checked_urls:
+            continue
+        is_dead = url in dead_urls
+        if bool(item.get("dead")) != is_dead:
+            changed += 1
+        if is_dead:
+            item["dead"] = True
+        else:
+            item.pop("dead", None)
+    catalog_path.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n")
+    return changed
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate URLs from the IAM PARIS link catalog.")
     parser.add_argument("--catalog", default=str(DEFAULT_LINK_CATALOG), help="Path to generated link catalog JSON.")
@@ -181,6 +204,11 @@ def main() -> int:
     parser.add_argument("--json-output", default="", help="Optional JSON results path.")
     parser.add_argument("--domain", default="", help="Optional domain filter, e.g. iamparis.eu.")
     parser.add_argument("--timeout", type=float, default=10.0, help="Per-request timeout in seconds.")
+    parser.add_argument(
+        "--mark-dead",
+        action="store_true",
+        help="Write dead flags for broken URLs back into the catalog so the link router skips them.",
+    )
     args = parser.parse_args()
 
     catalog_path = Path(args.catalog)
@@ -195,6 +223,10 @@ def main() -> int:
         json_path = Path(args.json_output)
         json_path.parent.mkdir(parents=True, exist_ok=True)
         json_path.write_text(json.dumps([asdict(result) for result in results], indent=2) + "\n")
+
+    if args.mark_dead:
+        changed = mark_dead_links(catalog_path, results)
+        print(f"Updated dead flags in {catalog_path} ({changed} item(s) changed).")
 
     broken = sum(1 for result in results if result.status in {"broken", "server_error", "error"})
     print(f"Wrote {output_path} for {len(results)} unique URLs ({broken} problem links).")

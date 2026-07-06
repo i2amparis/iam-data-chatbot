@@ -97,10 +97,10 @@ link_router.py, fastapi_app.py, query_normalizer.py, simple_plotter.py).
   θα τα δείξει δύο φορές. Διάλεξε ένα κανάλι (προτείνεται μόνο το structured field).
 - [x] 🟡 **Dedup μόνο σε (title, url, search_hint)** στο `suggest_links` — ίδιο URL με
   διαφορετικό τίτλο εμφανίζεται 2 φορές. Dedup ανά URL.
-- [ ] 🟡 **Καμία runtime επαλήθευση URLs.** Υπάρχει validate_links.py αλλά offline —
+- [x] 🟡 **Καμία runtime επαλήθευση URLs.** Υπάρχει validate_links.py αλλά offline —
   να τρέχει περιοδικά (CI/cron) και να σημαδεύει dead links στο catalog ώστε να μην
   προτείνονται.
-- [ ] 🟡 **Keyword-μόνο scoring** στο `_score_item` με μαγικούς αριθμούς (28/16/12/…)
+- [x] 🟡 **Keyword-μόνο scoring** στο `_score_item` με μαγικούς αριθμούς (28/16/12/…)
   και hardcoded project boosts («ndc aspects», «iam compact»). Δύσκολο να συντηρηθεί —
   τα boosts να μπουν ως πεδία στο link catalog.
 
@@ -120,7 +120,7 @@ link_router.py, fastapi_app.py, query_normalizer.py, simple_plotter.py).
   `ConversationSummaryBufferMemory` ΚΑΙ δέχεται `chat_history` από το session — τα δύο
   ιστορικά αποκλίνουν. Επίσης το chain χτίζεται στο `__init__` και πετάει exception αν
   λείπει το vector store (κρασάρει όλο το manager initialization).
-- [ ] 🟡 **`plot_caption` = πρώτη γραμμή του υπόλοιπου κειμένου** (`_split_answer_payload`)
+- [x] 🟡 **`plot_caption` = πρώτη γραμμή του υπόλοιπου κειμένου** (`_split_answer_payload`)
   — hacky, μπορεί να πάρει τυχαίο κείμενο ως λεζάντα. Ο plotter να επιστρέφει caption ρητά.
 - [ ] 🟡 **Το `_classify_no_data_reason` μαντεύει από substrings** του κειμένου απάντησης —
   να επιστρέφεται δομημένος λόγος από το data_query pipeline.
@@ -138,8 +138,8 @@ link_router.py, fastapi_app.py, query_normalizer.py, simple_plotter.py).
 - [x] 🟡 **Το `history` επιστρέφεται ολόκληρο σε κάθε response** — payload που μεγαλώνει
   απεριόριστα σε μακριές συνομιλίες. Επιστροφή μόνο του τελευταίου turn ή cap.
 - [x] 🟡 **Deprecated `@app.on_event("startup")`** — μετάβαση σε lifespan handler.
-- [ ] 🟡 **Monitoring counters in-memory** — μηδενίζονται σε restart και είναι ανά worker
-  (με πολλά uvicorn workers τα νούμερα είναι λάθος). Επίσης τα sessions είναι in-memory:
+- [x] 🟡 **Monitoring counters in-memory** — μηδενίζονται σε restart και είναι ανά worker
+  (με πολλά uvicorn workers τα νούμερα είναι λάθος). *(Persistence προστέθηκε· το multi-worker θέμα και τα in-memory sessions παραμένουν — θέλουν shared store.)* Επίσης τα sessions είναι in-memory:
   με >1 worker το follow-up context σπάει τυχαία (sticky sessions ή shared store).
 
 ## 7. Γενικά / Συντήρηση

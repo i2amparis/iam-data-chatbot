@@ -117,6 +117,38 @@ _monitoring_counters = {
     "low_confidence_route_queries": 0,
     "low_confidence_entity_queries": 0,
 }
+# Persist counters so a restart does not wipe the operational history.
+# Set IAM_MONITORING_STATE="" to disable (e.g. read-only filesystems).
+_MONITORING_STATE_PATH = os.getenv("IAM_MONITORING_STATE", "cache/monitoring_counters.json")
+_monitoring_lock = threading.Lock()
+
+
+def _load_monitoring_counters() -> None:
+    if not _MONITORING_STATE_PATH:
+        return
+    try:
+        data = json.loads(Path(_MONITORING_STATE_PATH).read_text())
+    except (OSError, ValueError):
+        return
+    for key in _monitoring_counters:
+        try:
+            _monitoring_counters[key] = int(data.get(key, 0))
+        except (TypeError, ValueError):
+            continue
+
+
+def _save_monitoring_counters() -> None:
+    if not _MONITORING_STATE_PATH:
+        return
+    try:
+        path = Path(_MONITORING_STATE_PATH)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(_monitoring_counters))
+    except OSError:
+        pass
+
+
+_load_monitoring_counters()
 MONITORING_THRESHOLDS = {
     "failed_route_rate": float(os.getenv("IAM_MONITOR_FAILED_RATE_THRESHOLD", "0.05")),
     "no_data_rate": float(os.getenv("IAM_MONITOR_NO_DATA_RATE_THRESHOLD", "0.35")),
@@ -480,18 +512,21 @@ def _write_eval_feedback_candidate(trace: Dict[str, Any], answer: str, log_path:
 
 
 def _update_monitoring(trace: Dict[str, Any] | None = None, *, failed: bool = False) -> None:
-    _monitoring_counters["total_queries"] += 1
-    if failed:
-        _monitoring_counters["failed_queries"] += 1
-        return
-    trace = trace or {}
-    if trace.get("no_data_reason"):
-        _monitoring_counters["no_data_queries"] += 1
-    if float(trace.get("route_confidence") or 0.0) < 0.55:
-        _monitoring_counters["low_confidence_route_queries"] += 1
-    entity_confidence = trace.get("entity_confidence") or {}
-    if any(float(value or 0.0) < 0.5 for value in entity_confidence.values()):
-        _monitoring_counters["low_confidence_entity_queries"] += 1
+    with _monitoring_lock:
+        _monitoring_counters["total_queries"] += 1
+        if failed:
+            _monitoring_counters["failed_queries"] += 1
+            _save_monitoring_counters()
+            return
+        trace = trace or {}
+        if trace.get("no_data_reason"):
+            _monitoring_counters["no_data_queries"] += 1
+        if float(trace.get("route_confidence") or 0.0) < 0.55:
+            _monitoring_counters["low_confidence_route_queries"] += 1
+        entity_confidence = trace.get("entity_confidence") or {}
+        if any(float(value or 0.0) < 0.5 for value in entity_confidence.values()):
+            _monitoring_counters["low_confidence_entity_queries"] += 1
+        _save_monitoring_counters()
 
 
 def _rate(numerator: int, denominator: int) -> float:
@@ -722,7 +757,14 @@ def _split_answer_payload(answer: str) -> tuple[str, str, str, List[str]]:
     if match:
         plot_base64 = match.group(1).split("data:image/png;base64,", 1)[-1]
         text = (text[:match.start()] + text[match.end():]).strip()
-        plot_caption = text.splitlines()[0].strip() if text else "Generated plot."
+        # Prefer the plotter's explicit scope line ("Showing ...") as the
+        # caption over whatever text happens to come first.
+        caption_line = next(
+            (line.strip() for line in text.splitlines() if line.strip().startswith("Showing ")),
+            "",
+        )
+        first_line = text.splitlines()[0].strip() if text else ""
+        plot_caption = caption_line or first_line or "Generated plot."
 
     text = re.sub(r"\n{3,}", "\n\n", text).strip()
     return text, plot_base64, plot_caption, notices
