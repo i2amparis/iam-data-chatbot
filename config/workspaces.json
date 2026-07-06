@@ -1,0 +1,9 @@
+{
+  "_comment": "IAM PARIS workspace codes fetched at API startup. Add new workspaces here; no code change needed.",
+  "workspaces": [
+    "afolu", "buildings-transf", "covid-rec", "decarb-potentials", "decipher_1",
+    "energy-systems", "eu-headed", "index-decomp", "industrial-transf", "ndcs-impacts",
+    "net-zero", "post-glasgow", "power-people", "study-1", "study-2", "study-3",
+    "study-4", "study-6", "study-7", "transp-transf", "world-headed"
+  ]
+}

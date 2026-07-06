@@ -1,3 +1,4 @@
+import json
 import logging
 import re
 from typing import Dict, Any, List, Tuple, Optional
@@ -21,79 +22,90 @@ from link_router import format_relevant_links, suggest_links
 from model_profiles import find_model_profile, format_model_profile_answer
 from year_filters import extract_year_range
 from llm_config import ROUTER_MODEL
+from resolved_scope import consume_resolved_scope, record_resolved_scope
+
+
+# Navigation term lists live in config/site_navigation.json so new workspaces,
+# data stories or site pages only need a config edit. The literals below are
+# the fallback when the config file is missing or invalid.
+_NAV_CONFIG_PATH = Path("config/site_navigation.json")
+_NAV_DEFAULTS: Dict[str, tuple] = {
+    "navigation_terms": (
+        "where can i find", "where do i find", "where is", "open ", "find ",
+        "link", "url", "page", "website", "application library",
+        "raw data application", "data story", "data stories",
+        "policy catalogue", "policy catalog", "database", "explorer",
+    ),
+    "named_site_items": (
+        "aqueduct", "climate watch", "cdp open data portal", "data portal",
+        "afolu transformation", "buildings transformation",
+        "transportation transformation", "transport transformation",
+        "industrial transformation",
+    ),
+    "data_story_items": (
+        "policy catalogue", "policy catalog", "recovery policy", "circularity",
+        "decarbonisation data story", "decarbonization data story",
+        "technology inventories", "barriers and enablers", "scenario metadata",
+    ),
+    "project_workspace_items": (
+        "iam compact", "fit for 55", "fit-for-55", "renewable energy metrics",
+        "post glasgow", "post-glasgow", "steel relocation", "cost of capital",
+        "behavioural change", "behavioral change", "technology constrained",
+        "tech constrained", "ndc aspects", "global impacts of ndcs",
+        "long term targets", "long-term targets",
+    ),
+    "analysis_contact_items": (
+        "custom analysis", "analysis service", "analysis support",
+        "request analysis", "contact iam paris",
+    ),
+    "generic_site_targets": (
+        "documentation", "docs", "user guide", "scenario explorer",
+        "model documentation", "application library", "data portal",
+        "dashboard", "tutorial", "iam paris results", "paris results",
+        "results page", "scenario database",
+    ),
+    "strong_nav_phrases": (
+        "where can i find", "where do i find", "where is",
+        "give me the link", "send me the link", "take me to", "navigate to",
+        "how do i access", "how can i access", "how do i open", "link to",
+    ),
+    "extra_unambiguous_site_terms": (
+        "application library", "raw data application", "data story", "data stories",
+        "policy catalogue", "policy catalog", "recovery policy",
+        "technology inventories", "barriers and enablers", "scenario metadata",
+        "iam compact", "fit for 55", "fit-for-55", "post glasgow", "post-glasgow",
+        "ndc aspects", "global impacts of ndcs", "cost of capital", "steel relocation",
+    ),
+}
+
+
+def _load_nav_terms() -> Dict[str, tuple]:
+    terms = dict(_NAV_DEFAULTS)
+    try:
+        data = json.loads(_NAV_CONFIG_PATH.read_text())
+    except (OSError, ValueError):
+        return terms
+    for key, value in data.items():
+        if key in terms and isinstance(value, list):
+            terms[key] = tuple(str(item).lower() for item in value if str(item).strip())
+    return terms
+
+
+_NAV_TERMS = _load_nav_terms()
 
 
 def _looks_like_site_navigation_request(query: str) -> bool:
     q = str(query or "").strip().lower()
     if not q:
         return False
-    navigation_terms = (
-        "where can i find",
-        "where do i find",
-        "where is",
-        "open ",
-        "find ",
-        "link",
-        "url",
-        "page",
-        "website",
-        "application library",
-        "raw data application",
-        "data story",
-        "data stories",
-        "policy catalogue",
-        "policy catalog",
-        "database",
-        "explorer",
-    )
-    named_site_items = (
-        "aqueduct",
-        "climate watch",
-        "cdp open data portal",
-        "data portal",
-        "afolu transformation",
-        "buildings transformation",
-        "transportation transformation",
-        "transport transformation",
-        "industrial transformation",
-    )
-    data_story_items = (
-        "policy catalogue",
-        "policy catalog",
-        "recovery policy",
-        "circularity",
-        "decarbonisation data story",
-        "decarbonization data story",
-        "technology inventories",
-        "barriers and enablers",
-        "scenario metadata",
-    )
-    project_workspace_items = (
-        "iam compact",
-        "fit for 55",
-        "fit-for-55",
-        "renewable energy metrics",
-        "post glasgow",
-        "post-glasgow",
-        "steel relocation",
-        "cost of capital",
-        "behavioural change",
-        "behavioral change",
-        "technology constrained",
-        "tech constrained",
-        "ndc aspects",
-        "global impacts of ndcs",
-        "long term targets",
-        "long-term targets",
-    )
-    analysis_contact_items = (
-        "custom analysis",
-        "analysis service",
-        "analysis support",
-        "request analysis",
-        "contact iam paris",
-        "contact",
-    )
+    navigation_terms = _NAV_TERMS["navigation_terms"]
+    named_site_items = _NAV_TERMS["named_site_items"]
+    data_story_items = _NAV_TERMS["data_story_items"]
+    project_workspace_items = _NAV_TERMS["project_workspace_items"]
+    analysis_contact_items = _NAV_TERMS["analysis_contact_items"]
+    generic_site_targets = _NAV_TERMS["generic_site_targets"]
+    strong_nav_phrases = _NAV_TERMS["strong_nav_phrases"]
+
     if any(term in q for term in navigation_terms) and any(term in q for term in named_site_items):
         return True
     # Generic navigation intent: a navigation verb/term paired with a site or
@@ -103,30 +115,13 @@ def _looks_like_site_navigation_request(query: str) -> bool:
         "how do i access", "how can i access", "how do i open",
         "give me the link", "send me the link", "take me to", "navigate to",
     )
-    generic_site_targets = (
-        "documentation", "docs", "user guide", "scenario explorer",
-        "model documentation", "application library", "data portal",
-        "dashboard", "tutorial", "iam paris results", "paris results",
-        "results page", "scenario database",
-    )
     if any(p in q for p in nav_phrases) and any(t in q for t in generic_site_targets):
         return True
 
     # Guard: a data-shaped question ("find CO2 emissions data in the database",
     # "show renewable energy metrics for EU") must stay a data query unless the
     # user clearly asks for a page/link or names an unambiguous site item.
-    strong_nav_phrases = (
-        "where can i find", "where do i find", "where is",
-        "give me the link", "send me the link", "take me to", "navigate to",
-        "how do i access", "how can i access", "how do i open", "link to",
-    )
-    unambiguous_site_terms = named_site_items + (
-        "application library", "raw data application", "data story", "data stories",
-        "policy catalogue", "policy catalog", "recovery policy",
-        "technology inventories", "barriers and enablers", "scenario metadata",
-        "iam compact", "fit for 55", "fit-for-55", "post glasgow", "post-glasgow",
-        "ndc aspects", "global impacts of ndcs", "cost of capital", "steel relocation",
-    )
+    unambiguous_site_terms = named_site_items + _NAV_TERMS["extra_unambiguous_site_terms"]
     if (
         _looks_like_data_request(q)
         and not any(p in q for p in strong_nav_phrases)
@@ -147,7 +142,7 @@ def _looks_like_site_navigation_request(query: str) -> bool:
         return True
     if any(term in q for term in project_workspace_items) and any(term in q for term in ("results", "workspace", "policy questions", "metrics", "pathways", "targets", "aspects", "policy")):
         return True
-    if any(term in q for term in ("custom analysis", "analysis service", "analysis support", "request analysis", "contact iam paris")):
+    if any(term in q for term in analysis_contact_items):
         return True
     if re.search(r"\bcontact\b", q):
         return True
@@ -726,6 +721,12 @@ class MultiAgentManager:
         else:
             higher = var_a if val_a > val_b else var_b
             verdict = f"`{higher}` is higher in {year}."
+        record_resolved_scope(
+            variable=var_a,
+            region=region_key,
+            scenario=scenario_key,
+            model=model_key,
+        )
         lines = [
             f"### Comparison — {var_a} vs {var_b} ({region_key})",
             "",
@@ -1217,30 +1218,41 @@ class MultiAgentManager:
             if value:
                 merged[key] = value
 
-        first_line = text.splitlines()[0].strip() if text else ""
+        # Preferred channel: the scope the answer formatter actually resolved,
+        # reported structurally by data_utils/simple_plotter.
+        structured_scope = consume_resolved_scope()
+        if structured_scope and not self._is_unsuccessful_response(text):
+            for key in ("variable", "region", "scenario", "model"):
+                value = str(structured_scope.get(key, "") or "").strip()
+                if value:
+                    merged[key] = value
+        else:
+            # Fallback: parse the rendered answer (legacy paths that do not
+            # record their scope yet).
+            first_line = text.splitlines()[0].strip() if text else ""
 
-        header_match = re.match(r"^###\s+(.+?)\s+in\s+(.+?)\s*$", first_line)
-        if header_match:
-            merged["variable"] = header_match.group(1).strip()
-            merged["region"] = header_match.group(2).strip()
+            header_match = re.match(r"^###\s+(.+?)\s+in\s+(.+?)\s*$", first_line)
+            if header_match:
+                merged["variable"] = header_match.group(1).strip()
+                merged["region"] = header_match.group(2).strip()
 
-        prompt_match = re.search(
-            r"I found the variable\s+`([^`]+)`.*?\s+in\s+`([^`]+)`",
-            text,
-            re.IGNORECASE,
-        )
-        if prompt_match:
-            merged["variable"] = prompt_match.group(1).strip()
-            merged["region"] = prompt_match.group(2).strip()
+            prompt_match = re.search(
+                r"I found the variable\s+`([^`]+)`.*?\s+in\s+`([^`]+)`",
+                text,
+                re.IGNORECASE,
+            )
+            if prompt_match:
+                merged["variable"] = prompt_match.group(1).strip()
+                merged["region"] = prompt_match.group(2).strip()
 
-        plot_match = re.search(
-            r"Showing\s+.+?\s+in\s+(.+?)\s+for\s+scenario\s+`([^`]+)`",
-            text,
-            re.IGNORECASE,
-        )
-        if plot_match:
-            merged["region"] = plot_match.group(1).strip()
-            merged["scenario"] = plot_match.group(2).strip()
+            plot_match = re.search(
+                r"Showing\s+.+?\s+in\s+(.+?)\s+for\s+scenario\s+`([^`]+)`",
+                text,
+                re.IGNORECASE,
+            )
+            if plot_match:
+                merged["region"] = plot_match.group(1).strip()
+                merged["scenario"] = plot_match.group(2).strip()
 
         if merged:
             self.last_entities = merged
@@ -2015,6 +2027,7 @@ class MultiAgentManager:
         self.last_links = []
         self.turn_counter = getattr(self, "turn_counter", 0) + 1
         self.current_turn = self.turn_counter
+        consume_resolved_scope()  # drop any stale scope from a previous turn
 
         # Greek queries: the normalizer/heuristics only understand English, so
         # translate first instead of silently mis-routing a garbled query.

@@ -45,6 +45,7 @@ from model_aliases import extract_model_hint, match_model_name, resolve_model_ca
 from model_profiles import find_model_profile, format_model_profile_answer, has_strong_model_metadata
 from query_normalizer import normalize_query_text, query_tokens
 from year_filters import extract_year_range, is_latest_year_filter, select_years
+from resolved_scope import record_resolved_scope
 from utils_query import (
     match_variable_from_yaml,
     extract_examples_from_data,
@@ -3201,6 +3202,12 @@ def format_time_series_data(
     response += "\n\n"
     scenario_scope = scenarios[0] if len(scenarios) == 1 else "multiple"
     model_scope = models[0] if len(models) == 1 else "multiple"
+    record_resolved_scope(
+        variable=variable,
+        region=region,
+        scenario=scenario_scope,
+        model=model_scope,
+    )
     unit_scope = units[0] if len(units) == 1 else ("multiple" if units else "N/A")
     response += (
         f"Scope: scenario `{scenario_scope}`, model `{model_scope}`, "

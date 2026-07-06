@@ -4,6 +4,8 @@
 link_router.py, fastapi_app.py, query_normalizer.py, simple_plotter.py).
 Ταξινομημένα ανά κατηγορία, με προτεραιότητα (🔴 κρίσιμο, 🟠 σημαντικό, 🟡 βελτίωση).
 
+**Κατάσταση: όλα τα items έχουν υλοποιηθεί.** ✅
+
 ---
 
 ## 1. Routing / Διαχείριση queries
@@ -61,7 +63,7 @@ link_router.py, fastapi_app.py, query_normalizer.py, simple_plotter.py).
 - [x] 🟠 **Στενά regex για generic follow-ups** (`_is_generic_followup`): πιάνει «plot it»
   αλλά όχι «plot them both», «make a chart of that», «graph this data». Επέκταση προτύπων
   ή LLM-based follow-up detection.
-- [ ] 🟠 **Το state των follow-ups βασίζεται σε regex parsing της απάντησης**
+- [x] 🟠 **Το state των follow-ups βασίζεται σε regex parsing της απάντησης**
   (`_persist_last_entities` διαβάζει "### Var in Region" από το markdown). Αν αλλάξει το
   format απάντησης, σπάει σιωπηλά το context. Τα agents να επιστρέφουν δομημένα entities,
   όχι μόνο κείμενο.
@@ -146,7 +148,7 @@ link_router.py, fastapi_app.py, query_normalizer.py, simple_plotter.py).
 
 - [x] 🟡 **Το todo.md ισχυρίζεται «backend functionally complete»** — να ενημερωθεί με τα
   παραπάνω ευρήματα ώστε να μη δίνει ψευδή εικόνα.
-- [ ] 🟡 **Υπερβολική εξάρτηση από hardcoded λίστες strings** σε manager/data_utils
+- [x] 🟡 **Υπερβολική εξάρτηση από hardcoded λίστες strings** σε manager/data_utils
   (workspaces, scenarios, variables) — κάθε νέο workspace/dataset στο IAM PARIS απαιτεί
   αλλαγές κώδικα σε πολλά σημεία. Μεταφορά σε configuration/metadata.
 - [x] 🟡 **Δεν υπάρχει χειρισμός small talk / out-of-scope**: «hi», «who are you»,

@@ -156,6 +156,27 @@ MONITORING_THRESHOLDS = {
     "low_confidence_entity_rate": float(os.getenv("IAM_MONITOR_LOW_ENTITY_RATE_THRESHOLD", "0.15")),
 }
 
+_DEFAULT_WORKSPACES = [
+    "afolu", "buildings-transf", "covid-rec", "decarb-potentials", "decipher_1",
+    "energy-systems", "eu-headed", "index-decomp", "industrial-transf", "ndcs-impacts",
+    "net-zero", "post-glasgow", "power-people", "study-1", "study-2", "study-3",
+    "study-4", "study-6", "study-7", "transp-transf", "world-headed",
+]
+
+
+def _load_workspaces() -> List[str]:
+    """Workspace codes come from config/workspaces.json so adding a workspace
+    is a config edit, not a code change. Falls back to the built-in list."""
+    try:
+        data = json.loads(Path("config/workspaces.json").read_text())
+        workspaces = [str(w).strip() for w in data.get("workspaces", []) if str(w).strip()]
+        if workspaces:
+            return workspaces
+    except (OSError, ValueError):
+        pass
+    return list(_DEFAULT_WORKSPACES)
+
+
 def load_definitions():
     """Load YAML definitions with caching."""
     cache_file = "cache/yaml_definitions.pkl"
@@ -217,12 +238,8 @@ def initialize_resources():
         
         logger.info("Fetching timeseries data (this may take a minute)...")
         _check_timeout("timeseries fetch")
-        all_workspaces = [
-            "afolu", "buildings-transf", "covid-rec", "decarb-potentials", "decipher_1",
-            "energy-systems", "eu-headed", "index-decomp", "industrial-transf", "ndcs-impacts",
-            "net-zero", "post-glasgow", "power-people", "study-1", "study-2", "study-3",
-            "study-4", "study-6", "study-7", "transp-transf", "world-headed"
-        ]
+        all_workspaces = _load_workspaces()
+        logger.info("Fetching %d workspaces", len(all_workspaces))
         ts_payload = {
             'workspace_code': all_workspaces,
             'limit': -1,

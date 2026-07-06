@@ -1,0 +1,49 @@
+{
+  "_comment": "Terms used by the router to detect IAM PARIS site/navigation requests. Edit this file (no code change needed) when workspaces, data stories or site pages are added or renamed. All matching is lowercase substring.",
+  "navigation_terms": [
+    "where can i find", "where do i find", "where is", "open ", "find ",
+    "link", "url", "page", "website", "application library",
+    "raw data application", "data story", "data stories",
+    "policy catalogue", "policy catalog", "database", "explorer"
+  ],
+  "named_site_items": [
+    "aqueduct", "climate watch", "cdp open data portal", "data portal",
+    "afolu transformation", "buildings transformation",
+    "transportation transformation", "transport transformation",
+    "industrial transformation"
+  ],
+  "data_story_items": [
+    "policy catalogue", "policy catalog", "recovery policy", "circularity",
+    "decarbonisation data story", "decarbonization data story",
+    "technology inventories", "barriers and enablers", "scenario metadata"
+  ],
+  "project_workspace_items": [
+    "iam compact", "fit for 55", "fit-for-55", "renewable energy metrics",
+    "post glasgow", "post-glasgow", "steel relocation", "cost of capital",
+    "behavioural change", "behavioral change", "technology constrained",
+    "tech constrained", "ndc aspects", "global impacts of ndcs",
+    "long term targets", "long-term targets"
+  ],
+  "analysis_contact_items": [
+    "custom analysis", "analysis service", "analysis support",
+    "request analysis", "contact iam paris"
+  ],
+  "generic_site_targets": [
+    "documentation", "docs", "user guide", "scenario explorer",
+    "model documentation", "application library", "data portal",
+    "dashboard", "tutorial", "iam paris results", "paris results",
+    "results page", "scenario database"
+  ],
+  "strong_nav_phrases": [
+    "where can i find", "where do i find", "where is",
+    "give me the link", "send me the link", "take me to", "navigate to",
+    "how do i access", "how can i access", "how do i open", "link to"
+  ],
+  "extra_unambiguous_site_terms": [
+    "application library", "raw data application", "data story", "data stories",
+    "policy catalogue", "policy catalog", "recovery policy",
+    "technology inventories", "barriers and enablers", "scenario metadata",
+    "iam compact", "fit for 55", "fit-for-55", "post glasgow", "post-glasgow",
+    "ndc aspects", "global impacts of ndcs", "cost of capital", "steel relocation"
+  ]
+}

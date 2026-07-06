@@ -1,5 +1,6 @@
 import re
 from llm_config import QA_MODEL
+from resolved_scope import record_resolved_scope
 import warnings
 import logging
 import functools
@@ -312,7 +313,16 @@ def _wrap_plot_markdown(
     start_year: int | None = None,
     end_year: int | None = None,
     prefix: str = "Showing",
+    scope_variable: str | None = None,
 ) -> str:
+    # Report the resolved scope structurally so the manager does not have to
+    # re-parse the caption. `scope_variable` overrides caption-style variables
+    # (e.g. "X vs Y") with the real variable name.
+    record_resolved_scope(
+        variable=scope_variable if scope_variable is not None else variable,
+        region=region,
+        scenario=scenario,
+    )
     subject = _plot_subject(variable, region)
     years = _year_range_text(start_year, end_year)
     if scenario:
@@ -780,7 +790,8 @@ def plot_multiple_variables(question: str, model_data: List[Dict], ts_data: List
     
     plot_str = f"![Plot](data:image/png;base64,{img_base64})"
     caption_var = " vs ".join([_pretty_variable_name(v) for v in all_data.keys()])
-    return _wrap_plot_markdown(plot_str, caption_var, region, scenario, list(scenarios_in_data), start_year, end_year, prefix="Showing comparison of")
+    primary_variable = next(iter(all_data.keys()), "")
+    return _wrap_plot_markdown(plot_str, caption_var, region, scenario, list(scenarios_in_data), start_year, end_year, prefix="Showing comparison of", scope_variable=str(primary_variable))
 
 
 @_serialized_plot
@@ -976,7 +987,7 @@ def plot_model_comparison(question: str, model_data: List[Dict], ts_data: List[D
     plt.close()
     
     plot_str = f"![Plot](data:image/png;base64,{img_base64})"
-    return _wrap_plot_markdown(plot_str, f"model comparison of {_pretty_variable_name(resolved_variable)}", region, scenario, list(scenarios_in_data), start_year, end_year, prefix="Showing")
+    return _wrap_plot_markdown(plot_str, f"model comparison of {_pretty_variable_name(resolved_variable)}", region, scenario, list(scenarios_in_data), start_year, end_year, prefix="Showing", scope_variable=str(resolved_variable))
 
 
 @_serialized_plot
