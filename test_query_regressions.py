@@ -388,6 +388,42 @@ class QueryRegressionTests(unittest.TestCase):
         self.assertEqual(plot_caption, "Showing Solar Capacity in EU for scenario `PR_WWH_CP`.")
         self.assertEqual(notices, ["No explicit assumptions field is available in the model metadata."])
 
+    def test_workspace_listing_phrasings_return_workspace_list(self):
+        for phrase in ("list workspaces", "show all workspaces", "what workspaces are there?"):
+            response = self.ask(phrase)
+            self.assertIn("I found these workspaces", response, msg=phrase)
+            self.assertNotIn("I need one more detail", response, msg=phrase)
+            self.assertNotIn("Which variable should I use?", response, msg=phrase)
+
+    def test_forced_model_canonicalized_to_record_name(self):
+        # The entity extractor emits a display-cased model name ("GCAM") that
+        # differs from the record name ("gcam"); the model filter must still
+        # find the data instead of falsely reporting "no timeseries data".
+        response = data_query(
+            "Primary Energy for gcam",
+            self.models,
+            self.ts,
+            forced_entities={"variable": "Primary Energy", "model": "GCAM"},
+        )
+        self.assertIn("model `gcam`", response)
+        self.assertNotIn("no timeseries data for model", response.lower())
+
+    def test_explicit_pipe_variable_beats_extractor_superstring(self):
+        # The extractor can drift "Secondary Energy|Electricity" to the
+        # superstring "Price|Secondary Energy|Electricity"; the exact variable
+        # the user typed must win.
+        response = data_query(
+            "Secondary Energy|Electricity for USA",
+            self.models,
+            self.ts,
+            forced_entities={
+                "variable": "Price|Secondary Energy|Electricity",
+                "region": "USA",
+            },
+        )
+        self.assertIn("Secondary Energy|Electricity in USA", response)
+        self.assertNotIn("Price|Secondary Energy|Electricity", response)
+
 
 if __name__ == "__main__":
     unittest.main()

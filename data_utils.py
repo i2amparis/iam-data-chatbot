@@ -386,6 +386,22 @@ def _preferred_available_variable(question: str, available_vars: set[str]) -> st
     return preferred_variable_from_query(question, available_vars)
 
 
+def _explicit_variable_in_query(question: str, available_vars: set[str]) -> str | None:
+    """When the user types a structured (pipe-delimited) variable name verbatim,
+    prefer that exact variable over fuzzy/alias resolution, which can otherwise
+    latch onto a superstring such as `Price|Secondary Energy|Electricity`.
+
+    Only structured names (containing `|`) are considered so that a bare word
+    like `Population` cannot match incidentally; the longest match wins so a
+    parent name never shadows the more specific one the user actually typed.
+    """
+    q = (question or "").lower()
+    matches = [v for v in available_vars if "|" in v and v and v.lower() in q]
+    if not matches:
+        return None
+    return max(matches, key=len)
+
+
 def _record_has_year_data(record: dict) -> bool:
     record = record or {}
     if any(str(k).isdigit() for k in record.keys()):
@@ -1753,6 +1769,16 @@ def data_query(
     # Region/scenario/model alone should still allow the normal guided clarification flow.
     forced_choice = bool(forced_variable)
     model_names = sorted({str(m.get("modelName", "")).strip() for m in model_data if m and m.get("modelName")})
+    # The filters below compare against the model name stored on the timeseries
+    # records, which can differ in case/format from what the entity extractor
+    # emits (e.g. extractor "GCAM" vs record "gcam"). Canonicalize a forced model
+    # to the actual record name so an explicit model filter is not silently
+    # dropped as "no data" when the model in fact has data.
+    ts_model_names = sorted({str(r.get("modelName", "")).strip() for r in ts_data if r and r.get("modelName")})
+    if forced_model and forced_model not in ts_model_names:
+        canonical_forced_model = match_model_name(forced_model, ts_model_names)
+        if canonical_forced_model:
+            forced_model = canonical_forced_model
 
     def _extract_model_hint(query: str) -> str:
         return extract_model_hint(query)
@@ -2010,6 +2036,20 @@ def data_query(
             + ("" if show_all else _show_all_hint("regions", len(regions), len(sample)))
         )
 
+    if _looks_like_category_list_request(question, "workspaces"):
+        workspaces = get_available_workspaces(ts_data)
+        if not workspaces:
+            return "No workspaces are loaded in the current dataset. Try a different query or check IAM PARIS results."
+
+        show_all = _show_all_requested("workspaces")
+        sample = workspaces if show_all else workspaces[:12]
+        more = "" if len(workspaces) <= len(sample) else f" and {len(workspaces)-len(sample)} more"
+        return (
+            f"I found these workspaces: {', '.join(sample)}{more}. "
+            "Ask for data within one, e.g. `emissions in the net-zero workspace`."
+            + ("" if show_all else _show_all_hint("workspaces", len(workspaces), len(sample)))
+        )
+
     # -------------------------------
     # LIST ALL MODELS, RESULTS, AND WORKSPACES
     # -------------------------------
@@ -2119,7 +2159,13 @@ def data_query(
     resolved = resolve_natural_language_variable_with_score(question, variable_dict)
     available_vars = {str(r.get('variable', '')).strip() for r in ts_data if r and r.get('variable')}
     preferred_variable = _preferred_available_variable(question, available_vars)
-    if preferred_variable and not forced_variable:
+    explicit_variable_name = _explicit_variable_in_query(question, available_vars)
+    if explicit_variable_name and not forced_variable:
+        variable_match = explicit_variable_name
+        var_score = 999
+        matched_words = []
+        significant_words = []
+    elif preferred_variable and not forced_variable:
         variable_match = preferred_variable
         var_score = 999
         matched_words = []
@@ -2138,6 +2184,16 @@ def data_query(
     if re.search(r"\b(world|global)\b", question.lower()):
         region_match = "World"
     if forced_variable:
+        # The entity extractor can drift from a typed variable to a superstring
+        # (e.g. "Secondary Energy|Electricity" -> "Price|Secondary Energy|
+        # Electricity"). When the user typed an exact structured variable name
+        # verbatim that the extractor did not choose, trust what they typed.
+        if (
+            explicit_variable_name
+            and explicit_variable_name != forced_variable
+            and forced_variable.lower() not in question.lower()
+        ):
+            forced_variable = explicit_variable_name
         variable_match = forced_variable
         var_score = 999
     if forced_region:
