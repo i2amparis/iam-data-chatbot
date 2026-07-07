@@ -3146,8 +3146,15 @@ def data_query(
         # Prefer exact substring matches (case-insensitive)
         substring_matches = [m for m in model_names if m.lower() in query_lower or query_lower in m.lower()]
         if not substring_matches:
-            # Try matching by token (e.g., 'remind' -> 'REMIND-MAgPIE 3.0')
-            tokens = [t for t in re.split(r"\W+", query_lower) if t]
+            # Try matching by token (e.g., 'remind' -> 'REMIND-MAgPIE 3.0').
+            # Drop filler words so a stopword like "me" in "tell me about" does
+            # not match models such as E3ME/MEDEAS as a substring.
+            stopwords = {
+                'tell', 'me', 'about', 'the', 'a', 'an', 'model', 'models', 'info',
+                'information', 'details', 'describe', 'of', 'for', 'on', 'please',
+                'what', 'is', 'are', 'explain', 'give', 'show',
+            }
+            tokens = [t for t in re.split(r"\W+", query_lower) if t and t not in stopwords and len(t) >= 3]
             for m in model_names:
                 m_lower = m.lower()
                 if any(t in m_lower for t in tokens):

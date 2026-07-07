@@ -1082,6 +1082,12 @@ class MultiAgentManager:
             what_about = re.search(r"\b(?:what|how)\s+about\s+(.+)$", query, re.IGNORECASE)
             compare_with = re.search(r"\bcompare\s+(?:with|to|against)\s+(.+)$", query, re.IGNORECASE)
             scope_year = re.match(r"\s*((?:after|before|by|in|from)\s+\d{4}(?:\s*(?:to|until|-)\s*\d{4})?)\s*$", query, re.IGNORECASE)
+            # Dimension switches ("under PR_NDC_CP", "now for CHN"): keep the
+            # carried scope and replace only the named dimension. Strip filler on
+            # the original-case query so scenario codes keep their casing.
+            _stripped = re.sub(self._FOLLOWUP_FILLER, "", query.strip(), flags=re.IGNORECASE).strip().rstrip("?").strip()
+            under_switch = re.fullmatch(r"(?i)under\s+(.+)", _stripped)
+            for_switch = re.fullmatch(r"(?i)for\s+(.+)", _stripped)
 
             if "show all scenarios" in ql:
                 parts = ["show all scenarios"]
@@ -1090,7 +1096,7 @@ class MultiAgentManager:
                 if region:
                     parts.append(f"in {region}")
                 if model:
-                    parts.append(f"for model {model}")
+                    parts.append(f"for {model}")
                 return " ".join(parts)
 
             if compare_with:
@@ -1105,7 +1111,7 @@ class MultiAgentManager:
                 if target:
                     parts.append(f"versus {target}")
                 if model:
-                    parts.append(f"for model {model}")
+                    parts.append(f"for {model}")
                 if len(parts) > 1:
                     return " ".join(parts)
 
@@ -1120,7 +1126,20 @@ class MultiAgentManager:
                     parts.append(f"under {scenario}")
                 parts.append(replacement)
                 if model:
-                    parts.append(f"for model {model}")
+                    parts.append(f"for {model}")
+                if len(parts) > 1:
+                    return " ".join(parts)
+
+            if under_switch:
+                new_scenario = under_switch.group(1).strip()
+                parts = ["show"]
+                if variable:
+                    parts.append(variable)
+                if region:
+                    parts.append(f"for {region}")
+                parts.append(f"under {new_scenario}")
+                if model:
+                    parts.append(f"for {model}")
                 if len(parts) > 1:
                     return " ".join(parts)
 
@@ -1129,6 +1148,8 @@ class MultiAgentManager:
                 replacement = same_for.group(1).strip()
             elif what_about:
                 replacement = what_about.group(1).strip()
+            elif for_switch:
+                replacement = for_switch.group(1).strip()
 
             if replacement:
                 start_year, end_year = extract_year_range(replacement)
@@ -1151,7 +1172,7 @@ class MultiAgentManager:
                     if scenario:
                         parts.append(f"under {scenario}")
                 if model:
-                    parts.append(f"for model {model}")
+                    parts.append(f"for {model}")
                 if len(parts) > 1:
                     return " ".join(parts)
 
@@ -1169,7 +1190,7 @@ class MultiAgentManager:
             if scenario:
                 parts.append(f"under {scenario}")
             if model:
-                parts.append(f"for model {model}")
+                parts.append(f"for {model}")
             if len(parts) > 1:
                 return " ".join(parts)
 
@@ -1303,15 +1324,23 @@ class MultiAgentManager:
             )
         )
 
+    _FOLLOWUP_FILLER = r"^(?:(?:ok(?:ay)?|now|then|so|and|also|please)\s+)+"
+
     def _is_contextual_dimension_followup(self, query: str) -> bool:
         ql = query.strip().lower()
-        return bool(
+        if (
             re.fullmatch(r"same\s+for\s+.+", ql)
             or re.fullmatch(r"(?:what|how)\s+about\s+.+", ql)
             or re.fullmatch(r"compare\s+(?:with|to|against)\s+.+", ql)
             or re.fullmatch(r"(?:after|before|by|in|from)\s+\d{4}(?:\s*(?:to|until|-)\s*\d{4})?", ql)
             or ql == "show all scenarios"
-        )
+        ):
+            return True
+        # Dimension switches: "under PR_NDC_CP", "now for CHN", "and under Baseline".
+        # A short trailing phrase is the new scenario ("under X") or region ("for X").
+        stripped = re.sub(self._FOLLOWUP_FILLER, "", ql).strip().rstrip("?").strip()
+        m = re.fullmatch(r"(?:under|for)\s+(.+)", stripped)
+        return bool(m and 1 <= len(m.group(1).split()) <= 4)
 
     def _is_model_scope_followup(self, query: str) -> bool:
         """A question about the scenarios/variables/regions of the model just
@@ -1615,7 +1644,7 @@ class MultiAgentManager:
             self._record_route_decision("data_query", 0.95, "deterministic", "plot variable discovery request")
             response = agent.handle(query, history)
             return self._append_relevant_links(response, query, {}, "data_query")
-        if _looks_like_category_list_request(query, "models"):
+        if _looks_like_category_list_request(query, "models") and not was_contextual_followup:
             self.last_entities = {}
             sector_answer = self._models_covering_topic_answer(query)
             if sector_answer is not None:

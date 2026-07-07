@@ -526,5 +526,14 @@ class QueryRegressionTests(unittest.TestCase):
         )
 
 
+    def test_tell_me_about_model_does_not_match_stopword_models(self):
+        # "tell me about REMIND": the stopword "me" must not match E3ME/MEDEAS,
+        # and the model profile should be returned instead of a spurious list.
+        for name, header in (("REMIND", "### REMIND"), ("MESSAGEix", "### MESSAGEix")):
+            response = self.ask(f"tell me about {name}")
+            self.assertIn(header, response, msg=name)
+            self.assertNotIn("multiple model matches", response, msg=name)
+
+
 if __name__ == "__main__":
     unittest.main()

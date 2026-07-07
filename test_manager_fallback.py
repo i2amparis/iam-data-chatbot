@@ -1217,6 +1217,36 @@ class ManagerFallbackTests(unittest.TestCase):
         self.assertEqual(mgr.last_route_decision["agent"], "model_explanation")
         self.assertGreaterEqual(model_agent.last_entities["entity_confidence"]["model"], 0.9)
 
+    def test_dimension_switch_followups_are_recognized(self):
+        mgr = self._build_manager({})
+        for phrase in ("under PR_NDC_CP", "now for CHN", "and under PR_CurPol_CP?", "for India"):
+            self.assertTrue(mgr._is_contextual_dimension_followup(phrase), msg=phrase)
+        # A genuine list request or a fresh question must not be treated as one.
+        for phrase in ("list models", "what models are available", "for the EU what are the emissions of CO2"):
+            self.assertFalse(mgr._is_contextual_dimension_followup(phrase), msg=phrase)
+
+    def test_compose_under_switch_keeps_scope_and_swaps_scenario(self):
+        mgr = self._build_manager({})
+        composed = mgr._compose_contextual_query(
+            "under PR_NDC_CP",
+            {"variable": "Emissions|CO2", "region": "EU"},
+        )
+        self.assertIn("Emissions|CO2", composed)
+        self.assertIn("EU", composed)
+        self.assertIn("under PR_NDC_CP", composed)
+
+    def test_compose_region_switch_carries_model_without_list_trigger(self):
+        mgr = self._build_manager({})
+        composed = mgr._compose_contextual_query(
+            "now for CHN",
+            {"variable": "Final Energy", "model": "gcam"},
+        )
+        self.assertIn("Final Energy", composed)
+        self.assertIn("CHN", composed)
+        self.assertIn("gcam", composed)
+        # The literal word "model" would trip the model-list detector downstream.
+        self.assertNotIn("for model gcam", composed)
+
 
 if __name__ == "__main__":
     unittest.main()
