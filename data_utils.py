@@ -203,6 +203,51 @@ def _looks_like_discovery_request(text: str) -> bool:
     return False
 
 
+def _model_scoped_category(text: str) -> str | None:
+    """Detect a request for the scenarios/variables/regions of a *specific model*,
+    e.g. "what scenarios does GCAM have", "which regions does it cover",
+    "what variables does REMIND run". Returns the plural category token
+    (``scenarios``/``variables``/``regions``) or ``None``.
+
+    The possessive verb (does/have/run/…) is required so a plain category list
+    like "what scenarios are available" is left to the normal listing path; the
+    caller supplies the actual model (named in the query or carried context).
+    """
+    q = _normalize_free_text(text)
+    cat = re.search(r"\b(scenario|scenarios|variable|variables|region|regions)\b", q)
+    if not cat:
+        return None
+    if not re.search(
+        r"\b(does|do|has|have|run|runs|use|uses|cover|covers|report|reports|offer|offers)\b",
+        q,
+    ):
+        return None
+    return cat.group(1).rstrip("s") + "s"
+
+
+def _list_model_category(category: str, model: str, ts_data: list, show_all: bool = False) -> str:
+    """List the distinct scenarios/variables/regions recorded for one model."""
+    field = {"scenarios": "scenario", "variables": "variable", "regions": "region"}[category]
+    values = sorted({
+        str(r.get(field, "")).strip()
+        for r in ts_data
+        if r and str(r.get("modelName", "")).strip() == model and r.get(field)
+    })
+    if not values:
+        return f"I could not find any {category} recorded for model `{model}`."
+    shown = values if show_all else values[:15]
+    more = "" if len(values) <= len(shown) else f" and {len(values) - len(shown)} more"
+    hint = (
+        f"\n\nShowing {len(shown)} of {len(values)}. "
+        f"Say `show all {category} for {model}` if you need the full list."
+        if more else ""
+    )
+    return (
+        f"Model `{model}` has these {category}: {', '.join(shown)}{more}."
+        + hint
+    )
+
+
 def _looks_like_model_info_request(text: str) -> bool:
     q = _normalize_free_text(text)
     tokens = _token_set(text)
@@ -1822,6 +1867,27 @@ def data_query(
         if total <= shown:
             return ""
         return f"\n\nShowing {shown} of {total}. Say `show all {category}` if you need the full list."
+
+    # Scenarios/variables/regions scoped to a specific model, e.g.
+    # "what scenarios does GCAM have" or (with a model carried in context)
+    # "what scenarios does it have". Must run before the generic discovery and
+    # category-list paths, which would otherwise return an unscoped overview.
+    scoped_category = _model_scoped_category(question)
+    if scoped_category:
+        # Resolve against the timeseries model names so the listing matches the
+        # record casing/format (e.g. "gcam"), not the display catalogue ("GCAM").
+        scoped_model = forced_model or match_model_name(question, ts_model_names)
+        if scoped_model and scoped_model not in ts_model_names:
+            canonical_scoped = match_model_name(scoped_model, ts_model_names)
+            if canonical_scoped:
+                scoped_model = canonical_scoped
+        if scoped_model:
+            return _list_model_category(
+                scoped_category,
+                scoped_model,
+                ts_data,
+                show_all=_show_all_requested(scoped_category),
+            )
 
     # Route variable-discovery phrasing to the variable list path.
     if _looks_like_category_list_request(question, "variables") and _looks_like_plot_request(question):

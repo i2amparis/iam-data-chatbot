@@ -1313,6 +1313,18 @@ class MultiAgentManager:
             or ql == "show all scenarios"
         )
 
+    def _is_model_scope_followup(self, query: str) -> bool:
+        """A question about the scenarios/variables/regions of the model just
+        discussed, referred to by pronoun (e.g. "what scenarios does it have").
+        Recognising it lets the carried model flow into the data query so the
+        answer is scoped to that model instead of an unscoped overview."""
+        ql = query.strip().lower()
+        if not re.search(r"\b(scenario|scenarios|variable|variables|region|regions)\b", ql):
+            return False
+        if not re.search(r"\b(does|do|has|have|run|runs|use|uses|cover|covers)\b", ql):
+            return False
+        return bool(re.search(r"\b(it|its|this model|that model|the model)\b", ql))
+
     _SMALL_TALK_GREETINGS = {
         "hi", "hello", "hey", "hiya", "good morning", "good afternoon", "good evening",
     }
@@ -1829,6 +1841,7 @@ class MultiAgentManager:
             was_contextual_followup
             or self._is_generic_followup(query)
             or self._is_contextual_dimension_followup(query)
+            or self._is_model_scope_followup(query)
         )
 
         # Carry context into generic follow-ups like "plot it" or "show me data".

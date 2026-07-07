@@ -425,5 +425,42 @@ class QueryRegressionTests(unittest.TestCase):
         self.assertNotIn("Price|Secondary Energy|Electricity", response)
 
 
+    def test_model_scoped_scenarios_direct_for_named_model(self):
+        response = self.ask("what scenarios does GCAM have?")
+        self.assertIn("Model `gcam` has these scenarios", response)
+        self.assertIn("PR_Baseline", response)
+        self.assertNotIn("What I can help you with", response)
+        self.assertNotIn("I found scenarios like", response)
+
+    def test_model_scoped_listing_works_for_any_model(self):
+        # Not just gcam: a different model must be scoped to its own records.
+        response = self.ask("what scenarios does ices have?")
+        self.assertIn("Model `ices` has these scenarios", response)
+        self.assertNotIn("What I can help you with", response)
+
+    def test_model_scoped_regions_and_variables(self):
+        regions = self.ask("which regions does gcam cover?")
+        self.assertIn("Model `gcam` has these regions", regions)
+        variables = self.ask("what variables does gcam have?")
+        self.assertIn("Model `gcam` has these variables", variables)
+
+    def test_model_scoped_followup_uses_carried_model(self):
+        # Mirrors the manager injecting the carried model for "what scenarios
+        # does it have" after a model_explanation turn.
+        response = data_query(
+            "what scenarios does it have model GCAM",
+            self.models,
+            self.ts,
+            forced_entities={"model": "GCAM"},
+        )
+        self.assertIn("Model `gcam` has these scenarios", response)
+        self.assertNotIn("What I can help you with", response)
+
+    def test_generic_scenario_list_stays_unscoped(self):
+        response = self.ask("list scenarios")
+        self.assertIn("I found scenarios like", response)
+        self.assertNotIn("Model `", response)
+
+
 if __name__ == "__main__":
     unittest.main()
