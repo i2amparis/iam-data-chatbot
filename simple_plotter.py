@@ -38,7 +38,34 @@ from utils_query import (
     format_region_label,
 )
 from model_aliases import match_model_name
+from canonical_aliases import explicit_scenarios_from_query
 from year_filters import extract_year_range, select_years
+
+
+def _explicit_variable_in_query(question: str, available_vars) -> str | None:
+    """Return a structured (pipe-delimited) variable name the user typed
+    verbatim, so the plot path can prefer it over an extractor result that
+    drifted to a sibling/superstring. Longest verbatim match wins."""
+    q = (question or "").lower()
+    matches = [v for v in available_vars if v and "|" in v and v.lower() in q]
+    if not matches:
+        return None
+    return max(matches, key=len)
+
+
+def _canonical_ts_model(model: str | None, ts_data) -> str | None:
+    """Map an extractor/display model name to the name used on the timeseries
+    records (e.g. "GCAM" -> "gcam") so a model filter is not silently emptied."""
+    if not model:
+        return model
+    ts_model_names = sorted({
+        str(r.get("modelName", "")).strip()
+        for r in ts_data if r and r.get("modelName")
+    })
+    if model in ts_model_names:
+        return model
+    canonical = match_model_name(model, ts_model_names)
+    return canonical or model
 
 
 def _is_capacity_additions_mismatch(question: str, variable: str | None) -> bool:
@@ -1065,6 +1092,13 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
     variable = entities.get('variable')
     if isinstance(variable, str):
         variable = variable.strip()
+    # Prefer a structured variable name typed verbatim over an extractor result
+    # that drifted to a sibling/superstring (e.g. "Final Energy|Industry"
+    # widened to "Final Energy (excl. feedstocks)|Industry").
+    typed_variable = _explicit_variable_in_query(question, available_vars)
+    if typed_variable and typed_variable != variable:
+        if not variable or (isinstance(variable, str) and variable.lower() not in question.lower()):
+            variable = typed_variable
     scenario = entities.get('scenario')
     comparison = entities.get('comparison')
     scenarios_list = entities.get('scenarios')
@@ -1075,7 +1109,21 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
     if scenarios_list:
         scenario = None
         comparison = "scenario"
-    model = entities.get('model')
+    # Scenario names typed verbatim (e.g. "PR_Baseline and PR_NDC_CP") are ground
+    # truth and override an extractor result that collapsed them to a generic
+    # family such as "Baseline"; two or more become a scenario comparison.
+    typed_scenarios = explicit_scenarios_from_query(
+        question,
+        {str(r.get('scenario', '')).strip() for r in ts_data if r and r.get('scenario')},
+    )
+    if len(typed_scenarios) >= 2:
+        scenarios_list = typed_scenarios
+        scenario = None
+        comparison = "scenario"
+    elif len(typed_scenarios) == 1 and scenario != typed_scenarios[0]:
+        scenario = typed_scenarios[0]
+        scenarios_list = []
+    model = _canonical_ts_model(entities.get('model'), ts_data)
     start_year = entities.get('start_year')
     end_year = entities.get('end_year')
     unit = entities.get('unit')
@@ -1216,7 +1264,7 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
             continue
         if str(r.get('variable', '')) != variable:
             continue
-        if model and r.get('model') != model:
+        if model and str(r.get('modelName', '') or r.get('model', '')) != model:
             continue
         row_scenario = str(r.get('scenario', '') or '')
         if scenarios_list:
@@ -1516,6 +1564,9 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
     model_names = sorted({m.get('modelName', '') for m in model_data if m and m.get('modelName')})
     if model_names:
         model_match = match_model_name(question, model_names)
+        # Canonicalize to the timeseries record name (e.g. "GCAM" -> "gcam") so
+        # the model filter below is not silently emptied.
+        model_match = _canonical_ts_model(model_match, ts_data)
 
     # Extract scenario from query if mentioned
     scenario = None

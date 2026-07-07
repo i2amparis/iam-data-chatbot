@@ -12,6 +12,7 @@ from io import BytesIO
 import requests.exceptions
 
 from canonical_aliases import (
+    explicit_scenarios_from_query,
     preferred_variable_from_query,
     scenario_in_family,
     SCENARIO_FAMILY_PATTERNS,
@@ -1810,6 +1811,17 @@ def data_query(
     forced_region = str(forced_entities.get("region", "") or "").strip()
     forced_scenario = str(forced_entities.get("scenario", "") or "").strip()
     forced_model = str(forced_entities.get("model", "") or "").strip()
+    # A scenario name typed verbatim (e.g. "BAU", "PR_Baseline") is ground truth
+    # and overrides an extractor result that collapsed it to a generic family
+    # (e.g. "Baseline"), which would otherwise cause a false "no data".
+    # Only correct an extractor-supplied scenario that drifted off the verbatim
+    # name; when no scenario was forced, leave the in-function matcher to resolve
+    # it (overriding there would change no-data recovery for unrelated queries).
+    if forced_scenario:
+        _available_scenarios = {str(r.get("scenario", "")).strip() for r in ts_data if r and r.get("scenario")}
+        _typed_scenarios = explicit_scenarios_from_query(question, _available_scenarios)
+        if _typed_scenarios and forced_scenario not in _typed_scenarios:
+            forced_scenario = _typed_scenarios[0]
     # Only treat this as a hard choice once a variable has been explicitly selected.
     # Region/scenario/model alone should still allow the normal guided clarification flow.
     forced_choice = bool(forced_variable)

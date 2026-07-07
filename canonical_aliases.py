@@ -70,6 +70,26 @@ def _contains_phrase(query: str, phrase: str) -> bool:
     return bool(re.search(pattern, query, flags=re.IGNORECASE))
 
 
+def explicit_scenarios_from_query(query: str, available_scenarios: Iterable[str]) -> list[str]:
+    """Return dataset scenario names that appear verbatim in the query, longest
+    first. Word-boundary matching means a family label like ``Baseline`` will not
+    match inside a distinct code such as ``PR_Baseline`` (the underscore keeps
+    them separate), so a typed scenario (``BAU``, ``PR_NDC_CP``) is trusted over
+    an extractor result that collapsed it to a generic family. Used to override
+    a mangled scenario before filtering.
+    """
+    q = str(query or "")
+    found: list[str] = []
+    for scenario in sorted({str(s).strip() for s in (available_scenarios or []) if str(s).strip()}, key=len, reverse=True):
+        pattern = r"\b" + re.escape(scenario) + r"\b"
+        if re.search(pattern, q, flags=re.IGNORECASE):
+            # Skip a scenario already covered by a longer match containing it.
+            if any(scenario.lower() in longer.lower() and scenario.lower() != longer.lower() for longer in found):
+                continue
+            found.append(scenario)
+    return found
+
+
 # Energy-base aliases ("final/primary/secondary energy") must not steal queries
 # that ask for a specific carrier or sector under that energy family — those
 # should resolve to the more specific variable instead.

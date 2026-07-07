@@ -4,11 +4,12 @@ import unittest
 
 import pandas as pd
 
+from canonical_aliases import explicit_scenarios_from_query
 from data_utils import data_query
 from fastapi_app import _split_answer_payload
 from main import _extract_plot_markdown
 from main import load_best_cached_results
-from simple_plotter import simple_plot_query
+from simple_plotter import simple_plot_query, simple_plot_query_with_entities
 
 
 def _load_cached_fixtures():
@@ -460,6 +461,69 @@ class QueryRegressionTests(unittest.TestCase):
         response = self.ask("list scenarios")
         self.assertIn("I found scenarios like", response)
         self.assertNotIn("Model `", response)
+
+
+    def test_plot_model_filter_matches_record_name(self):
+        # Extractor emits "GCAM"; records use "gcam". The plot model filter must
+        # canonicalize so it is not silently emptied (previously it also read the
+        # wrong 'model' field instead of 'modelName').
+        response = simple_plot_query_with_entities(
+            "plot Primary Energy|Coal for gcam in CHN under PR_CurPol_CP",
+            self.models,
+            self.ts,
+            {
+                "variable": "Primary Energy|Coal",
+                "model": "GCAM",
+                "region": "CHN",
+                "scenario": "PR_CurPol_CP",
+            },
+        )
+        self.assertNotIn("No data found", response)
+        self.assertIn("data:image", response)
+
+    def test_plot_prefers_verbatim_variable_over_extractor_drift(self):
+        # Extractor drifts "Final Energy|Industry" to a superstring; the plot path
+        # must honour the variable the user typed verbatim.
+        response = simple_plot_query_with_entities(
+            "plot Final Energy|Industry for IND under NDC_EI",
+            self.models,
+            self.ts,
+            {
+                "variable": "Final Energy (excl. feedstocks)|Industry",
+                "region": "IND",
+                "scenario": "NDC_EI",
+            },
+        )
+        self.assertNotIn("No data found", response)
+        self.assertIn("data:image", response)
+
+    def test_verbatim_scenario_beats_extractor_family_collapse(self):
+        # "BAU" is a real scenario the extractor collapsed to "Baseline"; the
+        # typed name must win so GREECE+BAU data is found instead of no-data.
+        response = data_query(
+            "Primary Energy|Coal in GREECE under BAU from 2020 to 2050",
+            self.models,
+            self.ts,
+            forced_entities={
+                "variable": "Primary Energy|Coal",
+                "region": "GREECE",
+                "scenario": "Baseline",
+            },
+        )
+        self.assertIn("scenario `BAU`", response)
+        self.assertNotIn("could not find data", response.lower())
+
+    def test_explicit_scenarios_respect_word_boundaries(self):
+        available = ["Baseline", "PR_Baseline", "PR_NDC_CP", "BAU", "WWH"]
+        # A generic family label must not match inside a distinct code.
+        self.assertEqual(
+            explicit_scenarios_from_query("emissions under PR_Baseline and PR_NDC_CP", available),
+            ["PR_Baseline", "PR_NDC_CP"],
+        )
+        self.assertEqual(
+            explicit_scenarios_from_query("coal under BAU", available),
+            ["BAU"],
+        )
 
 
 if __name__ == "__main__":
