@@ -33,6 +33,9 @@ class RuntimeContext:
             raise KeyError(key)
         return getattr(self, key)
 
+    def __setitem__(self, key: str, value: Any) -> None:
+        setattr(self, key, value)
+
     def __contains__(self, key: str) -> bool:
         return hasattr(self, key)
 

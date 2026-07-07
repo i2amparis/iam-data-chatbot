@@ -54,6 +54,25 @@ class RuntimeContextTests(unittest.TestCase):
             self.assertIn("energy-systems", context.workspace_lookup)
             self.assertIn("GCAM", context.metadata.all_model_names)
 
+    def test_runtime_context_supports_item_assignment(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            context = build_runtime_context(
+                models=[],
+                ts=[],
+                vector_store="vector-store",
+                env={"OPENAI_API_KEY": "test"},
+                link_catalog_path=temp_path / "links.json",
+                metadata_cache_file=str(temp_path / "metadata.pkl"),
+            )
+
+            # The manager caches the shared entity extractor with item
+            # assignment, so RuntimeContext must accept dict-style writes.
+            self.assertIsNone(context.get("entity_extractor"))
+            context["entity_extractor"] = "extractor"
+            self.assertEqual(context["entity_extractor"], "extractor")
+            self.assertIn("entity_extractor", context)
+
 
 if __name__ == "__main__":
     unittest.main()
