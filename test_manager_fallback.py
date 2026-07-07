@@ -1,7 +1,7 @@
 import logging
 import unittest
 
-from manager import MultiAgentManager
+from manager import MultiAgentManager, _looks_like_site_navigation_request
 from main import _normalize_cli_query
 
 
@@ -1246,6 +1246,35 @@ class ManagerFallbackTests(unittest.TestCase):
         self.assertIn("gcam", composed)
         # The literal word "model" would trip the model-list detector downstream.
         self.assertNotIn("for model gcam", composed)
+
+    def test_buildings_results_is_navigation_not_data(self):
+        for phrase in ("can I find the buildings results?", "buildings results",
+                       "show me the buildings results", "transport results", "afolu results"):
+            self.assertTrue(_looks_like_site_navigation_request(phrase), msg=phrase)
+        # A data query that merely mentions a workspace word must stay data.
+        for phrase in ("buildings emissions for EU", "final energy for buildings in India",
+                       "show me the results for buildings emissions"):
+            self.assertFalse(_looks_like_site_navigation_request(phrase), msg=phrase)
+
+    def test_result_provenance_followup_answers_from_last_models(self):
+        mgr = self._build_manager({})
+        # Capture models from a rendered data answer.
+        mgr._persist_last_entities(
+            {},
+            "### Final Energy in IND\n**42 - PR_Baseline**\n| Year |\n**gcam - PR_NDC_CP**\n| Year |",
+        )
+        self.assertEqual(mgr.last_result_models, ["42", "gcam"])
+        for phrase in ("which model is this from?", "what model is this?", "which models are these from"):
+            self.assertTrue(mgr._is_result_provenance_question(phrase), msg=phrase)
+        answer = mgr._result_provenance_answer()
+        self.assertIn("`42`", answer)
+        self.assertIn("`gcam`", answer)
+
+    def test_result_provenance_single_model(self):
+        mgr = self._build_manager({})
+        mgr._persist_last_entities({}, "### GDP|MER in EU\nScope: scenario `multiple`, model `gcam`, years")
+        self.assertEqual(mgr.last_result_models, ["gcam"])
+        self.assertEqual(mgr._result_provenance_answer(), "That result comes from model `gcam`.")
 
 
 if __name__ == "__main__":

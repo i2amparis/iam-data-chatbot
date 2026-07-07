@@ -566,5 +566,18 @@ class QueryRegressionTests(unittest.TestCase):
         self.assertIn("MUSE", response)
 
 
+    def test_what_data_does_model_have_lists_its_variables(self):
+        # "what data does GCAM have for the EU" names a model, so it must scope to
+        # that model's variables instead of the generic dataset overview.
+        response = data_query(
+            "what data does GCAM have for the EU?",
+            self.models,
+            self.ts,
+            forced_entities={"model": "GCAM", "region": "EU"},
+        )
+        self.assertIn("Model `gcam` has these variables", response)
+        self.assertNotIn("What I can help you with", response)
+
+
 if __name__ == "__main__":
     unittest.main()

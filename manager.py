@@ -58,6 +58,10 @@ _NAV_DEFAULTS: Dict[str, tuple] = {
         "custom analysis", "analysis service", "analysis support",
         "request analysis", "contact iam paris",
     ),
+    "transformation_workspace_items": (
+        "buildings", "building", "transport", "transportation",
+        "industrial", "industry", "afolu",
+    ),
     "generic_site_targets": (
         "documentation", "docs", "user guide", "scenario explorer",
         "model documentation", "application library", "data portal",
@@ -116,6 +120,22 @@ def _looks_like_site_navigation_request(query: str) -> bool:
         "give me the link", "send me the link", "take me to", "navigate to",
     )
     if any(p in q for p in nav_phrases) and any(t in q for t in generic_site_targets):
+        return True
+
+    # A transformation-workspace keyword ("buildings", "transport", ...) asked
+    # for as a results/workspace page is navigation, even when a verb like
+    # "show" makes it look data-shaped — as long as no data variable (emissions,
+    # energy, gdp, ...) is named, which would make it a real data query.
+    _data_variable_hint = (
+        "emission", "co2", "energy", "capacity", "gdp", "population",
+        "demand", "supply", "price", "generation", "investment",
+    )
+    _wants_workspace_page = any(
+        term in q for term in _NAV_TERMS["transformation_workspace_items"]
+    ) and any(
+        term in q for term in ("result", "results", "workspace", "transformation", "policy questions")
+    ) and not any(t in q for t in _data_variable_hint)
+    if _wants_workspace_page:
         return True
 
     # Guard: a data-shaped question ("find CO2 emissions data in the database",
@@ -1278,6 +1298,21 @@ class MultiAgentManager:
         if merged:
             self.last_entities = merged
 
+        # Remember which models produced the last data answer so a follow-up like
+        # "which model is this from?" can be answered. Bold table headers read
+        # "**<model> - <scenario>**"; a single-model answer states "model `X`".
+        result_models: List[str] = []
+        for name in re.findall(r"\*\*([^*]+?)\s+-\s+[^*]+\*\*", text):
+            name = name.strip()
+            if name and name not in result_models:
+                result_models.append(name)
+        if not result_models:
+            single = re.search(r"model `([^`]+)`", text)
+            if single and single.group(1) not in ("multiple", ""):
+                result_models = [single.group(1)]
+        if result_models:
+            self.last_result_models = result_models
+
     _UNSUCCESSFUL_RESPONSE_MARKERS = (
         "i need one more detail",
         "please specify the variable",
@@ -1341,6 +1376,32 @@ class MultiAgentManager:
         stripped = re.sub(self._FOLLOWUP_FILLER, "", ql).strip().rstrip("?").strip()
         m = re.fullmatch(r"(?:under|for)\s+(.+)", stripped)
         return bool(m and 1 <= len(m.group(1).split()) <= 4)
+
+    def _is_result_provenance_question(self, query: str) -> bool:
+        """A follow-up asking which model the previous result came from, e.g.
+        "which model is this from?", "what model is this?"."""
+        ql = re.sub(self._FOLLOWUP_FILLER, "", query.strip().lower()).strip().rstrip("?").strip()
+        if ql in {
+            "which model", "what model", "which models", "what models",
+            "source model", "which model is this", "what model is this",
+        }:
+            return True
+        return bool(
+            re.fullmatch(r"(?:which|what)\s+models?\s+(?:is|are|was|were)\s+(?:this|that|it|these|those)(?:\s+from)?", ql)
+            or re.fullmatch(r"(?:which|what)\s+models?\s+(?:did|does)\s+(?:this|that|it)\s+come\s+from", ql)
+            or re.fullmatch(r"(?:where|which\s+model)\s+(?:is|are)\s+(?:this|that|these|those|it)\s+from", ql)
+        )
+
+    def _result_provenance_answer(self) -> Optional[str]:
+        models = getattr(self, "last_result_models", None)
+        if not models:
+            return None
+        if len(models) == 1:
+            return f"That result comes from model `{models[0]}`."
+        shown = models[:8]
+        more = "" if len(models) <= len(shown) else f" and {len(models) - len(shown)} more"
+        listed = ", ".join(f"`{m}`" for m in shown)
+        return f"That result includes data from these models: {listed}{more}."
 
     def _is_model_scope_followup(self, query: str) -> bool:
         """A question about the scenarios/variables/regions of the model just
@@ -1625,6 +1686,15 @@ class MultiAgentManager:
                 self.clarification_context = None
             elif not self._is_clarification_followup(query, self.clarification_context):
                 self.clarification_context = None
+
+        # Provenance follow-up ("which model is this from?"): answer from the
+        # models of the last data result instead of routing to a model listing.
+        if self._is_result_provenance_question(query):
+            provenance = self._result_provenance_answer()
+            if provenance is not None:
+                self._record_route_decision("data_query", 0.9, "deterministic", "result provenance follow-up")
+                self.last_links = []
+                return provenance
 
         early_carried = {}
         if context:

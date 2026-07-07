@@ -45,5 +45,9 @@
     "technology inventories", "barriers and enablers", "scenario metadata",
     "iam compact", "fit for 55", "fit-for-55", "post glasgow", "post-glasgow",
     "ndc aspects", "global impacts of ndcs", "cost of capital", "steel relocation"
+  ],
+  "transformation_workspace_items": [
+    "buildings", "building", "transport", "transportation",
+    "industrial", "industry", "afolu"
   ]
 }

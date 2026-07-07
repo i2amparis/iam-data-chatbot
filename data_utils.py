@@ -205,17 +205,18 @@ def _looks_like_discovery_request(text: str) -> bool:
 
 
 def _model_scoped_category(text: str) -> str | None:
-    """Detect a request for the scenarios/variables/regions of a *specific model*,
-    e.g. "what scenarios does GCAM have", "which regions does it cover",
-    "what variables does REMIND run". Returns the plural category token
-    (``scenarios``/``variables``/``regions``) or ``None``.
+    """Detect a request for the scenarios/variables/regions/data of a *specific
+    model*, e.g. "what scenarios does GCAM have", "which regions does it cover",
+    "what data does GCAM have for the EU". Returns the plural category token
+    (``scenarios``/``variables``/``regions``; bare "data" maps to ``variables``)
+    or ``None``.
 
     The possessive verb (does/have/run/…) is required so a plain category list
     like "what scenarios are available" is left to the normal listing path; the
     caller supplies the actual model (named in the query or carried context).
     """
     q = _normalize_free_text(text)
-    cat = re.search(r"\b(scenario|scenarios|variable|variables|region|regions)\b", q)
+    cat = re.search(r"\b(scenario|scenarios|variable|variables|region|regions|data)\b", q)
     if not cat:
         return None
     if not re.search(
@@ -223,7 +224,10 @@ def _model_scoped_category(text: str) -> str | None:
         q,
     ):
         return None
-    return cat.group(1).rstrip("s") + "s"
+    token = cat.group(1)
+    if token == "data":
+        return "variables"
+    return token.rstrip("s") + "s"
 
 
 def _list_model_category(category: str, model: str, ts_data: list, show_all: bool = False) -> str:
