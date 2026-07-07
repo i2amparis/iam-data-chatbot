@@ -1836,6 +1836,15 @@ def data_query(
         canonical_forced_model = match_model_name(forced_model, ts_model_names)
         if canonical_forced_model:
             forced_model = canonical_forced_model
+    # Recognize an explicit "from <model>" clause the extractor missed (e.g.
+    # "CO2 emissions for EU from E3ME"). Matching the isolated token avoids the
+    # surrounding words diluting the model match.
+    if not forced_model:
+        _from_model = re.search(r"\bfrom\s+([A-Za-z0-9][\w\-\.]*)\s*$", question, re.IGNORECASE)
+        if _from_model:
+            _resolved_from = match_model_name(_from_model.group(1).strip(), ts_model_names)
+            if _resolved_from:
+                forced_model = _resolved_from
 
     def _extract_model_hint(query: str) -> str:
         return extract_model_hint(query)
@@ -3168,6 +3177,14 @@ def data_query(
             if profile_match:
                 return format_model_profile_answer(profile_match, requested_name=str(profile_match.get("name", "")))
             return "I couldn't match that to a known model. Try `list models` to see available options."
+
+        # When the profile the user named (e.g. "MESSAGEix-GLOBIOM") merely
+        # *contains* an unrelated ts model as a substring (e.g. "GLOBIO"), trust
+        # the profile instead of the incidental fragment.
+        if profile_match:
+            profile_name = str(profile_match.get("name", ""))
+            if profile_name and all(m.lower() in profile_name.lower() for m in substring_matches):
+                return format_model_profile_answer(profile_match, requested_name=profile_name)
 
         if len(substring_matches) > 1:
             if profile_match:

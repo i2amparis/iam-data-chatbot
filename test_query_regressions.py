@@ -535,5 +535,36 @@ class QueryRegressionTests(unittest.TestCase):
             self.assertNotIn("multiple model matches", response, msg=name)
 
 
+    def test_hyphenated_model_name_is_not_shadowed_by_substring(self):
+        # "MESSAGEix-GLOBIOM" contains the unrelated ts model "GLOBIO" as a
+        # substring; the profile the user named must win.
+        response = self.ask("tell me about MESSAGEix-GLOBIOM")
+        self.assertIn("### MESSAGEix-GLOBIOM", response)
+        self.assertNotIn("### GLOBIO ", response)
+
+    def test_from_model_clause_applies_model_filter(self):
+        # The extractor resolves the variable/region but misses "from E3ME"; the
+        # explicit clause must still scope the query to that model (canonicalized
+        # to the record name "e3me").
+        response = data_query(
+            "CO2 emissions for EU from E3ME",
+            self.models,
+            self.ts,
+            forced_entities={"variable": "Emissions|CO2", "region": "EU"},
+        )
+        self.assertIn("model `e3me`", response)
+
+    def test_from_model_clause_reports_absent_model_honestly(self):
+        # MUSE is a real model but carries no Final Energy timeseries; the clause
+        # must resolve the model and the answer must name it, not silently ignore.
+        response = data_query(
+            "final energy for EU from MUSE",
+            self.models,
+            self.ts,
+            forced_entities={"variable": "Final Energy", "region": "EU"},
+        )
+        self.assertIn("MUSE", response)
+
+
 if __name__ == "__main__":
     unittest.main()
