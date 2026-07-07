@@ -163,6 +163,17 @@ class QueryRegressionTests(unittest.TestCase):
         self.assertIn("What I can help you with", response)
         self.assertNotIn("Choose the variable:", response)
 
+    def test_what_data_do_you_have_returns_discovery_overview(self):
+        for phrase in (
+            "what data do you have?",
+            "what data is available",
+            "what data can you show me",
+            "what's in the dataset",
+        ):
+            response = self.ask(phrase)
+            self.assertIn("What I can help you with", response, msg=phrase)
+            self.assertNotIn("Choose the variable:", response, msg=phrase)
+
     def test_generic_model_info_phrasing_resolves_model(self):
         response = self.ask("information on gcam")
         self.assertIn("### GCAM", response)

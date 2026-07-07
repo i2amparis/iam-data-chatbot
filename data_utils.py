@@ -188,7 +188,13 @@ def _looks_like_discovery_request(text: str) -> bool:
         return True
     if re.search(r"\bwhat\s+can\s+i\s+ask\b", q):
         return True
-    if re.search(r"\bwhat\s+kinds?\s+of\s+data\b", q):
+    if re.search(r"\bwhat\s+(?:kinds?|types?|sorts?)\s+of\s+data\b", q):
+        return True
+    # Overview-style questions about the dataset as a whole, e.g.
+    # "what data do you have", "what data is available", "what data can you show".
+    if re.search(r"\bwhat\s+data\s+(?:do|does|can|could|is|are|'s|s)\b", q):
+        return True
+    if re.search(r"\bwhat(?:'s|\s+is|\s+s)\s+(?:in|available\s+in)\s+(?:the\s+)?(?:data|dataset|database)\b", q):
         return True
     if re.search(r"\bdata\s+categor(?:y|ies)\b", q):
         return True
