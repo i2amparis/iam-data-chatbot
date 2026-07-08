@@ -12,6 +12,7 @@ from io import BytesIO
 import requests.exceptions
 
 from canonical_aliases import (
+    canonical_region_from_query,
     explicit_scenarios_from_query,
     preferred_variable_from_query,
     scenario_in_family,
@@ -434,6 +435,33 @@ def _rank_variable_candidates(
 
 def _preferred_available_variable(question: str, available_vars: set[str]) -> str | None:
     return preferred_variable_from_query(question, available_vars)
+
+
+def unknown_named_region(question: str, region_candidates, model_names=None) -> str | None:
+    """Return a place named after "for"/"in" (a proper noun) that resolves to no
+    known region nor model, so callers can reject invented locations (Gotham,
+    Atlantis, Mars, …) instead of silently returning unfiltered global data.
+    Returns None when the place resolves to a real region/model or none is named.
+
+    Strict matching (exact region code/label or a canonical alias) is used so a
+    partial like "Middle Earth" is not accepted as "Middle East".
+    """
+    m = re.search(r"\b(?:for|in)\s+([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*)", str(question or ""))
+    if not m:
+        return None
+    place = m.group(1).strip()
+    pl = place.lower()
+    if pl in ("world", "global"):
+        return None
+    if any(pl == str(r).strip().lower() for r in region_candidates):
+        return None
+    if any(pl == format_region_label(r).strip().lower() for r in region_candidates):
+        return None
+    if canonical_region_from_query(place, region_candidates):
+        return None
+    if model_names and match_model_name(place, model_names):
+        return None
+    return place
 
 
 def _explicit_variable_in_query(question: str, available_vars: set[str]) -> str | None:
@@ -2289,6 +2317,24 @@ def data_query(
         var_score = 999
     if forced_region:
         region_match = forced_region
+
+    # Unknown named region: if the user explicitly named a place after "for"/"in"
+    # that resolves to no known region (and is not a model/scenario), do not
+    # silently fall back to unfiltered (global) data — say so and suggest valid
+    # regions. This guards against inventing results for any nonexistent place.
+    if not region_match and not forced_region:
+        _place = unknown_named_region(question, region_candidates, model_names)
+        if _place:
+            _examples = [r for r in ("World", "EU", "USA", "CHN", "IND", "JPN", "BRA") if r in region_candidates]
+            if not _examples:
+                _examples = sorted(region_candidates)[:5]
+            _labels = ", ".join(f"`{format_region_label(r)}`" for r in _examples[:5])
+            return (
+                f"I couldn't find `{_place}` as a region in the IAM PARIS data, "
+                f"so I can't return results for it.\n\n"
+                f"Try one of the available regions, e.g. {_labels}, "
+                f"or ask `list regions` to see all options."
+            )
 
     if forced_choice:
         model_match = forced_model or _match_model_name(question)

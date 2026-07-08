@@ -1088,6 +1088,17 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
         return plot_multiple_variables(question, model_data, ts_data, comparison_vars, region, scenario,
                                        start_year, end_year)
     
+    # Reject an explicitly named place that is not a known region, instead of
+    # plotting unfiltered global data for a nonexistent location.
+    if not (entities.get('region') or region):
+        from data_utils import unknown_named_region as _unknown_region
+        _rc = sorted({str(r.get('region', '')).strip() for r in ts_data if r and r.get('region')})
+        _mn = sorted({str(m.get('modelName', '')).strip() for m in model_data if m and m.get('modelName')})
+        _bad = _unknown_region(question, _rc, _mn)
+        if _bad:
+            return (f"I couldn't find `{_bad}` as a region in the IAM PARIS data, so I can't plot it. "
+                    f"Try a region like `World`, `EU` or `CHN`, or ask `list regions`.")
+
     # Use extracted entities directly
     variable = entities.get('variable')
     if isinstance(variable, str):
@@ -1463,7 +1474,14 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
         region = extract_region_from_query(question, region_dict, region_candidates)
         if re.search(r"\b(world|global)\b", question.lower()):
             region = "World"
-    
+        if not region:
+            from data_utils import unknown_named_region as _unknown_region
+            _mn = sorted({str(m.get('modelName', '')).strip() for m in model_data if m and m.get('modelName')})
+            _bad = _unknown_region(question, region_candidates, _mn)
+            if _bad:
+                return (f"I couldn't find `{_bad}` as a region in the IAM PARIS data, so I can't plot it. "
+                        f"Try a region like `World`, `EU` or `CHN`, or ask `list regions`.")
+
     # Load variable definitions
     variable_path = Path('definitions/variable').resolve()
     variable_dict = load_all_yaml_files(str(variable_path))

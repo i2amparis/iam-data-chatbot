@@ -5,7 +5,7 @@ import unittest
 import pandas as pd
 
 from canonical_aliases import explicit_scenarios_from_query
-from data_utils import data_query
+from data_utils import data_query, unknown_named_region
 from fastapi_app import _split_answer_payload
 from main import _extract_plot_markdown
 from main import load_best_cached_results
@@ -577,6 +577,31 @@ class QueryRegressionTests(unittest.TestCase):
         )
         self.assertIn("Model `gcam` has these variables", response)
         self.assertNotIn("What I can help you with", response)
+
+
+    def test_unknown_named_region_helper(self):
+        regions = ["EU", "World", "CHN", "Japan", "Brazil", "USA"]
+        self.assertEqual(unknown_named_region("CO2 for Gotham", regions), "Gotham")
+        # Strict matching: a partial must not be accepted as a real region.
+        self.assertEqual(unknown_named_region("GDP for Middle Earth", regions), "Middle Earth")
+        # Real regions / aliases / no place must not be flagged.
+        self.assertIsNone(unknown_named_region("CO2 for EU", regions))
+        self.assertIsNone(unknown_named_region("GDP for China", regions))
+        self.assertIsNone(unknown_named_region("emissions for World", regions))
+        self.assertIsNone(unknown_named_region("final energy in industry for China", regions))
+        self.assertIsNone(unknown_named_region("CO2 emissions", regions))
+
+    def test_data_query_rejects_unknown_region_not_inventing_data(self):
+        for q in ("CO2 emissions for Gotham", "GDP for Middle Earth", "population for Mars in 2050"):
+            response = self.ask(q)
+            self.assertIn("as a region in the IAM PARIS data", response, msg=q)
+            self.assertNotIn("| Year |", response, msg=q)
+
+    def test_data_query_still_serves_known_regions(self):
+        for q in ("CO2 emissions for EU", "final energy demand in industry for China",
+                  "carbon capture and storage for World"):
+            response = self.ask(q)
+            self.assertNotIn("as a region in the IAM PARIS data", response, msg=q)
 
 
 if __name__ == "__main__":
