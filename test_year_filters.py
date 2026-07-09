@@ -12,6 +12,15 @@ class YearFilterTests(unittest.TestCase):
         self.assertEqual(extract_year_range("show values after 2030"), (2031, None))
         self.assertEqual(extract_year_range("show the latest available year"), (LATEST_YEAR_SENTINEL, LATEST_YEAR_SENTINEL))
 
+    def test_extract_year_range_spans_and_end_year(self):
+        # "between X and Y" and "X and Y" are ranges, not just the first year.
+        self.assertEqual(extract_year_range("final energy between 2030 and 2060"), (2030, 2060))
+        self.assertEqual(extract_year_range("carbon price in 2030 and 2050"), (2030, 2050))
+        # 2100 (starts with "21") must be recognised, not silently dropped.
+        self.assertEqual(extract_year_range("population in 2100"), (2100, 2100))
+        self.assertEqual(extract_year_range("primary energy from 2020 to 2100"), (2020, 2100))
+        self.assertEqual(extract_year_range("emissions around 2040"), (2040, 2040))
+
     def test_select_years_filters_ranges_and_latest(self):
         years = ["2020", "2030", "2040", "2050"]
         self.assertEqual(select_years(years, 2030, 2040), ["2030", "2040"])
