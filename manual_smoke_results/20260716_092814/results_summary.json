@@ -1,0 +1,73 @@
+{
+  "generated": "20260716_092814",
+  "count": 3,
+  "rows": [
+    {
+      "query": "transport final energy for EU",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.45,
+        "source": "deterministic",
+        "reason": "low confidence entity clarification"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I could not confidently match all of the requested wording. The loaded variable catalogue does not represent these term(s) in the top match: `final`. Choose the variable: 1. `Emissions|CO2|Energy|Demand|Transport` (CO2 emissions, transport) 2. `Benchmarking|Transport|Energy per capita` (transport) 3. `Investment|Energy Supply|CO2 Transport and Storage` (investment, transport) Reply with a number (",
+      "session_id": "regb18_all"
+    },
+    {
+      "query": "where can I see transport results online?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.97,
+        "source": "deterministic",
+        "reason": "explicit site navigation request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Use these IAM PARIS links for this request: [Results](https://iamparis.eu/results).",
+      "session_id": "regb18_all"
+    },
+    {
+      "query": "what related questions can I ask?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.6,
+        "source": "llm",
+        "reason": "unclear deterministic route"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "llm"
+      },
+      "data_provenance": {},
+      "answer_preview": "Here are some related questions you can ask about transport final energy for the EU:\n\n1. **Trends and Projections:**\n   - What are the projected trends for transport final energy consumption in the EU?\n   - How is transport final energy expected to change in the EU over the next decade?\n\n2. **Energy Sources:**\n   - What are the main energy sources for transport in the EU?\n   - How is the share of ",
+      "session_id": "regb18_all"
+    }
+  ]
+}

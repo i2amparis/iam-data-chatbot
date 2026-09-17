@@ -1,0 +1,416 @@
+{
+  "generated": "20260720_125516",
+  "count": 4,
+  "rows": [
+    {
+      "query": "primary energy for the World from IMAGE",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Primary Energy",
+        "region": "World",
+        "scenario": null,
+        "model": "IMAGE",
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85,
+          "model": 0.8
+        },
+        "confidence": 0.85,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline"
+        ],
+        "result_models": [
+          "42",
+          "GCAM",
+          "GCAM 7.0",
+          "GCAM-PR 5.3",
+          "PROMETHEUS V1",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T09:55:14.834667+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Primary Energy",
+          "region": "World",
+          "model": "IMAGE",
+          "years": "2005-2100",
+          "unit": "EJ/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Primary Energy"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Model",
+            "value": "IMAGE"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "EJ/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T09:55:14.834667+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Note: no timeseries data for model `IMAGE` in this slice; showing results across the models that do have it.\n\n### Primary Energy in World\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `EJ/yr`\n\nAnswer:\nSummary: 55 series across 11 models and 12 scenarios.\nShowing series 1-12 of 55, ordered by model and scenario. Narrow by model or scenario to view the 43 remaining series.\n\n",
+      "session_id": "guard_1"
+    },
+    {
+      "query": "CO2 emissions for World from REMIND",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "region": "World",
+        "scenario": null,
+        "model": "REMIND",
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85,
+          "model": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "Baseline|Harmonized",
+          "CP_EI",
+          "CP_EI|Harmonized",
+          "NDC_EI",
+          "NDC_EI|Harmonized",
+          "NDC_LTS|Harmonized",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline",
+          "baseline",
+          "baseline|Harmonized"
+        ],
+        "result_models": [
+          "GCAM",
+          "GCAM 7.0",
+          "GCAM-PR 5.3",
+          "GEMINI-E3 7.0",
+          "MUSE",
+          "PROMETHEUS V1",
+          "TIAM_Grantham",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "muse"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T09:55:14.834667+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "World",
+          "model": "REMIND",
+          "years": "2005-2100",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Model",
+            "value": "REMIND"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T09:55:14.834667+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Note: no timeseries data for model `REMIND` in this slice; showing results across the models that do have it.\n\n### Emissions|CO2 in World\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\nSummary: 66 series across 11 models and 18 scenarios.\nShowing series 1-12 of 66, ordered by model and scenario. Narrow by model or scenario to view the 54 remaining serie",
+      "session_id": "guard_2"
+    },
+    {
+      "query": "GDP for China",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "GDP|MER",
+        "region": "CHN",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline"
+        ],
+        "result_models": [
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T09:55:14.834667+00:00",
+        "matched_record_count": 26,
+        "selected_filters": {
+          "variable": "GDP|MER",
+          "region": "CHN",
+          "years": "2005-2100"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "GDP|MER"
+          },
+          {
+            "label": "Region",
+            "value": "CHN"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Matched records",
+            "value": "26"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T09:55:14.834667+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### GDP|MER in CHN\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `multiple`\n\nAnswer:\nSummary: 26 series across 4 models and 8 scenarios.\nShowing series 1-12 of 26, ordered by model and scenario. Narrow by model or scenario to view the 14 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 2070 |",
+      "session_id": "guard_3"
+    },
+    {
+      "query": "coal primary energy for China",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Primary Energy|Coal",
+        "region": "CHN",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline",
+          "baseline"
+        ],
+        "result_models": [
+          "42",
+          "MUSE",
+          "PROMETHEUS V1",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T09:55:14.834667+00:00",
+        "matched_record_count": 53,
+        "selected_filters": {
+          "variable": "Primary Energy|Coal",
+          "region": "CHN",
+          "years": "2005-2100",
+          "unit": "EJ/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Primary Energy|Coal"
+          },
+          {
+            "label": "Region",
+            "value": "CHN"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "EJ/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "53"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T09:55:14.834667+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Primary Energy|Coal in CHN\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `EJ/yr`\n\nAnswer:\nSummary: 50 series across 9 models and 12 scenarios.\nShowing series 1-12 of 50, ordered by model and scenario. Narrow by model or scenario to view the 38 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 206",
+      "session_id": "guard_4"
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "generated": "20260721_085629",
+  "count": 3,
+  "rows": [
+    {
+      "query": "what is REMIND?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "model_explanation",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "model information request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": "REMIND",
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "model": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {},
+      "answer_preview": "### REMIND\n\nDescription:\nREMIND is a global integrated assessment model that links macroeconomic development, the energy system, climate policy and technology choices. It is commonly used to assess mitigation pathways, carbon pricing, energy transitions and technology deployment across regions and sectors.\n\nModel scope:\n- energy\n- economy\n- climate\n- land-use interactions\n\nUseful for:\n- global and",
+      "session_id": "FX1_all"
+    },
+    {
+      "query": "what variables does it have for the EU?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.95,
+        "source": "query_plan",
+        "reason": "scope-filtered variable availability"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": "EU",
+        "scenario": null,
+        "model": "REMIND",
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "model": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-21T05:56:18.799059+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Variables available for the requested scope",
+          "region": "EU",
+          "model": "REMIND"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.95,
+          "source": "query_plan"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Variables available for the requested scope"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Model",
+            "value": "REMIND"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-21T05:56:18.799059+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Variables available for the requested scope\n\nScope: model `REMIND`, region `EU`.\n\n**Variables (0):** none",
+      "session_id": "FX1_all"
+    },
+    {
+      "query": "where can I read its documentation?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.6,
+        "source": "llm",
+        "reason": "unclear deterministic route"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "llm"
+      },
+      "data_provenance": {},
+      "answer_preview": "You can read the documentation for the REMIND model on the IAM PARIS website. Visit the [IAM PARIS Models page](https://iamparis.eu/models) to find detailed information and documentation about the REMIND model.",
+      "session_id": "FX1_all"
+    }
+  ]
+}

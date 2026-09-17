@@ -1,0 +1,215 @@
+{
+  "generated": "20260716_131131",
+  "count": 2,
+  "rows": [
+    {
+      "query": "CO2 emissions for EU",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "region": "EU",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "PR_WWH_CP",
+          "Unharmonised baseline",
+          "baseline"
+        ],
+        "result_models": [
+          "E3ME 6.1",
+          "E4SMA-EU-TIMES 1.0",
+          "GCAM-PR 5.3",
+          "GEMINI-E3 7.0",
+          "MUSE",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "muse"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:11:18.443602+00:00",
+        "matched_record_count": 34,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "EU",
+          "years": "2005-2100",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "34"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:11:18.443602+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Emissions|CO2 in EU\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\nSummary: 34 series across 9 models and 13 scenarios.\nShowing series 1-12 of 34, ordered by model and scenario. Narrow by model or scenario to view the 22 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 |",
+      "session_id": "co2eu_1"
+    },
+    {
+      "query": "CO2 emissions for the EU from GCAM",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "region": "EU",
+        "scenario": null,
+        "model": "GCAM",
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85,
+          "model": 1.0
+        },
+        "confidence": 0.85,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "PR_WWH_CP",
+          "Unharmonised baseline",
+          "baseline"
+        ],
+        "result_models": [
+          "E3ME 6.1",
+          "E4SMA-EU-TIMES 1.0",
+          "GCAM-PR 5.3",
+          "GEMINI-E3 7.0",
+          "MUSE",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "muse"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:11:18.443602+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "EU",
+          "model": "GCAM",
+          "years": "2005-2100",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Model",
+            "value": "GCAM"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:11:18.443602+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Note: no timeseries data for model `GCAM` in this slice; showing results across the models that do have it.\n\n### Emissions|CO2 in EU\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\nSummary: 34 series across 9 models and 13 scenarios.\nShowing series 1-12 of 34, ordered by model and scenario. Narrow by model or scenario to view the 22 remaining series.\n\n| ",
+      "session_id": "co2eu_2"
+    }
+  ]
+}

@@ -2,16 +2,17 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from dotenv import load_dotenv
-from main import IAMParisBot
+from main import IAMParisBot, load_workspace_codes
 
 def check_available_variables():
     load_dotenv(override=True)
     
     bot = IAMParisBot(streaming=False)
     
-    # Fetch test data from API
-    print("Fetching test data from API...")
-    test_payload = {"workspace_code": ["study-1"], "limit": 50}
+    # Fetch the complete result catalogue: every configured workspace and page.
+    workspaces = load_workspace_codes()
+    print(f"Fetching all data from {len(workspaces)} workspaces...")
+    test_payload = {"workspace_code": workspaces, "limit": -1}
     try:
         data = bot.fetch_json(bot.env["REST_API_FULL"], payload=test_payload, cache=False)
         print(f"Retrieved {len(data)} records")

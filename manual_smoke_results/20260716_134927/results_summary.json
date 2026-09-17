@@ -1,0 +1,1992 @@
+{
+  "generated": "20260716_134927",
+  "count": 38,
+  "rows": [
+    {
+      "query": "primary energy for World from REMIND",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Primary Energy",
+        "region": "World",
+        "scenario": null,
+        "model": "REMIND",
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85,
+          "model": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline"
+        ],
+        "result_models": [
+          "42",
+          "GCAM",
+          "GCAM 7.0",
+          "GCAM-PR 5.3",
+          "PROMETHEUS V1",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Primary Energy",
+          "region": "World",
+          "model": "REMIND",
+          "years": "2005-2100",
+          "unit": "EJ/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Primary Energy"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Model",
+            "value": "REMIND"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "EJ/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Note: no timeseries data for model `REMIND` in this slice; showing results across the models that do have it.\n\n### Primary Energy in World\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `EJ/yr`\n\nAnswer:\nSummary: 55 series across 11 models and 12 scenarios.\nShowing series 1-12 of 55, ordered by model and scenario. Narrow by model or scenario to view the 43 remaining series.\n",
+      "link_check": {
+        "links_total": 2,
+        "links_ok": 2,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_1"
+    },
+    {
+      "query": "CO2 emissions for India from MESSAGEix-GLOBIOM",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "region": "IND",
+        "scenario": null,
+        "model": "MESSAGEix-GLOBIOM",
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85,
+          "model": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline",
+          "baseline"
+        ],
+        "result_models": [
+          "GEMINI-E3 7.0",
+          "MUSE",
+          "PROMETHEUS V1",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "muse"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "IND",
+          "model": "MESSAGEix-GLOBIOM",
+          "years": "2005-2100",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "IND"
+          },
+          {
+            "label": "Model",
+            "value": "MESSAGEix-GLOBIOM"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Note: no timeseries data for model `MESSAGEix-GLOBIOM` in this slice; showing results across the models that do have it.\n\n### Emissions|CO2 in IND\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\nSummary: 37 series across 7 models and 13 scenarios.\nShowing series 1-12 of 37, ordered by model and scenario. Narrow by model or scenario to view the 25 remaini",
+      "link_check": {
+        "links_total": 2,
+        "links_ok": 2,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_2"
+    },
+    {
+      "query": "electricity generation for EU from WITCH",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Secondary Energy|Electricity",
+        "region": "EU",
+        "scenario": null,
+        "model": "WITCH",
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85,
+          "model": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "PR_WWH_CP",
+          "Unharmonised baseline",
+          "baseline"
+        ],
+        "result_models": [
+          "42",
+          "E3ME 6.1",
+          "E4SMA-EU-TIMES 1.0",
+          "GCAM-PR 5.3",
+          "MUSE",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Secondary Energy|Electricity",
+          "region": "EU",
+          "model": "WITCH",
+          "years": "2005-2100",
+          "unit": "EJ/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Secondary Energy|Electricity"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Model",
+            "value": "WITCH"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "EJ/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Note: no timeseries data for model `WITCH` in this slice; showing results across the models that do have it.\n\n### Secondary Energy|Electricity in EU\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `EJ/yr`\n\nNote: excluded incompatible unit group(s) from this table: `42 - PR_WWH_CP` (Mt CO2/yr).\n\nAnswer:\nSummary: 50 series across 11 models and 13 scenarios.\nShowing series 1-12",
+      "link_check": {
+        "links_total": 2,
+        "links_ok": 2,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_3"
+    },
+    {
+      "query": "final energy for China from PROMETHEUS",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Final Energy",
+        "region": "CHN",
+        "scenario": null,
+        "model": "PROMETHEUS",
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85,
+          "model": 1.0
+        },
+        "confidence": 0.85,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT"
+        ],
+        "result_models": [
+          "PROMETHEUS V1"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Final Energy",
+          "region": "CHN",
+          "model": "PROMETHEUS",
+          "years": "2005-2100",
+          "unit": "EJ/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Final Energy"
+          },
+          {
+            "label": "Region",
+            "value": "CHN"
+          },
+          {
+            "label": "Model",
+            "value": "PROMETHEUS"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "EJ/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Final Energy in CHN\n\nScope: scenario `multiple`, model `PROMETHEUS V1`, years `2005-2100`\nUnit: `EJ/yr`\n\nAnswer:\n**PROMETHEUS V1 - CP_EI**\n| Year | Value | Unit |\n|------|-------|------|\n| 2015 | 83.65 | EJ/yr |\n| 2020 | 85.07 | EJ/yr |\n| 2025 | 89.25 | EJ/yr |\n| 2030 | 91.18 | EJ/yr |\n| 2035 | 95.01 | EJ/yr |\n| 2040 | 96.11 | EJ/yr |\n| 2045 | 96.78 | EJ/yr |\n| 2050 | 97.36 | EJ/yr |\n\n**PROMET",
+      "link_check": {
+        "links_total": 2,
+        "links_ok": 2,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_4"
+    },
+    {
+      "query": "does WITCH report carbon price for EU?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.45,
+        "source": "deterministic",
+        "reason": "low confidence entity clarification"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I could not confidently match all of the requested wording. The loaded variable catalogue does not represent these term(s) in the top match: `does`, `report`, `witch`. Choose the variable: 1. `Price|Carbon` (price) 2. `Price|Carbon|EUETS` (price) 3. `Price|Carbon|Supply` (price) Reply with a number (1-3), or `yes` for option 1.",
+      "link_check": {
+        "links_total": 0,
+        "links_ok": 0,
+        "broken_links": [],
+        "links_all_ok": false
+      },
+      "session_id": "R3sing_5"
+    },
+    {
+      "query": "which regions does GCAM cover?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "region availability request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Model `GCAM` has these regions: USA, World.",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_6"
+    },
+    {
+      "query": "what years are available for GEM-E3 data?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I could not find any years recorded for model `GEM-E3`.",
+      "link_check": {
+        "links_total": 2,
+        "links_ok": 2,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_7"
+    },
+    {
+      "query": "list the variables reported by POLES",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "variable availability request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I can work with these variables:\n- 'Economy|Residential & Commercial|Number of buildings\n- Agricultural Demand\n- Agricultural Demand|Crops\n- Agricultural Demand|Crops|Energy\n- Agricultural Demand|Crops|Energys\n- Agricultural Demand|Crops|Feed\n- Agricultural Demand|Crops|Food\n- Agricultural Demand|Crops|Other\n- Agricultural Demand|Livestock\n- Agricultural Demand|Livestock|Food\n- Agricultural Demand",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_8"
+    },
+    {
+      "query": "describe the E3ME model",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "model_explanation",
+        "confidence": 0.96,
+        "source": "query_plan",
+        "reason": "named-model metadata request"
+      },
+      "entities": {
+        "model": "E3ME-FTT"
+      },
+      "data_provenance": {},
+      "answer_preview": "### E3ME-FTT\n\nDescription:\nE3ME is a dynamic, computer-based, global macroeconomic model which represents the three pillars of sustainability: economy, society and environment. E3ME’s detailed sectoral disaggregation is important for assessing interactions between the pillars. The model is highly empirical in its approach.\n\nDeveloper:\nCambridge Econometrics\n\nRelated model documentation:\n- [IAM PAR",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_9"
+    },
+    {
+      "query": "what type of model is MUSE?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.75,
+        "source": "deterministic",
+        "reason": "extracted data entities"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": "MUSE",
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "model": 1.0
+        },
+        "confidence": 0.8,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "MUSE",
+          "model": "MUSE"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.75,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "MUSE"
+          },
+          {
+            "label": "Model",
+            "value": "MUSE"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### MUSE\n\nDescription:\nMUSE is a partial equilibrium global integrated assessment model. It uses an agent-based modelling approach to model each sector of the energy system.\n\nRelated model documentation:\n- [IAM PARIS Models](https://iamparis.eu/models)\n\nReply with a scenario, model, region, or year to narrow the answer.",
+      "link_check": {
+        "links_total": 2,
+        "links_ok": 2,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_10"
+    },
+    {
+      "query": "is GCAM a general equilibrium model?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.75,
+        "source": "deterministic",
+        "reason": "extracted data entities"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": "GCAM",
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "model": 1.0
+        },
+        "confidence": 0.8,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "GCAM",
+          "model": "GCAM"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.75,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "GCAM"
+          },
+          {
+            "label": "Model",
+            "value": "GCAM"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### GCAM\n\nDescription:\nGCAM is a dynamic-recursive model with technology-rich representations of the economy, energy sector, land use and water linked to a climate model that can be used to explore climate change mitigation policies including carbon taxes, carbon trading, regulations and accelerated deployment of energy technology. Regional population and labour productivity growth assumptions dri",
+      "link_check": {
+        "links_total": 2,
+        "links_ok": 2,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_11"
+    },
+    {
+      "query": "how does REMIND handle technological change?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "model_explanation",
+        "confidence": 0.96,
+        "source": "query_plan",
+        "reason": "named-model metadata request"
+      },
+      "entities": {
+        "model": "REMIND"
+      },
+      "data_provenance": {},
+      "answer_preview": "### REMIND\n\nDescription:\nREMIND is a global integrated assessment model that links macroeconomic development, the energy system, climate policy and technology choices. It is commonly used to assess mitigation pathways, carbon pricing, energy transitions and technology deployment across regions and sectors.\n\nModel scope:\n- energy\n- economy\n- climate\n- land-use interactions\n\nUseful for:\n- global and",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_12"
+    },
+    {
+      "query": "who develops the IMAGE model?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.45,
+        "source": "deterministic",
+        "reason": "low confidence entity clarification"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I matched `IMAGE` as the model, but confidence is low. Which model should I use?",
+      "link_check": {
+        "links_total": 0,
+        "links_ok": 0,
+        "broken_links": [],
+        "links_all_ok": false
+      },
+      "session_id": "R3sing_13"
+    },
+    {
+      "query": "what sectors does PROMETHEUS cover?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "model_explanation",
+        "confidence": 0.96,
+        "source": "query_plan",
+        "reason": "named-model metadata request"
+      },
+      "entities": {
+        "model": "PROMETHEUS"
+      },
+      "data_provenance": {},
+      "answer_preview": "### PROMETHEUS\n\nDescription:\nThe Prometheus model is a comprehensive world energy model with innovative features: it integrates stochastic relations and so all exogenous variables – parameters are stochastic, following explicit probability distributions, including covariance. Therefore, all model results are also stochastic (probability distributions). Among others, stochastic distributions are us",
+      "link_check": {
+        "links_total": 2,
+        "links_ok": 2,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_14"
+    },
+    {
+      "query": "compare GCAM and GEM-E3 as model types",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "model_explanation",
+        "confidence": 0.95,
+        "source": "query_plan",
+        "reason": "multi-model metadata comparison"
+      },
+      "entities": {
+        "models": [
+          "GEM-E3",
+          "GCAM"
+        ]
+      },
+      "data_provenance": {},
+      "answer_preview": "### GEM-E3 vs GCAM\n\n**GEM-E3**\n- Methodology/model type: Recursive Dynamic Computable General Equilibrium\n\n**GCAM**\n- Methodology/model type: Partial equilibrium\n\nThe loaded catalogue metadata does not explicitly match `gcam`, `gem` for either model.\nComparison focus: method.\n\n[Browse IAM PARIS model documentation](https://iamparis.eu/models)",
+      "link_check": {
+        "links_total": 3,
+        "links_ok": 3,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_15"
+    },
+    {
+      "query": "is TIAM an energy system model?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "model_explanation",
+        "confidence": 0.96,
+        "source": "query_plan",
+        "reason": "named-model metadata request"
+      },
+      "entities": {
+        "model": "TIAM_Grantham"
+      },
+      "data_provenance": {},
+      "answer_preview": "### TIAM_Grantham\n\nDescription:\nETSAP is recalibrating and improving the geographical resolution of the TIAM model. The new version of the model will be available in 2020 and will cover 31 regions, with the same details and general approach of the existing version of the model.\n\nDeveloper:\nGrantham, E4SMA\n\nRelated model documentation:\n- [IAM PARIS Models](https://iamparis.eu/models)\n- Open the Mod",
+      "link_check": {
+        "links_total": 2,
+        "links_ok": 2,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_16"
+    },
+    {
+      "query": "plot nuclear electricity for EU",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.45,
+        "source": "deterministic",
+        "reason": "low confidence entity clarification"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I found several possible variables, but none has enough evidence for automatic selection. Choose the variable: 1. `Capacity|Electricity|Nuclear` (power capacity, electricity) 2. `Lifetime|Electricity|Nuclear` (electricity) 3. `Capital Cost|Electricity|Nuclear` (electricity) Reply with a number (1-3), or `yes` for option 1.",
+      "link_check": {
+        "links_total": 0,
+        "links_ok": 0,
+        "broken_links": [],
+        "links_all_ok": false
+      },
+      "session_id": "R3sing_17"
+    },
+    {
+      "query": "bar chart of CO2 emissions for World in 2050",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "Emissions|CO2",
+        "region": "World",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2050,
+        "end_year": 2050,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9,
+          "variable": 0.9,
+          "region": 0.85,
+          "years": 0.9
+        },
+        "confidence": 0.883,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "baseline",
+          "Baseline|Harmonized",
+          "CP_EI|Harmonized",
+          "NDC_EI|Harmonized",
+          "NDC_LTS|Harmonized",
+          "baseline|Harmonized",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_EI",
+          "Unharmonised baseline",
+          "PR_CurPol_CPO",
+          "PR_NDC_CPO"
+        ],
+        "result_models": [
+          "GCAM",
+          "GCAM 7.0",
+          "GCAM-PR 5.3",
+          "GEMINI-E3 7.0",
+          "Gemini-E3",
+          "MUSE",
+          "PROMETHEUS V1",
+          "TIAM_Grantham",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "muse"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 73,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "World"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Matched records",
+            "value": "73"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing CO2 Emissions in World across available scenarios (2050-2050). Resolved variable: `Emissions|CO2`.\n\nReply with a scenario, model, region, or year to narrow the answer.",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_18"
+    },
+    {
+      "query": "plot coal primary energy for China from 2020 to 2060",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "Primary Energy|Coal",
+        "region": "CHN",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2020,
+        "end_year": 2060,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9,
+          "variable": 0.9,
+          "region": 0.85,
+          "years": 0.9
+        },
+        "confidence": 0.883,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "baseline",
+          "PR_Baseline",
+          "PR_CurPol_EI",
+          "PR_NDC_EI",
+          "PR_CurPol_CP",
+          "PR_NDC_CP",
+          "Unharmonised baseline",
+          "PR_CurPol_CPO",
+          "PR_NDC_CPO"
+        ],
+        "result_models": [
+          "42",
+          "MUSE",
+          "PROMETHEUS V1",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 53,
+        "selected_filters": {
+          "variable": "Primary Energy|Coal",
+          "region": "CHN"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Primary Energy|Coal"
+          },
+          {
+            "label": "Region",
+            "value": "CHN"
+          },
+          {
+            "label": "Matched records",
+            "value": "53"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing Coal in CHN across available scenarios (2020-2060). Resolved variable: `Primary Energy|Coal`.\n\nReply with a scenario, model, region, or year to narrow the answer.",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_19"
+    },
+    {
+      "query": "visualize EU final energy under current policies",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "Final Energy",
+        "region": "EU",
+        "scenario": "Current Policies",
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9,
+          "variable": 0.9,
+          "region": 0.85,
+          "scenario": 0.9
+        },
+        "confidence": 0.883,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "PR_CurPol_EI",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO"
+        ],
+        "result_models": [
+          "42",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": false
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 18,
+        "selected_filters": {
+          "variable": "Final Energy",
+          "region": "EU",
+          "scenario": "Current Policies"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Final Energy"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Scenario",
+            "value": "Current Policies"
+          },
+          {
+            "label": "Matched records",
+            "value": "18"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing Final Energy in EU for selected scenarios `PR_CurPol_EI`, `PR_CurPol_CP`, and `PR_CurPol_CPO`.\n\nReply with a scenario, model, region, or year to narrow the answer.",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_20"
+    },
+    {
+      "query": "plot CO2 emissions for World from REMIND",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "Emissions|CO2",
+        "region": "World",
+        "scenario": null,
+        "model": "REMIND",
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9,
+          "variable": 0.9,
+          "region": 0.85,
+          "model": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "baseline",
+          "Baseline|Harmonized",
+          "CP_EI|Harmonized",
+          "NDC_EI|Harmonized",
+          "NDC_LTS|Harmonized",
+          "baseline|Harmonized",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_EI",
+          "Unharmonised baseline",
+          "PR_CurPol_CPO",
+          "PR_NDC_CPO"
+        ],
+        "result_models": [
+          "GCAM",
+          "GCAM 7.0",
+          "GCAM-PR 5.3",
+          "GEMINI-E3 7.0",
+          "Gemini-E3",
+          "MUSE",
+          "PROMETHEUS V1",
+          "TIAM_Grantham",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "muse"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "World",
+          "model": "REMIND"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Model",
+            "value": "REMIND"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Note: no timeseries data for model `REMIND` in this slice; plotting the models that do have it.\n\nShowing CO2 Emissions in World across available scenarios. Resolved variable: `Emissions|CO2`.",
+      "link_check": {
+        "links_total": 2,
+        "links_ok": 2,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_21"
+    },
+    {
+      "query": "graph electricity generation for India by source",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "Secondary Energy|Electricity",
+        "region": "IND",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "Baseline",
+          "baseline",
+          "PR_Baseline",
+          "PR_CurPol_EI",
+          "PR_NDC_EI",
+          "PR_CurPol_CP",
+          "PR_NDC_CP",
+          "Unharmonised baseline",
+          "PR_CurPol_CPO",
+          "PR_NDC_CPO"
+        ],
+        "result_models": [
+          "42",
+          "GEMINI-E3 7.0",
+          "MUSE",
+          "PROMETHEUS V1",
+          "TIAM_Grantham",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 64,
+        "selected_filters": {
+          "variable": "Secondary Energy|Electricity",
+          "region": "IND"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Secondary Energy|Electricity"
+          },
+          {
+            "label": "Region",
+            "value": "IND"
+          },
+          {
+            "label": "Matched records",
+            "value": "64"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing Electricity Generation in IND across available scenarios. Resolved variable: `Secondary Energy|Electricity`.\n\nReply with a scenario, model, region, or year to narrow the answer.",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_22"
+    },
+    {
+      "query": "plot GDP for Japan",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "GDP|MER",
+        "region": "JPN",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_EI",
+          "Unharmonised baseline",
+          "PR_CurPol_CPO",
+          "PR_NDC_CPO"
+        ],
+        "result_models": [
+          "e3me",
+          "gcam",
+          "ices"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 20,
+        "selected_filters": {
+          "variable": "GDP|MER",
+          "region": "JPN"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "GDP|MER"
+          },
+          {
+            "label": "Region",
+            "value": "JPN"
+          },
+          {
+            "label": "Matched records",
+            "value": "20"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing MER in JPN across available scenarios. Resolved variable: `GDP|MER`.\n\nReply with a scenario, model, region, or year to narrow the answer.",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_23"
+    },
+    {
+      "query": "draw emissions for Brazil and India together",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.45,
+        "source": "deterministic",
+        "reason": "low confidence entity clarification"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I could not confidently match all of the requested wording. The loaded variable catalogue does not represent these term(s) in the top match: `draw`, `india`, `together`. Choose the variable: 1. `Emissions|BC` (emissions) 2. `Emissions|CO` (emissions) 3. `Emissions|OC` (emissions) Reply with a number (1-3), or `yes` for option 1.",
+      "link_check": {
+        "links_total": 0,
+        "links_ok": 0,
+        "broken_links": [],
+        "links_all_ok": false
+      },
+      "session_id": "R3sing_24"
+    },
+    {
+      "query": "plot carbon capture and storage for World",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.45,
+        "source": "deterministic",
+        "reason": "low confidence entity clarification"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I could not confidently match all of the requested wording. The loaded variable catalogue does not represent these term(s) in the top match: `storage`. Choose the variable: 1. `Carbon Capture` 2. `Carbon Capture|Fossil` 3. `Carbon Capture|Biomass` Reply with a number (1-3), or `yes` for option 1.",
+      "link_check": {
+        "links_total": 0,
+        "links_ok": 0,
+        "broken_links": [],
+        "links_all_ok": false
+      },
+      "session_id": "R3sing_25"
+    },
+    {
+      "query": "chart population for EU until 2100",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "Population",
+        "region": "EU",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9,
+          "variable": 0.9,
+          "region": 0.85,
+          "years": 0.9
+        },
+        "confidence": 0.883,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "PR_WWH_CP",
+          "baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_EI",
+          "PR_NDC_EI",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_NDC_CP",
+          "PR_NDC_CPO"
+        ],
+        "result_models": [
+          "42",
+          "E4SMA-EU-TIMES 1.0",
+          "GCAM-PR 5.3",
+          "GEMINI-E3 7.0",
+          "MUSE",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 46,
+        "selected_filters": {
+          "variable": "Population",
+          "region": "EU"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Population"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Matched records",
+            "value": "46"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing Population in EU across available scenarios (?-2100).\n\nReply with a scenario, model, region, or year to narrow the answer.",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_26"
+    },
+    {
+      "query": "where can I download the data?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.97,
+        "source": "deterministic",
+        "reason": "explicit site navigation request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Use these IAM PARIS links for this request: [Results](https://iamparis.eu/results).",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_27"
+    },
+    {
+      "query": "give me the link to the data stories",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.97,
+        "source": "deterministic",
+        "reason": "explicit site navigation request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Use these IAM PARIS links for this request: [Data Stories](https://iamparis.eu/datastories).",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_28"
+    },
+    {
+      "query": "where is the contact page?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.97,
+        "source": "deterministic",
+        "reason": "explicit site navigation request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Use these IAM PARIS links for this request: [Contact](https://iamparis.eu/contact).",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_29"
+    },
+    {
+      "query": "link to the IAM COMPACT project website",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.6,
+        "source": "llm",
+        "reason": "unclear deterministic route"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "llm"
+      },
+      "data_provenance": {},
+      "answer_preview": "You can visit the IAM COMPACT project website at [https://iamcompact.eu](https://iamcompact.eu).",
+      "link_check": {
+        "links_total": 3,
+        "links_ok": 3,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_30"
+    },
+    {
+      "query": "where can I see power sector results?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.97,
+        "source": "deterministic",
+        "reason": "explicit site navigation request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Use these IAM PARIS links for this request: [Results](https://iamparis.eu/results).",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_31"
+    },
+    {
+      "query": "where can I find publications from the project?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.6,
+        "source": "llm",
+        "reason": "unclear deterministic route"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "llm"
+      },
+      "data_provenance": {},
+      "answer_preview": "You can find publications from the IAM PARIS project on their official website. Visit the [IAM PARIS Publications page](https://iamparis.eu/results) for access to detailed reports, research papers, and other publications related to the project.",
+      "link_check": {
+        "links_total": 0,
+        "links_ok": 0,
+        "broken_links": [],
+        "links_all_ok": false
+      },
+      "session_id": "R3sing_32"
+    },
+    {
+      "query": "is there a user guide for the platform?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.6,
+        "source": "llm",
+        "reason": "unclear deterministic route"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "llm"
+      },
+      "data_provenance": {},
+      "answer_preview": "Yes, you can find user guides and detailed information about the IAM PARIS platform on their official website. For comprehensive data access and guidance, visit [IAM PARIS Results](https://iamparis.eu/results).",
+      "link_check": {
+        "links_total": 0,
+        "links_ok": 0,
+        "broken_links": [],
+        "links_all_ok": false
+      },
+      "session_id": "R3sing_33"
+    },
+    {
+      "query": "take me to the workspaces page",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.6,
+        "source": "llm",
+        "reason": "unclear deterministic route"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "llm"
+      },
+      "data_provenance": {},
+      "answer_preview": "You can access the IAM PARIS workspaces page by visiting [https://iamparis.eu/workspaces](https://iamparis.eu/workspaces).",
+      "link_check": {
+        "links_total": 0,
+        "links_ok": 0,
+        "broken_links": [],
+        "links_all_ok": false
+      },
+      "session_id": "R3sing_34"
+    },
+    {
+      "query": "what data do you have for Greece?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": "GREECE",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "region": 0.85
+        },
+        "confidence": 0.85,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "What I can help you with",
+          "region": "GREECE"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "What I can help you with"
+          },
+          {
+            "label": "Region",
+            "value": "GREECE"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### What I can help you with\n\n- **Models:** 74 available. Examples: 42, AIM/Enduse India 3.3, ALADIN, ATOM.\n- **Variables:** 1796 available. Examples: 'Economy|Residential & Commercial|Number of buildings, Agricultural Demand, Agricultural Demand|Crops, Agricultural Demand|Crops|Energy.\n- **Scenarios:** 106 available. Examples: 1.5 TECH, 1.5 °C DRI-trade, 1.5 °C Domestic, BAU.\n- **Regions:** 204 a",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_35"
+    },
+    {
+      "query": "which variables exist for Africa?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "variable availability request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I couldn't find `Africa` as a region in the IAM PARIS data, so I can't return results for it. Try one of the available regions, e.g. `AT (Austria)`, `BE (Belgium)`, `BG (Bulgaria)`, `CH (Switzerland)`, `CY (Cyprus)`, or ask `list regions` to see all options.",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_36"
+    },
+    {
+      "query": "how many scenarios are in the database?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "scenario availability request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I found scenarios matching your request like Baseline, Baseline_HP, Baseline|Harmonized, INDEPENDENCE, Increased_ambition, PR_Baseline, Unharmonised baseline and baseline and 1 more. You can plot variables for any of these scenarios.\n\nShowing 8 of 9. Say `show all scenarios` if you need the full list.\n\nReply with a scenario, model, region, or year to narrow the answer.",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "R3sing_37"
+    },
+    {
+      "query": "what is the latest year in the projections?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.6,
+        "source": "llm",
+        "reason": "unclear deterministic route"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": -1,
+        "end_year": -1,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "years": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {},
+      "answer_preview": "The latest year in the projections for the Prometheus model is currently 2050, with an update to extend projections to 2070 ongoing. For more detailed data and updates, you can visit [IAM PARIS results](https://iamparis.eu/results).",
+      "link_check": {
+        "links_total": 0,
+        "links_ok": 0,
+        "broken_links": [],
+        "links_all_ok": false
+      },
+      "session_id": "R3sing_38"
+    }
+  ]
+}

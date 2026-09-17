@@ -1,6 +1,7 @@
 import argparse
 import csv
 import json
+import re
 from pathlib import Path
 from urllib import error, request
 
@@ -53,6 +54,19 @@ CLARIFICATION_MARKERS = (
     "closest regions",
     "closest scenarios",
 )
+OPTIONAL_EXPECTATION_FIELDS = {
+    "expected_start_year",
+    "expected_end_year",
+    "expected_action",
+    "expected_chart_type",
+    "expected_comparison",
+    "expected_plot",
+    "expected_region_count",
+    "expected_scenario_count",
+    "expected_variable_count",
+    "expected_answer_contains",
+    "expected_link_url",
+}
 
 
 def load_eval_rows(path: Path, min_queries: int = MIN_EVAL_QUERIES) -> list[dict[str, str]]:
@@ -86,6 +100,14 @@ def load_conversations(path: Path) -> list[dict]:
     for index, conversation in enumerate(conversations, start=1):
         if not isinstance(conversation, dict):
             raise ValueError(f"Conversation {index} must be an object.")
+        raw_tags = conversation.get("tags", [])
+        if isinstance(raw_tags, str):
+            raw_tags = raw_tags.split(",")
+        if not isinstance(raw_tags, list):
+            raise ValueError(
+                f"Conversation {conversation.get('id', index)} tags must be a list or comma-separated string."
+            )
+        tags = list(dict.fromkeys(str(tag).strip() for tag in raw_tags if str(tag).strip()))
         turns = conversation.get("turns")
         if not isinstance(turns, list) or not turns:
             raise ValueError(f"Conversation {conversation.get('id', index)} must include non-empty turns.")
@@ -94,12 +116,17 @@ def load_conversations(path: Path) -> list[dict]:
             if not isinstance(turn, dict) or not str(turn.get("query", "")).strip():
                 raise ValueError(f"Conversation {conversation.get('id', index)} turn {turn_index} needs a query.")
             expected = {key: str(turn.get(key, "") or "").strip() for key in REQUIRED_COLUMNS}
+            for key in OPTIONAL_EXPECTATION_FIELDS:
+                if key in turn:
+                    value = turn.get(key)
+                    expected[key] = "" if value is None else str(value).strip()
             expected["id"] = str(turn.get("id") or f"{conversation.get('id', index)}.{turn_index}")
             expected["query"] = str(turn.get("query") or "").strip()
             normalized_turns.append(expected)
         normalized.append({
             "id": str(conversation.get("id") or index),
             "title": str(conversation.get("title") or f"Conversation {index}"),
+            "tags": tags,
             "turns": normalized_turns,
         })
     return normalized
@@ -142,6 +169,27 @@ def _contains_expected(response: dict, field: str, expected: str) -> bool:
         entity_values.extend(str(item) for item in (entities.get("scenarios") or []) if item)
     if field == "model":
         entity_values.extend(str(item) for item in (entities.get("models") or []) if item)
+        entity_values.extend(str(item) for item in (entities.get("result_models") or []) if item)
+    if field == "region":
+        entity_values.extend(str(item) for item in (entities.get("regions") or []) if item)
+    structured_values = [value for value in entity_values if value.strip()]
+
+    def matches(candidate: str, token: str) -> bool:
+        candidate_norm = " ".join(re.findall(r"[a-z0-9]+", candidate.casefold()))
+        token_norm = " ".join(re.findall(r"[a-z0-9]+", token.casefold()))
+        if not token_norm:
+            return False
+        if candidate_norm == token_norm:
+            return True
+        return f" {token_norm} " in f" {candidate_norm} "
+
+    tokens = equivalent_tokens.get(field, {}).get(expected_lower, (expected_lower,))
+    # Live API responses always include `entities`. When that structured field
+    # is present, score it directly; an expected word merely repeated in prose
+    # must not mask a wrong entity value.
+    if "entities" in response:
+        return any(matches(value, token) for value in structured_values for token in tokens)
+
     answer = str(response.get("answer") or "")
     links = response.get("relevant_links") or []
     haystack = " ".join(
@@ -155,8 +203,63 @@ def _contains_expected(response: dict, field: str, expected: str) -> bool:
             ),
         ]
     ).lower()
-    tokens = equivalent_tokens.get(field, {}).get(expected_lower, (expected_lower,))
     return any(token in haystack for token in tokens)
+
+
+def _scope_value(response: dict, field: str):
+    for container_name in ("entities", "data_scope"):
+        container = response.get(container_name) or {}
+        if field in container:
+            return container.get(field)
+    return None
+
+
+def _matches_expected_year(response: dict, field: str, expected: str) -> bool:
+    expected_text = str(expected or "").strip().casefold()
+    actual = _scope_value(response, field)
+    if expected_text in {"none", "null", "open", "unbounded"}:
+        return actual is None
+    try:
+        return int(actual) == int(expected_text)
+    except (TypeError, ValueError):
+        return False
+
+
+def _has_expected_plot(response: dict, expected: str) -> bool:
+    wants_plot = str(expected or "").strip().casefold() in {"yes", "true", "1"}
+    has_plot = bool(response.get("plot_base64"))
+    return has_plot if wants_plot else not has_plot
+
+
+def _matches_expected_dimension_count(response: dict, field: str, expected: str) -> bool:
+    plural_field = {
+        "region": "regions",
+        "scenario": "scenarios",
+        "variable": "variables",
+    }[field]
+    values: list[str] = []
+    for container_name in ("entities", "data_scope"):
+        container = response.get(container_name) or {}
+        plural_values = container.get(plural_field)
+        if isinstance(plural_values, (list, tuple, set)) and plural_values:
+            values = [str(value).strip() for value in plural_values if str(value).strip()]
+            break
+        singular_value = str(container.get(field) or "").strip()
+        if singular_value:
+            values = [singular_value]
+            break
+    try:
+        return len(list(dict.fromkeys(values))) == int(expected)
+    except (TypeError, ValueError):
+        return False
+
+
+def _has_expected_link_url(response: dict, expected: str) -> bool:
+    expected_url = str(expected or "").strip()
+    return any(
+        isinstance(link, dict) and str(link.get("url") or "").strip() == expected_url
+        for link in (response.get("relevant_links") or [])
+    )
 
 
 def _has_useful_clarification(response: dict) -> bool:
@@ -217,7 +320,7 @@ def score_response(row: dict[str, str], response: dict) -> dict[str, bool | str]
     route = response.get("route") or {}
     expected_clarification = row.get("useful_clarification", "").lower() == "yes"
     has_clarification = _has_useful_clarification(response)
-    return {
+    scores = {
         "correct_route": str(route.get("agent") or "") == row.get("expected_route", ""),
         "correct_variable": _contains_expected(response, "variable", row.get("expected_variable", "")),
         "correct_region": _contains_expected(response, "region", row.get("expected_region", "")),
@@ -227,6 +330,54 @@ def score_response(row: dict[str, str], response: dict) -> dict[str, bool | str]
         "useful_link": _has_useful_link(response, row.get("useful_link", "")),
         "no_hallucinated_data": _has_no_hallucinated_data(response, row.get("no_hallucinated_data", "")),
     }
+    optional_checks = {
+        "expected_start_year": (
+            "correct_start_year",
+            lambda value: _matches_expected_year(response, "start_year", value),
+        ),
+        "expected_end_year": (
+            "correct_end_year",
+            lambda value: _matches_expected_year(response, "end_year", value),
+        ),
+        "expected_action": (
+            "correct_action",
+            lambda value: str(_scope_value(response, "action") or "").casefold() == value.casefold(),
+        ),
+        "expected_chart_type": (
+            "correct_chart_type",
+            lambda value: str(_scope_value(response, "chart_type") or "").casefold() == value.casefold(),
+        ),
+        "expected_comparison": (
+            "correct_comparison",
+            lambda value: str(_scope_value(response, "comparison") or "").casefold() == value.casefold(),
+        ),
+        "expected_plot": ("correct_plot", lambda value: _has_expected_plot(response, value)),
+        "expected_region_count": (
+            "correct_region_count",
+            lambda value: _matches_expected_dimension_count(response, "region", value),
+        ),
+        "expected_scenario_count": (
+            "correct_scenario_count",
+            lambda value: _matches_expected_dimension_count(response, "scenario", value),
+        ),
+        "expected_variable_count": (
+            "correct_variable_count",
+            lambda value: _matches_expected_dimension_count(response, "variable", value),
+        ),
+        "expected_answer_contains": (
+            "answer_contains_expected",
+            lambda value: value.casefold() in str(response.get("answer") or "").casefold(),
+        ),
+        "expected_link_url": (
+            "correct_link_url",
+            lambda value: _has_expected_link_url(response, value),
+        ),
+    }
+    for field, (score_name, check) in optional_checks.items():
+        value = str(row.get(field, "") or "").strip()
+        if value:
+            scores[score_name] = check(value)
+    return scores
 
 
 def post_query(live_url: str, query: str, session_id: str = "") -> dict:
@@ -318,6 +469,7 @@ def run_live_conversation_eval(conversations: list[dict], live_url: str) -> list
         results.append({
             "id": conversation.get("id", ""),
             "title": conversation.get("title", ""),
+            "tags": list(conversation.get("tags") or []),
             "status": "pass" if turn_results and all(item.get("status") == "pass" for item in turn_results) else "review",
             "turns": turn_results,
         })
@@ -337,6 +489,10 @@ def render_conversation_results(conversations: list[dict], live_results: list[di
         for key, value in (turn.get("scores") or {}).items():
             live_scores.setdefault(key, 0)
             live_scores[key] += 1 if value is True else 0
+    coverage_counts: dict[str, int] = {}
+    for conversation in conversations:
+        for tag in conversation.get("tags") or []:
+            coverage_counts[str(tag)] = coverage_counts.get(str(tag), 0) + 1
 
     lines = [
         "# Conversation Evaluation Results",
@@ -356,10 +512,15 @@ def render_conversation_results(conversations: list[dict], live_results: list[di
         lines.extend([
             f"- Live `pass` conversations: {passed_conversations}/{len(live_results)}",
             f"- Live `pass` turns: {passed_turns}/{len(live_turns)}",
-            "",
-            "## Live Score Summary",
-            "",
         ])
+
+    if coverage_counts:
+        lines.extend(["", "## Coverage", ""])
+        for tag, count in sorted(coverage_counts.items()):
+            lines.append(f"- `{tag}`: {count} conversation{'s' if count != 1 else ''}")
+
+    if live_results:
+        lines.extend(["", "## Live Score Summary", ""])
         for key in sorted(live_scores):
             lines.append(f"- `{key}`: {live_scores[key]}/{len(live_turns)}")
 
@@ -594,6 +755,8 @@ def main() -> int:
     else:
         passed = sum(1 for item in live_results if item.get("status") == "pass")
         print(f"Wrote {output_path} and {json_output} for {len(rows)} live queries ({passed} pass).")
+        if not live_results or passed != len(live_results):
+            return 1
     return 0
 
 

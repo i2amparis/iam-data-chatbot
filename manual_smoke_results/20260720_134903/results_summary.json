@@ -1,0 +1,364 @@
+{
+  "generated": "20260720_134903",
+  "count": 6,
+  "rows": [
+    {
+      "query": "where are the data stories?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.97,
+        "source": "deterministic",
+        "reason": "explicit site navigation request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Use these IAM PARIS links for this request: [Data Stories](https://iamparis.eu/datastories).",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "NAV_1"
+    },
+    {
+      "query": "where can I find the results section?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.97,
+        "source": "deterministic",
+        "reason": "explicit site navigation request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Use these IAM PARIS links for this request: [Results](https://iamparis.eu/results).",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "NAV_2"
+    },
+    {
+      "query": "CO2 emissions for the EU",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "region": "EU",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "PR_WWH_CP",
+          "Unharmonised baseline",
+          "baseline"
+        ],
+        "result_models": [
+          "E3ME 6.1",
+          "E4SMA-EU-TIMES 1.0",
+          "GCAM-PR 5.3",
+          "GEMINI-E3 7.0",
+          "MUSE",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "muse"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T10:49:01.634612+00:00",
+        "matched_record_count": 34,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "EU",
+          "years": "2005-2100",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "34"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T10:49:01.634612+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Emissions|CO2 in EU\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\nSummary: 34 series across 9 models and 13 scenarios.\nShowing series 1-12 of 34, ordered by model and scenario. Narrow by model or scenario to view the 22 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 |",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "NAV_3"
+    },
+    {
+      "query": "show me emissions data for World",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.45,
+        "source": "deterministic",
+        "reason": "low confidence entity clarification"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I found several possible variables, but none has enough evidence for automatic selection. Choose the variable: 1. `Emission Factor|CO2|Tailpipe|2W` 2. `Emission Factor|CO2|Tailpipe|3W` 3. `Emission Factor|CO2|Tailpipe|Car` Reply with a number (1-3), or `yes` for option 1.",
+      "link_check": {
+        "links_total": 0,
+        "links_ok": 0,
+        "broken_links": [],
+        "links_all_ok": false
+      },
+      "session_id": "NAV_4"
+    },
+    {
+      "query": "what data do you have for Greece?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": "GREECE",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "region": 0.85
+        },
+        "confidence": 0.85,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T10:49:01.634612+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "What I can help you with",
+          "region": "GREECE"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "What I can help you with"
+          },
+          {
+            "label": "Region",
+            "value": "GREECE"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T10:49:01.634612+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### What I can help you with\n\n- **Models:** 74 available. Examples: 42, AIM/Enduse India 3.3, ALADIN, ATOM.\n- **Variables:** 1796 available. Examples: 'Economy|Residential & Commercial|Number of buildings, Agricultural Demand, Agricultural Demand|Crops, Agricultural Demand|Crops|Energy.\n- **Scenarios:** 106 available. Examples: 1.5 TECH, 1.5 °C DRI-trade, 1.5 °C Domestic, BAU.\n- **Regions:** 204 a",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "NAV_5"
+    },
+    {
+      "query": "final energy for India",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Final Energy",
+        "region": "IND",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline",
+          "baseline"
+        ],
+        "result_models": [
+          "42",
+          "GEMINI-E3 7.0",
+          "MUSE",
+          "PROMETHEUS V1",
+          "TIAM_Grantham",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T10:49:01.634612+00:00",
+        "matched_record_count": 64,
+        "selected_filters": {
+          "variable": "Final Energy",
+          "region": "IND",
+          "years": "2005-2100",
+          "unit": "EJ/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Final Energy"
+          },
+          {
+            "label": "Region",
+            "value": "IND"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "EJ/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "64"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T10:49:01.634612+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Final Energy in IND\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `EJ/yr`\n\nAnswer:\nSummary: 58 series across 11 models and 13 scenarios.\nShowing series 1-12 of 58, ordered by model and scenario. Narrow by model or scenario to view the 46 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 20",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "NAV_6"
+    }
+  ]
+}

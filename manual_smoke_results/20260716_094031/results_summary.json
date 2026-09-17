@@ -1,0 +1,263 @@
+{
+  "generated": "20260716_094031",
+  "count": 3,
+  "rows": [
+    {
+      "query": "population for Japan",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.75,
+        "source": "deterministic",
+        "reason": "extracted data entities"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Population",
+        "region": "JPN",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "baseline"
+        ],
+        "result_models": [
+          "42",
+          "MUSE",
+          "TIAM_Grantham",
+          "gcam",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T06:36:55.444923+00:00",
+        "matched_record_count": 39,
+        "selected_filters": {
+          "variable": "Population",
+          "region": "JPN",
+          "years": "2005-2100"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.75,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Population"
+          },
+          {
+            "label": "Region",
+            "value": "JPN"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Matched records",
+            "value": "39"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T06:36:55.444923+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Population in JPN\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `multiple`\n\nAnswer:\nSummary: 39 series across 7 models and 12 scenarios.\nShowing series 1-12 of 39, ordered by model and scenario. Narrow by model or scenario to view the 27 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 20",
+      "session_id": "FIN_6Δ_all"
+    },
+    {
+      "query": "and its GDP?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "GDP|MER",
+        "region": "JPN",
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "all_scenarios": true,
+        "scenarios": [
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline"
+        ],
+        "result_models": [
+          "e3me",
+          "gcam",
+          "ices"
+        ]
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T06:36:55.444923+00:00",
+        "matched_record_count": 20,
+        "selected_filters": {
+          "variable": "GDP|MER",
+          "region": "JPN",
+          "years": "2005-2100"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "GDP|MER"
+          },
+          {
+            "label": "Region",
+            "value": "JPN"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Matched records",
+            "value": "20"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T06:36:55.444923+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### GDP|MER in JPN\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `multiple`\n\nAnswer:\nSummary: 20 series across 3 models and 8 scenarios.\nShowing series 1-12 of 20, ordered by model and scenario. Narrow by model or scenario to view the 8 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 2070 | ",
+      "session_id": "FIN_6Δ_all"
+    },
+    {
+      "query": "show both on a chart",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "GDP|MER",
+        "region": "JPN",
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "all_scenarios": true,
+        "scenarios": [
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline"
+        ],
+        "result_models": [
+          "e3me",
+          "gcam",
+          "ices"
+        ]
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T06:36:55.444923+00:00",
+        "matched_record_count": 20,
+        "selected_filters": {
+          "variable": "GDP|MER",
+          "region": "JPN"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "GDP|MER"
+          },
+          {
+            "label": "Region",
+            "value": "JPN"
+          },
+          {
+            "label": "Matched records",
+            "value": "20"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T06:36:55.444923+00:00"
+          }
+        ]
+      },
+      "answer_preview": "I could not confidently match that wording to a loaded variable. Which variable should I use?",
+      "session_id": "FIN_6Δ_all"
+    }
+  ]
+}

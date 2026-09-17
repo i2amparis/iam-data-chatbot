@@ -1,0 +1,427 @@
+{
+  "generated": "20260721_165249",
+  "count": 5,
+  "rows": [
+    {
+      "query": "land use emissions for Indonesia",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2|AFOLU",
+        "region": "IDN",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI"
+        ],
+        "result_models": [
+          "gcam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-21T13:52:47.296550+00:00",
+        "matched_record_count": 7,
+        "selected_filters": {
+          "variable": "Emissions|CO2|AFOLU",
+          "region": "IDN",
+          "model": "gcam",
+          "years": "2005-2100",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2|AFOLU"
+          },
+          {
+            "label": "Region",
+            "value": "IDN"
+          },
+          {
+            "label": "Model",
+            "value": "gcam"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "7"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-21T13:52:47.296550+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Emissions|CO2|AFOLU in IDN\n\nScope: scenario `multiple`, model `gcam`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\nSummary: 7 series across 1 model and 7 scenarios.\nSeries are ordered by model and scenario.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 2070 | 2075 | 2080 | 2085 | 2090 | 2095 | 2100 | Unit |\n|---|---|---|---|---",
+      "session_id": "FV_1"
+    },
+    {
+      "query": "final energy in transport for the World",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Final Energy|Transportation",
+        "region": "World",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline"
+        ],
+        "result_models": [
+          "42",
+          "GCAM",
+          "GCAM 7.0",
+          "GCAM-PR 5.3",
+          "PROMETHEUS V1",
+          "TIAM_Grantham",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-21T13:52:47.296550+00:00",
+        "matched_record_count": 69,
+        "selected_filters": {
+          "variable": "Final Energy|Transportation",
+          "region": "World",
+          "years": "2005-2100",
+          "unit": "EJ/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Final Energy|Transportation"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "EJ/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "69"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-21T13:52:47.296550+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Final Energy|Transportation in World\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `EJ/yr`\n\nAnswer:\nSummary: 59 series across 12 models and 12 scenarios.\nShowing series 1-12 of 59, ordered by model and scenario. Narrow by model or scenario to view the 47 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 |",
+      "session_id": "FV_2"
+    },
+    {
+      "query": "transport final energy for EU",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Final Energy|Transportation",
+        "region": "EU",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "PR_WWH_CP",
+          "PR_WWH_NDC",
+          "Unharmonised baseline",
+          "baseline"
+        ],
+        "result_models": [
+          "42",
+          "ALADIN",
+          "E3ME 6.1",
+          "E4SMA-EU-TIMES 1.0",
+          "GCAM-PR 5.3",
+          "MUSE",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-21T13:52:47.296550+00:00",
+        "matched_record_count": 51,
+        "selected_filters": {
+          "variable": "Final Energy|Transportation",
+          "region": "EU",
+          "years": "2005-2100",
+          "unit": "EJ/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Final Energy|Transportation"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "EJ/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "51"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-21T13:52:47.296550+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Final Energy|Transportation in EU\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `EJ/yr`\n\nNote: excluded incompatible unit group(s) from this table: `42 - PR_WWH_CP` (Mt CO2/yr).\n\nAnswer:\nSummary: 51 series across 12 models and 14 scenarios.\nShowing series 1-12 of 51, ordered by model and scenario. Narrow by model or scenario to view the 39 remaining series.\n\n| Model | ",
+      "session_id": "FV_3"
+    },
+    {
+      "query": "final energy in buildings for the EU",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.45,
+        "source": "deterministic",
+        "reason": "low confidence entity clarification"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I found several possible variables, but none has enough evidence for automatic selection. Choose the variable: 1. `Final Energy|Buildings|Residential` (final energy use, buildings) 2. `Final Energy|Buildings|Residential|Gases` (final energy use, buildings, gas) 3. `Final Energy|Buildings|Residential|Liquids` (final energy use, buildings) Reply with a number (1-3), or `yes` for option 1.",
+      "session_id": "FV_4"
+    },
+    {
+      "query": "final energy for Japan",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Final Energy",
+        "region": "JPN",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline",
+          "baseline"
+        ],
+        "result_models": [
+          "42",
+          "MUSE",
+          "TIAM_Grantham",
+          "e3me",
+          "gcam",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-21T13:52:47.296550+00:00",
+        "matched_record_count": 48,
+        "selected_filters": {
+          "variable": "Final Energy",
+          "region": "JPN",
+          "years": "2005-2100",
+          "unit": "EJ/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Final Energy"
+          },
+          {
+            "label": "Region",
+            "value": "JPN"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "EJ/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "48"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-21T13:52:47.296550+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Final Energy in JPN\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `EJ/yr`\n\nAnswer:\nSummary: 45 series across 8 models and 13 scenarios.\nShowing series 1-12 of 45, ordered by model and scenario. Narrow by model or scenario to view the 33 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 207",
+      "session_id": "FV_5"
+    }
+  ]
+}

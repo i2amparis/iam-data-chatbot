@@ -1,0 +1,57 @@
+{
+  "generated": "20260720_131138",
+  "count": 3,
+  "rows": [
+    {
+      "query": "solar electricity for India",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.45,
+        "source": "deterministic",
+        "reason": "low confidence entity clarification"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I found several possible variables, but none has enough evidence for automatic selection. Choose the variable: 1. `Capacity|Electricity|Solar` (power capacity, solar) 2. `Capacity|Electricity|Solar|PV` (power capacity, solar) 3. `Lifetime|Electricity|Solar|PV` (solar) Reply with a number (1-3), or `yes` for option 1.",
+      "session_id": "H100H_all"
+    },
+    {
+      "query": "same for wind",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.72,
+        "source": "conversation_state",
+        "reason": "clarification detail; additional clarification required"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I found the variable `Secondary Energy|Electricity|Solar` (electricity output, solar) in `IND (India)`. I still need the scenario. Choose the scenario: 1. `Baseline` (baseline) 2. `CP_EI` 3. `NDC_EI` (NDC) Reply with a number (1-3), or `yes` for option 1.",
+      "session_id": "H100H_all"
+    },
+    {
+      "query": "compare solar and wind",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.72,
+        "source": "conversation_state",
+        "reason": "clarification detail; additional clarification required"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I found the variable `Secondary Energy|Electricity|Solar` (electricity output, solar) in `IND (India)`. I still need the scenario. Choose the scenario: 1. `Baseline` (baseline) 2. `CP_EI` 3. `NDC_EI` (NDC) Reply with a number (1-3), or `yes` for option 1.",
+      "session_id": "H100H_all"
+    }
+  ]
+}

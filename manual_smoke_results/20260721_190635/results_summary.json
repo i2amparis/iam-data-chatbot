@@ -1,0 +1,293 @@
+{
+  "generated": "20260721_190635",
+  "count": 3,
+  "rows": [
+    {
+      "query": "CO2 emissions for Germany",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "region": "DEU",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_EI",
+          "Unharmonised baseline"
+        ],
+        "result_models": [
+          "e3me"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-21T14:04:52.087171+00:00",
+        "matched_record_count": 6,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "DEU",
+          "model": "e3me",
+          "years": "2005-2100",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "DEU"
+          },
+          {
+            "label": "Model",
+            "value": "e3me"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "6"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-21T14:04:52.087171+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Emissions|CO2 in DEU\n\nScope: scenario `multiple`, model `e3me`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\n**e3me - PR_Baseline**\n| Year | Value | Unit |\n|------|-------|------|\n| 2010 | 864.12 | Mt CO2/yr |\n| 2015 | 865.58 | Mt CO2/yr |\n| 2020 | 693.41 | Mt CO2/yr |\n| 2025 | 616.75 | Mt CO2/yr |\n| 2030 | 582.23 | Mt CO2/yr |\n| 2035 | 546.52 | Mt CO2/yr |\n| 2040 | 509.98 | Mt CO2/yr |\n| 2045",
+      "session_id": "X35A_all"
+    },
+    {
+      "query": "same for France",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "variables": null,
+        "region": "FRA",
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.95,
+          "region": 0.85
+        },
+        "variable_candidates": [
+          "Emissions|CO2",
+          "Emission Factor|CO2|Tailpipe|2W",
+          "Emission Factor|CO2|Tailpipe|3W"
+        ],
+        "unmatched_variable_terms": [],
+        "confidence": 0.9,
+        "extraction_method": "deterministic",
+        "all_scenarios": true,
+        "scenarios": [
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_EI",
+          "Unharmonised baseline"
+        ],
+        "result_models": [
+          "e3me"
+        ]
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-21T14:04:52.087171+00:00",
+        "matched_record_count": 6,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "FRA",
+          "model": "e3me",
+          "years": "2005-2100",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "FRA"
+          },
+          {
+            "label": "Model",
+            "value": "e3me"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "6"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-21T14:04:52.087171+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Emissions|CO2 in FRA\n\nScope: scenario `multiple`, model `e3me`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\n**e3me - PR_Baseline**\n| Year | Value | Unit |\n|------|-------|------|\n| 2010 | 397.41 | Mt CO2/yr |\n| 2015 | 347.23 | Mt CO2/yr |\n| 2020 | 336.22 | Mt CO2/yr |\n| 2025 | 317.27 | Mt CO2/yr |\n| 2030 | 307.15 | Mt CO2/yr |\n| 2035 | 293.38 | Mt CO2/yr |\n| 2040 | 275.37 | Mt CO2/yr |\n| 2045",
+      "session_id": "X35A_all"
+    },
+    {
+      "query": "now only 2050",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "variables": null,
+        "region": "FRA",
+        "models": null,
+        "start_year": 2050,
+        "end_year": 2050,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.95,
+          "region": 0.85,
+          "years": 0.9
+        },
+        "variable_candidates": [
+          "Emissions|CO2",
+          "Emission Factor|CO2|Tailpipe|2W",
+          "Emission Factor|CO2|Tailpipe|3W"
+        ],
+        "unmatched_variable_terms": [],
+        "confidence": 0.9,
+        "extraction_method": "deterministic",
+        "all_scenarios": true,
+        "scenarios": [
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_EI",
+          "Unharmonised baseline"
+        ],
+        "result_models": [
+          "e3me"
+        ]
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-21T14:04:52.087171+00:00",
+        "matched_record_count": 6,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "FRA",
+          "model": "e3me",
+          "years": "2050",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "FRA"
+          },
+          {
+            "label": "Model",
+            "value": "e3me"
+          },
+          {
+            "label": "Years",
+            "value": "2050"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "6"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-21T14:04:52.087171+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Emissions|CO2 in FRA\n\nScope: scenario `multiple`, model `e3me`, years `2050`\nUnit: `Mt CO2/yr`\n\nAnswer:\n**e3me - PR_Baseline**\n| Year | Value | Unit |\n|------|-------|------|\n| 2050 | 216.90 | Mt CO2/yr |\n\n**e3me - PR_CurPol_CP**\n| Year | Value | Unit |\n|------|-------|------|\n| 2050 | 218.05 | Mt CO2/yr |\n\n**e3me - PR_CurPol_EI**\n| Year | Value | Unit |\n|------|-------|------|\n| 2050 | 282.63",
+      "session_id": "X35A_all"
+    }
+  ]
+}

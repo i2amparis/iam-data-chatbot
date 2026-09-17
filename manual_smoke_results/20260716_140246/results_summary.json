@@ -1,0 +1,408 @@
+{
+  "generated": "20260716_140246",
+  "count": 4,
+  "rows": [
+    {
+      "query": "World CO2 emissions under current policies",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "region": "World",
+        "scenario": "Current Policies",
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85,
+          "scenario": 0.9
+        },
+        "confidence": 0.883,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI"
+        ],
+        "result_models": [
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "muse"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 11,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "World",
+          "scenario": "Current Policies",
+          "years": "2005-2100",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Scenario",
+            "value": "Current Policies"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "11"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Emissions|CO2 in World\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\nSummary: 11 series across 4 models and 3 scenarios.\nSeries are ordered by model and scenario.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 2070 | 2075 | 2080 | 2085 | 2090 | 2095 | 2100 | Unit |\n|---|---|---|---|-",
+      "session_id": "R3b17_all"
+    },
+    {
+      "query": "same under baseline",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 2,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "variables": null,
+        "region": "World",
+        "scenario": "Baseline",
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.95,
+          "region": 0.85,
+          "scenario": 0.9
+        },
+        "variable_candidates": [
+          "Emissions|CO2",
+          "Emission Factor|CO2|Tailpipe|2W",
+          "Emission Factor|CO2|Tailpipe|3W"
+        ],
+        "unmatched_variable_terms": [],
+        "confidence": 0.9,
+        "extraction_method": "deterministic",
+        "all_scenarios": true,
+        "scenarios": [
+          "Baseline",
+          "Baseline|Harmonized",
+          "PR_Baseline",
+          "Unharmonised baseline",
+          "baseline",
+          "baseline|Harmonized"
+        ],
+        "result_models": [
+          "GCAM",
+          "GCAM-PR 5.3",
+          "GEMINI-E3 7.0",
+          "MUSE",
+          "TIAM_Grantham",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "muse"
+        ]
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 15,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "World",
+          "scenario": "Baseline",
+          "years": "2005-2100",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Scenario",
+            "value": "Baseline"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "15"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Emissions|CO2 in World\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\nSummary: 14 series across 9 models and 6 scenarios.\nShowing series 1-12 of 14, ordered by model and scenario. Narrow by model or scenario to view the 2 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 ",
+      "session_id": "R3b17_all"
+    },
+    {
+      "query": "compare them",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 2,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "comparison plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "Emissions|CO2",
+        "variables": null,
+        "region": "World",
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.95,
+          "region": 0.85,
+          "scenario": 0.9
+        },
+        "variable_candidates": [
+          "Emissions|CO2",
+          "Variable Operating Cost|Energy Supply",
+          "Emissions|CO2|Heat"
+        ],
+        "unmatched_variable_terms": [
+          "region",
+          "scenario",
+          "them",
+          "variable"
+        ],
+        "confidence": 0.9,
+        "extraction_method": "deterministic",
+        "all_scenarios": true,
+        "scenarios": [
+          "Baseline",
+          "baseline",
+          "Baseline|Harmonized",
+          "baseline|Harmonized",
+          "PR_Baseline",
+          "Unharmonised baseline"
+        ],
+        "scenario": "Baseline",
+        "result_models": [
+          "GCAM",
+          "GCAM-PR 5.3",
+          "GEMINI-E3 7.0",
+          "Gemini-E3",
+          "MUSE",
+          "TIAM_Grantham",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "muse"
+        ]
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 15,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "World",
+          "scenario": "Baseline"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Scenario",
+            "value": "Baseline"
+          },
+          {
+            "label": "Matched records",
+            "value": "15"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing CO2 Emissions in World across available scenarios (2005-2100). Resolved variable: `Emissions|CO2`.\n\nReply with a scenario, model, region, or year to narrow the answer.",
+      "session_id": "R3b17_all"
+    },
+    {
+      "query": "now show only 2050",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 2,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "Emissions|CO2",
+        "variables": null,
+        "region": "World",
+        "models": null,
+        "start_year": 2050,
+        "end_year": 2050,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9,
+          "variable": 0.95,
+          "region": 0.85,
+          "scenario": 0.9,
+          "years": 0.9
+        },
+        "variable_candidates": [
+          "Emissions|CO2",
+          "Emission Factor|CO2|Tailpipe|2W",
+          "Emission Factor|CO2|Tailpipe|3W"
+        ],
+        "unmatched_variable_terms": [],
+        "confidence": 0.9,
+        "extraction_method": "deterministic",
+        "all_scenarios": true,
+        "scenarios": [
+          "Baseline",
+          "baseline",
+          "Baseline|Harmonized",
+          "baseline|Harmonized",
+          "PR_Baseline",
+          "Unharmonised baseline"
+        ],
+        "scenario": "Baseline",
+        "result_models": [
+          "GCAM",
+          "GCAM-PR 5.3",
+          "GEMINI-E3 7.0",
+          "Gemini-E3",
+          "MUSE",
+          "TIAM_Grantham",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "muse"
+        ]
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 15,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "World",
+          "scenario": "Baseline"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Scenario",
+            "value": "Baseline"
+          },
+          {
+            "label": "Matched records",
+            "value": "15"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing CO2 Emissions in World across available scenarios (2050-2050). Resolved variable: `Emissions|CO2`.",
+      "session_id": "R3b17_all"
+    }
+  ]
+}

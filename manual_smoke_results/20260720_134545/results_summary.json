@@ -1,0 +1,477 @@
+{
+  "generated": "20260720_134545",
+  "count": 13,
+  "rows": [
+    {
+      "query": "carbon price for the World after 2040",
+      "plot_present": false,
+      "no_data": true,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {},
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T10:45:44.388555+00:00",
+        "matched_record_count": null,
+        "selected_filters": {},
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "no_data_reason": "no matching data slice",
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T10:45:44.388555+00:00"
+          },
+          {
+            "label": "No-data reason",
+            "value": "no matching data slice"
+          }
+        ]
+      },
+      "answer_preview": "No data found for variable 'Price|Carbon' in World for the requested period (2041).\n\nReply with a scenario, model, region, or year to narrow the answer.",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "FIX_1"
+    },
+    {
+      "query": "bar chart of carbon price for the World in 2050",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "Price|Carbon",
+        "region": "World",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2050,
+        "end_year": 2050,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9,
+          "variable": 0.78,
+          "region": 0.85,
+          "years": 0.9
+        },
+        "variable_candidates": [
+          "Price|Carbon",
+          "Price|Carbon|EUETS",
+          "Price|Carbon|Supply"
+        ],
+        "unmatched_variable_terms": [],
+        "confidence": 0.843,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "Baseline",
+          "baseline",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_EI",
+          "Unharmonised baseline",
+          "PR_CurPol_CPO",
+          "PR_NDC_CPO"
+        ],
+        "result_models": [
+          "GCAM 7.0",
+          "GEMINI-E3 7.0",
+          "Gemini-E3",
+          "MUSE",
+          "PROMETHEUS V1",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T10:45:44.388555+00:00",
+        "matched_record_count": 47,
+        "selected_filters": {
+          "variable": "Price|Carbon",
+          "region": "World"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Price|Carbon"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Matched records",
+            "value": "47"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T10:45:44.388555+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing Carbon in World across available scenarios (2050-2050). Resolved variable: `Price|Carbon`.\n\nReply with a scenario, model, region, or year to narrow the answer.",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "FIX_2"
+    },
+    {
+      "query": "plot emissions for the World under net zero",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.45,
+        "source": "deterministic",
+        "reason": "low confidence entity clarification"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I found several possible variables, but none has enough evidence for automatic selection. Choose the variable: 1. `Emission Factor|CO2|Tailpipe|2W` 2. `Emission Factor|CO2|Tailpipe|3W` 3. `Emission Factor|CO2|Tailpipe|Car` Reply with a number (1-3), or `yes` for option 1.",
+      "link_check": {
+        "links_total": 0,
+        "links_ok": 0,
+        "broken_links": [],
+        "links_all_ok": false
+      },
+      "session_id": "FIX_3"
+    },
+    {
+      "query": "graph solar electricity for the EU",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.45,
+        "source": "deterministic",
+        "reason": "low confidence entity clarification"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I found several possible variables, but none has enough evidence for automatic selection. Choose the variable: 1. `Capacity|Electricity|Solar` (power capacity, solar) 2. `Capacity|Electricity|Solar|PV` (power capacity, solar) 3. `Lifetime|Electricity|Solar|PV` (solar) Reply with a number (1-3), or `yes` for option 1.",
+      "link_check": {
+        "links_total": 0,
+        "links_ok": 0,
+        "broken_links": [],
+        "links_all_ok": false
+      },
+      "session_id": "FIX_4"
+    },
+    {
+      "query": "visualize nuclear electricity for France",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.45,
+        "source": "deterministic",
+        "reason": "low confidence entity clarification"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I found several possible variables, but none has enough evidence for automatic selection. Choose the variable: 1. `Capacity|Electricity|Nuclear` (power capacity, electricity) 2. `Lifetime|Electricity|Nuclear` (electricity) 3. `Capital Cost|Electricity|Nuclear` (electricity) Reply with a number (1-3), or `yes` for option 1.",
+      "link_check": {
+        "links_total": 0,
+        "links_ok": 0,
+        "broken_links": [],
+        "links_all_ok": false
+      },
+      "session_id": "FIX_5"
+    },
+    {
+      "query": "where is the IAM PARIS homepage?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.97,
+        "source": "deterministic",
+        "reason": "explicit site navigation request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Use these IAM PARIS links for this request: [Home](https://iamparis.eu/).",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "FIX_6"
+    },
+    {
+      "query": "link me to the models page",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.97,
+        "source": "deterministic",
+        "reason": "explicit site navigation request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Use these IAM PARIS links for this request: [Models](https://iamparis.eu/models).",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "FIX_7"
+    },
+    {
+      "query": "where are the data stories?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I need one more detail. Which variable should I use?",
+      "link_check": {
+        "links_total": 2,
+        "links_ok": 2,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "FIX_8"
+    },
+    {
+      "query": "where can I download the scenario data?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.97,
+        "source": "deterministic",
+        "reason": "explicit site navigation request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Use these IAM PARIS links for this request: [Comparison of Fit-for-55 Policy and Cost Optimal Scenarios for the EU](https://iamparis.eu/results/iam-compact/comparison-of-fit-for-55-policy-and-cost-optimal-scenarios-for-the-eu/policy_questions).",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "FIX_9"
+    },
+    {
+      "query": "what is the AIM model?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "model_explanation",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "model information request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": "AIM",
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "model": 0.8
+        },
+        "confidence": 0.8,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {},
+      "answer_preview": "I found the model `AIM/Enduse India 3.3`, but no description was provided in metadata.",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "FIX_10"
+    },
+    {
+      "query": "is REMIND a general equilibrium model?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "model_explanation",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "model information request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": "REMIND",
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "model": 0.9,
+          "action": 0.9
+        },
+        "model_matched": true,
+        "confidence": 0.9,
+        "extraction_method": "llm"
+      },
+      "data_provenance": {},
+      "answer_preview": "### REMIND\n\nDescription:\nREMIND is a global integrated assessment model that links macroeconomic development, the energy system, climate policy and technology choices. It is commonly used to assess mitigation pathways, carbon pricing, energy transitions and technology deployment across regions and sectors.\n\nModel scope:\n- energy\n- economy\n- climate\n- land-use interactions\n\nUseful for:\n- global and",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "FIX_11"
+    },
+    {
+      "query": "does WITCH model land use?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "model_explanation",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "model information request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": "WITCH",
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "model": 0.9,
+          "action": 0.9
+        },
+        "model_matched": true,
+        "confidence": 0.9,
+        "extraction_method": "llm"
+      },
+      "data_provenance": {},
+      "answer_preview": "### WITCH\n\nDescription:\nWITCH is an integrated assessment model focused on the interaction between the economy, energy system, climate policy and technological change. It is often used for regional mitigation strategies, policy design and technology innovation analysis.\n\nModel scope:\n- economy\n- energy\n- climate policy\n- technology innovation\n\nUseful for:\n- regional mitigation and burden-sharing a",
+      "link_check": {
+        "links_total": 3,
+        "links_ok": 3,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "FIX_12"
+    },
+    {
+      "query": "what kind of model is TIAM?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "model_explanation",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "model information request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": "India",
+        "scenario": null,
+        "model": "TIAM_Grantham",
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "region": 0.6,
+          "model": 1.0
+        },
+        "confidence": 0.7,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {},
+      "answer_preview": "### TIAM_Grantham\n\nDescription:\nETSAP is recalibrating and improving the geographical resolution of the TIAM model. The new version of the model will be available in 2020 and will cover 31 regions, with the same details and general approach of the existing version of the model.\n\nRelated model documentation:\n- [IAM PARIS Models](https://iamparis.eu/models)",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "FIX_13"
+    }
+  ]
+}

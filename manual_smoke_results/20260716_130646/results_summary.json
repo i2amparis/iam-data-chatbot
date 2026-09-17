@@ -1,0 +1,764 @@
+{
+  "generated": "20260716_130646",
+  "count": 14,
+  "rows": [
+    {
+      "query": "tell me about the COFFEE model",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "model_explanation",
+        "confidence": 0.98,
+        "source": "runtime_catalog",
+        "reason": "unresolved model-like subject"
+      },
+      "entities": {
+        "unresolved_model": "COFFEE model"
+      },
+      "data_provenance": {},
+      "answer_preview": "I cannot resolve `COFFEE model` to any model in the currently loaded IAM PARIS catalogue. I will not infer a description, scenarios, or data for an unverified name. Ask `list models` or provide the exact catalogue name.",
+      "link_check": {
+        "links_total": 0,
+        "links_ok": 0,
+        "broken_links": [],
+        "links_all_ok": false
+      },
+      "session_id": "c20s_1"
+    },
+    {
+      "query": "what is GCAM-PR used for?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "model_explanation",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "model information request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": "GCAM-PR 7.0",
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "model": 1.0
+        },
+        "confidence": 0.8,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {},
+      "answer_preview": "### GCAM\n\nDescription:\nGCAM is a dynamic-recursive model with technology-rich representations of the economy, energy sector, land use and water linked to a climate model that can be used to explore climate change mitigation policies including carbon taxes, carbon trading, regulations and accelerated deployment of energy technology. Regional population and labour productivity growth assumptions dri",
+      "link_check": {
+        "links_total": 2,
+        "links_ok": 2,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "c20s_2"
+    },
+    {
+      "query": "is MESSAGEix a partial equilibrium model?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.75,
+        "source": "deterministic",
+        "reason": "extracted data entities"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I couldn't match that to a known model. Try `list models` to see available options.",
+      "link_check": {
+        "links_total": 2,
+        "links_ok": 2,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "c20s_3"
+    },
+    {
+      "query": "renewable electricity generation for Germany",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Secondary Energy|Electricity",
+        "region": "DEU",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline"
+        ],
+        "result_models": [
+          "e3me",
+          "ices"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T07:52:58.290114+00:00",
+        "matched_record_count": 13,
+        "selected_filters": {
+          "variable": "Secondary Energy|Electricity",
+          "region": "DEU",
+          "years": "2005-2100",
+          "unit": "EJ/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Secondary Energy|Electricity"
+          },
+          {
+            "label": "Region",
+            "value": "DEU"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "EJ/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "13"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T07:52:58.290114+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Secondary Energy|Electricity in DEU\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `EJ/yr`\n\nAnswer:\nSummary: 13 series across 2 models and 8 scenarios.\nShowing series 1-12 of 13, ordered by model and scenario. Narrow by model or scenario to view the 1 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 206",
+      "link_check": {
+        "links_total": 3,
+        "links_ok": 3,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "c20s_4"
+    },
+    {
+      "query": "methane emissions for World",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CH4",
+        "region": "World",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "Baseline|Harmonized",
+          "CP_EI",
+          "CP_EI|Harmonized",
+          "NDC_EI",
+          "NDC_EI|Harmonized",
+          "NDC_LTS|Harmonized",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "baseline|Harmonized"
+        ],
+        "result_models": [
+          "GCAM",
+          "GCAM 7.0",
+          "GCAM-PR 5.3",
+          "GEMINI-E3 7.0",
+          "MUSE",
+          "TIAM_Grantham",
+          "gcam",
+          "gemini_e3"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T07:52:58.290114+00:00",
+        "matched_record_count": 42,
+        "selected_filters": {
+          "variable": "Emissions|CH4",
+          "region": "World",
+          "years": "2005-2100",
+          "unit": "Mt CH4/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CH4"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CH4/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "42"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T07:52:58.290114+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Emissions|CH4 in World\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CH4/yr`\n\nAnswer:\nSummary: 38 series across 8 models and 16 scenarios.\nShowing series 1-12 of 38, ordered by model and scenario. Narrow by model or scenario to view the 26 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 206",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "c20s_5"
+    },
+    {
+      "query": "carbon price for the EU in 2040",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Price|Carbon",
+        "region": "EU",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2040,
+        "end_year": 2040,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.78,
+          "region": 0.85,
+          "years": 0.9
+        },
+        "variable_candidates": [
+          "Price|Carbon",
+          "Price|Carbon|EUETS",
+          "Price|Carbon|Supply"
+        ],
+        "unmatched_variable_terms": [],
+        "confidence": 0.843,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "PR_WWH_CP",
+          "Unharmonised baseline",
+          "baseline"
+        ],
+        "result_models": [
+          "GCAM-PR 5.3",
+          "GEMINI-E3 7.0",
+          "MUSE",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T07:52:58.290114+00:00",
+        "matched_record_count": 45,
+        "selected_filters": {
+          "variable": "Price|Carbon",
+          "region": "EU",
+          "years": "2040"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Price|Carbon"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Years",
+            "value": "2040"
+          },
+          {
+            "label": "Matched records",
+            "value": "45"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T07:52:58.290114+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Price|Carbon in EU\n\nScope: scenario `multiple`, model `multiple`, years `2040`\nUnit: `multiple`\n\nAnswer:\nSummary: 45 series across 9 models and 13 scenarios.\nShowing series 1-12 of 45, ordered by model and scenario. Narrow by model or scenario to view the 33 remaining series.\n\n| Model | Scenario | 2040 | Unit |\n|---|---|---|---|\n| e3me | PR_Baseline | 41.40 | US$2010/tCO2 |\n| e3me | PR_CurPol_",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "c20s_6"
+    },
+    {
+      "query": "GDP PPP for India",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "GDP|MER",
+        "region": "IND",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline"
+        ],
+        "result_models": [
+          "GEMINI-E3 7.0",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T07:52:58.290114+00:00",
+        "matched_record_count": 30,
+        "selected_filters": {
+          "variable": "GDP|MER",
+          "region": "IND",
+          "years": "2005-2100"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "GDP|MER"
+          },
+          {
+            "label": "Region",
+            "value": "IND"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Matched records",
+            "value": "30"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T07:52:58.290114+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### GDP|MER in IND\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `multiple`\n\nAnswer:\nSummary: 30 series across 5 models and 12 scenarios.\nShowing series 1-12 of 30, ordered by model and scenario. Narrow by model or scenario to view the 18 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 2070 ",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "c20s_7"
+    },
+    {
+      "query": "plot solar capacity for Greece",
+      "plot_present": false,
+      "no_data": true,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {},
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T07:52:58.290114+00:00",
+        "matched_record_count": null,
+        "selected_filters": {},
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "no_data_reason": "no matching data slice",
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T07:52:58.290114+00:00"
+          },
+          {
+            "label": "No-data reason",
+            "value": "no matching data slice"
+          }
+        ]
+      },
+      "answer_preview": "No data found for variable 'Capacity|Electricity|Solar'.\nRecommended regions: AFR, ARG (Argentina), AT (Austria)\nRecommended scenarios: 1.5 TECH, Baseline, CP_EI\n\nReply with a scenario, model, region, or year to narrow the answer.",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "c20s_8"
+    },
+    {
+      "query": "chart wind electricity for the EU",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.45,
+        "source": "deterministic",
+        "reason": "low confidence entity clarification"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I found several possible variables, but none has enough evidence for automatic selection. Choose the variable: 1. `Capacity|Electricity|Wind` (power capacity, wind) 2. `Capacity|Electricity|Wind|Onshore` (power capacity, wind) 3. `Lifetime|Electricity|Wind|Onshore` (wind) Reply with a number (1-3), or `yes` for option 1.",
+      "link_check": {
+        "links_total": 0,
+        "links_ok": 0,
+        "broken_links": [],
+        "links_all_ok": false
+      },
+      "session_id": "c20s_9"
+    },
+    {
+      "query": "visualize final energy demand for China until 2060",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "Final Energy",
+        "region": "CHN",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": 2060,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9,
+          "variable": 0.9,
+          "region": 0.85,
+          "years": 0.9
+        },
+        "confidence": 0.883,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "baseline",
+          "PR_Baseline",
+          "PR_CurPol_EI",
+          "PR_NDC_EI",
+          "PR_CurPol_CP",
+          "PR_NDC_CP",
+          "Unharmonised baseline",
+          "PR_CurPol_CPO",
+          "PR_NDC_CPO"
+        ],
+        "result_models": [
+          "42",
+          "MUSE",
+          "PROMETHEUS V1",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T07:52:58.290114+00:00",
+        "matched_record_count": 53,
+        "selected_filters": {
+          "variable": "Final Energy",
+          "region": "CHN"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Final Energy"
+          },
+          {
+            "label": "Region",
+            "value": "CHN"
+          },
+          {
+            "label": "Matched records",
+            "value": "53"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T07:52:58.290114+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing Final Energy in CHN across available scenarios (?-2060).\n\nReply with a scenario, model, region, or year to narrow the answer.",
+      "link_check": {
+        "links_total": 2,
+        "links_ok": 2,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "c20s_10"
+    },
+    {
+      "query": "where can I find the scenario explorer?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.97,
+        "source": "deterministic",
+        "reason": "explicit site navigation request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Use these IAM PARIS links for this request: [ESABCC Scenario Explorer](https://iamparis.eu/application_library).\n\nIf a direct detail page is not available:\n- Open the Application Library and search for: ESABCC Scenario Explorer",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "c20s_11"
+    },
+    {
+      "query": "link me to the model documentation",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.97,
+        "source": "deterministic",
+        "reason": "explicit site navigation request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Use these IAM PARIS links for this request: [Models](https://iamparis.eu/models).",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "c20s_12"
+    },
+    {
+      "query": "where are the AFOLU transformation results?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.97,
+        "source": "deterministic",
+        "reason": "explicit site navigation request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Use these IAM PARIS links for this request: [Results](https://iamparis.eu/results).",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "c20s_13"
+    },
+    {
+      "query": "open the policy catalogue",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.97,
+        "source": "deterministic",
+        "reason": "explicit site navigation request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Use these IAM PARIS links for this request: [Policy Catalogue Interactive Explorer](https://iamparis.eu/datastories/policyCatalog).",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "c20s_14"
+    }
+  ]
+}

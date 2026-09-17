@@ -1,0 +1,136 @@
+{
+  "generated": "20260716_084500",
+  "count": 3,
+  "rows": [
+    {
+      "query": "what is PROMETHEUS?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "model_explanation",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "model information request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": "PROMETHEUS",
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "model": 1.0
+        },
+        "confidence": 0.8,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {},
+      "answer_preview": "### PROMETHEUS\n\nDescription:\nThe Prometheus model is a comprehensive world energy model with innovative features: it integrates stochastic relations and so all exogenous variables – parameters are stochastic, following explicit probability distributions, including covariance. Therefore, all model results are also stochastic (probability distributions). Among others, stochastic distributions are us",
+      "session_id": "vblk6Γ_all"
+    },
+    {
+      "query": "what data does it have for the EU?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variables": null,
+        "region": "EU",
+        "model": "PROMETHEUS",
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "region": 0.85,
+          "model": 1.0
+        },
+        "confidence": 0.825,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T05:44:22.671297+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "region": "EU",
+          "model": "PROMETHEUS"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Model",
+            "value": "PROMETHEUS"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T05:44:22.671297+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Model `PROMETHEUS V1` has these variables: Capital Cost|Electricity|Biomass|w/ CCS, Capital Cost|Electricity|Biomass|w/o CCS, Capital Cost|Electricity|Coal|w/ CCS, Capital Cost|Electricity|Coal|w/o CCS, Capital Cost|Electricity|Gas|w/ CCS, Capital Cost|Electricity|Gas|w/o CCS, Capital Cost|Electricity|Geothermal, Capital Cost|Electricity|Hydro, Capital Cost|Electricity|Nuclear, Capital Cost|Electr",
+      "session_id": "vblk6Γ_all"
+    },
+    {
+      "query": "where can I read its documentation?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.6,
+        "source": "llm",
+        "reason": "unclear deterministic route"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "llm"
+      },
+      "data_provenance": {},
+      "answer_preview": "You can read the documentation for the PROMETHEUS model on the IAM PARIS website. Here is the link to access the model details and documentation:\n\n- [PROMETHEUS Model Documentation on IAM PARIS](https://iamparis.eu/results)\n\nThis page provides comprehensive information about the model, including its features, assumptions, and projections.",
+      "session_id": "vblk6Γ_all"
+    }
+  ]
+}

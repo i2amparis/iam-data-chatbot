@@ -3,6 +3,7 @@ import logging
 from typing import List, Tuple, Dict, Any
 from langchain.schema import Document
 from difflib import get_close_matches
+from canonical_aliases import REGION_ALIASES, region_family_members, regions_equivalent
 
 logger = logging.getLogger(__name__)
 
@@ -333,6 +334,106 @@ def match_variable_from_yaml(query: str, variable_dict: dict) -> dict:
     logger.debug(f"Final match result: {result}")
     return result
 
+# Words that appear around a country name in these questions. Feeding them to a
+# fuzzy country lookup invites nonsense matches, so they never start a phrase.
+_COUNTRY_PHRASE_STOPWORDS = frozenset({
+    "the", "for", "in", "of", "and", "or", "a", "an", "to", "from", "under",
+    "show", "plot", "chart", "graph", "compare", "give", "me", "what", "which",
+    "where", "how", "is", "are", "data", "emissions", "energy", "population",
+    "gdp", "price", "prices", "capacity", "production", "share", "between",
+    "until", "after", "before", "by", "only", "just", "same", "its", "their",
+    "primary", "final", "secondary", "total", "per", "capita", "scenario",
+    "scenarios", "model", "models", "year", "years", "co2", "ch4", "n2o",
+    "list", "available", "availability", "included", "database", "dataset",
+    "results", "workspaces", "variables", "regions", "have", "does", "do",
+    "electricity", "power", "wind", "solar", "coal", "gas", "oil",
+    "hydrogen", "renewable", "renewables", "kind", "type", "project",
+    "publication", "publications", "report", "reports", "latest",
+    "africa", "african",
+})
+
+
+def _explicit_location_phrases(query: str) -> List[str]:
+    """Return short phrases occupying an explicit geographic slot.
+
+    Exact region and country names are recognised independently of syntax.
+    This helper is only for typo/fuzzy recovery, where searching arbitrary
+    sentence tokens turns domain words into short country codes.
+    """
+    text = str(query or "")
+    phrases: List[str] = []
+    for match in re.finditer(
+        r"\b(?:for|in|from|between|region|country|geography|area)\s+(?:the\s+)?"
+        r"([A-Za-z][A-Za-z.'-]*(?:\s+[A-Za-z][A-Za-z.'-]*){0,2})",
+        text,
+        re.IGNORECASE,
+    ):
+        phrase = re.split(
+            r"\b(?:under|scenario|model|after|before|until|from|between|and|"
+            r"versus|vs|with|at|during)\b",
+            match.group(1),
+            maxsplit=1,
+            flags=re.IGNORECASE,
+        )[0].strip()
+        if phrase and phrase not in phrases:
+            phrases.append(phrase)
+    return phrases
+
+
+def _country_match_is_plausible(phrase: str, country: object) -> bool:
+    """Guard a fuzzy country hit against wording that merely looks country-ish.
+
+    ``search_fuzzy`` matches on subdivisions and official names, so a bare word
+    like "Middle" comes back as United Kingdom and an invented region would be
+    silently answered with real data. Require the phrase to actually resemble
+    one of the country's names: a shared distinctive word, or a close spelling
+    ("Vietnam" against the official "Viet Nam").
+    """
+    from difflib import SequenceMatcher
+
+    text = str(phrase or "").strip().casefold()
+    if not text:
+        return False
+    names = {
+        str(getattr(country, attribute, "") or "").casefold()
+        for attribute in ("name", "official_name", "common_name")
+    }
+    names.discard("")
+    if not names:
+        return False
+    if text in names:
+        return True
+    for token in re.findall(r"[a-z]{4,}", text):
+        if any(token in name for name in names):
+            return True
+    return any(SequenceMatcher(None, text, name).ratio() >= 0.85 for name in names)
+
+
+def _country_name_candidates(query: str) -> List[str]:
+    """Country-shaped phrases from a query, longest first.
+
+    A fuzzy country lookup needs the name on its own; handing it the whole
+    question makes it fail. Two-word phrases come first so "South Korea" is
+    tried before "Korea".
+    """
+    phrases: List[str] = []
+    for location_phrase in _explicit_location_phrases(query):
+        words = [
+            word
+            for word in re.findall(
+                r"[A-Za-z][A-Za-z.'-]*",
+                location_phrase,
+            )
+            if word.lower() not in _COUNTRY_PHRASE_STOPWORDS and len(word) >= 3
+        ]
+        for size in (3, 2, 1):
+            for start in range(len(words) - size + 1):
+                phrase = " ".join(words[start:start + size])
+                if phrase not in phrases:
+                    phrases.append(phrase)
+    return phrases
+
+
 def extract_region_from_query(query: str, region_dict: dict, region_candidates: List[str] | None = None) -> str:
     """
     Extract region from query using region definitions.
@@ -344,81 +445,20 @@ def extract_region_from_query(query: str, region_dict: dict, region_candidates: 
 
     query_text = str(query or "")
     query_lower = query_text.lower()
+    # Treat dotted initialisms as their ordinary region-code spelling.  This
+    # makes ``E.U.``, ``U.K.`` and ``U.S.A.`` behave like EU/UK/USA without
+    # weakening the exact word-boundary checks used for short codes.
+    query_alias_text = re.sub(
+        r"\b(?:[a-z]\.){2,4}",
+        lambda match: match.group(0).replace(".", ""),
+        query_lower,
+    )
 
-    def _explicit_region_name_match(name: str) -> bool:
-        name = str(name or "").strip()
-        if not name:
-            return False
-        if re.fullmatch(r"[A-Z0-9-]{2,4}", name):
-            return re.search(r"\b" + re.escape(name) + r"\b", query_text) is not None
-        return re.search(r"\b" + re.escape(name.lower()) + r"\b", query_lower) is not None
-
-    # Optional fast-path: match explicit region codes from candidates (e.g., CHN, USA)
-    if region_candidates:
-        candidate_set = {str(r).lower(): str(r) for r in region_candidates if r}
-        # Map common country/region names to dataset region codes
-        name_to_code = {
-            "china": "CHN",
-            "india": "IND",
-            "united states": "USA",
-            "u.s.": "USA",
-            "u.s.a.": "USA",
-            "usa": "USA",
-            "european union": "EU",
-            "europe": "EU",
-            "eu": "EU",
-            "european union 27": "EU-27",
-            "eu-27": "EU-27",
-            "eu27": "EU27",
-            "european union 28": "EU28",
-            "eu-28": "EU28",
-            "eu28": "EU28",
-            "united kingdom": "GBR",
-            "uk": "GBR",
-            "russia": "RUS",
-            "greece": "GREECE",
-            "greek": "GREECE",
-        }
-        for name in sorted(name_to_code.keys(), key=len, reverse=True):
-            if re.search(r"\b" + re.escape(name) + r"\b", query_lower):
-                code = name_to_code[name]
-                code_key = code.lower()
-                if code_key in candidate_set:
-                    logger.debug(f"Region alias match: {name} -> {candidate_set[code_key]}")
-                    return candidate_set[code_key]
-        for token in re.findall(r"[A-Za-z0-9-]{2,8}", query):
-            token_lower = token.lower()
-            if token_lower in candidate_set:
-                if len(token) <= 3 and not (token.isupper() or any(ch.isdigit() or ch == "-" for ch in token)):
-                    continue
-                logger.debug(f"Region candidate match: {candidate_set[token_lower]}")
-                return candidate_set[token_lower]
-        # Fuzzy match for misspelled region codes
-        from difflib import get_close_matches
-        code_matches = get_close_matches(query_lower, list(candidate_set.keys()), n=1, cutoff=0.8)
-        if code_matches:
-            logger.debug(f"Region code fuzzy match: {code_matches[0]} -> {candidate_set[code_matches[0]]}")
-            return candidate_set[code_matches[0]]
-
-        # Try to match country names (including misspellings) to ISO and then to dataset codes
-        try:
-            import pycountry  # type: ignore
-        except Exception:
-            pycountry = None
-        if pycountry:
-            # Try direct lookup from free text
-            try:
-                match = pycountry.countries.search_fuzzy(query)
-                if match:
-                    c = match[0]
-                    for code in [getattr(c, "alpha_3", None), getattr(c, "alpha_2", None)]:
-                        if code and code.lower() in candidate_set:
-                            logger.debug(f"Country fuzzy match: {c.name} -> {candidate_set[code.lower()]}")
-                            return candidate_set[code.lower()]
-            except Exception:
-                pass
-
-    # Map common ISO2/ISO3 codes to country names for region lookup
+    # Keep the country/code vocabulary in one place.  The reverse lookup below
+    # lets any country in this catalogue resolve to its runtime ISO region
+    # before we inspect aggregate definitions (G20, R5, etc.).  Otherwise the
+    # result depends on YAML file order: a country such as Brazil can become the
+    # first aggregate that happens to contain it.
     iso_code_map = {
         # ISO3
         "CHN": "China", "USA": "United States", "IND": "India", "RUS": "Russian Federation",
@@ -441,6 +481,165 @@ def extract_region_from_query(query: str, region_dict: dict, region_candidates: 
         "IQ": "Iraq", "EG": "Egypt", "NG": "Nigeria", "PK": "Pakistan",
         "VN": "Viet Nam", "TH": "Thailand",
     }
+
+    def _explicit_region_name_match(name: str) -> bool:
+        name = str(name or "").strip()
+        if not name:
+            return False
+        if re.fullmatch(r"[A-Z0-9-]{2,4}", name):
+            return re.search(r"\b" + re.escape(name) + r"\b", query_text) is not None
+        return re.search(r"\b" + re.escape(name.lower()) + r"\b", query_lower) is not None
+
+    # Optional fast-path: match explicit region codes from candidates (e.g., CHN, USA)
+    if region_candidates:
+        candidate_set = {str(r).lower(): str(r) for r in region_candidates if r}
+        # Map common country/region names to dataset region codes
+        name_to_code = {
+            **{
+                country.lower(): code
+                for code, country in iso_code_map.items()
+                if len(code) == 3
+            },
+            "united states": "USA",
+            "u.s.": "USA",
+            "u.s.a.": "USA",
+            "usa": "USA",
+            "european union": "EU",
+            "europe": "EU",
+            "eu": "EU",
+            "european union 27": "EU-27",
+            "eu-27": "EU-27",
+            "eu27": "EU27",
+            "european union 28": "EU28",
+            "eu-28": "EU28",
+            "eu28": "EU28",
+            "africa": "AFR",
+            "african": "AFR",
+            "united kingdom": "GBR",
+            "uk": "GBR",
+            "russia": "RUS",
+            # Country adjectives are common in chart requests ("French
+            # nuclear", "Indian solar capacity").  Resolve only explicit,
+            # unambiguous demonyms to the same country-family codes used for
+            # country names; the runtime catalogue still decides which label
+            # (FRA/FR/France, IND/India, ...) is actually available.
+            "french": "FRA",
+            "indian": "IND",
+            "greece": "GREECE",
+            "greek": "GREECE",
+        }
+        for name in sorted(name_to_code.keys(), key=len, reverse=True):
+            if re.search(r"\b" + re.escape(name) + r"\b", query_alias_text):
+                code = name_to_code[name]
+                code_key = code.lower()
+                if code_key in candidate_set:
+                    logger.debug(f"Region alias match: {name} -> {candidate_set[code_key]}")
+                    return candidate_set[code_key]
+                equivalent = region_family_members(code, candidate_set.values())
+                if equivalent:
+                    logger.debug("Region country-family match: %s -> %s", name, equivalent[0])
+                    return equivalent[0]
+        # When no data-bearing ISO alias exists, retain an explicitly named
+        # runtime region. This still outranks any aggregate containing it.
+        for candidate in sorted(candidate_set.values(), key=len, reverse=True):
+            if _explicit_region_name_match(candidate):
+                logger.debug("Explicit runtime region match: %s", candidate)
+                return candidate
+        for token in re.findall(r"[A-Za-z0-9-]{2,8}", query):
+            token_lower = token.lower()
+            if token_lower in candidate_set:
+                if len(token) <= 3 and not (token.isupper() or any(ch.isdigit() or ch == "-" for ch in token)):
+                    continue
+                logger.debug(f"Region candidate match: {candidate_set[token_lower]}")
+                return candidate_set[token_lower]
+            if token.isupper() and len(token) in (2, 3):
+                equivalent = region_family_members(token, candidate_set.values())
+                if equivalent:
+                    logger.debug("Region code-family match: %s -> %s", token, equivalent[0])
+                    return equivalent[0]
+        # Typo recovery is intentionally bounded to explicit location slots.
+        # Match canonical aliases first (``europ`` -> Europe -> EU), then
+        # human-readable runtime labels. Never compare the whole question to
+        # short catalogue codes: ``wind``/``find`` are close to IND and
+        # ``coal`` is close to COL.
+        from difflib import get_close_matches
+        for location_phrase in _explicit_location_phrases(query_text):
+            normalized_phrase = location_phrase.casefold()
+            for aliases, canonical in REGION_ALIASES:
+                alias_match = get_close_matches(
+                    normalized_phrase,
+                    [str(alias).casefold() for alias in aliases],
+                    n=1,
+                    cutoff=0.82,
+                )
+                if not alias_match:
+                    continue
+                possible_codes = (
+                    str(canonical),
+                    str(name_to_code.get(str(canonical).casefold()) or ""),
+                )
+                resolved = next(
+                    (
+                        candidate_set[code.casefold()]
+                        for code in possible_codes
+                        if code and code.casefold() in candidate_set
+                    ),
+                    "",
+                )
+                if resolved:
+                    logger.debug(
+                        "Region alias typo match: %s -> %s",
+                        location_phrase,
+                        resolved,
+                    )
+                    return resolved
+
+            readable_candidates = [
+                key for key in candidate_set
+                if len(key) >= 4 and not re.fullmatch(r"[a-z]{2,4}", key)
+            ]
+            label_matches = get_close_matches(
+                normalized_phrase,
+                readable_candidates,
+                n=1,
+                # A looser threshold turns semantically different places into
+                # one another (for example "Middle Earth" -> "Middle East").
+                # Canonical aliases above still recover common short typos such
+                # as "europ" without needing risky catalogue-wide fuzziness.
+                cutoff=0.90,
+            )
+            if label_matches:
+                return candidate_set[label_matches[0]]
+
+        # Try to match country names (including misspellings) to ISO and then to dataset codes
+        try:
+            import pycountry  # type: ignore
+        except Exception:
+            pycountry = None
+        if pycountry:
+            # `search_fuzzy` resolves a bare country name but raises LookupError
+            # on a whole sentence, so "population for Vietnam" found nothing even
+            # though VNM is in the data. Try the country-shaped phrases in the
+            # query as well, longest first ("South Korea" before "Korea").
+            for phrase in _country_name_candidates(query):
+                try:
+                    match = pycountry.countries.search_fuzzy(phrase)
+                except Exception:
+                    continue
+                if not match:
+                    continue
+                c = match[0]
+                if not _country_match_is_plausible(phrase, c):
+                    continue
+                for code in [getattr(c, "alpha_3", None), getattr(c, "alpha_2", None)]:
+                    if code and code.lower() in candidate_set:
+                        logger.debug(
+                            "Country fuzzy match: %s -> %s", c.name, candidate_set[code.lower()]
+                        )
+                        return candidate_set[code.lower()]
+
+    # Map explicit ISO2/ISO3 codes to country names for aggregate-only
+    # catalogues, after the runtime-region fast path above had a chance to win.
     for token in re.findall(r"[A-Za-z]{2,4}", query):
         if len(token) <= 3 and not token.isupper():
             continue
@@ -499,16 +698,101 @@ def extract_region_from_query(query: str, region_dict: dict, region_candidates: 
                 all_regions.append(region_name)
     logger.debug(f"All regions for fuzzy: {all_regions[:10]}...")  # Log first 10
 
-    matches = get_close_matches(query_lower, [r.lower() for r in all_regions], n=1, cutoff=0.6)
-    if matches:
-        # Find the original case region name
+    # Fuzzy matching the *whole sentence* made catalogue commands such as
+    # "list scenarios" look like a region (VNM in the production catalogue).
+    # Restrict typo recovery to a short location phrase following a scope
+    # preposition, or to a bare short input.
+    fuzzy_phrases = _explicit_location_phrases(query_text)
+
+    region_names_lower = [region.lower() for region in all_regions]
+    for phrase in fuzzy_phrases:
+        matches = get_close_matches(phrase.lower(), region_names_lower, n=1, cutoff=0.90)
+        if not matches:
+            continue
         for region in all_regions:
             if region.lower() == matches[0]:
-                logger.debug(f"Fuzzy region match: {region}")
+                logger.debug("Fuzzy region match: %s", region)
                 return region
 
     logger.debug("No region match found")
     return ""
+
+
+def region_mentions_from_query(
+    query: str,
+    region_dict: dict,
+    region_candidates: List[str] | None = None,
+    *,
+    resolved_region: str | None = None,
+) -> list[str]:
+    """Return the query phrases that identify the resolved runtime region.
+
+    Variable ranking must ignore the user's location wording, including a
+    natural-language alias that differs from the stored region code.  The
+    evidence here comes from the supplied runtime catalogue, the loaded region
+    definitions and the existing canonical alias catalogue; it does not infer
+    arbitrary capitalized text as a region.
+    """
+    query_text = str(query or "")
+    candidates = [
+        str(candidate).strip()
+        for candidate in (region_candidates or [])
+        if str(candidate).strip()
+    ]
+    resolved = str(
+        resolved_region
+        or extract_region_from_query(query_text, region_dict, candidates)
+        or ""
+    ).strip()
+    if not resolved:
+        return []
+
+    def _contains_phrase(phrase: object) -> bool:
+        tokens = [re.escape(token) for token in re.findall(r"[A-Za-z0-9]+", str(phrase or ""))]
+        if not tokens:
+            return False
+        return bool(re.search(r"\b" + r"[\s_\-/]+".join(tokens) + r"\b", query_text, re.IGNORECASE))
+
+    def _same_region(value: object) -> bool:
+        return regions_equivalent(value, resolved)
+
+    mentions: set[str] = set()
+
+    # Verbatim runtime region names/codes are the strongest evidence.
+    for candidate in candidates:
+        if _same_region(candidate) and _contains_phrase(candidate):
+            mentions.add(candidate)
+
+    # Natural-language canonical aliases are retained only when resolving that
+    # isolated phrase against this runtime catalogue produces the same region.
+    for phrases, _canonical in REGION_ALIASES:
+        for phrase in phrases:
+            if not _contains_phrase(phrase):
+                continue
+            phrase_region = extract_region_from_query(phrase, region_dict, candidates)
+            if _same_region(phrase_region):
+                mentions.add(phrase)
+
+    # Region-definition names and countries provide catalogue-owned wording
+    # for deployments whose region vocabulary is not part of canonical aliases.
+    for file_data in (region_dict or {}).values():
+        for region_group in file_data or []:
+            if not isinstance(region_group, dict):
+                continue
+            for region_name, region_info in region_group.items():
+                phrases = [region_name]
+                if isinstance(region_info, dict):
+                    phrases.extend(region_info.get("countries", []) or [])
+                elif isinstance(region_info, list):
+                    phrases.extend(item for item in region_info if isinstance(item, str))
+                for phrase in phrases:
+                    if not _contains_phrase(phrase):
+                        continue
+                    phrase_region = extract_region_from_query(str(phrase), region_dict, candidates)
+                    if _same_region(phrase_region):
+                        mentions.add(str(phrase))
+
+    return sorted(mentions, key=lambda value: (-len(value), value.casefold()))
 
 
 def format_region_label(region: str) -> str:
@@ -531,6 +815,8 @@ def format_region_label(region: str) -> str:
         "GBR": "United Kingdom",
         "RUS": "Russian Federation",
         "KOR": "South Korea",
+        "GREECE": "Greece",
+        "AFR": "Africa",
     }
     if code in alias:
         return f"{code} ({alias[code]})"

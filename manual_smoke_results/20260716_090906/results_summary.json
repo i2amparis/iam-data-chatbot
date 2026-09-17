@@ -1,0 +1,137 @@
+{
+  "generated": "20260716_090906",
+  "count": 4,
+  "rows": [
+    {
+      "query": "greenhouse gas emissions for World",
+      "plot_present": false,
+      "no_data": true,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {},
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T06:08:24.751089+00:00",
+        "matched_record_count": null,
+        "selected_filters": {},
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "no_data_reason": "scenario combination unavailable",
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T06:08:24.751089+00:00"
+          },
+          {
+            "label": "No-data reason",
+            "value": "scenario combination unavailable"
+          }
+        ]
+      },
+      "answer_preview": "I could not find data for `Emissions|GHG|EUETS` in `World`.\n\nReason: the exact scenario combination is not available for this data slice.\n\nClosest valid options:\n\n1. variable `Emissions|BC` (emissions)\n\n2. variable `Emissions|BC|AFOLU` (emissions, land use)\n\n3. variable `Emissions|BC|Energy` (emissions)\n\nReply with `1`, `2`, or `3`, or type the variable you want.",
+      "session_id": "regb14_all"
+    },
+    {
+      "query": "same for EU",
+      "plot_present": false,
+      "no_data": true,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.72,
+        "source": "conversation_state",
+        "reason": "clarification detail; additional clarification required"
+      },
+      "entities": {},
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T06:08:24.751089+00:00",
+        "matched_record_count": null,
+        "selected_filters": {},
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.72,
+          "source": "conversation_state"
+        },
+        "no_data_reason": "scenario combination unavailable",
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T06:08:24.751089+00:00"
+          },
+          {
+            "label": "No-data reason",
+            "value": "scenario combination unavailable"
+          }
+        ]
+      },
+      "answer_preview": "I could not find data for `Emissions|GHG|EUETS` in `EU`.\n\nReason: the exact scenario combination is not available for this data slice.\n\nClosest valid options:\n\n1. variable `Emissions per capita|CO2|Energy` (emissions)\n\n2. variable `Emissions/GDP|CO2|Energy` (emissions)\n\n3. variable `Emissions|C2F6` (emissions)\n\nReply with `1`, `2`, or `3`, or type the variable you want.",
+      "session_id": "regb14_all"
+    },
+    {
+      "query": "same for India",
+      "plot_present": false,
+      "no_data": true,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.72,
+        "source": "conversation_state",
+        "reason": "clarification detail; additional clarification required"
+      },
+      "entities": {},
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T06:08:24.751089+00:00",
+        "matched_record_count": null,
+        "selected_filters": {},
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.72,
+          "source": "conversation_state"
+        },
+        "no_data_reason": "scenario combination unavailable",
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T06:08:24.751089+00:00"
+          },
+          {
+            "label": "No-data reason",
+            "value": "scenario combination unavailable"
+          }
+        ]
+      },
+      "answer_preview": "I could not find data for `Emissions|GHG|EUETS` in `IND`.\n\nReason: the exact scenario combination is not available for this data slice.\n\nClosest valid options:\n\n1. variable `Emissions|C2F6` (emissions)\n\n2. variable `Emissions|CH4` (methane emissions)\n\n3. variable `Emissions|CH4|AFOLU` (methane emissions, land use)\n\nReply with `1`, `2`, or `3`, or type the variable you want.",
+      "session_id": "regb14_all"
+    },
+    {
+      "query": "plot India",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I could not confidently match that wording to a loaded variable. Which variable should I use?",
+      "session_id": "regb14_all"
+    }
+  ]
+}

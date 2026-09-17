@@ -10,17 +10,38 @@ This module uses LLM to extract all data dimensions from user queries:
 - Units (e.g., "GW", "Mt CO2/yr")
 """
 
+import os
 import logging
 from typing import Dict, Any, List, Optional, Set
 import re
 import json
 
-from langchain_openai import ChatOpenAI
+from llm_factory import get_chat_openai as ChatOpenAI
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
-from canonical_aliases import REGION_ALIASES, canonical_scenario_from_query, preferred_variable_from_query
-from model_aliases import build_model_alias_map, match_model_name, normalize_model_name
+from canonical_aliases import (
+    REGION_ALIASES,
+    _REGION_ALIAS_TOKENS,
+    canonical_scenario_from_query,
+    preferred_variable_from_query,
+    rank_catalogue_variable_matches,
+    scenario_family_members,
+    scenario_scope_tokens_in_query,
+)
+from model_aliases import (
+    build_model_alias_map,
+    curated_model_family_key,
+    is_presentable_model_label,
+    match_model_name,
+    normalize_model_name,
+    requests_exact_gem_e3,
+    resolve_model_candidates,
+)
 from utils.yaml_loader import load_all_yaml_files
-from utils_query import extract_region_from_query, resolve_natural_language_variable_candidates
+from utils_query import (
+    extract_region_from_query,
+    format_region_label,
+    region_mentions_from_query,
+)
 from year_filters import extract_year_range
 from llm_config import EXTRACTOR_MODEL
 
@@ -40,10 +61,10 @@ class QueryEntityExtractor:
         # Initialize LLM
         self.llm = ChatOpenAI(
             model_name=EXTRACTOR_MODEL,
+            openai_api_key=api_key,
             temperature=0,
             timeout=30,
-            max_retries=1,
-            api_key=api_key
+            max_retries=1
         )
         
         # Create extraction prompt
@@ -55,7 +76,7 @@ class QueryEntityExtractor:
         self.available_models = sorted({
             str(m.get('modelName', '')) 
             for m in self.models 
-            if m and m.get('modelName')
+            if m and is_presentable_model_label(m.get('modelName'))
         })
         
         self.available_scenarios = sorted({
@@ -118,7 +139,30 @@ class QueryEntityExtractor:
                         f"{len(self.available_scenarios)} scenarios, "
                         f"{len(self.available_variables)} variables, "
                         f"{len(self.available_regions)} regions")
-        self.model_alias_map = self._build_model_alias_map(self.available_models)
+        # Model names accepted for recognition. The timeseries catalogue only
+        # lists models that carry data; augment it with the native-region model
+        # families (REMIND, WITCH, IMAGE, ...) so a query naming one of those is
+        # recognised and answered honestly as no-data, instead of dropping the
+        # model and silently returning every model's data. `available_models`
+        # itself stays the pure data catalogue used for listings/availability.
+        self._model_match_names = sorted(
+            set(self.available_models) | self._native_model_families()
+        )
+        self.model_alias_map = self._build_model_alias_map(self._model_match_names)
+
+    @staticmethod
+    def _native_model_families() -> Set[str]:
+        families: Set[str] = set()
+        try:
+            from pathlib import Path
+            native_dir = Path("definitions/region/native_regions")
+            for entry in native_dir.iterdir():
+                family = re.sub(r"\.ya?ml$", "", entry.name, flags=re.IGNORECASE).strip()
+                if family:
+                    families.add(family)
+        except Exception:
+            pass
+        return families
 
     def _normalize_model(self, text: str) -> str:
         return normalize_model_name(text)
@@ -131,7 +175,12 @@ class QueryEntityExtractor:
             gcam_pr_models = [model for model in self.available_models if "gcam-pr" in model.lower()]
             if gcam_pr_models:
                 return next((model for model in sorted(gcam_pr_models, reverse=True) if "7.0" in model), sorted(gcam_pr_models, reverse=True)[0])
-        return match_model_name(query_or_model, self.available_models) or None
+        match_names = getattr(self, "_model_match_names", None) or self.available_models
+        direct = match_model_name(query_or_model, match_names)
+        if direct:
+            return direct
+        candidates = resolve_model_candidates(query_or_model, match_names)
+        return candidates[0] if candidates else None
     
     def _create_prompt(self):
         """Create the LLM extraction prompt."""
@@ -184,11 +233,13 @@ Extract the following entities from user queries and return as JSON:
     "variable": "exact variable name from list below or null",
     "variables": ["list of variables for comparison queries"] or null,
     "region": "region name or null", 
+    "regions": ["list of regions for comparison queries"] or null,
     "scenario": "scenario name or null",
     "model": "model name or null",
     "models": ["list of models for comparison queries"] or null,
     "start_year": year or null,
     "end_year": year or null,
+    "chart_type": "line", "bar", "scatter", or "area", or null,
     "comparison": "model" or "scenario" or "region" or "variable" or null
 }}}}
 
@@ -230,28 +281,36 @@ Extract the following entities from user queries and return as JSON:
    - Match country/region names
    - Common: Greece, Germany, Europe, World, EU
 
-5. **scenario**:
+5. **regions** (for multi-region comparison):
+   - Use when the user names two or more regions to compare
+   - Return every matched region in query order
+
+6. **scenario**:
    - Match scenario names like SSP2-45, NetZero, Current Policies
 
-6. **model**:
+7. **model**:
    - Match model names like REMIND, GCAM, MESSAGE
    - For single model queries
 
-7. **models** (for multi-model comparison):
+8. **models** (for multi-model comparison):
    - Use when user wants to COMPARE multiple models
    - Examples: "compare GCAM and REMIND", "GCAM vs MESSAGE", "difference between models"
    - Return list of exact model names: ["GCAM", "REMIND-MAgPIE"]
    - Return null for single-model queries
 
-8. **years**:
+9. **years**:
    - Extract mentioned years or year ranges
    - For single year: "2050" -> start_year: 2050, end_year: 2050
    - For range: "2020 to 2050" or "from 2020 until 2050" -> start_year: 2020, end_year: 2050
-   - For open-ended: "after 2030" -> start_year: 2030, end_year: null
+   - For open-ended: "after 2030" -> start_year: 2031, end_year: null
    - For open-ended: "before 2050" -> start_year: null, end_year: 2050
    - Return null if no years mentioned
 
-9. **comparison**:
+10. **chart_type**:
+   - Preserve an explicitly requested chart type (bar, line, scatter, area)
+   - Return null when the user did not request one
+
+11. **comparison**:
    - "variable" if comparing different variables (e.g., "compare solar and wind")
    - "model" if comparing different models (e.g., "compare GCAM and REMIND")
    - "scenario" if comparing different scenarios  
@@ -324,53 +383,275 @@ Return ONLY valid JSON, no other text."""
             return True
         return bool(strong_fields)
     
+    # Year phrases whose bounds are unambiguous from the wording alone. The
+    # model is asked for these in the prompt but gets them wrong in practice --
+    # "until 2080" and "after 2040" came back as the single year 2080/2041
+    # instead of open-ended spans, silently answering a different question. The
+    # regex in `year_filters` decides these correctly every time, so it wins.
+    _OPEN_ENDED_YEAR_PHRASE = re.compile(
+        r"\b(?:after|before|by|to|until|up\s+to|through|from|since)\s+(?:19|20|21|22)\d{2}\b",
+        re.IGNORECASE,
+    )
+
+    # Conjunctions that separate the sides of a comparison.
+    _COMPARISON_SPLIT = re.compile(r"\s+(?:and|vs\.?|versus|against|or)\s+|,", re.IGNORECASE)
+
+    def _additional_region_mentions(self, query: str, resolved_region: str | None) -> list[str]:
+        """Region wording in the query beyond the one region that resolved.
+
+        Only the first region of a multi-region comparison is resolved, so the
+        rest would otherwise count against the variable match. Each side of the
+        conjunction is re-resolved and its wording collected.
+        """
+        text = str(query or "")
+        if not text:
+            return []
+        mentions: list[str] = []
+        seen: set[str] = {str(resolved_region or "").strip().casefold()}
+        for part in self._COMPARISON_SPLIT.split(text):
+            part = part.strip()
+            if not part:
+                continue
+            try:
+                found = extract_region_from_query(
+                    part, self.region_dict, self.available_regions
+                )
+            except Exception:
+                continue
+            key = str(found or "").strip().casefold()
+            if not key or key in seen:
+                continue
+            seen.add(key)
+            mentions.append(found)
+            mentions.append(format_region_label(found))
+            mentions.extend(
+                region_mentions_from_query(
+                    part, self.region_dict, self.available_regions, resolved_region=found
+                )
+            )
+        return [value for value in mentions if str(value or "").strip()]
+
+    def _regions_from_query(self, query: str) -> list[str]:
+        """Resolve every region named across comparison clauses, in query order."""
+        text = str(query or "")
+        if not text:
+            return []
+        found_regions: list[str] = []
+        seen: set[str] = set()
+
+        def add_from(part: str) -> None:
+            try:
+                found = extract_region_from_query(
+                    part, self.region_dict, self.available_regions
+                )
+            except Exception:
+                found = None
+            key = str(found or "").strip().casefold()
+            if key and key not in seen:
+                seen.add(key)
+                found_regions.append(str(found).strip())
+
+        for part in self._COMPARISON_SPLIT.split(text):
+            if part.strip():
+                add_from(part)
+        if not found_regions:
+            add_from(text)
+        return found_regions
+
+    def _explicit_unknown_region(self, query: str) -> str | None:
+        """Return a clearly named, unresolved place after ``for``/``in``.
+
+        This intentionally accepts only capitalised name-like phrases.  It
+        catches ``CO2 for Atlantis`` without treating ordinary scope wording
+        such as ``under current policies`` as a place.
+        """
+        if extract_region_from_query(query, self.region_dict, self.available_regions):
+            return None
+        model_match = self._match_model_alias(query) if self._query_allows_model_match(query) else None
+        scenario_match = canonical_scenario_from_query(query, self.available_scenarios)
+        for match in re.finditer(
+            r"\b(?:for|in)\s+(?:the\s+)?([A-Z][A-Za-z'’-]*(?:\s+[A-Z][A-Za-z'’-]*){0,2})\b",
+            str(query or ""),
+        ):
+            candidate = match.group(1).strip()
+            if candidate.casefold() in {"data", "model", "scenario"}:
+                continue
+            if model_match and normalize_model_name(candidate) in normalize_model_name(model_match):
+                continue
+            if scenario_match and candidate.casefold() in str(scenario_match).casefold():
+                continue
+            return candidate
+        return None
+
+    def _apply_deterministic_year_bounds(
+        self, result: Dict[str, Any], query: str
+    ) -> Dict[str, Any]:
+        """Let the regex own year bounds when the phrasing is open-ended."""
+        if not self._OPEN_ENDED_YEAR_PHRASE.search(str(query or "")):
+            return result
+        start_year, end_year = extract_year_range(query)
+        if start_year is None and end_year is None:
+            return result
+        # A two-year span ("from 2020 to 2060") is already handled correctly by
+        # both paths; only override when exactly one bound is open.
+        if start_year is not None and end_year is not None:
+            return result
+        result["start_year"] = start_year
+        result["end_year"] = end_year
+        confidence = result.setdefault("entity_confidence", {})
+        confidence["years"] = max(float(confidence.get("years", 0) or 0), 0.95)
+        return result
+
     def _validate_result(self, result: Dict[str, Any], query: str) -> Dict[str, Any]:
         """Validate and enhance the extraction result."""
+        # Units are derived from a grounded catalogue variable below.  Do not
+        # retain an LLM-only unit guess: short domain words can otherwise be
+        # misread as unrelated currency codes (for example ``oil`` -> BEUR).
+        result.pop("unit", None)
+        for field, default in (
+            ("action", "query"), ("variable", None), ("variables", None),
+            ("region", None), ("regions", None), ("scenario", None),
+            ("model", None), ("models", None), ("start_year", None),
+            ("end_year", None), ("chart_type", None), ("comparison", None),
+        ):
+            result.setdefault(field, default)
         entity_confidence = dict(result.get("entity_confidence") or {})
         result["entity_confidence"] = entity_confidence
+        result = self._apply_deterministic_year_bounds(result, query)
+        entity_confidence = result.get("entity_confidence", entity_confidence)
+        deterministic_regions = self._regions_from_query(query)
+        if deterministic_regions:
+            result["region"] = deterministic_regions[0]
+            entity_confidence["region"] = max(
+                float(entity_confidence.get("region", 0) or 0), 0.85
+            )
+        if len(deterministic_regions) > 1:
+            result["regions"] = deterministic_regions
+            result["comparison"] = "region"
+            entity_confidence["regions"] = 0.9
+            entity_confidence["comparison"] = 0.9
+        query_tokens = set(re.findall(r"[a-z0-9]+", str(query or "").casefold()))
+        if query_tokens & {"plot", "graph", "chart", "visualize", "visualise", "draw"}:
+            result["action"] = "plot"
+        if result.get("action") == "plot":
+            for chart_type, aliases in (
+                ("bar", {"bar", "column"}), ("scatter", {"scatter"}),
+                ("area", {"area"}), ("line", {"line"}),
+            ):
+                if query_tokens & aliases:
+                    result["chart_type"] = chart_type
+                    break
+        mapped_query_region = extract_region_from_query(
+            query, self.region_dict, self.available_regions
+        )
+        query_region_mentions = region_mentions_from_query(
+            query,
+            self.region_dict,
+            self.available_regions,
+            resolved_region=mapped_query_region or None,
+        )
         
         # Validate variable
         if result.get('variable'):
             var = result['variable']
+            preferred = preferred_variable_from_query(query, self.available_variables)
+            ranking = rank_catalogue_variable_matches(
+                query,
+                self.available_variables,
+                ignored_values=[
+                    result.get("region"),
+                    mapped_query_region,
+                    result.get("scenario"),
+                    *query_region_mentions,
+                    *scenario_scope_tokens_in_query(query),
+                ],
+            )
+            evidence = next(
+                (item for item in ranking if item["variable"] == var),
+                None,
+            )
             # Check if exact match
             if var in self.available_variables:
-                entity_confidence.setdefault("variable", 0.95)
+                if preferred == var or (evidence and evidence["auto_accept"]):
+                    entity_confidence.setdefault("variable", 0.95)
+                else:
+                    # A value being present in the catalogue proves existence,
+                    # not that the user's wording identified it. Keep the LLM
+                    # proposal as a clarification candidate, never a hard choice.
+                    entity_confidence["variable"] = min(
+                        float(entity_confidence.get("variable", 0.35) or 0.35),
+                        0.35,
+                    )
             else:
                 # Try fuzzy match
                 matched = self._fuzzy_match(var, self.available_variables)
                 if matched:
+                    matched_evidence = next(
+                        (item for item in ranking if item["variable"] == matched),
+                        None,
+                    )
                     result['variable'] = matched
                     result['variable_matched'] = True
-                    entity_confidence["variable"] = 0.75
+                    entity_confidence["variable"] = (
+                        0.75 if matched_evidence and matched_evidence["auto_accept"] else 0.35
+                    )
                 else:
                     entity_confidence["variable"] = 0.35
         
         # Validate region
         if result.get('region'):
             region = result['region']
-            if region in self.available_regions:
-                entity_confidence.setdefault("region", 0.95)
+            if region in self.available_regions and deterministic_regions:
+                entity_confidence["region"] = max(
+                    float(entity_confidence.get("region", 0) or 0), 0.95
+                )
+            elif region in self.available_regions:
+                # Catalogue membership proves that the region exists, not that
+                # the user named it.  A model-generated short code must have
+                # deterministic evidence in the query before it can constrain
+                # the data scope.
+                result['region'] = None
+                result.pop('region_matched', None)
+                result.pop('unmatched_region', None)
+                entity_confidence["region"] = 0.0
             else:
-                # Try alias/region definition mapping before fuzzy
-                mapped = extract_region_from_query(query, self.region_dict, self.available_regions)
+                # The shared region resolver already handles exact aliases and
+                # bounded typo recovery inside explicit location phrases.
+                # Never fuzzy-match arbitrary query tokens here: ordinary
+                # domain words such as ``wind``, ``coal``, ``kind`` and
+                # ``find`` are dangerously close to short country codes.
+                mapped = mapped_query_region
                 if mapped:
                     result['region'] = mapped
                     result['region_matched'] = True
                     entity_confidence["region"] = 0.85
                 else:
-                    matched = self._fuzzy_match(region, self.available_regions)
-                    if matched:
-                        result['region'] = matched
-                        result['region_matched'] = True
-                        entity_confidence["region"] = 0.75
+                    explicit_unknown = self._explicit_unknown_region(query)
+                    if explicit_unknown:
+                        result['unmatched_region'] = explicit_unknown
                     else:
-                        entity_confidence["region"] = 0.35
+                        result.pop('unmatched_region', None)
+                    result['region'] = None
+                    entity_confidence["region"] = 0.0
+        elif not deterministic_regions:
+            unknown_region = self._explicit_unknown_region(query)
+            if unknown_region:
+                result["unmatched_region"] = unknown_region
+                entity_confidence["region"] = 0.0
         
         # Validate scenario
         if result.get('scenario'):
             scenario = result['scenario']
             if scenario in self.available_scenarios:
                 entity_confidence.setdefault("scenario", 0.95)
+            elif scenario_family_members(scenario, self.available_scenarios):
+                # A canonical family such as ``Net Zero`` intentionally does
+                # not equal any one runtime code.  It is still a fully grounded
+                # scope when the catalogue contains family members.
+                entity_confidence["scenario"] = max(
+                    float(entity_confidence.get("scenario", 0.0) or 0.0),
+                    0.9,
+                )
             else:
                 matched = self._fuzzy_match(scenario, self.available_scenarios)
                 if matched:
@@ -381,13 +662,30 @@ Return ONLY valid JSON, no other text."""
                     entity_confidence["scenario"] = 0.35
         
         # Validate model
+        if result.get("model") and not is_presentable_model_label(result.get("model")):
+            # Numeric source identifiers are not selectable model identities.
+            # Preserve them only on underlying records, never as query scope.
+            result["model"] = None
+            result["model_matched"] = False
+            entity_confidence["model"] = 0.0
+
+        exact_gem_e3_query = requests_exact_gem_e3(query)
+        if exact_gem_e3_query:
+            exact_gem_e3_models = [
+                name for name in self.available_models
+                if curated_model_family_key(name) == "geme3"
+            ]
+            result["model"] = exact_gem_e3_models[0] if exact_gem_e3_models else "GEM-E3"
+            result["model_matched"] = bool(exact_gem_e3_models)
+            entity_confidence["model"] = 0.95 if exact_gem_e3_models else 0.35
+
         strong_model_alias_query = re.search(r"\b(message\s*ix|messageix|message-ix)\b", query, re.IGNORECASE)
         if strong_model_alias_query and not result.get("model"):
             result["model"] = "MESSAGEix-GLOBIOM 2.0"
             result["model_matched"] = True
             entity_confidence["model"] = 0.75
 
-        if result.get('model'):
+        if result.get('model') and not exact_gem_e3_query:
             model = result['model']
             query_alias_match = self._match_model_alias(query)
             if strong_model_alias_query and query_alias_match:
@@ -403,7 +701,12 @@ Return ONLY valid JSON, no other text."""
             else:
                 matched = self._match_model_alias(model) or query_alias_match
                 if not matched:
-                    matched = self._fuzzy_match(model, self.available_models)
+                    # Alias/family-aware resolution instead of a loose string
+                    # fuzzy match: model codes are short and collide easily
+                    # (e.g. IMAGE vs MANAGE), so only accept a candidate that
+                    # shares an actual alias/family with the requested name.
+                    model_candidates = resolve_model_candidates(model, self.available_models)
+                    matched = model_candidates[0] if model_candidates else None
                 if matched:
                     result['model'] = matched
                     result['model_matched'] = True
@@ -517,9 +820,29 @@ Return ONLY valid JSON, no other text."""
         q = str(query or "").lower()
         if not q.strip():
             return False
-        if re.search(r"\b(model|models|using|use|with|about|explain|assumptions?|information|info)\b", q):
+        if re.search(r"\b(model|models|using|with|about|explain|assumptions?|information|info)\b", q):
             return True
-        return bool(re.search(r"\b(gcam|remind|message\s*ix|messageix|witch|prometheus|leap|gemini|gem-e3|e3me)\b", q))
+        # Known model families that may not appear in the timeseries model
+        # catalogue (they carry no data) but are still valid model references.
+        if re.search(r"\b(gcam|remind|message\s*ix|messageix|witch|prometheus|leap|gemini|gem-e3|e3me)\b", q):
+            return True
+        # Data-driven: allow when a query token is a distinctive alias of a
+        # catalogue model (from the runtime alias map), so every real model is
+        # recognised — not only a hardcoded few, and including versioned names
+        # whose base word differs from the normalized full name ("image" for
+        # "IMAGE 3.2"). Region words are excluded so a token that collides with
+        # a model's first word (e.g. "China" vs "China-MORE") never triggers a
+        # spurious match, and a 4-character floor keeps short common words out.
+        alias_map = getattr(self, "model_alias_map", {}) or {}
+        if alias_map:
+            candidate_tokens = {
+                token
+                for token in re.findall(r"[a-z0-9]+", q)
+                if len(token) >= 4 and token not in _REGION_ALIAS_TOKENS
+            }
+            if any(token in alias_map for token in candidate_tokens):
+                return True
+        return False
     
     def _fallback_extraction(self, query: str) -> Dict[str, Any]:
         """Fallback keyword-based extraction when LLM fails."""
@@ -528,11 +851,13 @@ Return ONLY valid JSON, no other text."""
             'variable': None,
             'variables': None,
             'region': None,
+            'regions': None,
             'scenario': None,
             'model': None,
             'models': None,
             'start_year': None,
             'end_year': None,
+            'chart_type': None,
             'comparison': None,
             'entity_confidence': {'action': 0.75}
         }
@@ -547,43 +872,87 @@ Return ONLY valid JSON, no other text."""
             }
         ) or bool(re.search(r'\btime\s+series\b', q))
         # Detect action
-        if any(word in tokens for word in ['plot', 'graph', 'chart', 'visualize', 'visualise']):
+        if any(word in tokens for word in ['plot', 'graph', 'chart', 'visualize', 'visualise', 'draw']):
             result['action'] = 'plot'
             result['entity_confidence']['action'] = 0.9
+        chart_aliases = (
+            ('bar', {'bar', 'column'}),
+            ('scatter', {'scatter'}),
+            ('area', {'area'}),
+            ('line', {'line'}),
+        )
+        result['chart_type'] = (
+            next(
+                (chart_type for chart_type, aliases in chart_aliases if tokens & aliases),
+                None,
+            )
+            if result['action'] == 'plot'
+            else None
+        )
+
+        # Resolve non-variable scope before ranking variables so country, model,
+        # and scenario words do not inflate semantic evidence for a variable.
+        region_matches = self._regions_from_query(query)
+        region_match = region_matches[0] if region_matches else None
+        scenario_match = canonical_scenario_from_query(query, self.available_scenarios)
+        if not scenario_match:
+            scenario_match = next(
+                (scenario for scenario in self.available_scenarios if scenario.lower() in q),
+                None,
+            )
+        model_match = self._match_model_alias(query) if self._query_allows_model_match(query) else None
+        if not model_match and re.search(r"\b(message\s*ix|messageix|message-ix)\b", query, re.IGNORECASE):
+            model_match = "MESSAGEix-GLOBIOM 2.0"
+        ignored_scope = [region_match, scenario_match, model_match]
+        # A resolved scenario code (e.g. "NZE_Bench_H") shares no tokens with the
+        # phrase the user typed ("net zero"), so also exclude the literal
+        # scenario-phrase tokens; otherwise "net"/"zero"/"policies" leak into the
+        # variable evidence and block an otherwise clean match.
+        ignored_scope.extend(scenario_scope_tokens_in_query(query))
+        if region_match:
+            ignored_scope.append(format_region_label(region_match))
+            ignored_scope.extend(
+                region_mentions_from_query(
+                    query,
+                    self.region_dict,
+                    self.available_regions,
+                    resolved_region=region_match,
+                )
+            )
+        # A comparison names more than one region, but only the first resolves.
+        # The others stayed in the variable evidence -- "compare CO2 for China
+        # and India" reported `india` as wording the catalogue could not
+        # represent and refused an otherwise clean `Emissions|CO2`.
+        ignored_scope.extend(self._additional_region_mentions(query, region_match))
+        ignored_scope.extend(region_matches)
 
         preferred_variable = self._preferred_variable_from_query(query)
         if preferred_variable:
             result['variable'] = preferred_variable
+            result['unmatched_variable_terms'] = []
             result['entity_confidence']['variable'] = 0.9
         
-        # Try to match variables with the shared candidate resolver first.
+        # Rank only runtime catalogue variables. Automatic selection requires an
+        # exact/structured phrase, a well-supported multi-token composition with
+        # a clear margin, or a unique high-confidence typo.
         if not result['variable']:
-            variable_candidates = resolve_natural_language_variable_candidates(query, self.variable_dict, top_k=3)
-            for candidate in variable_candidates:
-                if candidate in self.available_variables:
-                    result['variable'] = candidate
-                    result['entity_confidence']['variable'] = 0.7
-                    break
-        if not result['variable']:
-            query_terms = {tok for tok in tokens if len(tok) > 2}
-            scored = []
-            for var in self.available_variables:
-                var_terms = {tok for tok in re.findall(r"[a-z0-9]+", var.lower()) if len(tok) > 2}
-                overlap = len(query_terms & var_terms)
-                if overlap:
-                    scored.append((overlap, var))
-            if scored:
-                scored.sort(key=lambda item: (-item[0], item[1]))
-                result['variable'] = scored[0][1]
-                result['entity_confidence']['variable'] = 0.55
-
-        # N8: typo tolerance. If no variable resolved, fuzzy-match query tokens
-        # against variable-name tokens (e.g. "emisions" -> "emissions").
-        if not result['variable']:
-            fuzzy_var = self._fuzzy_variable_from_tokens(q)
-            if fuzzy_var:
-                result['variable'] = fuzzy_var
-                result['entity_confidence']['variable'] = 0.5
+            ranked_variables = rank_catalogue_variable_matches(
+                query,
+                self.available_variables,
+                ignored_values=ignored_scope,
+            )
+            supported = [item for item in ranked_variables if item["matched_terms"]]
+            if supported:
+                top = supported[0]
+                result['variable_candidates'] = [
+                    item["variable"] for item in supported[:3]
+                ]
+                result['unmatched_variable_terms'] = top["unmatched_terms"]
+                if top["auto_accept"]:
+                    result['variable'] = top["variable"]
+                    result['entity_confidence']['variable'] = (
+                        0.95 if top["exact_phrase"] else 0.78
+                    )
 
         # Guard: an energy question ("final/primary/secondary energy") must not
         # resolve to an emissions variable just because the variable name
@@ -607,33 +976,27 @@ Return ONLY valid JSON, no other text."""
                     result['entity_confidence']['variable'] = 0.8
                     break
 
-        # Try to match regions (use shared extractor with alias support)
-        region_match = extract_region_from_query(query, self.region_dict, self.available_regions)
+        # Store the scope resolved before variable ranking.
         if region_match:
             result['region'] = region_match
             result['entity_confidence']['region'] = 0.85
-        else:
-            # N8: typo tolerance for region tokens (e.g. "europ" -> "Europe"/"EU").
-            fuzzy_region = self._fuzzy_region_from_tokens(q)
-            if fuzzy_region:
-                result['region'] = fuzzy_region
+            if not extract_region_from_query(query, self.region_dict, self.available_regions):
                 result['entity_confidence']['region'] = 0.6
+        if len(region_matches) > 1:
+            result['regions'] = region_matches
+            result['comparison'] = 'region'
+            result['entity_confidence']['regions'] = 0.9
+            result['entity_confidence']['comparison'] = 0.9
+        elif not region_match:
+            unknown_region = self._explicit_unknown_region(query)
+            if unknown_region:
+                result['unmatched_region'] = unknown_region
+                result['entity_confidence']['region'] = 0.0
 
-        # Try to match scenarios
-        scenario_match = canonical_scenario_from_query(query, self.available_scenarios)
         if scenario_match:
             result['scenario'] = scenario_match
             result['entity_confidence']['scenario'] = 0.9
-        for scenario in self.available_scenarios:
-            if not result['scenario'] and scenario.lower() in q:
-                result['scenario'] = scenario
-                result['entity_confidence']['scenario'] = 0.95
-                break
 
-        # Try to match model names/aliases.
-        model_match = self._match_model_alias(query) if self._query_allows_model_match(query) else None
-        if not model_match and re.search(r"\b(message\s*ix|messageix|message-ix)\b", query, re.IGNORECASE):
-            model_match = "MESSAGEix-GLOBIOM 2.0"
         if model_match:
             result['model'] = model_match
             result['entity_confidence']['model'] = 0.8

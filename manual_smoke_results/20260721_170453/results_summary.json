@@ -1,0 +1,255 @@
+{
+  "generated": "20260721_170453",
+  "count": 3,
+  "rows": [
+    {
+      "query": "carbon price for the EU under current policies",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Price|Carbon",
+        "region": "EU",
+        "scenario": "Current Policies",
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.78,
+          "region": 0.85,
+          "scenario": 0.9
+        },
+        "variable_candidates": [
+          "Price|Carbon",
+          "Price|Carbon|EUETS",
+          "Price|Carbon|Supply"
+        ],
+        "unmatched_variable_terms": [],
+        "confidence": 0.843,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI"
+        ],
+        "result_models": [
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-21T14:04:52.087171+00:00",
+        "matched_record_count": 17,
+        "selected_filters": {
+          "variable": "Price|Carbon",
+          "region": "EU",
+          "scenario": "Current Policies",
+          "years": "2005-2100"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Price|Carbon"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Scenario",
+            "value": "Current Policies"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Matched records",
+            "value": "17"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-21T14:04:52.087171+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Price|Carbon in EU\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `multiple`\n\nAnswer:\nSummary: 17 series across 6 models and 3 scenarios.\nShowing series 1-12 of 17, ordered by model and scenario. Narrow by model or scenario to view the 5 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 207",
+      "session_id": "ZD_all"
+    },
+    {
+      "query": "compare with net zero",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "conversation_state",
+        "reason": "scenario-comparison follow-up"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "Price|Carbon",
+        "scenarios": [
+          "PR_CurPol_CP",
+          "PR_CurPol_EI",
+          "PR_CurPol_CPO"
+        ],
+        "comparison": "scenario",
+        "all_scenarios": false,
+        "region": "EU",
+        "start_year": 2005,
+        "end_year": 2100,
+        "result_models": [
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ]
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-21T14:04:52.087171+00:00",
+        "matched_record_count": 45,
+        "selected_filters": {
+          "variable": "Price|Carbon",
+          "region": "EU"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "conversation_state"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Price|Carbon"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Matched records",
+            "value": "45"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-21T14:04:52.087171+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing Carbon in EU for selected scenarios `PR_CurPol_CP`, `PR_CurPol_EI`, and `PR_CurPol_CPO` (2005-2100). Resolved variable: `Price|Carbon`.",
+      "session_id": "ZD_all"
+    },
+    {
+      "query": "plot the comparison",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "Price|Carbon",
+        "region": "EU",
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": "scenario",
+        "entity_confidence": {
+          "action": 0.9,
+          "variable": 0.95,
+          "region": 0.85,
+          "years": 0.9
+        },
+        "variable_candidates": [
+          "Price|Carbon",
+          "Price|Carbon|EUETS",
+          "Price|Carbon|Supply"
+        ],
+        "unmatched_variable_terms": [],
+        "confidence": 0.9,
+        "extraction_method": "deterministic",
+        "all_scenarios": false,
+        "scenarios": [
+          "PR_CurPol_CP",
+          "PR_CurPol_EI",
+          "PR_CurPol_CPO"
+        ],
+        "result_models": [
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ]
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-21T14:04:52.087171+00:00",
+        "matched_record_count": 45,
+        "selected_filters": {
+          "variable": "Price|Carbon",
+          "region": "EU"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Price|Carbon"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Matched records",
+            "value": "45"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-21T14:04:52.087171+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing Carbon in EU for selected scenarios `PR_CurPol_CP`, `PR_CurPol_EI`, and `PR_CurPol_CPO` (2005-2100). Resolved variable: `Price|Carbon`.\n\nReply with a scenario, model, region, or year to narrow the answer.",
+      "session_id": "ZD_all"
+    }
+  ]
+}

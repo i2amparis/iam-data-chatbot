@@ -1,0 +1,131 @@
+{
+  "generated": "20260716_130710",
+  "count": 3,
+  "rows": [
+    {
+      "query": "tell me about POLES",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "model_explanation",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "model information request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": "POLES",
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "model": 1.0
+        },
+        "confidence": 0.8,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {},
+      "answer_preview": "### POLES\n\nDescription:\nPOLES is a dynamic-recursive model with technology-rich representations of the energy secto that can be used to explore climate change mitigation policies including carbon taxes, regulations and accelerated deployment of energy technology. Regional population and GDP growth assumptions drive the energy sector employing numerous technology options to produce, transform and p",
+      "session_id": "c20B_all"
+    },
+    {
+      "query": "what data does it have for World?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": "POLES",
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "model": 1.0
+        },
+        "confidence": 0.8,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T07:52:58.290114+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "model": "POLES"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Model",
+            "value": "POLES"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T07:52:58.290114+00:00"
+          }
+        ]
+      },
+      "answer_preview": "I could not find any variables recorded for model `POLES`.",
+      "session_id": "c20B_all"
+    },
+    {
+      "query": "where can I read its documentation?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.6,
+        "source": "llm",
+        "reason": "unclear deterministic route"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "llm"
+      },
+      "data_provenance": {},
+      "answer_preview": "You can read the documentation for the POLES model on the IAM PARIS website. Here is the link to the [IAM PARIS Models page](https://iamparis.eu/models) where you can find more information about the POLES model and other integrated assessment models.",
+      "session_id": "c20B_all"
+    }
+  ]
+}

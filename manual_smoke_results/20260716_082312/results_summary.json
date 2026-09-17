@@ -1,0 +1,317 @@
+{
+  "generated": "20260716_082312",
+  "count": 3,
+  "rows": [
+    {
+      "query": "population for Japan",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.75,
+        "source": "deterministic",
+        "reason": "extracted data entities"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Population",
+        "region": "JPN",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "baseline"
+        ],
+        "result_models": [
+          "42",
+          "MUSE",
+          "TIAM_Grantham",
+          "gcam",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T05:20:46.505688+00:00",
+        "matched_record_count": 39,
+        "selected_filters": {
+          "variable": "Population",
+          "region": "JPN",
+          "years": "2005-2100"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.75,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Population"
+          },
+          {
+            "label": "Region",
+            "value": "JPN"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Matched records",
+            "value": "39"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T05:20:46.505688+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Population in JPN\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `multiple`\n\nAnswer:\nSummary: 39 series across 7 models and 12 scenarios.\nShowing series 1-12 of 39, ordered by model and scenario. Narrow by model or scenario to view the 27 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 20",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "extra2blk6Δ_all"
+    },
+    {
+      "query": "and its GDP?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "GDP|MER",
+        "region": null,
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "NDC_LTT_limBIO",
+          "NZE_Bench_H",
+          "NZE_Bench_L",
+          "NZE_Bench_M",
+          "NZE_EUPol_Stand",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "PR_WWH_CP",
+          "Unharmonised baseline",
+          "WWH21"
+        ],
+        "result_models": [
+          "E3ME 6.1",
+          "E4SMA-EU-TIMES 1.0",
+          "FORECAST",
+          "GCAM",
+          "GCAM 7.0",
+          "GCAM-PR 5.3",
+          "GEMINI-E3 7.0",
+          "Gemini-E3",
+          "ICES-XPS 1.0",
+          "NEMESIS 5.1",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T05:20:46.505688+00:00",
+        "matched_record_count": 1762,
+        "selected_filters": {
+          "variable": "GDP|MER",
+          "years": "2005-2100"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "GDP|MER"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Matched records",
+            "value": "1762"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T05:20:46.505688+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### GDP|MER\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `multiple`\n\nAnswer:\nSummary: 69 series across 14 models and 19 scenarios.\nShowing series 1-12 of 69, ordered by model and scenario. Narrow by model or scenario to view the 57 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 2070 | 2075",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "extra2blk6Δ_all"
+    },
+    {
+      "query": "show both on a chart",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "GDP|MER",
+        "region": null,
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "NDC_LTT_limBIO",
+          "NZE_Bench_H",
+          "NZE_Bench_L",
+          "NZE_Bench_M",
+          "NZE_EUPol_Stand",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "PR_WWH_CP",
+          "Unharmonised baseline",
+          "WWH21"
+        ],
+        "result_models": [
+          "E3ME 6.1",
+          "E4SMA-EU-TIMES 1.0",
+          "FORECAST",
+          "GCAM",
+          "GCAM 7.0",
+          "GCAM-PR 5.3",
+          "GEMINI-E3 7.0",
+          "Gemini-E3",
+          "ICES-XPS 1.0",
+          "NEMESIS 5.1",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T05:20:46.505688+00:00",
+        "matched_record_count": 1762,
+        "selected_filters": {
+          "variable": "GDP|MER"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "GDP|MER"
+          },
+          {
+            "label": "Matched records",
+            "value": "1762"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T05:20:46.505688+00:00"
+          }
+        ]
+      },
+      "answer_preview": "I could not confidently match that wording to a loaded variable. Which variable should I use?",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "extra2blk6Δ_all"
+    }
+  ]
+}

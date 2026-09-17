@@ -1,0 +1,172 @@
+{
+  "generated": "20260721_170640",
+  "count": 2,
+  "rows": [
+    {
+      "query": "CO2 emissions for the EU under current policies",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "region": "EU",
+        "scenario": "Current Policies",
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85,
+          "scenario": 0.9
+        },
+        "confidence": 0.883,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI"
+        ],
+        "result_models": [
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "muse"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-21T14:04:52.087171+00:00",
+        "matched_record_count": 11,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "EU",
+          "scenario": "Current Policies",
+          "years": "2005-2100",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Scenario",
+            "value": "Current Policies"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "11"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-21T14:04:52.087171+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Emissions|CO2 in EU\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\nSummary: 11 series across 4 models and 3 scenarios.\nSeries are ordered by model and scenario.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 2070 | 2075 | 2080 | 2085 | 2090 | 2095 | 2100 | Unit |\n|---|---|---|---|---|",
+      "session_id": "SC_all"
+    },
+    {
+      "query": "compare with NDC",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "conversation_state",
+        "reason": "scenario-comparison follow-up"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "Emissions|CO2",
+        "scenarios": [
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_CurPol_CP",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_EI",
+          "PR_CurPol_CPO",
+          "PR_NDC_CPO"
+        ],
+        "comparison": "scenario",
+        "all_scenarios": false,
+        "region": "EU",
+        "start_year": 2005,
+        "end_year": 2100,
+        "result_models": [
+          "MUSE",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "muse"
+        ]
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-21T14:04:52.087171+00:00",
+        "matched_record_count": 34,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "EU"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "conversation_state"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Matched records",
+            "value": "34"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-21T14:04:52.087171+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing CO2 Emissions in EU for selected scenarios `NDC_EI`, `NDC_LTT`, `PR_CurPol_CP`, `PR_CurPol_EI`, `PR_NDC_CP`, `PR_NDC_EI`, `PR_CurPol_CPO`, and `PR_NDC_CPO` (2005-2100). Resolved variable: `Emissions|CO2`.",
+      "session_id": "SC_all"
+    }
+  ]
+}

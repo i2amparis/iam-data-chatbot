@@ -244,6 +244,8 @@ def _fallback_instruction(url: str, search_hint: str, status: str) -> str:
         return ""
     if str(url or "").rstrip("/") == "https://iamparis.eu/application_library" and search_hint:
         return f"Open the Application Library and search for: {search_hint}"
+    if str(url or "").rstrip("/") == "https://iamparis.eu/models" and search_hint:
+        return f"Open the Models directory and search for: {search_hint}"
     if "detail url not exposed" in str(status or "").lower() and search_hint:
         return f"Direct detail URL is not exposed by the rendered card; search for: {search_hint}"
     return ""

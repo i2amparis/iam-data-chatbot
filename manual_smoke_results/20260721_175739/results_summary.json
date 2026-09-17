@@ -1,0 +1,196 @@
+{
+  "generated": "20260721_175739",
+  "count": 3,
+  "rows": [
+    {
+      "query": "what is GCAM?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "model_explanation",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "model information request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": "GCAM",
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "model": 1.0
+        },
+        "confidence": 0.8,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {},
+      "answer_preview": "### GCAM\n\nDescription:\nGCAM is a dynamic-recursive model with technology-rich representations of the economy, energy sector, land use and water linked to a climate model that can be used to explore climate change mitigation policies including carbon taxes, carbon trading, regulations and accelerated deployment of energy technology. Regional population and labour productivity growth assumptions dri",
+      "session_id": "T20B_all"
+    },
+    {
+      "query": "what scenarios does it have?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.75,
+        "source": "deterministic",
+        "reason": "extracted data entities"
+      },
+      "entities": {
+        "action": "query",
+        "variables": null,
+        "model": "GCAM",
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "model": 1.0
+        },
+        "confidence": 0.8,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-21T14:04:52.087171+00:00",
+        "matched_record_count": 977,
+        "selected_filters": {
+          "model": "GCAM"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.75,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Model",
+            "value": "GCAM"
+          },
+          {
+            "label": "Matched records",
+            "value": "977"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-21T14:04:52.087171+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Model `GCAM` has these scenarios: Baseline, CP_EI.",
+      "session_id": "T20B_all"
+    },
+    {
+      "query": "plot its CO2 emissions for the World",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "Emissions|CO2",
+        "region": "World",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "baseline",
+          "Baseline|Harmonized",
+          "CP_EI|Harmonized",
+          "NDC_EI|Harmonized",
+          "NDC_LTS|Harmonized",
+          "baseline|Harmonized",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_EI",
+          "Unharmonised baseline",
+          "PR_CurPol_CPO",
+          "PR_NDC_CPO"
+        ],
+        "result_models": [
+          "GCAM",
+          "GCAM 7.0",
+          "GCAM-PR 5.3",
+          "GEMINI-E3 7.0",
+          "Gemini-E3",
+          "MUSE",
+          "PROMETHEUS V1",
+          "TIAM_Grantham",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "muse"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-21T14:04:52.087171+00:00",
+        "matched_record_count": 73,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "World"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Matched records",
+            "value": "73"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-21T14:04:52.087171+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing CO2 Emissions in World across available scenarios. Resolved variable: `Emissions|CO2`.\n\nReply with a scenario, model, region, or year to narrow the answer.",
+      "session_id": "T20B_all"
+    }
+  ]
+}

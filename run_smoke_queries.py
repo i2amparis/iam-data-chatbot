@@ -20,6 +20,49 @@ MANUAL_BULK_MD_PATH = os.getenv("SMOKE_QUERIES_MD", "manual_bulk_queries.md")
 # Cache HTTP results per URL so we don't re-hit the same link across queries.
 _LINK_STATUS_CACHE: Dict[str, bool] = {}
 
+_CLARIFICATION_MARKERS = (
+    "choose the variable",
+    "choose the region",
+    "choose the scenario",
+    "which variable should i use",
+    "which region should i use",
+    "which scenario should i use",
+    "i need one more detail",
+    "reply with a number",
+    "closest valid options",
+)
+
+_NO_DATA_MARKERS = (
+    "i could not find data",
+    "no data found",
+    "no time series data",
+    "no timeseries data",
+    "can't combine these series",
+    "cannot combine these series",
+    "can't plot the complete",
+    "could not find any projection years",
+)
+
+
+def _query_requests_plot(query: str) -> bool:
+    return bool(re.search(r"\b(?:plot|chart|graph|visuali[sz]e|draw)\b", query, re.IGNORECASE))
+
+
+def _smoke_status(row: Dict[str, Any]) -> str:
+    if row.get("error"):
+        return "ERROR"
+    if row.get("plot_present"):
+        return "PLOT"
+    if row.get("plot_requested") and row.get("no_data"):
+        return "PLOT_NO_DATA"
+    if row.get("plot_requested"):
+        return "PLOT_FAILED"
+    if row.get("no_data"):
+        return "NO_DATA"
+    if row.get("clarification"):
+        return "CLARIFICATION"
+    return "OK"
+
 
 def _link_works(url: str) -> bool:
     """Return True when the URL resolves (HTTP 2xx/3xx)."""
@@ -98,21 +141,43 @@ def _extract_queries_from_md(md_text: str) -> List[str]:
       - `- [ ] `query``
       - `1. [ ] `query``
     """
-    queries: List[str] = []
+    return [case["query"] for case in _extract_query_cases_from_md(md_text)]
+
+
+def _extract_query_cases_from_md(md_text: str) -> List[Dict[str, str]]:
+    """Extract checklist queries with category and optional follow-up block."""
+    cases: List[Dict[str, str]] = []
+    category = "Uncategorized"
+    conversation_group = ""
     for line in md_text.splitlines():
+        heading = re.match(r"^\s*##\s+(.+?)\s*$", line)
+        if heading:
+            category = heading.group(1).strip()
+            conversation_group = ""
+            continue
+        subheading = re.match(r"^\s*###\s+(.+?)\s*$", line)
+        if subheading:
+            conversation_group = subheading.group(1).strip()
+            continue
+        def append_case(query: str) -> None:
+            case = {"query": query.strip(), "category": category}
+            if conversation_group:
+                case["conversation_group"] = conversation_group
+            cases.append(case)
+
         m = re.match(r"^\s*-\s*\[\s*\]\s*`([^`]+)`\s*$", line)
         if m:
-            queries.append(m.group(1).strip())
+            append_case(m.group(1))
             continue
         m2 = re.match(r"^\s*\d+\.\s*\[\s*\]\s*`([^`]+)`\s*$", line)
         if m2:
-            queries.append(m2.group(1).strip())
+            append_case(m2.group(1))
             continue
         m3 = re.match(r"^\s*-\s*\[\s*[xX]\s*\]\s*`([^`]+)`\s*$", line)
         if m3:
-            queries.append(m3.group(1).strip())
+            append_case(m3.group(1))
             continue
-    return queries
+    return cases
 
 
 def _post_query(
@@ -173,21 +238,26 @@ def _row(query: str, res: Dict[str, Any], check_links: bool = False) -> Dict[str
     answer = str(res.get("answer") or "")
     answer_lower = answer.lower()
     plot_present = bool(res.get("plot_base64")) or bool(res.get("plot_caption"))
-    no_data = ("i could not find data" in answer_lower) or ("no data found" in answer_lower)
+    no_data = any(marker in answer_lower for marker in _NO_DATA_MARKERS)
+    clarification = any(marker in answer_lower for marker in _CLARIFICATION_MARKERS)
     links = res.get("relevant_links") or []
     row = {
         "query": query,
+        "plot_requested": _query_requests_plot(query),
         "plot_present": plot_present,
         "no_data": no_data,
+        "clarification": clarification,
         "relevant_links_count": len(links),
         "suggested_next_questions_count": len(res.get("suggested_next_questions") or []),
         "route": res.get("route") or {},
         "entities": res.get("entities") or {},
         "data_provenance": res.get("data_provenance") or {},
+        "answer": answer,
         "answer_preview": answer[:400],
     }
     if check_links:
         row["link_check"] = _check_links(links)
+    row["status"] = _smoke_status(row)
     return row
 
 
@@ -208,8 +278,8 @@ def main() -> None:
         raise FileNotFoundError(str(md_path))
     md_text = md_path.read_text(encoding="utf-8")
 
-    queries = _extract_queries_from_md(md_text)
-    if not queries:
+    cases = _extract_query_cases_from_md(md_text)
+    if not cases:
         raise RuntimeError("No queries extracted from markdown")
 
     _start_uvicorn_if_needed(args.api_url)
@@ -221,15 +291,33 @@ def main() -> None:
     jsonl_path = out_dir / "results.jsonl"
     summary_path = out_dir / "results_summary.md"
     summary_rows_json = out_dir / "results_summary.json"
+    query_answers_path = out_dir / "query_answers.md"
 
     session_id_static = f"{args.session_prefix}_all"
+    group_sessions: Dict[str, str] = {}
+    group_turns: Dict[str, int] = {}
     rows: List[Dict[str, Any]] = []
 
     with jsonl_path.open("w", encoding="utf-8") as f:
-        for i, q in enumerate(queries):
-            session_id = session_id_static if args.reuse_session else f"{args.session_prefix}_{i+1}"
-            reset = True if (not args.reuse_session or i == 0) else False
-            print(f"[smoke] {i+1}/{len(queries)} session={session_id} query={q}")
+        for i, case in enumerate(cases):
+            q = case["query"]
+            category = case["category"]
+            conversation_group = str(case.get("conversation_group") or "").strip()
+            if args.reuse_session:
+                session_id = session_id_static
+                reset = i == 0
+            elif conversation_group:
+                if conversation_group not in group_sessions:
+                    safe_group = re.sub(r"[^a-z0-9]+", "_", conversation_group.casefold()).strip("_")
+                    group_sessions[conversation_group] = f"{args.session_prefix}_{safe_group or len(group_sessions)+1}"
+                    group_turns[conversation_group] = 0
+                session_id = group_sessions[conversation_group]
+                reset = group_turns[conversation_group] == 0
+                group_turns[conversation_group] += 1
+            else:
+                session_id = f"{args.session_prefix}_{i+1}"
+                reset = True
+            print(f"[smoke] {i+1}/{len(cases)} category={category} session={session_id} query={q}")
 
             try:
                 res = _post_query(q, session_id=session_id, reset_session=reset, api_url=args.api_url)
@@ -241,6 +329,9 @@ def main() -> None:
 
                 r = _row(q, res, check_links=args.check_links)
                 r["session_id"] = session_out
+                r["category"] = category
+                if conversation_group:
+                    r["conversation_group"] = conversation_group
                 rows.append(r)
 
                 if args.debug:
@@ -254,15 +345,22 @@ def main() -> None:
                 # Minimal row so summary generation still works
                 r = {
                     "query": q,
+                    "category": category,
+                    "conversation_group": conversation_group,
+                    "plot_requested": _query_requests_plot(q),
                     "plot_present": False,
                     "no_data": True,
+                    "clarification": False,
                     "relevant_links_count": 0,
                     "suggested_next_questions_count": 0,
                     "route": {},
                     "entities": {},
                     "data_provenance": {},
+                    "answer": "",
                     "answer_preview": "",
                     "session_id": session_id,
+                    "error": repr(e),
+                    "status": "ERROR",
                 }
                 rows.append(r)
 
@@ -285,8 +383,32 @@ def main() -> None:
         )
         lines.append("")
 
+    status_counts: Dict[str, int] = {}
+    for row in rows:
+        status = str(row.get("status") or _smoke_status(row))
+        status_counts[status] = status_counts.get(status, 0) + 1
+    lines.append(
+        "Status counts: "
+        + ", ".join(f"{name}={count}" for name, count in sorted(status_counts.items()))
+    )
+    lines.append("")
+
+    category_counts: Dict[str, Dict[str, int]] = {}
+    for row in rows:
+        category = str(row.get("category") or "Uncategorized")
+        status = str(row.get("status") or _smoke_status(row))
+        bucket = category_counts.setdefault(category, {})
+        bucket[status] = bucket.get(status, 0) + 1
+    lines.append("## Results by category")
+    lines.append("")
+    for category, counts in category_counts.items():
+        total = sum(counts.values())
+        details = ", ".join(f"{name}={count}" for name, count in sorted(counts.items()))
+        lines.append(f"- **{category}** ({total}): {details}")
+    lines.append("")
+
     for idx, r in enumerate(rows, 1):
-        status = "NO_DATA" if r["no_data"] else ("PLOT" if r["plot_present"] else "OK")
+        status = str(r.get("status") or _smoke_status(r))
         link_note = ""
         lc = r.get("link_check")
         if lc and lc["links_total"]:
@@ -295,13 +417,34 @@ def main() -> None:
             # Include broken=<url> when there are broken links
             if lc.get("broken_links"):
                 link_note += " broken=" + ", ".join(lc["broken_links"])
-        lines.append(f"{idx}. [{status}] `{r['query']}`{link_note}")
+        lines.append(f"{idx}. [{status}] [{r.get('category', 'Uncategorized')}] `{r['query']}`{link_note}")
     summary_path.write_text("\n".join(lines), encoding="utf-8")
     summary_rows_json.write_text(json.dumps({"generated": ts, "count": len(rows), "rows": rows}, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    query_answer_lines = [
+        "# Query and Answer Transcript",
+        f"Generated: {ts}",
+        f"Total queries: {len(rows)}",
+        "",
+    ]
+    for idx, row in enumerate(rows, 1):
+        answer = str(row.get("answer") or row.get("error") or "(No answer returned.)").strip()
+        query_answer_lines.extend(
+            [
+                f"## {idx}. {row['query']}",
+                "",
+                f"Category: {row.get('category', 'Uncategorized')}",
+                "",
+                answer,
+                "",
+            ]
+        )
+    query_answers_path.write_text("\n".join(query_answer_lines), encoding="utf-8")
 
     print(f"[smoke] Done. JSONL: {jsonl_path}")
     print(f"[smoke] Summary: {summary_path}")
     print(f"[smoke] Summary JSON: {summary_rows_json}")
+    print(f"[smoke] Query/answer transcript: {query_answers_path}")
 
 
 if __name__ == "__main__":

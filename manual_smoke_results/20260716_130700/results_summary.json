@@ -1,0 +1,78 @@
+{
+  "generated": "20260716_130700",
+  "count": 3,
+  "rows": [
+    {
+      "query": "CO2 emissions for the EU from GCAM",
+      "plot_present": false,
+      "no_data": true,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {},
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T07:52:58.290114+00:00",
+        "matched_record_count": null,
+        "selected_filters": {},
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "no_data_reason": "scenario combination unavailable",
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T07:52:58.290114+00:00"
+          },
+          {
+            "label": "No-data reason",
+            "value": "scenario combination unavailable"
+          }
+        ]
+      },
+      "answer_preview": "I could not find data for `Emissions|CO2|Energy|Demand|Transportation|Aviation and Maritime|Intra-EU` in `EU`.\n\nReason: the exact scenario combination is not available for this data slice.\n\nClosest valid options:\n\n1. variable `Emissions|CO2` (CO2 emissions)\n\n2. variable `Emissions|CO2|AFOLU` (CO2 emissions, land use)\n\n3. variable `Emissions|CO2|EUETS` (CO2 emissions)\n\nReply with `1`, `2`, or `3`, ",
+      "session_id": "c20A_all"
+    },
+    {
+      "query": "now the same from POLES",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.75,
+        "source": "deterministic",
+        "reason": "extracted data entities"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I need one more detail to continue. Please specify the variable, region, or scenario.",
+      "session_id": "c20A_all"
+    },
+    {
+      "query": "plot both models together",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I could not confidently match that wording to a loaded variable. Which variable should I use?",
+      "session_id": "c20A_all"
+    }
+  ]
+}

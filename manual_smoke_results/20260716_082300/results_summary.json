@@ -1,0 +1,75 @@
+{
+  "generated": "20260716_082300",
+  "count": 3,
+  "rows": [
+    {
+      "query": "EU carbon price under current policies",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.45,
+        "source": "deterministic",
+        "reason": "low confidence entity clarification"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I found several possible variables, but none has enough evidence for automatic selection. Choose the variable: 1. `Price|Carbon` (price) 2. `Price|Carbon|EUETS` (price) 3. `Price|Carbon|Supply` (price) Reply with a number (1-3), or `yes` for option 1.",
+      "link_check": {
+        "links_total": 0,
+        "links_ok": 0,
+        "broken_links": [],
+        "links_all_ok": false
+      },
+      "session_id": "extra2blk6Β_all"
+    },
+    {
+      "query": "only until 2050",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.72,
+        "source": "conversation_state",
+        "reason": "clarification detail; additional clarification required"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Based on your wording, I think you may mean one of these for `EU (European Union)`. Choose the variable: 1. `Price|Carbon` (price) 2. `Price|Carbon|EUETS` (price) 3. `Price|Carbon|Non EUETS` (price) Reply with a number (1-3), or `yes` for option 1.",
+      "link_check": {
+        "links_total": 1,
+        "links_ok": 1,
+        "broken_links": [],
+        "links_all_ok": true
+      },
+      "session_id": "extra2blk6Β_all"
+    },
+    {
+      "query": "plot it",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 4,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.72,
+        "source": "conversation_state",
+        "reason": "plot deferred until clarification is resolved"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Based on your wording, I think you may mean one of these for `EU (European Union)`. Choose the variable: 1. `Price|Carbon` (price) 2. `Price|Carbon|EUETS` (price) 3. `Price|Carbon|Non EUETS` (price) Reply with a number (1-3), or `yes` for option 1.",
+      "link_check": {
+        "links_total": 0,
+        "links_ok": 0,
+        "broken_links": [],
+        "links_all_ok": false
+      },
+      "session_id": "extra2blk6Β_all"
+    }
+  ]
+}

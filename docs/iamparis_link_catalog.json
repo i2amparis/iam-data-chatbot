@@ -3189,6 +3189,26 @@
     "workspace": ""
   },
   {
+    "category": "analysis",
+    "fallback_instruction": "",
+    "id": "main-my-workspace-iamparis-eu-scientific-module",
+    "item_type": "route",
+    "keywords": [
+      "My Workspace",
+      "Workspace page",
+      "Workspaces",
+      "Build and save visualizations"
+    ],
+    "project": "",
+    "search_hint": "",
+    "source_sheet": "verified_runtime_route",
+    "status": "Verified",
+    "title": "My Workspace",
+    "url": "https://iamparis.eu/scientific_module",
+    "verified_direct_url": true,
+    "workspace": ""
+  },
+  {
     "category": "results",
     "fallback_instruction": "",
     "id": "main-results-iamparis-eu-results",
@@ -3247,7 +3267,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: 42",
     "id": "model-42-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3265,7 +3285,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: AIM/Enduse India 3.3",
     "id": "model-aim-enduse-india-3-3-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3284,7 +3304,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: ALADIN",
     "id": "model-aladin-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3303,7 +3323,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: ATOM",
     "id": "model-atom-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3322,7 +3342,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: CHANCE",
     "id": "model-chance-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3340,7 +3360,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: China-MORE",
     "id": "model-china-more-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3359,7 +3379,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: CLEWs - Ethiopia",
     "id": "model-clews-ethiopia-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3378,7 +3398,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: CLEWs-EU",
     "id": "model-clews-eu-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3399,7 +3419,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: CLEWs",
     "id": "model-clews-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3418,7 +3438,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: CLEWs - Kenya",
     "id": "model-clews-kenya-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3437,7 +3457,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: CLEWs - Sri Lanka",
     "id": "model-clews-sri-lanka-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3456,7 +3476,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: CLIMACRED",
     "id": "model-climacred-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3475,7 +3495,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: CONTO",
     "id": "model-conto-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3493,7 +3513,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: DICE",
     "id": "model-dice-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3512,7 +3532,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: DIVA",
     "id": "model-diva-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3531,7 +3551,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: DREEM",
     "id": "model-dreem-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3550,7 +3570,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: DYNERIO",
     "id": "model-dynerio-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3569,7 +3589,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: E3ME 6.1",
     "id": "model-e3me-6-1-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3588,7 +3608,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: E3ME-FTT",
     "id": "model-e3me-ftt-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3607,7 +3627,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: E4SMA-EU-TIMES 1.0",
     "id": "model-e4sma-eu-times-1-0-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3626,7 +3646,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: EGMM",
     "id": "model-egmm-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3645,7 +3665,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: EnergyPLAN",
     "id": "model-energyplan-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3663,7 +3683,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: EPMM",
     "id": "model-epmm-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3682,7 +3702,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: ETCU-RICE",
     "id": "model-etcu-rice-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3701,7 +3721,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: Euro-Calliope",
     "id": "model-euro-calliope-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3720,7 +3740,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: EXPANSE",
     "id": "model-expanse-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3739,7 +3759,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: FORECAST",
     "id": "model-forecast-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3758,7 +3778,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: GCAM-Europe",
     "id": "model-gcam-europe-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3778,7 +3798,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: GCAM",
     "id": "model-gcam-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3797,7 +3817,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: GEM-E3",
     "id": "model-gem-e3-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3816,7 +3836,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: GEMINI-E3 EU",
     "id": "model-gemini-e3-eu-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3835,7 +3855,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: GEMINI-E3",
     "id": "model-gemini-e3-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3854,7 +3874,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: GLOBIO",
     "id": "model-globio-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3875,7 +3895,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: HEB",
     "id": "model-heb-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3894,7 +3914,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: HU-TIMES",
     "id": "model-hu-times-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3913,7 +3933,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: ICES-XPS 1.0",
     "id": "model-ices-xps-1-0-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3932,7 +3952,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: IMACLIM-China",
     "id": "model-imaclim-china-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3950,7 +3970,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: LEAP",
     "id": "model-leap-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -3987,7 +4007,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: MAPLE",
     "id": "model-maple-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4006,7 +4026,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: MARIO",
     "id": "model-mario-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4026,7 +4046,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: MARKAL-India",
     "id": "model-markal-india-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4044,7 +4064,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: MEDEAS",
     "id": "model-medeas-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4063,7 +4083,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: MENA-EDS model",
     "id": "model-mena-eds-model-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4082,7 +4102,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: MicroGridsPy",
     "id": "model-microgridspy-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4102,7 +4122,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: MUSE",
     "id": "model-muse-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4121,7 +4141,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: NATEM",
     "id": "model-natem-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4140,7 +4160,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: NEMESIS 5.0",
     "id": "model-nemesis-5-0-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4159,7 +4179,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: NEMESIS-World",
     "id": "model-nemesis-world-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4178,7 +4198,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: OMNIA",
     "id": "model-omnia-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4197,7 +4217,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: OnSSET",
     "id": "model-onsset-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4217,7 +4237,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: OPEN-PROM",
     "id": "model-open-prom-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4236,7 +4256,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: OSeMOSYS",
     "id": "model-osemosys-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4255,7 +4275,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: OSeMOSYS OSeMBE",
     "id": "model-osemosys-osembe-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4274,7 +4294,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: OSeMOSYS-Ukraine",
     "id": "model-osemosys-ukraine-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4295,7 +4315,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: POLES",
     "id": "model-poles-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4314,7 +4334,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: PowerPlan",
     "id": "model-powerplan-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4332,7 +4352,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: PROMETHEUS",
     "id": "model-prometheus-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4350,7 +4370,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: PSM-EU",
     "id": "model-psm-eu-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4369,7 +4389,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: SISGEMA",
     "id": "model-sisgema-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4387,7 +4407,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: TIAM_Grantham",
     "id": "model-tiam-grantham-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4407,7 +4427,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: TIMES-CAC",
     "id": "model-times-cac-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4426,7 +4446,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: TIMES-GEO",
     "id": "model-times-geo-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4445,7 +4465,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: WILIAM",
     "id": "model-wiliam-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4464,7 +4484,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: WISEE-EDM",
     "id": "model-wisee-edm-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4483,7 +4503,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: WISEE-ESM",
     "id": "model-wisee-esm-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4502,7 +4522,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: WISEE-Global Steel",
     "id": "model-wisee-global-steel-iamparis-eu-models",
     "item_type": "model",
     "keywords": [
@@ -4520,7 +4540,7 @@
   },
   {
     "category": "models",
-    "fallback_instruction": "",
+    "fallback_instruction": "Open the Models directory and search for: WTMBT",
     "id": "model-wtmbt-iamparis-eu-models",
     "item_type": "model",
     "keywords": [

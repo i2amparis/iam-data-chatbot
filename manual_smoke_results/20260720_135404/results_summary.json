@@ -1,0 +1,83 @@
+{
+  "generated": "20260720_135404",
+  "count": 3,
+  "rows": [
+    {
+      "query": "list all available models",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "model availability request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "There are 74 models available. Examples: 42, AIM/Enduse India 3.3, ALADIN, ATOM, CHANCE, CLEWs, CLEWs - Ethiopia, CLEWs - Kenya. You can ask for details about a specific model using `info [model name]`, or say `list variables` to see the kinds of outputs available.\n\nShowing 8 of 74. Say `show all models` if you need the full list.",
+      "session_id": "FINAL_1"
+    },
+    {
+      "query": "which models cover buildings",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.95,
+        "source": "query_plan",
+        "reason": "topic-wide model availability"
+      },
+      "entities": {},
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T10:54:03.134295+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Models covering Buildings"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.95,
+          "source": "query_plan"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Models covering Buildings"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T10:54:03.134295+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Models covering Buildings\n\n21 model(s) of 78 report at least one buildings variable in IAM PARIS:\n\n42, ATOM, DREEM, E3ME 6.1, E4SMA-EU-TIMES 1.0, eu_times, FORECAST, GCAM 7.0, GCAM-PR 5.3, GEMINI-E3 7.0, ices, ICES-XPS 1.0, ICES-XPS 1.1, MUSE, NEMESIS 5.0, NEMESIS 5.1, OSeMOSYS-GR, PRIMES-Buildings, PROMETHEUS V1, tiam … and 1 more\n\nAsk for a specific model (e.g. `tell me about 42`) or a data ",
+      "session_id": "FINAL_2"
+    },
+    {
+      "query": "link me to the models page",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.97,
+        "source": "deterministic",
+        "reason": "explicit site navigation request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "Use these IAM PARIS links for this request: [Models](https://iamparis.eu/models).",
+      "session_id": "FINAL_3"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+# Manual Smoke Test Results
+Generated: 20260716_105302
+Total queries: 3
+
+1. [OK] `show CO2 emissions for World from GCAM`
+2. [OK] `now the same from REMIND`
+3. [PLOT] `plot both models together`

@@ -1,0 +1,328 @@
+{
+  "generated": "20260720_135932",
+  "count": 3,
+  "rows": [
+    {
+      "query": "CO2 emissions for India from POLES",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "region": "IND",
+        "scenario": null,
+        "model": "POLES",
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85,
+          "model": 1.0
+        },
+        "confidence": 0.85,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline",
+          "baseline"
+        ],
+        "result_models": [
+          "GEMINI-E3 7.0",
+          "MUSE",
+          "PROMETHEUS V1",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "muse"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T10:54:03.134295+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "IND",
+          "model": "POLES",
+          "years": "2005-2100",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "IND"
+          },
+          {
+            "label": "Model",
+            "value": "POLES"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T10:54:03.134295+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Note: no timeseries data for model `POLES` in this slice; showing results across the models that do have it.\n\n### Emissions|CO2 in IND\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\nSummary: 37 series across 7 models and 13 scenarios.\nShowing series 1-12 of 37, ordered by model and scenario. Narrow by model or scenario to view the 25 remaining series.\n\n",
+      "session_id": "F50C_all"
+    },
+    {
+      "query": "now from GCAM",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "variables": null,
+        "region": "IND",
+        "model": "GCAM",
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.95,
+          "region": 0.85,
+          "model": 1.0
+        },
+        "variable_candidates": [
+          "Emissions|CO2",
+          "Emission Factor|CO2|Tailpipe|2W",
+          "Emission Factor|CO2|Tailpipe|3W"
+        ],
+        "unmatched_variable_terms": [],
+        "confidence": 0.867,
+        "extraction_method": "deterministic",
+        "all_scenarios": true,
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline",
+          "baseline"
+        ],
+        "result_models": [
+          "GEMINI-E3 7.0",
+          "MUSE",
+          "PROMETHEUS V1",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "muse"
+        ]
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T10:54:03.134295+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "IND",
+          "model": "GCAM",
+          "years": "2005-2100",
+          "unit": "Mt CO2/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "IND"
+          },
+          {
+            "label": "Model",
+            "value": "GCAM"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T10:54:03.134295+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Note: no timeseries data for model `GCAM` in this slice; showing results across the models that do have it.\n\n### Emissions|CO2 in IND\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\nSummary: 37 series across 7 models and 13 scenarios.\nShowing series 1-12 of 37, ordered by model and scenario. Narrow by model or scenario to view the 25 remaining series.\n\n|",
+      "session_id": "F50C_all"
+    },
+    {
+      "query": "plot both models",
+      "plot_present": false,
+      "no_data": true,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "conversation_state",
+        "reason": "previous-scope comparison plot"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|CO2",
+        "variables": null,
+        "region": "IND",
+        "model": "GCAM",
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.95,
+          "region": 0.85,
+          "model": 1.0
+        },
+        "variable_candidates": [
+          "Emissions|CO2",
+          "Emission Factor|CO2|Tailpipe|2W",
+          "Emission Factor|CO2|Tailpipe|3W"
+        ],
+        "unmatched_variable_terms": [],
+        "confidence": 0.867,
+        "extraction_method": "deterministic",
+        "all_scenarios": true,
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline",
+          "baseline"
+        ],
+        "result_models": [
+          "GEMINI-E3 7.0",
+          "MUSE",
+          "PROMETHEUS V1",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "muse"
+        ]
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T10:54:03.134295+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Emissions|CO2",
+          "region": "IND",
+          "model": "GCAM"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "conversation_state"
+        },
+        "no_data_reason": "model combination unavailable",
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|CO2"
+          },
+          {
+            "label": "Region",
+            "value": "IND"
+          },
+          {
+            "label": "Model",
+            "value": "GCAM"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T10:54:03.134295+00:00"
+          },
+          {
+            "label": "No-data reason",
+            "value": "model combination unavailable"
+          }
+        ]
+      },
+      "answer_preview": "No data found for 'Emissions|CO2' across models ['GCAM'] in region 'IND'.",
+      "session_id": "F50C_all"
+    }
+  ]
+}

@@ -1,0 +1,2182 @@
+[
+  {
+    "id": "conv-001",
+    "status": "pass",
+    "title": "CO2 Europe Follow-Ups",
+    "turns": [
+      {
+        "answer": "### Emissions|CO2 in EU\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\nSummary: 34 series across 9 models and 13 scenarios.\nShowing series 1-12 of 34, ordered by model and scenario. Narrow by model or scenario to view the 22 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 2070 | 2075 | 2080 | 2085 | 2090 | 2095 | 2100 | Unit |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n| e3me | PR_Baseline | \u2014 | 4.3K | 4.0K | 3.4K | 3.2K | 3.0K | 2.9K | 2.7K | 2.5K | 2.3K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| e3me | PR_CurPol_CP | \u2014 | 4.3K | 4.0K | 3.4K | 3.2K | 3.0K | 2.9K | 2.7K | 2.5K | 2.4K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| e3me | PR_CurPol_EI | \u2014 | 4.3K | 4.0K | 3.4K | 3.2K | 3.0K | 2.9K | 2.8K | 2.7K | 2.6K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| e3me | PR_NDC_CP | \u2014 | 4.3K | 4.0K | 3.4K | 3.1K | 2.9K | 2.7K | 2.5K | 2.3K | 2.1K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| e3me | PR_NDC_EI | \u2014 | 4.3K | 4.0K | 3.4K | 3.1K | 2.9K | 2.7K | 2.5K | 2.4K | 2.3K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| e3me | Unharmonised baseline | \u2014 | 4.3K | 4.0K | 3.4K | 3.2K | 3.0K | 2.9K | 2.7K | 2.5K | 2.3K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| E3ME 6.1 | PR_WWH_CP | \u2014 | 4.3K | 4.0K | 3.4K | 3.2K | 3.0K | 2.9K | 2.7K | 2.5K | 2.4K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| E4SMA-EU-TIMES 1.0 | PR_WWH_CP | \u2014 | 3.8K | \u2014 | 3.5K | 3.2K | 2.7K | \u2014 | 2.5K | \u2014 | 2.4K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| gcam | PR_Baseline | 4.2K | 3.8K | 3.5K | 3.5K | 3.5K | 3.5K | 3.5K | 3.5K | 3.5K | 3.4K | 3.5K | 3.6K | 3.7K | 3.8K | 3.9K | 4.0K | 4.2K | 4.3K | 4.5K | 4.7K | Mt CO2/yr |\n| gcam | PR_CurPol_CP | 4.2K | 3.8K | 3.5K | 3.1K | 2.7K | 2.3K | 2.1K | 1.8K | 1.5K | 1.1K | 962.69 | 912.20 | 870.84 | 863.75 | 839.93 | 771.80 | 656.18 | 503.01 | 281.84 | 10.13 | Mt CO2/yr |\n| gcam | PR_CurPol_CPO | 4.2K | 3.8K | 3.5K | 3.1K | 2.7K | 2.3K | 2.0K | 1.7K | 1.4K | 1.0K | 873.57 | 824.73 | 781.65 | 770.74 | 720.35 | 598.03 | 446.47 | 186.10 | -169.61 | -651.08 | Mt CO2/yr |\n| gcam | PR_CurPol_EI | 4.2K | 3.8K | 3.5K | 3.1K | 2.7K | 2.3K | 1.9K | 1.6K | 1.4K | 1.1K | 921.10 | 724.95 | 558.89 | 407.39 | 280.07 | 166.91 | 64.24 | -27.40 | -106.40 | -175.92 | Mt CO2/yr |\n\nNext:\n- Ask `plot Emissions|CO2 for EU` to visualize this result.\n\nReply with a scenario, model, region, or year to narrow the answer.",
+        "answer_preview": "### Emissions|CO2 in EU  Scope: scenario `multiple`, model `multiple`, years `2005-2100` Unit: `Mt CO2/yr`  Answer: Summary: 34 series across 9 models and 13 scenarios. Showing series 1-12 of 34, ordered by model and scenario. Narrow by mod",
+        "entities": {
+          "action": "query",
+          "all_scenarios": true,
+          "confidence": 0.875,
+          "entity_confidence": {
+            "action": 0.75,
+            "region": 0.85,
+            "variable": 0.9
+          },
+          "extraction_method": "deterministic",
+          "observed_end_year": 2100,
+          "observed_start_year": 2005,
+          "region": "EU",
+          "result_models": [
+            "E3ME 6.1",
+            "E4SMA-EU-TIMES 1.0",
+            "GCAM-PR 5.3",
+            "GEMINI-E3 7.0",
+            "MUSE",
+            "e3me",
+            "gcam",
+            "gemini_e3",
+            "muse"
+          ],
+          "scenarios": [
+            "CP_EI",
+            "NDC_EI",
+            "NDC_LTT",
+            "PR_Baseline",
+            "PR_CurPol_CP",
+            "PR_CurPol_CPO",
+            "PR_CurPol_EI",
+            "PR_NDC_CP",
+            "PR_NDC_CPO",
+            "PR_NDC_EI",
+            "PR_WWH_CP",
+            "Unharmonised baseline",
+            "baseline"
+          ],
+          "variable": "Emissions|CO2"
+        },
+        "expected": {
+          "expected_model": "",
+          "expected_region": "EU",
+          "expected_route": "data_query",
+          "expected_scenario": "",
+          "expected_variable": "Emissions|CO2",
+          "id": "conv-001.1",
+          "no_hallucinated_data": "yes",
+          "query": "show me carbon dioxide emissions for Europe",
+          "useful_clarification": "yes",
+          "useful_link": "results"
+        },
+        "id": "conv-001.1",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 0.25,
+            "display_hint": "Catalogued results root for data follow-ups.",
+            "display_label": "Open Results",
+            "fallback_instruction": "",
+            "reason": "Catalogued results root for data follow-ups.",
+            "search_hint": "",
+            "title": "Results",
+            "url": "https://iamparis.eu/results",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "show me carbon dioxide emissions for Europe",
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "reason": "data request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "22440630425143ba826a936c5d08cb4b",
+        "status": "pass",
+        "turn": 1
+      },
+      {
+        "answer": "### Emissions|CO2 in CHN\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\nSummary: 42 series across 8 models and 13 scenarios.\nShowing series 1-12 of 42, ordered by model and scenario. Narrow by model or scenario to view the 30 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 2070 | 2075 | 2080 | 2085 | 2090 | 2095 | 2100 | Unit |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n| e3me | PR_Baseline | \u2014 | 7.8K | 9.4K | 10.3K | 10.8K | 11.1K | 10.8K | 9.5K | 8.1K | 7.5K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| e3me | PR_CurPol_CP | \u2014 | 7.8K | 9.4K | 10.3K | 10.8K | 11.1K | 10.7K | 9.3K | 8.0K | 7.4K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| e3me | PR_CurPol_EI | \u2014 | 7.8K | 9.4K | 10.3K | 10.8K | 11.1K | 10.9K | 10.5K | 10.0K | 9.6K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| e3me | PR_NDC_CP | \u2014 | 7.8K | 9.4K | 10.3K | 10.7K | 10.8K | 10.2K | 8.7K | 7.5K | 6.9K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| e3me | PR_NDC_EI | \u2014 | 7.8K | 9.4K | 10.3K | 10.7K | 10.8K | 10.4K | 9.9K | 9.4K | 8.9K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| e3me | Unharmonised baseline | \u2014 | 7.8K | 9.4K | 10.3K | 10.9K | 11.2K | 10.9K | 9.8K | 8.4K | 7.9K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| gcam | Baseline | 6.7K | 9.6K | 11.2K | 12.5K | 13.3K | 13.6K | 13.7K | 13.7K | 13.0K | 12.3K | 11.9K | 11.7K | 11.5K | 11.3K | 11.0K | 10.6K | 10.2K | 9.8K | 9.4K | 9.0K | Mt CO2/yr |\n| gcam | CP_EI | 6.7K | 9.6K | 11.2K | 12.1K | 12.4K | 12.2K | 11.0K | 9.5K | 7.9K | 6.5K | 5.2K | 4.2K | 3.2K | 2.4K | 1.7K | 1.1K | 594.72 | 204.01 | -104.68 | -345.55 | Mt CO2/yr |\n| gcam | PR_Baseline | 6.7K | 9.6K | 11.2K | 12.6K | 13.1K | 13.1K | 13.0K | 12.8K | 12.1K | 11.3K | 10.8K | 10.4K | 10.1K | 9.8K | 9.3K | 8.6K | 8.2K | 7.8K | 7.5K | 7.3K | Mt CO2/yr |\n| gcam | PR_CurPol_CP | 6.7K | 9.6K | 11.2K | 11.4K | 11.6K | 11.4K | 11.0K | 10.7K | 9.8K | 8.7K | 8.2K | 7.6K | 7.4K | 6.9K | 6.4K | 5.9K | 5.5K | 5.1K | 4.8K | 4.5K | Mt CO2/yr |\n| gcam | PR_CurPol_CPO | 6.7K | 9.6K | 11.2K | 11.4K | 11.6K | 11.4K | 11.4K | 11.0K | 10.0K | 8.8K | 8.2K | 7.6K | 7.3K | 6.9K | 6.3K | 5.7K | 5.3K | 4.9K | 4.7K | 4.4K | Mt CO2/yr |\n| gcam | PR_CurPol_EI | 6.7K | 9.6K | 11.2K | 11.4K | 11.6K | 11.4K | 10.8K | 9.9K | 9.0K | 8.1K | 7.1K | 6.0K | 5.0K | 4.1K | 3.4K | 2.8K | 2.2K | 1.7K | 1.3K | 943.78 | Mt CO2/yr |\n\nNext:\n- Ask `plot Emissions|CO2 for CHN` to visualize this result.\n\nReply with a scenario, model, region, or year to narrow the answer.",
+        "answer_preview": "### Emissions|CO2 in CHN  Scope: scenario `multiple`, model `multiple`, years `2005-2100` Unit: `Mt CO2/yr`  Answer: Summary: 42 series across 8 models and 13 scenarios. Showing series 1-12 of 42, ordered by model and scenario. Narrow by mo",
+        "entities": {
+          "action": "query",
+          "all_scenarios": true,
+          "confidence": 0.875,
+          "entity_confidence": {
+            "action": 0.75,
+            "region": 0.85,
+            "variable": 0.9
+          },
+          "extraction_method": "deterministic",
+          "observed_end_year": 2100,
+          "observed_start_year": 2005,
+          "region": "CHN",
+          "result_models": [
+            "GCAM 7.0",
+            "GCAM-PR 5.3",
+            "MUSE",
+            "PROMETHEUS V1",
+            "e3me",
+            "gcam",
+            "gemini_e3",
+            "muse"
+          ],
+          "scenarios": [
+            "Baseline",
+            "CP_EI",
+            "NDC_EI",
+            "NDC_LTT",
+            "PR_Baseline",
+            "PR_CurPol_CP",
+            "PR_CurPol_CPO",
+            "PR_CurPol_EI",
+            "PR_NDC_CP",
+            "PR_NDC_CPO",
+            "PR_NDC_EI",
+            "Unharmonised baseline",
+            "baseline"
+          ],
+          "variable": "Emissions|CO2"
+        },
+        "expected": {
+          "expected_model": "",
+          "expected_region": "China",
+          "expected_route": "data_query",
+          "expected_scenario": "",
+          "expected_variable": "Emissions|CO2",
+          "id": "conv-001.2",
+          "no_hallucinated_data": "yes",
+          "query": "same for China",
+          "useful_clarification": "yes",
+          "useful_link": "results"
+        },
+        "id": "conv-001.2",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 0.25,
+            "display_hint": "Catalogued results root for data follow-ups.",
+            "display_label": "Open Results",
+            "fallback_instruction": "",
+            "reason": "Catalogued results root for data follow-ups.",
+            "search_hint": "",
+            "title": "Results",
+            "url": "https://iamparis.eu/results",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "same for China",
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "reason": "data request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "22440630425143ba826a936c5d08cb4b",
+        "status": "pass",
+        "turn": 2
+      },
+      {
+        "answer": "### Emissions|CO2 in CHN\n\nScope: scenario `multiple`, model `multiple`, years `2050`\nUnit: `Mt CO2/yr`\n\nAnswer:\nSummary: 42 series across 8 models and 13 scenarios.\nShowing series 1-12 of 42, ordered by model and scenario. Narrow by model or scenario to view the 30 remaining series.\n\n| Model | Scenario | 2050 | Unit |\n|---|---|---|---|\n| e3me | PR_Baseline | 7.5K | Mt CO2/yr |\n| e3me | PR_CurPol_CP | 7.4K | Mt CO2/yr |\n| e3me | PR_CurPol_EI | 9.6K | Mt CO2/yr |\n| e3me | PR_NDC_CP | 6.9K | Mt CO2/yr |\n| e3me | PR_NDC_EI | 8.9K | Mt CO2/yr |\n| e3me | Unharmonised baseline | 7.9K | Mt CO2/yr |\n| gcam | Baseline | 12.3K | Mt CO2/yr |\n| gcam | CP_EI | 6.5K | Mt CO2/yr |\n| gcam | PR_Baseline | 11.3K | Mt CO2/yr |\n| gcam | PR_CurPol_CP | 8.7K | Mt CO2/yr |\n| gcam | PR_CurPol_CPO | 8.8K | Mt CO2/yr |\n| gcam | PR_CurPol_EI | 8.1K | Mt CO2/yr |\n\nNext:\n- Ask `plot Emissions|CO2 for CHN` to visualize this result.\n\nReply with a scenario, model, region, or year to narrow the answer.",
+        "answer_preview": "### Emissions|CO2 in CHN  Scope: scenario `multiple`, model `multiple`, years `2050` Unit: `Mt CO2/yr`  Answer: Summary: 42 series across 8 models and 13 scenarios. Showing series 1-12 of 42, ordered by model and scenario. Narrow by model o",
+        "entities": {
+          "action": "query",
+          "all_scenarios": true,
+          "confidence": 0.883,
+          "end_year": 2050,
+          "entity_confidence": {
+            "action": 0.75,
+            "region": 0.85,
+            "variable": 0.9,
+            "years": 0.9
+          },
+          "extraction_method": "deterministic",
+          "region": "CHN",
+          "result_models": [
+            "GCAM 7.0",
+            "GCAM-PR 5.3",
+            "MUSE",
+            "PROMETHEUS V1",
+            "e3me",
+            "gcam",
+            "gemini_e3",
+            "muse"
+          ],
+          "scenarios": [
+            "Baseline",
+            "CP_EI",
+            "NDC_EI",
+            "NDC_LTT",
+            "PR_Baseline",
+            "PR_CurPol_CP",
+            "PR_CurPol_CPO",
+            "PR_CurPol_EI",
+            "PR_NDC_CP",
+            "PR_NDC_CPO",
+            "PR_NDC_EI",
+            "Unharmonised baseline",
+            "baseline"
+          ],
+          "start_year": 2050,
+          "variable": "Emissions|CO2"
+        },
+        "expected": {
+          "expected_end_year": "2050",
+          "expected_model": "",
+          "expected_region": "China",
+          "expected_route": "data_query",
+          "expected_scenario": "",
+          "expected_start_year": "2050",
+          "expected_variable": "Emissions|CO2",
+          "id": "conv-001.3",
+          "no_hallucinated_data": "yes",
+          "query": "what about 2050",
+          "useful_clarification": "yes",
+          "useful_link": "results"
+        },
+        "id": "conv-001.3",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 0.25,
+            "display_hint": "Catalogued results root for data follow-ups.",
+            "display_label": "Open Results",
+            "fallback_instruction": "",
+            "reason": "Catalogued results root for data follow-ups.",
+            "search_hint": "",
+            "title": "Results",
+            "url": "https://iamparis.eu/results",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "what about 2050",
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "reason": "data request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_end_year": true,
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_start_year": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "22440630425143ba826a936c5d08cb4b",
+        "status": "pass",
+        "turn": 3
+      },
+      {
+        "answer": "Showing CO2 Emissions in CHN across available scenarios (2050). Resolved variable: `Emissions|CO2`. Showing 8 of 49 available series for readability; name a scenario or model to see a specific one.\n\nReply with a scenario, model, region, or year to narrow the answer.",
+        "answer_preview": "Showing CO2 Emissions in CHN across available scenarios (2050). Resolved variable: `Emissions|CO2`. Showing 8 of 49 available series for readability; name a scenario or model to see a specific one.  Reply with a scenario, model, region, or ",
+        "entities": {
+          "action": "plot",
+          "all_scenarios": true,
+          "chart_type": "bar",
+          "comparison": "scenario",
+          "comparison_dimension": "scenario",
+          "confidence": 0.883,
+          "displayed_series": [
+            "Baseline - GCAM-PR 5.3",
+            "PR_Baseline - e3me",
+            "Unharmonised baseline - e3me",
+            "baseline - MUSE",
+            "PR_CurPol_CP - gcam",
+            "PR_CurPol_CPO - gemini_e3",
+            "PR_CurPol_EI - muse",
+            "NDC_EI - GCAM 7.0"
+          ],
+          "displayed_series_count": 8,
+          "end_year": 2050,
+          "entity_confidence": {
+            "action": 0.9,
+            "region": 0.85,
+            "variable": 0.9,
+            "years": 0.9
+          },
+          "extraction_method": "deterministic",
+          "omitted_series": 41,
+          "region": "CHN",
+          "regions": [
+            "CHN"
+          ],
+          "result_models": [
+            "GCAM 7.0",
+            "GCAM-PR 5.3",
+            "MUSE",
+            "e3me",
+            "gcam",
+            "gemini_e3",
+            "muse"
+          ],
+          "scenarios": [
+            "Baseline",
+            "CP_EI",
+            "NDC_EI",
+            "NDC_LTT",
+            "baseline",
+            "PR_Baseline",
+            "PR_CurPol_CP",
+            "PR_CurPol_EI",
+            "PR_NDC_CP",
+            "PR_NDC_EI",
+            "Unharmonised baseline",
+            "PR_CurPol_CPO",
+            "PR_NDC_CPO"
+          ],
+          "start_year": 2050,
+          "unit": "Mt CO2/yr",
+          "variable": "Emissions|CO2",
+          "variables": [
+            "Emissions|CO2"
+          ]
+        },
+        "expected": {
+          "expected_action": "plot",
+          "expected_chart_type": "bar",
+          "expected_end_year": "2050",
+          "expected_model": "",
+          "expected_plot": "yes",
+          "expected_region": "China",
+          "expected_route": "data_plotting",
+          "expected_scenario": "",
+          "expected_start_year": "2050",
+          "expected_variable": "Emissions|CO2",
+          "id": "conv-001.4",
+          "no_hallucinated_data": "yes",
+          "query": "plot it",
+          "useful_clarification": "yes",
+          "useful_link": "results"
+        },
+        "id": "conv-001.4",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 0.25,
+            "display_hint": "Catalogued results root for data follow-ups.",
+            "display_label": "Open Results",
+            "fallback_instruction": "",
+            "reason": "Catalogued results root for data follow-ups.",
+            "search_hint": "",
+            "title": "Results",
+            "url": "https://iamparis.eu/results",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "plot it",
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "reason": "plot request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_action": true,
+          "correct_chart_type": true,
+          "correct_end_year": true,
+          "correct_model": true,
+          "correct_plot": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_start_year": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "22440630425143ba826a936c5d08cb4b",
+        "status": "pass",
+        "turn": 4
+      }
+    ]
+  },
+  {
+    "id": "conv-002",
+    "status": "pass",
+    "title": "Clarify Electricity Variable Then Plot",
+    "turns": [
+      {
+        "answer": "I found several possible variables, but none has enough evidence for automatic selection. Choose the variable: 1. `Secondary Energy|Electricity` (electricity output) 2. `Final Energy|Electricity` (final energy use, electricity) 3. `Capacity|Electricity` (power capacity, electricity) Reply with a number (1-3), or `yes` for option 1.",
+        "answer_preview": "I found several possible variables, but none has enough evidence for automatic selection. Choose the variable: 1. `Secondary Energy|Electricity` (electricity output) 2. `Final Energy|Electricity` (final energy use, electricity) 3. `Capacity",
+        "entities": {
+          "action": "query",
+          "entity_confidence": {
+            "action": 0.75,
+            "region": 0.85
+          },
+          "region": "IND"
+        },
+        "expected": {
+          "expected_model": "",
+          "expected_region": "India",
+          "expected_route": "data_query",
+          "expected_scenario": "",
+          "expected_variable": "",
+          "id": "conv-002.1",
+          "no_hallucinated_data": "yes",
+          "query": "electricity for India",
+          "useful_clarification": "yes",
+          "useful_link": "results"
+        },
+        "id": "conv-002.1",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 0.25,
+            "display_hint": "Catalogued results root for data follow-ups.",
+            "display_label": "Open Results",
+            "fallback_instruction": "",
+            "reason": "Catalogued results root for data follow-ups.",
+            "search_hint": "",
+            "title": "Results",
+            "url": "https://iamparis.eu/results",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "electricity for India",
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.45,
+          "reason": "low confidence entity clarification",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "5e0273806f154938b2ecc520d99fbe68",
+        "status": "pass",
+        "turn": 1
+      },
+      {
+        "answer": "### Secondary Energy|Electricity in IND\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `EJ/yr`\n\nAnswer:\nSummary: 65 series across 13 models and 13 scenarios.\nShowing series 1-12 of 65, ordered by model and scenario. Narrow by model or scenario to view the 53 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 2070 | 2075 | 2080 | 2085 | 2090 | 2095 | 2100 | Unit |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n| 42 | PR_Baseline | 1.76 | 2.59 | 3.70 | 4.90 | 6.43 | 8.16 | 10.05 | 12.03 | 14.10 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | EJ/yr |\n| 42 | PR_CurPol_EI | 1.76 | 2.59 | 3.70 | 4.90 | 6.43 | 8.16 | 10.05 | 12.03 | 14.10 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | EJ/yr |\n| 42 | PR_NDC_EI | 1.76 | 2.59 | 3.70 | 4.90 | 6.43 | 8.13 | 9.89 | 11.67 | 13.46 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | EJ/yr |\n| e3me | PR_Baseline | \u2014 | 3.53 | 4.94 | 6.68 | 8.34 | 10.35 | 12.57 | 15.00 | 18.08 | 22.04 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | EJ/yr |\n| e3me | PR_CurPol_CP | \u2014 | 3.53 | 4.94 | 6.68 | 8.34 | 10.35 | 12.55 | 14.96 | 18.02 | 21.94 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | EJ/yr |\n| e3me | PR_CurPol_EI | \u2014 | 3.53 | 4.94 | 6.68 | 8.35 | 10.36 | 12.43 | 14.79 | 17.83 | 21.83 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | EJ/yr |\n| e3me | PR_NDC_CP | \u2014 | 3.53 | 4.94 | 6.68 | 8.15 | 9.85 | 11.58 | 13.51 | 16.14 | 19.94 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | EJ/yr |\n| e3me | PR_NDC_EI | \u2014 | 3.53 | 4.94 | 6.68 | 8.16 | 9.88 | 11.47 | 13.40 | 15.94 | 19.65 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | EJ/yr |\n| e3me | Unharmonised baseline | \u2014 | 3.53 | 4.94 | 6.68 | 8.36 | 10.35 | 12.57 | 15.02 | 18.11 | 22.05 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | EJ/yr |\n| gcam | PR_Baseline | 2.58 | 3.53 | 4.95 | 8.47 | 12.21 | 16.06 | 19.34 | 23.23 | 27.33 | 31.26 | 34.85 | 38.09 | 40.98 | 43.52 | 45.48 | 46.97 | 47.92 | 48.46 | 48.58 | 48.56 | EJ/yr |\n| gcam | PR_CurPol_CP | 2.58 | 3.53 | 4.95 | 7.67 | 11.76 | 15.11 | 17.98 | 21.55 | 25.31 | 28.92 | 32.27 | 35.27 | 37.97 | 40.33 | 42.17 | 43.54 | 44.45 | 44.95 | 45.08 | 45.09 | EJ/yr |\n| gcam | PR_CurPol_CPO | 2.58 | 3.53 | 4.95 | 7.66 | 11.72 | 15.12 | 18.04 | 21.62 | 25.38 | 28.99 | 32.34 | 35.35 | 38.04 | 40.41 | 42.24 | 43.62 | 44.52 | 45.03 | 45.16 | 45.19 | EJ/yr |\n\nNext:\n- Ask `plot Secondary Energy|Electricity for IND` to visualize this result.",
+        "answer_preview": "### Secondary Energy|Electricity in IND  Scope: scenario `multiple`, model `multiple`, years `2005-2100` Unit: `EJ/yr`  Answer: Summary: 65 series across 13 models and 13 scenarios. Showing series 1-12 of 65, ordered by model and scenario. ",
+        "entities": {
+          "action": "query",
+          "all_scenarios": true,
+          "confidence": 0.925,
+          "entity_confidence": {
+            "action": 0.75,
+            "region": 0.85,
+            "variable": 1.0
+          },
+          "extraction_method": "deterministic",
+          "observed_end_year": 2100,
+          "observed_start_year": 2005,
+          "region": "IND",
+          "result_models": [
+            "42",
+            "GCAM 7.0",
+            "GCAM-PR 5.3",
+            "GEMINI-E3 7.0",
+            "MUSE",
+            "PROMETHEUS V1",
+            "TIAM_Grantham",
+            "e3me",
+            "gcam",
+            "gemini_e3",
+            "ices",
+            "muse",
+            "tiam"
+          ],
+          "scenarios": [
+            "Baseline",
+            "CP_EI",
+            "NDC_EI",
+            "NDC_LTT",
+            "PR_Baseline",
+            "PR_CurPol_CP",
+            "PR_CurPol_CPO",
+            "PR_CurPol_EI",
+            "PR_NDC_CP",
+            "PR_NDC_CPO",
+            "PR_NDC_EI",
+            "Unharmonised baseline",
+            "baseline"
+          ],
+          "variable": "Secondary Energy|Electricity"
+        },
+        "expected": {
+          "expected_model": "",
+          "expected_region": "India",
+          "expected_route": "data_query",
+          "expected_scenario": "",
+          "expected_variable": "Secondary Energy|Electricity",
+          "id": "conv-002.2",
+          "no_hallucinated_data": "yes",
+          "query": "1",
+          "useful_clarification": "no",
+          "useful_link": "results"
+        },
+        "id": "conv-002.2",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 0.25,
+            "display_hint": "Catalogued results root for data follow-ups.",
+            "display_label": "Open Results",
+            "fallback_instruction": "",
+            "reason": "Catalogued results root for data follow-ups.",
+            "search_hint": "",
+            "title": "Results",
+            "url": "https://iamparis.eu/results",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "1",
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.98,
+          "reason": "clarification selection; resolved",
+          "source": "conversation_state"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "5e0273806f154938b2ecc520d99fbe68",
+        "status": "pass",
+        "turn": 2
+      },
+      {
+        "answer": "Showing Electricity Generation in IND across available scenarios. Resolved variable: `Secondary Energy|Electricity`. Showing 8 of 75 available series for readability; name a scenario or model to see a specific one.\n\nReply with a scenario, model, region, or year to narrow the answer.",
+        "answer_preview": "Showing Electricity Generation in IND across available scenarios. Resolved variable: `Secondary Energy|Electricity`. Showing 8 of 75 available series for readability; name a scenario or model to see a specific one.  Reply with a scenario, m",
+        "entities": {
+          "action": "plot",
+          "all_scenarios": true,
+          "chart_type": "line",
+          "comparison": "scenario",
+          "comparison_dimension": "scenario",
+          "confidence": 0.875,
+          "displayed_series": [
+            "Baseline - GCAM-PR 5.3",
+            "PR_Baseline - 42",
+            "Unharmonised baseline - e3me",
+            "baseline - MUSE",
+            "PR_CurPol_CP - gcam",
+            "PR_CurPol_CPO - gemini_e3",
+            "PR_CurPol_EI - ices",
+            "NDC_EI - GCAM 7.0"
+          ],
+          "displayed_series_count": 8,
+          "entity_confidence": {
+            "action": 0.9,
+            "region": 0.85,
+            "variable": 0.9
+          },
+          "extraction_method": "deterministic",
+          "omitted_series": 67,
+          "region": "IND",
+          "regions": [
+            "IND"
+          ],
+          "result_models": [
+            "42",
+            "GCAM 7.0",
+            "GCAM-PR 5.3",
+            "MUSE",
+            "e3me",
+            "gcam",
+            "gemini_e3",
+            "ices"
+          ],
+          "scenarios": [
+            "Baseline",
+            "CP_EI",
+            "NDC_EI",
+            "NDC_LTT",
+            "baseline",
+            "PR_Baseline",
+            "PR_CurPol_EI",
+            "PR_NDC_EI",
+            "PR_CurPol_CP",
+            "PR_NDC_CP",
+            "Unharmonised baseline",
+            "PR_CurPol_CPO",
+            "PR_NDC_CPO"
+          ],
+          "unit": "EJ/yr",
+          "variable": "Secondary Energy|Electricity",
+          "variables": [
+            "Secondary Energy|Electricity"
+          ]
+        },
+        "expected": {
+          "expected_action": "plot",
+          "expected_model": "",
+          "expected_plot": "yes",
+          "expected_region": "India",
+          "expected_route": "data_plotting",
+          "expected_scenario": "",
+          "expected_variable": "Secondary Energy|Electricity",
+          "id": "conv-002.3",
+          "no_hallucinated_data": "yes",
+          "query": "plot it",
+          "useful_clarification": "yes",
+          "useful_link": "results"
+        },
+        "id": "conv-002.3",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 0.25,
+            "display_hint": "Catalogued results root for data follow-ups.",
+            "display_label": "Open Results",
+            "fallback_instruction": "",
+            "reason": "Catalogued results root for data follow-ups.",
+            "search_hint": "",
+            "title": "Results",
+            "url": "https://iamparis.eu/results",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "plot it",
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "reason": "plot request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_action": true,
+          "correct_model": true,
+          "correct_plot": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "5e0273806f154938b2ecc520d99fbe68",
+        "status": "pass",
+        "turn": 3
+      }
+    ]
+  },
+  {
+    "id": "conv-003",
+    "status": "pass",
+    "title": "Baseline Year Follow-Ups",
+    "turns": [
+      {
+        "answer": "### Emissions|CO2 in World\n\nScope: scenario `multiple`, model `multiple`, years `2030`\nUnit: `Mt CO2/yr`\n\nAnswer:\nSummary: 17 series across 10 models and 6 scenarios.\nShowing series 1-12 of 17, ordered by model and scenario. Narrow by model or scenario to view the 5 remaining series.\n\n| Model | Scenario | 2030 | Unit |\n|---|---|---|---|\n| e3me | PR_Baseline | 36.9K | Mt CO2/yr |\n| e3me | Unharmonised baseline | 37.1K | Mt CO2/yr |\n| GCAM | Baseline | -100.00 | Mt CO2/yr |\n| gcam | Baseline | 42.1K | Mt CO2/yr |\n| gcam | PR_Baseline | 42.7K | Mt CO2/yr |\n| GCAM-PR 5.3 | Baseline | 42.1K | Mt CO2/yr |\n| GCAM-PR 5.3 | Baseline\\|Harmonized | 41.9K | Mt CO2/yr |\n| Gemini-E3 | Baseline | 42.0K | Mt CO2/yr |\n| GEMINI-E3 7.0 | Baseline | 42.0K | Mt CO2/yr |\n| GEMINI-E3 7.0 | Baseline\\|Harmonized | 45.9K | Mt CO2/yr |\n| gemini_e3 | Baseline | 42.0K | Mt CO2/yr |\n| gemini_e3 | PR_Baseline | 44.5K | Mt CO2/yr |\n\nNext:\n- Ask `plot Emissions|CO2 for World` to visualize this result.",
+        "answer_preview": "### Emissions|CO2 in World  Scope: scenario `multiple`, model `multiple`, years `2030` Unit: `Mt CO2/yr`  Answer: Summary: 17 series across 10 models and 6 scenarios. Showing series 1-12 of 17, ordered by model and scenario. Narrow by model",
+        "entities": {
+          "action": "query",
+          "all_scenarios": true,
+          "confidence": 0.887,
+          "end_year": 2030,
+          "entity_confidence": {
+            "action": 0.75,
+            "region": 0.85,
+            "scenario": 0.9,
+            "variable": 0.9,
+            "years": 0.9
+          },
+          "extraction_method": "deterministic",
+          "region": "World",
+          "result_models": [
+            "GCAM",
+            "GCAM-PR 5.3",
+            "GEMINI-E3 7.0",
+            "Gemini-E3",
+            "MUSE",
+            "TIAM_Grantham",
+            "e3me",
+            "gcam",
+            "gemini_e3",
+            "muse"
+          ],
+          "scenario": "Baseline",
+          "scenarios": [
+            "Baseline",
+            "Baseline|Harmonized",
+            "PR_Baseline",
+            "Unharmonised baseline",
+            "baseline",
+            "baseline|Harmonized"
+          ],
+          "start_year": 2030,
+          "variable": "Emissions|CO2"
+        },
+        "expected": {
+          "expected_end_year": "2030",
+          "expected_model": "",
+          "expected_region": "World",
+          "expected_route": "data_query",
+          "expected_scenario": "Baseline",
+          "expected_start_year": "2030",
+          "expected_variable": "Emissions|CO2",
+          "id": "conv-003.1",
+          "no_hallucinated_data": "yes",
+          "query": "show Emissions|CO2 for World under Baseline in 2030",
+          "useful_clarification": "no",
+          "useful_link": "results"
+        },
+        "id": "conv-003.1",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 0.25,
+            "display_hint": "Catalogued results root for data follow-ups.",
+            "display_label": "Open Results",
+            "fallback_instruction": "",
+            "reason": "Catalogued results root for data follow-ups.",
+            "search_hint": "",
+            "title": "Results",
+            "url": "https://iamparis.eu/results",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "show Emissions|CO2 for World under Baseline in 2030",
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "reason": "data request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_end_year": true,
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_start_year": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "c1556a6598ca436f900c8425c19ca974",
+        "status": "pass",
+        "turn": 1
+      },
+      {
+        "answer": "### Emissions|CO2 in World\n\nScope: scenario `multiple`, model `multiple`, years `2031-latest available`\nUnit: `Mt CO2/yr`\n\nAnswer:\nSummary: 17 series across 10 models and 6 scenarios.\nShowing series 1-12 of 17, ordered by model and scenario. Narrow by model or scenario to view the 5 remaining series.\n\n| Model | Scenario | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 2070 | 2075 | 2080 | 2085 | 2090 | 2095 | 2100 | Unit |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n| e3me | PR_Baseline | 38.1K | 38.8K | 39.1K | 40.4K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| e3me | Unharmonised baseline | 38.5K | 39.2K | 39.6K | 41.1K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| GCAM | Baseline | 44.0K | 45.3K | 45.5K | 45.6K | 46.7K | 48.2K | 49.8K | 51.5K | 53.3K | 54.8K | 56.2K | 57.6K | 58.7K | 60.1K | Mt CO2/yr |\n| gcam | Baseline | 44.0K | 45.3K | 45.5K | 45.6K | 46.7K | 48.2K | 49.8K | 51.5K | 53.3K | 54.8K | 56.2K | 57.6K | 58.7K | 60.1K | Mt CO2/yr |\n| gcam | PR_Baseline | 44.5K | 46.0K | 46.6K | 47.0K | 48.2K | 49.6K | 51.4K | 53.4K | 54.9K | 56.0K | 57.6K | 59.0K | 60.5K | 62.1K | Mt CO2/yr |\n| GCAM-PR 5.3 | Baseline | 44.0K | 45.3K | 45.5K | 45.6K | 46.7K | 48.2K | 49.8K | 51.5K | 53.3K | 54.8K | 56.2K | 57.6K | 58.7K | 60.1K | Mt CO2/yr |\n| GCAM-PR 5.3 | Baseline\\|Harmonized | \u2014 | 45.2K | \u2014 | 45.6K | \u2014 | 48.2K | \u2014 | 51.5K | \u2014 | 54.8K | \u2014 | 57.6K | \u2014 | 60.1K | Mt CO2/yr |\n| Gemini-E3 | Baseline | 44.0K | 45.5K | 46.4K | 46.7K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| GEMINI-E3 7.0 | Baseline | 44.0K | 45.5K | 46.4K | 46.7K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| GEMINI-E3 7.0 | Baseline\\|Harmonized | \u2014 | 48.8K | \u2014 | 49.3K | \u2014 | 50.3K | \u2014 | 49.7K | \u2014 | 49.7K | \u2014 | 48.1K | \u2014 | 47.5K | Mt CO2/yr |\n| gemini_e3 | Baseline | 44.0K | 45.5K | 46.4K | 46.7K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| gemini_e3 | PR_Baseline | 46.9K | 49.0K | 50.7K | 52.2K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n\nNext:\n- Ask `plot Emissions|CO2 for World` to visualize this result.",
+        "answer_preview": "### Emissions|CO2 in World  Scope: scenario `multiple`, model `multiple`, years `2031-latest available` Unit: `Mt CO2/yr`  Answer: Summary: 17 series across 10 models and 6 scenarios. Showing series 1-12 of 17, ordered by model and scenario",
+        "entities": {
+          "action": "query",
+          "all_scenarios": true,
+          "confidence": 0.887,
+          "entity_confidence": {
+            "action": 0.75,
+            "region": 0.85,
+            "scenario": 0.9,
+            "variable": 0.9,
+            "years": 0.9
+          },
+          "extraction_method": "deterministic",
+          "observed_end_year": 2100,
+          "observed_start_year": 2035,
+          "region": "World",
+          "result_models": [
+            "GCAM",
+            "GCAM-PR 5.3",
+            "GEMINI-E3 7.0",
+            "Gemini-E3",
+            "MUSE",
+            "TIAM_Grantham",
+            "e3me",
+            "gcam",
+            "gemini_e3",
+            "muse"
+          ],
+          "scenario": "Baseline",
+          "scenarios": [
+            "Baseline",
+            "Baseline|Harmonized",
+            "PR_Baseline",
+            "Unharmonised baseline",
+            "baseline",
+            "baseline|Harmonized"
+          ],
+          "start_year": 2031,
+          "variable": "Emissions|CO2"
+        },
+        "expected": {
+          "expected_end_year": "none",
+          "expected_model": "",
+          "expected_region": "World",
+          "expected_route": "data_query",
+          "expected_scenario": "Baseline",
+          "expected_start_year": "2031",
+          "expected_variable": "Emissions|CO2",
+          "id": "conv-003.2",
+          "no_hallucinated_data": "yes",
+          "query": "after 2030",
+          "useful_clarification": "no",
+          "useful_link": "results"
+        },
+        "id": "conv-003.2",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 0.25,
+            "display_hint": "Catalogued results root for data follow-ups.",
+            "display_label": "Open Results",
+            "fallback_instruction": "",
+            "reason": "Catalogued results root for data follow-ups.",
+            "search_hint": "",
+            "title": "Results",
+            "url": "https://iamparis.eu/results",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "after 2030",
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "reason": "data request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_end_year": true,
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_start_year": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "c1556a6598ca436f900c8425c19ca974",
+        "status": "pass",
+        "turn": 2
+      },
+      {
+        "answer": "Showing CO2 Emissions in World for selected scenarios `Baseline`, `baseline`, `Baseline|Harmonized`, `baseline|Harmonized`, `PR_Baseline`, `PR_CurPol_CP`, `PR_CurPol_EI`, `Unharmonised baseline`, and `PR_CurPol_CPO` (from 2031). Resolved variable: `Emissions|CO2`. Showing 8 of 29 available series for readability; name a scenario or model to see a specific one.",
+        "answer_preview": "Showing CO2 Emissions in World for selected scenarios `Baseline`, `baseline`, `Baseline|Harmonized`, `baseline|Harmonized`, `PR_Baseline`, `PR_CurPol_CP`, `PR_CurPol_EI`, `Unharmonised baseline`, and `PR_CurPol_CPO` (from 2031). Resolved va",
+        "entities": {
+          "action": "plot",
+          "all_scenarios": false,
+          "chart_type": "line",
+          "comparison": "scenario",
+          "comparison_dimension": "scenario",
+          "displayed_series": [
+            "Baseline - GCAM",
+            "Baseline|Harmonized - GCAM-PR 5.3",
+            "PR_Baseline - e3me",
+            "Unharmonised baseline - e3me",
+            "baseline - MUSE",
+            "baseline|Harmonized - MUSE",
+            "PR_CurPol_CP - gcam",
+            "PR_CurPol_CPO - gemini_e3"
+          ],
+          "displayed_series_count": 8,
+          "omitted_series": 21,
+          "region": "World",
+          "regions": [
+            "World"
+          ],
+          "result_models": [
+            "GCAM",
+            "GCAM-PR 5.3",
+            "MUSE",
+            "e3me",
+            "gcam",
+            "gemini_e3"
+          ],
+          "scenarios": [
+            "Baseline",
+            "baseline",
+            "Baseline|Harmonized",
+            "baseline|Harmonized",
+            "PR_Baseline",
+            "PR_CurPol_CP",
+            "PR_CurPol_EI",
+            "Unharmonised baseline",
+            "PR_CurPol_CPO"
+          ],
+          "start_year": 2031,
+          "unit": "Mt CO2/yr",
+          "variable": "Emissions|CO2",
+          "variables": [
+            "Emissions|CO2"
+          ]
+        },
+        "expected": {
+          "expected_action": "plot",
+          "expected_comparison": "scenario",
+          "expected_end_year": "none",
+          "expected_model": "",
+          "expected_plot": "yes",
+          "expected_region": "World",
+          "expected_route": "data_plotting",
+          "expected_scenario": "Current Policies",
+          "expected_start_year": "2031",
+          "expected_variable": "Emissions|CO2",
+          "id": "conv-003.3",
+          "no_hallucinated_data": "yes",
+          "query": "compare with current policy",
+          "useful_clarification": "no",
+          "useful_link": "results"
+        },
+        "id": "conv-003.3",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 0.25,
+            "display_hint": "Catalogued results root for data follow-ups.",
+            "display_label": "Open Results",
+            "fallback_instruction": "",
+            "reason": "Catalogued results root for data follow-ups.",
+            "search_hint": "",
+            "title": "Results",
+            "url": "https://iamparis.eu/results",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "compare with current policy",
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "reason": "scenario-comparison follow-up",
+          "source": "conversation_state"
+        },
+        "scores": {
+          "correct_action": true,
+          "correct_comparison": true,
+          "correct_end_year": true,
+          "correct_model": true,
+          "correct_plot": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_start_year": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "c1556a6598ca436f900c8425c19ca974",
+        "status": "pass",
+        "turn": 3
+      }
+    ]
+  },
+  {
+    "id": "conv-004",
+    "status": "pass",
+    "title": "Application Library Grounded Links",
+    "turns": [
+      {
+        "answer": "Use these IAM PARIS links for this request: [Aqueduct](https://iamparis.eu/application_library/474).",
+        "answer_preview": "Use these IAM PARIS links for this request: [Aqueduct](https://iamparis.eu/application_library/474).",
+        "entities": {},
+        "expected": {
+          "expected_model": "",
+          "expected_region": "",
+          "expected_route": "general_qa",
+          "expected_scenario": "",
+          "expected_variable": "",
+          "id": "conv-004.1",
+          "no_hallucinated_data": "yes",
+          "query": "open Aqueduct details",
+          "useful_clarification": "no",
+          "useful_link": "application_library"
+        },
+        "id": "conv-004.1",
+        "links": [
+          {
+            "action": "open",
+            "category": "application_library",
+            "confidence": 1.0,
+            "display_hint": "Catalogued destination matching the navigation request.",
+            "display_label": "Open Aqueduct",
+            "fallback_instruction": "",
+            "reason": "Catalogued destination matching the navigation request.",
+            "search_hint": "",
+            "title": "Aqueduct",
+            "url": "https://iamparis.eu/application_library/474",
+            "verified_direct_url": true
+          }
+        ],
+        "query": "open Aqueduct details",
+        "route": {
+          "agent": "general_qa",
+          "confidence": 0.97,
+          "reason": "explicit site navigation request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "67d2d3b636714b27ba15cd246ce02f52",
+        "status": "pass",
+        "turn": 1
+      },
+      {
+        "answer": "Use these IAM PARIS links for this request: [Climate Watch](https://iamparis.eu/application_library).\n\nIf a direct detail page is not available:\n- Open the Application Library and search for: Climate Watch",
+        "answer_preview": "Use these IAM PARIS links for this request: [Climate Watch](https://iamparis.eu/application_library).  If a direct detail page is not available: - Open the Application Library and search for: Climate Watch",
+        "entities": {},
+        "expected": {
+          "expected_model": "",
+          "expected_region": "",
+          "expected_route": "general_qa",
+          "expected_scenario": "",
+          "expected_variable": "",
+          "id": "conv-004.2",
+          "no_hallucinated_data": "yes",
+          "query": "where can I find Climate Watch",
+          "useful_clarification": "no",
+          "useful_link": "application_library"
+        },
+        "id": "conv-004.2",
+        "links": [
+          {
+            "action": "search",
+            "category": "application_library",
+            "confidence": 1.0,
+            "display_hint": "Open the Application Library and search for: Climate Watch",
+            "display_label": "Search Application Library for Climate Watch",
+            "fallback_instruction": "Open the Application Library and search for: Climate Watch",
+            "reason": "Matched: Climate Watch, Climate Watch",
+            "search_hint": "Climate Watch",
+            "title": "Climate Watch",
+            "url": "https://iamparis.eu/application_library",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "where can I find Climate Watch",
+        "route": {
+          "agent": "general_qa",
+          "confidence": 0.97,
+          "reason": "explicit site navigation request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "67d2d3b636714b27ba15cd246ce02f52",
+        "status": "pass",
+        "turn": 2
+      }
+    ]
+  },
+  {
+    "id": "conv-005",
+    "status": "pass",
+    "title": "IAM COMPACT Workspaces",
+    "turns": [
+      {
+        "answer": "Use these IAM PARIS links for this request: [IAM COMPACT](https://iamparis.eu/results/iam-compact).",
+        "answer_preview": "Use these IAM PARIS links for this request: [IAM COMPACT](https://iamparis.eu/results/iam-compact).",
+        "entities": {},
+        "expected": {
+          "expected_model": "",
+          "expected_region": "",
+          "expected_route": "general_qa",
+          "expected_scenario": "",
+          "expected_variable": "",
+          "id": "conv-005.1",
+          "no_hallucinated_data": "yes",
+          "query": "Fit-for-55 EU net zero results",
+          "useful_clarification": "no",
+          "useful_link": "iam_compact"
+        },
+        "id": "conv-005.1",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 1.0,
+            "display_hint": "Catalogued destination matching the navigation request.",
+            "display_label": "Open IAM COMPACT",
+            "fallback_instruction": "",
+            "reason": "Catalogued destination matching the navigation request.",
+            "search_hint": "",
+            "title": "IAM COMPACT",
+            "url": "https://iamparis.eu/results/iam-compact",
+            "verified_direct_url": true
+          }
+        ],
+        "query": "Fit-for-55 EU net zero results",
+        "route": {
+          "agent": "general_qa",
+          "confidence": 0.97,
+          "reason": "explicit site navigation request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "4a61a85e5aa443b3b7a78c700b82b66e",
+        "status": "pass",
+        "turn": 1
+      },
+      {
+        "answer": "Use these IAM PARIS links for this request: [Cost of capital evolution effects on regional mitigation pathways](https://iamparis.eu/results/iam-compact/cost-of-capital-evolution-effects-on-regional-mitigation-pathways/policy_questions).",
+        "answer_preview": "Use these IAM PARIS links for this request: [Cost of capital evolution effects on regional mitigation pathways](https://iamparis.eu/results/iam-compact/cost-of-capital-evolution-effects-on-regional-mitigation-pathways/policy_questions).",
+        "entities": {},
+        "expected": {
+          "expected_model": "",
+          "expected_region": "",
+          "expected_route": "general_qa",
+          "expected_scenario": "",
+          "expected_variable": "",
+          "id": "conv-005.2",
+          "no_hallucinated_data": "yes",
+          "query": "cost of capital mitigation pathways",
+          "useful_clarification": "no",
+          "useful_link": "iam_compact"
+        },
+        "id": "conv-005.2",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 1.0,
+            "display_hint": "Catalogued destination matching the navigation request.",
+            "display_label": "Open Cost of capital evolution effects on regional mitigation pathways",
+            "fallback_instruction": "",
+            "reason": "Catalogued destination matching the navigation request.",
+            "search_hint": "",
+            "title": "Cost of capital evolution effects on regional mitigation pathways",
+            "url": "https://iamparis.eu/results/iam-compact/cost-of-capital-evolution-effects-on-regional-mitigation-pathways/policy_questions",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "cost of capital mitigation pathways",
+        "route": {
+          "agent": "general_qa",
+          "confidence": 0.97,
+          "reason": "explicit site navigation request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "4a61a85e5aa443b3b7a78c700b82b66e",
+        "status": "pass",
+        "turn": 2
+      },
+      {
+        "answer": "Use these IAM PARIS links for this request: [Tech-constrained EU pathways to net zero](https://iamparis.eu/results/iam-compact/tech-constrained-eu-pathways-to-net-zero/policy_questions).",
+        "answer_preview": "Use these IAM PARIS links for this request: [Tech-constrained EU pathways to net zero](https://iamparis.eu/results/iam-compact/tech-constrained-eu-pathways-to-net-zero/policy_questions).",
+        "entities": {},
+        "expected": {
+          "expected_model": "",
+          "expected_region": "",
+          "expected_route": "general_qa",
+          "expected_scenario": "",
+          "expected_variable": "",
+          "id": "conv-005.3",
+          "no_hallucinated_data": "yes",
+          "query": "technology constrained pathways to net zero",
+          "useful_clarification": "no",
+          "useful_link": "iam_compact"
+        },
+        "id": "conv-005.3",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 1.0,
+            "display_hint": "Catalogued destination matching the navigation request.",
+            "display_label": "Open Tech-constrained EU pathways to net zero",
+            "fallback_instruction": "",
+            "reason": "Catalogued destination matching the navigation request.",
+            "search_hint": "",
+            "title": "Tech-constrained EU pathways to net zero",
+            "url": "https://iamparis.eu/results/iam-compact/tech-constrained-eu-pathways-to-net-zero/policy_questions",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "technology constrained pathways to net zero",
+        "route": {
+          "agent": "general_qa",
+          "confidence": 0.97,
+          "reason": "explicit site navigation request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "4a61a85e5aa443b3b7a78c700b82b66e",
+        "status": "pass",
+        "turn": 3
+      }
+    ]
+  },
+  {
+    "id": "conv-006",
+    "status": "pass",
+    "title": "NDC ASPECTS Workspaces",
+    "turns": [
+      {
+        "answer": "Use these IAM PARIS links for this request: [Global impacts of NDCs](https://iamparis.eu/results/ndc-aspects/global-impacts-of-ndcs/policy_questions).",
+        "answer_preview": "Use these IAM PARIS links for this request: [Global impacts of NDCs](https://iamparis.eu/results/ndc-aspects/global-impacts-of-ndcs/policy_questions).",
+        "entities": {},
+        "expected": {
+          "expected_model": "",
+          "expected_region": "",
+          "expected_route": "general_qa",
+          "expected_scenario": "",
+          "expected_variable": "",
+          "id": "conv-006.1",
+          "no_hallucinated_data": "yes",
+          "query": "global impacts of NDCs",
+          "useful_clarification": "no",
+          "useful_link": "ndc_aspects"
+        },
+        "id": "conv-006.1",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 1.0,
+            "display_hint": "Catalogued destination matching the navigation request.",
+            "display_label": "Open Global impacts of NDCs",
+            "fallback_instruction": "",
+            "reason": "Catalogued destination matching the navigation request.",
+            "search_hint": "",
+            "title": "Global impacts of NDCs",
+            "url": "https://iamparis.eu/results/ndc-aspects/global-impacts-of-ndcs/policy_questions",
+            "verified_direct_url": true
+          }
+        ],
+        "query": "global impacts of NDCs",
+        "route": {
+          "agent": "general_qa",
+          "confidence": 0.97,
+          "reason": "explicit site navigation request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "2e6ae00f969f4971aa3319a02fbc911c",
+        "status": "pass",
+        "turn": 1
+      },
+      {
+        "answer": "Use these IAM PARIS links for this request: [NDC ASPECTS](https://iamparis.eu/results/ndc-aspects).",
+        "answer_preview": "Use these IAM PARIS links for this request: [NDC ASPECTS](https://iamparis.eu/results/ndc-aspects).",
+        "entities": {},
+        "expected": {
+          "expected_model": "",
+          "expected_region": "",
+          "expected_route": "general_qa",
+          "expected_scenario": "",
+          "expected_variable": "",
+          "id": "conv-006.2",
+          "no_hallucinated_data": "yes",
+          "query": "NDC ASPECTS transport results",
+          "useful_clarification": "no",
+          "useful_link": "ndc_aspects"
+        },
+        "id": "conv-006.2",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 1.0,
+            "display_hint": "Catalogued destination matching the navigation request.",
+            "display_label": "Open NDC ASPECTS",
+            "fallback_instruction": "",
+            "reason": "Catalogued destination matching the navigation request.",
+            "search_hint": "",
+            "title": "NDC ASPECTS",
+            "url": "https://iamparis.eu/results/ndc-aspects",
+            "verified_direct_url": true
+          }
+        ],
+        "query": "NDC ASPECTS transport results",
+        "route": {
+          "agent": "general_qa",
+          "confidence": 0.97,
+          "reason": "explicit site navigation request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "2e6ae00f969f4971aa3319a02fbc911c",
+        "status": "pass",
+        "turn": 2
+      },
+      {
+        "answer": "Use these IAM PARIS links for this request: [AFOLU transformation](https://iamparis.eu/results/ndc-aspects/afolu-transformation/policy_questions).",
+        "answer_preview": "Use these IAM PARIS links for this request: [AFOLU transformation](https://iamparis.eu/results/ndc-aspects/afolu-transformation/policy_questions).",
+        "entities": {},
+        "expected": {
+          "expected_model": "",
+          "expected_region": "",
+          "expected_route": "general_qa",
+          "expected_scenario": "",
+          "expected_variable": "",
+          "id": "conv-006.3",
+          "no_hallucinated_data": "yes",
+          "query": "AFOLU land use results",
+          "useful_clarification": "no",
+          "useful_link": "afolu"
+        },
+        "id": "conv-006.3",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 1.0,
+            "display_hint": "Catalogued destination matching the navigation request.",
+            "display_label": "Open AFOLU transformation",
+            "fallback_instruction": "",
+            "reason": "Catalogued destination matching the navigation request.",
+            "search_hint": "",
+            "title": "AFOLU transformation",
+            "url": "https://iamparis.eu/results/ndc-aspects/afolu-transformation/policy_questions",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "AFOLU land use results",
+        "route": {
+          "agent": "general_qa",
+          "confidence": 0.97,
+          "reason": "explicit site navigation request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "2e6ae00f969f4971aa3319a02fbc911c",
+        "status": "pass",
+        "turn": 3
+      }
+    ]
+  },
+  {
+    "id": "conv-007",
+    "status": "pass",
+    "title": "Model Metadata Then Data",
+    "turns": [
+      {
+        "answer": "### GCAM\n\nDescription:\nGCAM is an integrated assessment model that represents interactions among energy, economy, land, water and climate systems. It is commonly used for scenario analysis of emissions, energy transitions and climate policy.\n\nDeveloper:\nJoint Global Change Research Institute\n\nModel scope:\n- energy\n- economy\n- land\n- water\n- climate\n\nUseful for:\n- emissions and energy pathway analysis\n- climate policy scenarios\n- land and resource interactions\n- regional mitigation comparisons\n\nAssumptions:\nNo explicit assumptions field is available in the local IAM PARIS model metadata. Use the selected scenario and IAM PARIS result metadata to interpret GCAM assumptions for a specific answer.\n\nInterpretation notes:\n- model assumptions vary by scenario and input dataset\n- local IAM PARIS metadata may not include detailed assumptions\n\nRelated model documentation:\n- [IAM PARIS Models](https://iamparis.eu/models)\n- Open the Models page and search for: `GCAM`",
+        "answer_preview": "### GCAM  Description: GCAM is an integrated assessment model that represents interactions among energy, economy, land, water and climate systems. It is commonly used for scenario analysis of emissions, energy transitions and climate policy",
+        "entities": {
+          "model": "GCAM"
+        },
+        "expected": {
+          "expected_model": "GCAM",
+          "expected_region": "",
+          "expected_route": "model_explanation",
+          "expected_scenario": "",
+          "expected_variable": "",
+          "id": "conv-007.1",
+          "no_hallucinated_data": "yes",
+          "query": "tell me about GCAM model assumptions",
+          "useful_clarification": "no",
+          "useful_link": "models"
+        },
+        "id": "conv-007.1",
+        "links": [
+          {
+            "action": "open",
+            "category": "models",
+            "confidence": 1.0,
+            "display_hint": "Open the Models directory and search for: GCAM",
+            "display_label": "Open GCAM",
+            "fallback_instruction": "Open the Models directory and search for: GCAM",
+            "reason": "Matched: GCAM, GCAM",
+            "search_hint": "GCAM",
+            "title": "GCAM",
+            "url": "https://iamparis.eu/models",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "tell me about GCAM model assumptions",
+        "route": {
+          "agent": "model_explanation",
+          "confidence": 0.96,
+          "reason": "named-model metadata request",
+          "source": "query_plan"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "252b01fcc7d74cf396d6b460eace5b28",
+        "status": "pass",
+        "turn": 1
+      },
+      {
+        "answer": "I need one more detail. Which variable should I use?",
+        "answer_preview": "I need one more detail. Which variable should I use?",
+        "entities": {
+          "model": "GCAM"
+        },
+        "expected": {
+          "expected_model": "GCAM",
+          "expected_region": "",
+          "expected_route": "data_query",
+          "expected_scenario": "",
+          "expected_variable": "",
+          "id": "conv-007.2",
+          "no_hallucinated_data": "yes",
+          "query": "show data using GCAM",
+          "useful_clarification": "yes",
+          "useful_link": "models"
+        },
+        "id": "conv-007.2",
+        "links": [
+          {
+            "action": "open",
+            "category": "models",
+            "confidence": 1.0,
+            "display_hint": "Open the Models directory and search for: GCAM",
+            "display_label": "Open GCAM",
+            "fallback_instruction": "Open the Models directory and search for: GCAM",
+            "reason": "Matched: GCAM, GCAM",
+            "search_hint": "GCAM",
+            "title": "GCAM",
+            "url": "https://iamparis.eu/models",
+            "verified_direct_url": false
+          },
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 0.25,
+            "display_hint": "Catalogued results root for data follow-ups.",
+            "display_label": "Open Results",
+            "fallback_instruction": "",
+            "reason": "Catalogued results root for data follow-ups.",
+            "search_hint": "",
+            "title": "Results",
+            "url": "https://iamparis.eu/results",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "show data using GCAM",
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "reason": "data request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "252b01fcc7d74cf396d6b460eace5b28",
+        "status": "pass",
+        "turn": 2
+      },
+      {
+        "answer": "### Emissions|CO2 in World\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\nSummary: 76 series across 12 models and 18 scenarios.\nShowing series 1-12 of 76, ordered by model and scenario. Narrow by model or scenario to view the 64 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 2070 | 2075 | 2080 | 2085 | 2090 | 2095 | 2100 | Unit |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n| e3me | PR_Baseline | \u2014 | 31.5K | 34.4K | 34.4K | 35.4K | 36.9K | 38.1K | 38.8K | 39.1K | 40.4K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| e3me | PR_CurPol_CP | \u2014 | 31.5K | 34.4K | 34.4K | 35.4K | 36.9K | 38.0K | 38.5K | 38.8K | 40.1K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| e3me | PR_CurPol_EI | \u2014 | 31.5K | 34.4K | 34.4K | 35.4K | 36.9K | 37.8K | 38.7K | 39.1K | 39.2K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| e3me | PR_NDC_CP | \u2014 | 31.5K | 34.4K | 34.4K | 34.6K | 35.3K | 35.5K | 34.8K | 33.7K | 33.0K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| e3me | PR_NDC_EI | \u2014 | 31.5K | 34.4K | 34.4K | 34.6K | 35.3K | 35.5K | 35.8K | 35.6K | 35.2K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| e3me | Unharmonised baseline | \u2014 | 31.5K | 34.4K | 34.4K | 35.5K | 37.1K | 38.5K | 39.2K | 39.6K | 41.1K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| GCAM | Baseline | 31.4K | 36.1K | 39.2K | 38.3K | 40.7K | -100.00 | 44.0K | 45.3K | 45.5K | 45.6K | 46.7K | 48.2K | 49.8K | 51.5K | 53.3K | 54.8K | 56.2K | 57.6K | 58.7K | 60.1K | Mt CO2/yr |\n| gcam | Baseline | 31.4K | 36.1K | 39.2K | 38.3K | 40.7K | 42.1K | 44.0K | 45.3K | 45.5K | 45.6K | 46.7K | 48.2K | 49.8K | 51.5K | 53.3K | 54.8K | 56.2K | 57.6K | 58.7K | 60.1K | Mt CO2/yr |\n| GCAM | CP_EI | 31.4K | 36.1K | 39.2K | 37.3K | 37.6K | 37.5K | 35.7K | 33.5K | 31.1K | 28.5K | 26.2K | 24.3K | 22.6K | 20.9K | 19.2K | 17.5K | 15.9K | 14.5K | 13.1K | 11.8K | Mt CO2/yr |\n| gcam | CP_EI | 31.4K | 36.1K | 39.2K | 37.3K | 37.6K | 37.5K | 35.7K | 33.5K | 31.1K | 28.5K | 26.2K | 24.3K | 22.6K | 20.9K | 19.2K | 17.5K | 15.9K | 14.5K | 13.1K | 11.8K | Mt CO2/yr |\n| gcam | NDC_EI | 31.4K | 36.1K | 39.2K | 37.3K | 35.9K | 32.3K | 29.0K | 25.6K | 21.8K | 18.3K | 15.6K | 13.3K | 11.4K | 9.7K | 8.1K | 6.7K | 5.5K | 4.4K | 3.6K | 2.8K | Mt CO2/yr |\n| gcam | NDC_LTT | 31.4K | 36.1K | 39.2K | 37.3K | 35.9K | 32.3K | 26.7K | 21.0K | 14.9K | 9.2K | 4.3K | 871.19 | 669.19 | 59.16 | -310.14 | -114.52 | -451.30 | -589.76 | -661.35 | -766.86 | Mt CO2/yr |\n\nNext:\n- Ask `plot Emissions|CO2 for World` to visualize this result.\n\nReply with a scenario, model, region, or year to narrow the answer.",
+        "answer_preview": "### Emissions|CO2 in World  Scope: scenario `multiple`, model `multiple`, years `2005-2100` Unit: `Mt CO2/yr`  Answer: Summary: 76 series across 12 models and 18 scenarios. Showing series 1-12 of 76, ordered by model and scenario. Narrow by",
+        "entities": {
+          "action": "query",
+          "all_scenarios": true,
+          "confidence": 0.875,
+          "entity_confidence": {
+            "action": 0.75,
+            "region": 0.85,
+            "variable": 0.9
+          },
+          "extraction_method": "deterministic",
+          "observed_end_year": 2100,
+          "observed_start_year": 2005,
+          "region": "World",
+          "result_models": [
+            "GCAM",
+            "GCAM 7.0",
+            "GCAM-PR 5.3",
+            "GEMINI-E3 7.0",
+            "Gemini-E3",
+            "MUSE",
+            "PROMETHEUS V1",
+            "TIAM_Grantham",
+            "e3me",
+            "gcam",
+            "gemini_e3",
+            "muse"
+          ],
+          "scenarios": [
+            "Baseline",
+            "Baseline|Harmonized",
+            "CP_EI",
+            "CP_EI|Harmonized",
+            "NDC_EI",
+            "NDC_EI|Harmonized",
+            "NDC_LTS|Harmonized",
+            "NDC_LTT",
+            "PR_Baseline",
+            "PR_CurPol_CP",
+            "PR_CurPol_CPO",
+            "PR_CurPol_EI",
+            "PR_NDC_CP",
+            "PR_NDC_CPO",
+            "PR_NDC_EI",
+            "Unharmonised baseline",
+            "baseline",
+            "baseline|Harmonized"
+          ],
+          "variable": "Emissions|CO2"
+        },
+        "expected": {
+          "expected_model": "",
+          "expected_region": "World",
+          "expected_route": "data_query",
+          "expected_scenario": "",
+          "expected_variable": "Emissions|CO2",
+          "id": "conv-007.3",
+          "no_hallucinated_data": "yes",
+          "query": "show CO2 emissions for World",
+          "useful_clarification": "yes",
+          "useful_link": "results"
+        },
+        "id": "conv-007.3",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 0.25,
+            "display_hint": "Catalogued results root for data follow-ups.",
+            "display_label": "Open Results",
+            "fallback_instruction": "",
+            "reason": "Catalogued results root for data follow-ups.",
+            "search_hint": "",
+            "title": "Results",
+            "url": "https://iamparis.eu/results",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "show CO2 emissions for World",
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "reason": "data request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "252b01fcc7d74cf396d6b460eace5b28",
+        "status": "pass",
+        "turn": 3
+      }
+    ]
+  },
+  {
+    "id": "conv-008",
+    "status": "pass",
+    "title": "No Data Recovery",
+    "turns": [
+      {
+        "answer": "I could not find data for `Emissions|CO2` in `World` under `Policy`.\n\nReason: the exact scenario combination is not available for this data slice.\n\nClosest valid options:\n\n1. scenario `Baseline` (baseline)\n\n2. scenario `CP_EI`\n\n3. scenario `NDC_EI` (NDC)\n\nReply with `1`, `2`, or `3`, or type the scenario you want.",
+        "answer_preview": "I could not find data for `Emissions|CO2` in `World` under `Policy`.  Reason: the exact scenario combination is not available for this data slice.  Closest valid options:  1. scenario `Baseline` (baseline)  2. scenario `CP_EI`  3. scenario ",
+        "entities": {
+          "action": "query",
+          "entity_confidence": {
+            "action": 0.75,
+            "region": 0.85,
+            "scenario": 0.9,
+            "variable": 0.9
+          },
+          "region": "World",
+          "scenario": "Policy",
+          "variable": "Emissions|CO2"
+        },
+        "expected": {
+          "expected_model": "",
+          "expected_region": "World",
+          "expected_route": "data_query",
+          "expected_scenario": "Policy",
+          "expected_variable": "Emissions|CO2",
+          "id": "conv-008.1",
+          "no_hallucinated_data": "yes",
+          "query": "show Emissions|CO2 for World under Policy",
+          "useful_clarification": "yes",
+          "useful_link": "results"
+        },
+        "id": "conv-008.1",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 0.25,
+            "display_hint": "Catalogued results root for data follow-ups.",
+            "display_label": "Open Results",
+            "fallback_instruction": "",
+            "reason": "Catalogued results root for data follow-ups.",
+            "search_hint": "",
+            "title": "Results",
+            "url": "https://iamparis.eu/results",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "show Emissions|CO2 for World under Policy",
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "reason": "data request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "e97e36c2ce184083b36deb16c7371bd1",
+        "status": "pass",
+        "turn": 1
+      },
+      {
+        "answer": "### Emissions|CO2 in World\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2/yr`\n\nAnswer:\nSummary: 17 series across 10 models and 6 scenarios.\nShowing series 1-12 of 17, ordered by model and scenario. Narrow by model or scenario to view the 5 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 2070 | 2075 | 2080 | 2085 | 2090 | 2095 | 2100 | Unit |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n| e3me | PR_Baseline | \u2014 | 31.5K | 34.4K | 34.4K | 35.4K | 36.9K | 38.1K | 38.8K | 39.1K | 40.4K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| e3me | Unharmonised baseline | \u2014 | 31.5K | 34.4K | 34.4K | 35.5K | 37.1K | 38.5K | 39.2K | 39.6K | 41.1K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| GCAM | Baseline | 31.4K | 36.1K | 39.2K | 38.3K | 40.7K | -100.00 | 44.0K | 45.3K | 45.5K | 45.6K | 46.7K | 48.2K | 49.8K | 51.5K | 53.3K | 54.8K | 56.2K | 57.6K | 58.7K | 60.1K | Mt CO2/yr |\n| gcam | Baseline | 31.4K | 36.1K | 39.2K | 38.3K | 40.7K | 42.1K | 44.0K | 45.3K | 45.5K | 45.6K | 46.7K | 48.2K | 49.8K | 51.5K | 53.3K | 54.8K | 56.2K | 57.6K | 58.7K | 60.1K | Mt CO2/yr |\n| gcam | PR_Baseline | 31.4K | 36.1K | 39.2K | 39.4K | 41.3K | 42.7K | 44.5K | 46.0K | 46.6K | 47.0K | 48.2K | 49.6K | 51.4K | 53.4K | 54.9K | 56.0K | 57.6K | 59.0K | 60.5K | 62.1K | Mt CO2/yr |\n| GCAM-PR 5.3 | Baseline | 31.4K | 36.1K | 39.2K | 38.3K | 40.7K | 42.1K | 44.0K | 45.3K | 45.5K | 45.6K | 46.7K | 48.2K | 49.8K | 51.5K | 53.3K | 54.8K | 56.2K | 57.6K | 58.7K | 60.1K | Mt CO2/yr |\n| GCAM-PR 5.3 | Baseline\\|Harmonized | \u2014 | 36.1K | 39.2K | 38.1K | \u2014 | 41.9K | \u2014 | 45.2K | \u2014 | 45.6K | \u2014 | 48.2K | \u2014 | 51.5K | \u2014 | 54.8K | \u2014 | 57.6K | \u2014 | 60.1K | Mt CO2/yr |\n| Gemini-E3 | Baseline | \u2014 | \u2014 | 34.7K | 34.9K | 38.1K | 42.0K | 44.0K | 45.5K | 46.4K | 46.7K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| GEMINI-E3 7.0 | Baseline | \u2014 | \u2014 | 34.7K | 34.9K | 38.1K | 42.0K | 44.0K | 45.5K | 46.4K | 46.7K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| GEMINI-E3 7.0 | Baseline\\|Harmonized | \u2014 | 36.1K | 39.2K | 38.9K | \u2014 | 45.9K | \u2014 | 48.8K | \u2014 | 49.3K | \u2014 | 50.3K | \u2014 | 49.7K | \u2014 | 49.7K | \u2014 | 48.1K | \u2014 | 47.5K | Mt CO2/yr |\n| gemini_e3 | Baseline | \u2014 | \u2014 | 34.7K | 34.9K | 38.1K | 42.0K | 44.0K | 45.5K | 46.4K | 46.7K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n| gemini_e3 | PR_Baseline | \u2014 | \u2014 | 34.9K | 37.8K | 41.2K | 44.5K | 46.9K | 49.0K | 50.7K | 52.2K | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | \u2014 | Mt CO2/yr |\n\nNext:\n- Ask `plot Emissions|CO2 for World` to visualize this result.",
+        "answer_preview": "### Emissions|CO2 in World  Scope: scenario `multiple`, model `multiple`, years `2005-2100` Unit: `Mt CO2/yr`  Answer: Summary: 17 series across 10 models and 6 scenarios. Showing series 1-12 of 17, ordered by model and scenario. Narrow by ",
+        "entities": {
+          "action": "query",
+          "all_scenarios": true,
+          "confidence": 0.917,
+          "entity_confidence": {
+            "action": 0.75,
+            "region": 0.85,
+            "scenario": 1.0,
+            "variable": 0.9
+          },
+          "extraction_method": "deterministic",
+          "observed_end_year": 2100,
+          "observed_start_year": 2005,
+          "region": "World",
+          "result_models": [
+            "GCAM",
+            "GCAM-PR 5.3",
+            "GEMINI-E3 7.0",
+            "Gemini-E3",
+            "MUSE",
+            "TIAM_Grantham",
+            "e3me",
+            "gcam",
+            "gemini_e3",
+            "muse"
+          ],
+          "scenario": "Baseline",
+          "scenarios": [
+            "Baseline",
+            "Baseline|Harmonized",
+            "PR_Baseline",
+            "Unharmonised baseline",
+            "baseline",
+            "baseline|Harmonized"
+          ],
+          "variable": "Emissions|CO2"
+        },
+        "expected": {
+          "expected_model": "",
+          "expected_region": "World",
+          "expected_route": "data_query",
+          "expected_scenario": "",
+          "expected_variable": "Emissions|CO2",
+          "id": "conv-008.2",
+          "no_hallucinated_data": "yes",
+          "query": "use the first scenario",
+          "useful_clarification": "no",
+          "useful_link": "results"
+        },
+        "id": "conv-008.2",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 0.25,
+            "display_hint": "Catalogued results root for data follow-ups.",
+            "display_label": "Open Results",
+            "fallback_instruction": "",
+            "reason": "Catalogued results root for data follow-ups.",
+            "search_hint": "",
+            "title": "Results",
+            "url": "https://iamparis.eu/results",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "use the first scenario",
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.98,
+          "reason": "clarification selection; resolved",
+          "source": "conversation_state"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "e97e36c2ce184083b36deb16c7371bd1",
+        "status": "pass",
+        "turn": 2
+      }
+    ]
+  },
+  {
+    "id": "conv-009",
+    "status": "pass",
+    "title": "Stale Clarification Reset",
+    "turns": [
+      {
+        "answer": "I found several possible variables, but none has enough evidence for automatic selection. Choose the variable: 1. `Final Energy|Liquids` (final energy use) 2. `Final Energy|Liquids|Fossil` (final energy use) 3. `Final Energy|AFOFI|Liquids|Fossil` (final energy use) Reply with a number (1-3), or `yes` for option 1.",
+        "answer_preview": "I found several possible variables, but none has enough evidence for automatic selection. Choose the variable: 1. `Final Energy|Liquids` (final energy use) 2. `Final Energy|Liquids|Fossil` (final energy use) 3. `Final Energy|AFOFI|Liquids|F",
+        "entities": {
+          "action": "query",
+          "entity_confidence": {
+            "action": 0.75,
+            "region": 0.85
+          },
+          "region": "EU"
+        },
+        "expected": {
+          "expected_model": "",
+          "expected_region": "EU",
+          "expected_route": "data_query",
+          "expected_scenario": "",
+          "expected_variable": "",
+          "id": "conv-009.1",
+          "no_hallucinated_data": "yes",
+          "query": "oil demand for EU",
+          "useful_clarification": "yes",
+          "useful_link": "results"
+        },
+        "id": "conv-009.1",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 0.25,
+            "display_hint": "Catalogued results root for data follow-ups.",
+            "display_label": "Open Results",
+            "fallback_instruction": "",
+            "reason": "Catalogued results root for data follow-ups.",
+            "search_hint": "",
+            "title": "Results",
+            "url": "https://iamparis.eu/results",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "oil demand for EU",
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.45,
+          "reason": "low confidence entity clarification",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "09e1cc262edb4460b829f6b301174a19",
+        "status": "pass",
+        "turn": 1
+      },
+      {
+        "answer": "There are 73 models available. Examples: AIM/Enduse India 3.3, ALADIN, ATOM, CHANCE, CLEWs, CLEWs - Ethiopia, CLEWs - Kenya, CLEWs - Sri Lanka. You can ask for details about a specific model using `info [model name]`, or say `list variables` to see the kinds of outputs available.\n\nShowing 8 of 73. Say `show all models` if you need the full list.",
+        "answer_preview": "There are 73 models available. Examples: AIM/Enduse India 3.3, ALADIN, ATOM, CHANCE, CLEWs, CLEWs - Ethiopia, CLEWs - Kenya, CLEWs - Sri Lanka. You can ask for details about a specific model using `info [model name]`, or say `list variables",
+        "entities": {
+          "action": "query",
+          "confidence": 0.85,
+          "entity_confidence": {
+            "action": 0.75,
+            "region": 0.85
+          },
+          "extraction_method": "deterministic",
+          "region": "EU"
+        },
+        "expected": {
+          "expected_model": "",
+          "expected_region": "",
+          "expected_route": "data_query",
+          "expected_scenario": "",
+          "expected_variable": "",
+          "id": "conv-009.2",
+          "no_hallucinated_data": "yes",
+          "query": "which models are available",
+          "useful_clarification": "no",
+          "useful_link": "models"
+        },
+        "id": "conv-009.2",
+        "links": [
+          {
+            "action": "open",
+            "category": "models",
+            "confidence": 0.8,
+            "display_hint": "Catalogued directory for the available IAM PARIS models.",
+            "display_label": "Open Models",
+            "fallback_instruction": "",
+            "reason": "Catalogued directory for the available IAM PARIS models.",
+            "search_hint": "",
+            "title": "Models",
+            "url": "https://iamparis.eu/models",
+            "verified_direct_url": true
+          },
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 0.25,
+            "display_hint": "Catalogued results root for data follow-ups.",
+            "display_label": "Open Results",
+            "fallback_instruction": "",
+            "reason": "Catalogued results root for data follow-ups.",
+            "search_hint": "",
+            "title": "Results",
+            "url": "https://iamparis.eu/results",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "which models are available",
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.95,
+          "reason": "model availability request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "09e1cc262edb4460b829f6b301174a19",
+        "status": "pass",
+        "turn": 2
+      },
+      {
+        "answer": "I don't have an active numbered choice right now. Reply with a full variable, region, or scenario so I can continue.",
+        "answer_preview": "I don't have an active numbered choice right now. Reply with a full variable, region, or scenario so I can continue.",
+        "entities": {
+          "action": "query",
+          "confidence": 0.85,
+          "entity_confidence": {
+            "action": 0.75,
+            "region": 0.85
+          },
+          "extraction_method": "deterministic",
+          "region": "EU"
+        },
+        "expected": {
+          "expected_model": "",
+          "expected_region": "",
+          "expected_route": "data_query",
+          "expected_scenario": "",
+          "expected_variable": "",
+          "id": "conv-009.3",
+          "no_hallucinated_data": "yes",
+          "query": "1",
+          "useful_clarification": "yes",
+          "useful_link": "results"
+        },
+        "id": "conv-009.3",
+        "links": [
+          {
+            "action": "open",
+            "category": "results",
+            "confidence": 0.25,
+            "display_hint": "Catalogued results root for data follow-ups.",
+            "display_label": "Open Results",
+            "fallback_instruction": "",
+            "reason": "Catalogued results root for data follow-ups.",
+            "search_hint": "",
+            "title": "Results",
+            "url": "https://iamparis.eu/results",
+            "verified_direct_url": false
+          }
+        ],
+        "query": "1",
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.75,
+          "reason": "number without active clarification",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "09e1cc262edb4460b829f6b301174a19",
+        "status": "pass",
+        "turn": 3
+      }
+    ]
+  },
+  {
+    "id": "conv-010",
+    "status": "pass",
+    "title": "Contact And Analysis Links",
+    "turns": [
+      {
+        "answer": "Use these IAM PARIS links for this request: [Configurable Analysis](https://iamparis.eu/analysis).",
+        "answer_preview": "Use these IAM PARIS links for this request: [Configurable Analysis](https://iamparis.eu/analysis).",
+        "entities": {},
+        "expected": {
+          "expected_model": "",
+          "expected_region": "",
+          "expected_route": "general_qa",
+          "expected_scenario": "",
+          "expected_variable": "",
+          "id": "conv-010.1",
+          "no_hallucinated_data": "yes",
+          "query": "custom analysis service",
+          "useful_clarification": "no",
+          "useful_link": "analysis"
+        },
+        "id": "conv-010.1",
+        "links": [
+          {
+            "action": "open",
+            "category": "analysis",
+            "confidence": 0.55,
+            "display_hint": "Catalogued destination matching the navigation request.",
+            "display_label": "Open Configurable Analysis",
+            "fallback_instruction": "",
+            "reason": "Catalogued destination matching the navigation request.",
+            "search_hint": "",
+            "title": "Configurable Analysis",
+            "url": "https://iamparis.eu/analysis",
+            "verified_direct_url": true
+          }
+        ],
+        "query": "custom analysis service",
+        "route": {
+          "agent": "general_qa",
+          "confidence": 0.97,
+          "reason": "explicit site navigation request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "a9aa642808184c17a8314fd2b91b06ae",
+        "status": "pass",
+        "turn": 1
+      },
+      {
+        "answer": "Use these IAM PARIS links for this request: [Contact](https://iamparis.eu/contact).",
+        "answer_preview": "Use these IAM PARIS links for this request: [Contact](https://iamparis.eu/contact).",
+        "entities": {},
+        "expected": {
+          "expected_model": "",
+          "expected_region": "",
+          "expected_route": "general_qa",
+          "expected_scenario": "",
+          "expected_variable": "",
+          "id": "conv-010.2",
+          "no_hallucinated_data": "yes",
+          "query": "contact IAM PARIS team",
+          "useful_clarification": "no",
+          "useful_link": "contact"
+        },
+        "id": "conv-010.2",
+        "links": [
+          {
+            "action": "open",
+            "category": "contact",
+            "confidence": 1.0,
+            "display_hint": "Catalogued destination matching the navigation request.",
+            "display_label": "Open Contact",
+            "fallback_instruction": "",
+            "reason": "Catalogued destination matching the navigation request.",
+            "search_hint": "",
+            "title": "Contact",
+            "url": "https://iamparis.eu/contact",
+            "verified_direct_url": true
+          }
+        ],
+        "query": "contact IAM PARIS team",
+        "route": {
+          "agent": "general_qa",
+          "confidence": 0.97,
+          "reason": "explicit site navigation request",
+          "source": "deterministic"
+        },
+        "scores": {
+          "correct_model": true,
+          "correct_region": true,
+          "correct_route": true,
+          "correct_scenario": true,
+          "correct_variable": true,
+          "no_hallucinated_data": true,
+          "session_continuity": true,
+          "useful_clarification": true,
+          "useful_link": true
+        },
+        "session_id": "a9aa642808184c17a8314fd2b91b06ae",
+        "status": "pass",
+        "turn": 2
+      }
+    ]
+  }
+]

@@ -1,0 +1,281 @@
+{
+  "generated": "20260720_131109",
+  "count": 3,
+  "rows": [
+    {
+      "query": "GDP for India",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "GDP|MER",
+        "region": "IND",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline"
+        ],
+        "result_models": [
+          "GEMINI-E3 7.0",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T09:57:34.679485+00:00",
+        "matched_record_count": 30,
+        "selected_filters": {
+          "variable": "GDP|MER",
+          "region": "IND",
+          "years": "2005-2100"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "GDP|MER"
+          },
+          {
+            "label": "Region",
+            "value": "IND"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Matched records",
+            "value": "30"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T09:57:34.679485+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### GDP|MER in IND\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `multiple`\n\nAnswer:\nSummary: 30 series across 5 models and 12 scenarios.\nShowing series 1-12 of 30, ordered by model and scenario. Narrow by model or scenario to view the 18 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 2070 ",
+      "session_id": "H100D_all"
+    },
+    {
+      "query": "what about Brazil",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "GDP|MER",
+        "variables": null,
+        "region": "BRA",
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "all_scenarios": true,
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline"
+        ],
+        "result_models": [
+          "GEMINI-E3 7.0",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices"
+        ]
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T09:57:34.679485+00:00",
+        "matched_record_count": 30,
+        "selected_filters": {
+          "variable": "GDP|MER",
+          "region": "BRA",
+          "years": "2005-2100"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "GDP|MER"
+          },
+          {
+            "label": "Region",
+            "value": "BRA"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Matched records",
+            "value": "30"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T09:57:34.679485+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### GDP|MER in BRA\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `multiple`\n\nAnswer:\nSummary: 30 series across 5 models and 12 scenarios.\nShowing series 1-12 of 30, ordered by model and scenario. Narrow by model or scenario to view the 18 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 2070 ",
+      "session_id": "H100D_all"
+    },
+    {
+      "query": "now show 2050 only",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "GDP|MER",
+        "variables": null,
+        "region": "BRA",
+        "models": null,
+        "start_year": 2050,
+        "end_year": 2050,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85,
+          "years": 0.9
+        },
+        "confidence": 0.883,
+        "extraction_method": "deterministic",
+        "all_scenarios": true,
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline"
+        ],
+        "result_models": [
+          "GEMINI-E3 7.0",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices"
+        ]
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T09:57:34.679485+00:00",
+        "matched_record_count": 30,
+        "selected_filters": {
+          "variable": "GDP|MER",
+          "region": "BRA",
+          "years": "2050"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "GDP|MER"
+          },
+          {
+            "label": "Region",
+            "value": "BRA"
+          },
+          {
+            "label": "Years",
+            "value": "2050"
+          },
+          {
+            "label": "Matched records",
+            "value": "30"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T09:57:34.679485+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### GDP|MER in BRA\n\nScope: scenario `multiple`, model `multiple`, years `2050`\nUnit: `multiple`\n\nAnswer:\nSummary: 30 series across 5 models and 12 scenarios.\nShowing series 1-12 of 30, ordered by model and scenario. Narrow by model or scenario to view the 18 remaining series.\n\n| Model | Scenario | 2050 | Unit |\n|---|---|---|---|\n| e3me | PR_Baseline | 4.3K | billion US$2010/yr |\n| e3me | PR_CurPol",
+      "session_id": "H100D_all"
+    }
+  ]
+}

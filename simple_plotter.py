@@ -37,9 +37,20 @@ from utils_query import (
     resolve_natural_language_variable_ranked,
     format_region_label,
 )
-from model_aliases import match_model_name
-from canonical_aliases import explicit_scenarios_from_query
-from year_filters import extract_year_range, select_years
+from model_aliases import (
+    display_model_label,
+    is_presentable_model_label,
+    match_model_name,
+)
+from canonical_aliases import (
+    dedupe_equivalent_regions,
+    explicit_scenarios_from_query,
+    preferred_variable_from_query,
+    rank_catalogue_variable_matches,
+    regions_equivalent,
+    scenario_family_members,
+)
+from year_filters import extract_year_range, is_latest_year_filter
 
 
 def _explicit_variable_in_query(question: str, available_vars) -> str | None:
@@ -60,7 +71,8 @@ def _canonical_ts_model(model: str | None, ts_data) -> str | None:
         return model
     ts_model_names = sorted({
         str(r.get("modelName", "")).strip()
-        for r in ts_data if r and r.get("modelName")
+        for r in ts_data
+        if r and is_presentable_model_label(r.get("modelName"))
     })
     if model in ts_model_names:
         return model
@@ -83,8 +95,31 @@ def _is_capacity_additions_mismatch(question: str, variable: str | None) -> bool
 
 def _pretty_variable_name(variable: str) -> str:
     value = str(variable or "").strip()
+
+    # A comparison caption arrives already joined ("A vs B") and gets prettified
+    # a second time on its way into the answer. The substring rules below match
+    # anywhere in the string, so "Oil Primary Energy vs Gas" collapsed to "Oil
+    # Primary Energy" and the second variable vanished from the caption even
+    # though it was plotted. Prettify each side instead.
+    if " vs " in value:
+        return " vs ".join(
+            _pretty_variable_name(part) for part in value.split(" vs ") if part.strip()
+        )
+
     lower = value.lower()
 
+    if lower == "price|carbon":
+        return "Carbon price"
+    if lower == "gdp|mer":
+        return "GDP (MER)"
+    if lower == "secondary energy|electricity|nuclear":
+        return "Nuclear electricity"
+    if lower == "capacity|electricity|nuclear":
+        return "Nuclear capacity"
+    if lower.startswith("capacity|electricity|solar|pv"):
+        return "Solar PV Capacity"
+    if lower.startswith("secondary energy|electricity|solar|pv"):
+        return "Solar PV Electricity"
     if "capacity|electricity|solar" in lower:
         return "Solar Capacity"
     if "capacity|electricity|wind" in lower:
@@ -115,8 +150,16 @@ def _pretty_variable_name(variable: str) -> str:
 
 
 def _year_range_text(start_year: int | None = None, end_year: int | None = None) -> str:
-    if start_year or end_year:
-        return f" ({start_year or '?'}-{end_year or '?'})"
+    if is_latest_year_filter(start_year, end_year):
+        return " (latest available year)"
+    if start_year is not None and end_year is not None:
+        if int(start_year) == int(end_year):
+            return f" ({start_year})"
+        return f" ({start_year}–{end_year})"
+    if start_year is not None:
+        return f" (from {start_year})"
+    if end_year is not None:
+        return f" (through {end_year})"
     return ""
 
 
@@ -199,7 +242,10 @@ def _matrix_plot_recovery_prompt(
         ).get("variables", [])
         variable_options = [opt for opt in variable_options if opt != variable]
 
-    region_options = [opt for opt in options.get("regions", []) if opt != region]
+    region_options = [
+        opt for opt in options.get("regions", [])
+        if not region or not regions_equivalent(opt, region)
+    ]
     if hasattr(metadata, "suggest_scenarios_by_scope"):
         scenario_options = metadata.suggest_scenarios_by_scope(
             variable=variable,
@@ -263,6 +309,12 @@ def _preferred_plot_family_matches(question: str, available_vars: set[str]) -> l
                 if "wind" in v.lower() and "capacity|electricity" in v.lower()
                 and "additions" not in v.lower()
             )
+
+    if "primary energy" in ql and re.search(r"\bcoal\b", ql):
+        candidates.extend(
+            v for v in available_vars
+            if v.lower() == "primary energy|coal"
+        )
         if any(token in ql for token in ["energy", "electricity", "power", "generation", "data"]):
             candidates.extend(
                 v for v in available_vars
@@ -328,7 +380,276 @@ def _preferred_plot_family_matches(question: str, available_vars: set[str]) -> l
             len(lower),
         )
 
-    return sorted(deduped, key=_score)
+    generation_requested = any(
+        token in ql for token in ("electricity generation", "power generation", "generation from")
+    )
+    pv_requested = bool(re.search(r"\b(?:solar\s+pv|photovoltaic|pv)\b", ql))
+    coal_requested = bool(re.search(r"\bcoal\b", ql))
+
+    def _constraint_score(variable: str):
+        lower = variable.lower()
+        penalty = 0
+        if generation_requested and "capacity" in lower:
+            penalty += 100
+        if pv_requested and not ("solar" in lower and "pv" in lower):
+            penalty += 50
+        if coal_requested and "coal" not in lower:
+            penalty += 50
+        return (penalty, *_score(variable))
+
+    return sorted(deduped, key=_constraint_score)
+
+
+def _refine_explicit_technology_leaf(
+    question: str,
+    variable: str,
+    available_vars: set[str],
+) -> str:
+    """Keep an explicitly requested technology leaf from being broadened.
+
+    The entity extractor can return the valid aggregate
+    ``Capacity|Electricity|Solar`` even when the user explicitly wrote
+    ``solar PV``.  Trust the aggregate for generic solar requests, but when the
+    exact immediate ``|PV`` descendant exists, retain the leaf the user named.
+    """
+    value = str(variable or "").strip()
+    if not value or not re.search(
+        r"\b(?:solar[\s\-_/]+pv|photovoltaic|pv)\b",
+        str(question or ""),
+        flags=re.IGNORECASE,
+    ):
+        return value
+    if "solar" not in value.casefold() or re.search(
+        r"(?:^|\|)pv(?:\||$)", value, flags=re.IGNORECASE
+    ):
+        return value
+    exact_descendant = f"{value}|PV"
+    return next(
+        (
+            candidate
+            for candidate in available_vars
+            if candidate.casefold() == exact_descendant.casefold()
+        ),
+        value,
+    )
+
+
+# Past roughly this many lines a time-series chart stops being readable: the
+# legend grows until it covers the series it describes. Charts that would exceed
+# it are trimmed to a representative subset and the caption says what was left
+# out (see `_wrap_plot_markdown`).
+MAX_PLOT_SERIES = 8
+
+# Scenario families users ask about most. When a chart has to be trimmed these
+# are kept first, so the subset still answers the usual question.
+_SCENARIO_PRIORITY_HINTS = (
+    "baseline", "curpol", "current polic", "ndc", "net zero", "netzero", "nze",
+)
+
+
+def _scenario_priority(value: object) -> int:
+    """Rank a scenario name; lower sorts first when trimming a busy chart."""
+    text = str(value or "").casefold()
+    for index, hint in enumerate(_SCENARIO_PRIORITY_HINTS):
+        if hint in text:
+            return index
+    return len(_SCENARIO_PRIORITY_HINTS)
+
+
+def _representative_rows(
+    df,
+    max_series: int = MAX_PLOT_SERIES,
+    balance_column: str | None = None,
+):
+    """Trim a plot frame to a readable, representative set of rows.
+
+    Rows are taken round-robin across models so a trimmed chart still shows the
+    spread between models rather than every scenario of whichever model happened
+    to sort first. Within each model the priority scenarios come first.
+
+    Returns ``(trimmed_df, omitted_count)``; the frame is returned untouched when
+    it is already small enough.
+    """
+    total = len(df)
+    if total <= max_series:
+        return df, 0
+
+    # Comparisons need to retain both sides. Alternating between the requested
+    # variables/regions/models prevents a busy first member from consuming the
+    # entire chart before the other comparison members are reached.
+    if balance_column and balance_column in df.columns:
+        model_column = next(
+            (name for name in ("_plot_model", "model", "modelName") if name in df.columns),
+            None,
+        )
+        scenario_column = "scenario" if "scenario" in df.columns else None
+        queues: dict[str, list] = {}
+        for index, row in df.iterrows():
+            member = _clean_text(row.get(balance_column, ""))
+            scenario_value = _clean_text(row.get(scenario_column, "")) if scenario_column else ""
+            model_value = _clean_text(row.get(model_column, "")) if model_column else ""
+            queues.setdefault(member, []).append(
+                (_scenario_priority(scenario_value), scenario_value.casefold(), model_value.casefold(), index)
+            )
+        for entries in queues.values():
+            entries.sort()
+
+        keep: list = []
+        members = sorted(queues, key=str.casefold)
+        while len(keep) < max_series and any(queues[member] for member in members):
+            for member in members:
+                if queues[member]:
+                    keep.append(queues[member].pop(0)[-1])
+                if len(keep) >= max_series:
+                    break
+        return df.loc[keep], total - len(keep)
+
+    model_column = next(
+        (name for name in ("_plot_model", "model", "modelName") if name in df.columns),
+        None,
+    )
+    scenario_column = "scenario" if "scenario" in df.columns else None
+
+    # Scenario is the axis that carries the message in IAM data -- a chart of
+    # eight baselines answers nothing. Group by scenario and take them in turn,
+    # so the trimmed chart spans policy outcomes rather than one family of them.
+    grouped: dict[tuple, list] = {}
+    for index, row in df.iterrows():
+        scenario_key = _clean_text(row.get(scenario_column, "")) if scenario_column else ""
+        model_key = _clean_text(row.get(model_column, "")) if model_column else ""
+        priority = _scenario_priority(scenario_key) if scenario_column else 0
+        grouped.setdefault((priority, scenario_key), []).append((model_key, index))
+    for entries in grouped.values():
+        entries.sort(key=lambda entry: entry[0])
+
+    keep: list = []
+    seen_models: set[str] = set()
+    order = sorted(grouped)
+    while len(keep) < max_series and any(grouped[key] for key in order):
+        for key in order:
+            entries = grouped[key]
+            if not entries:
+                continue
+            # Prefer a model not yet on the chart so the subset spans models too.
+            position = next(
+                (i for i, (model_key, _) in enumerate(entries) if model_key not in seen_models),
+                0,
+            )
+            model_key, index = entries.pop(position)
+            seen_models.add(model_key)
+            keep.append(index)
+            if len(keep) >= max_series:
+                break
+    return df.loc[keep], total - len(keep)
+
+
+def _comparison_source_key(record: Any) -> tuple[str, str] | None:
+    """Return a conservative model/scenario identity for comparison pairing."""
+    model = _clean_text(_row_model(record))
+    scenario = _clean_text(record.get("scenario")) if hasattr(record, "get") else ""
+    if not model or not scenario:
+        return None
+    return (model.casefold(), scenario.casefold())
+
+
+def _common_comparison_source_keys(
+    member_records: Dict[str, List[Dict]],
+) -> set[tuple[str, str]]:
+    """Model/scenario keys represented for every requested comparison member."""
+    if not member_records or any(not rows for rows in member_records.values()):
+        return set()
+    key_sets = [
+        {
+            key
+            for record in records
+            if (key := _comparison_source_key(record)) is not None
+        }
+        for records in member_records.values()
+    ]
+    if not key_sets or any(not keys for keys in key_sets):
+        return set()
+    return set.intersection(*key_sets)
+
+
+def _paired_region_rows(
+    frame: pd.DataFrame,
+    regions: List[str],
+    max_series: int = MAX_PLOT_SERIES,
+) -> tuple[pd.DataFrame, int, set[tuple[str, str]]]:
+    """Select complete, like-for-like source groups across compared regions.
+
+    One record per region and common model/scenario key is retained. Complete
+    groups are selected in scenario-priority order, so the series cap cannot
+    end with an unrelated source on only one side of the comparison.
+    """
+    total = len(frame)
+    if frame.empty or "_comparison_region" not in frame.columns or not regions:
+        return frame, 0, set()
+
+    rows_by_region: dict[str, dict[tuple[str, str], list]] = {
+        str(region): {} for region in regions
+    }
+    for index, row in frame.iterrows():
+        region = _clean_text(row.get("_comparison_region"))
+        key = _comparison_source_key(row)
+        if region not in rows_by_region or key is None:
+            continue
+        rows_by_region[region].setdefault(key, []).append(index)
+
+    key_sets = [set(rows_by_region[region]) for region in rows_by_region]
+    common_keys = set.intersection(*key_sets) if key_sets and all(key_sets) else set()
+    if not common_keys:
+        return frame, 0, set()
+
+    ordered_keys = sorted(
+        common_keys,
+        key=lambda key: (_scenario_priority(key[1]), key[1], key[0]),
+    )
+    group_width = len(rows_by_region)
+    group_limit = max(1, max_series // group_width)
+    keep: list = []
+    for key in ordered_keys[:group_limit]:
+        for region in rows_by_region:
+            keep.append(rows_by_region[region][key][0])
+    return frame.loc[keep], total - len(keep), common_keys
+
+
+def _finalize_plot_layout(series_count: int) -> None:
+    """Draw the legend so it never covers the plotted data, then lay out.
+
+    ``loc='best'`` has no good position once there are many entries: matplotlib
+    puts the box on top of the series it labels and, past ~20 entries, it runs
+    off the canvas. Beyond a handful of series the legend moves outside the axes
+    and the axes shrink to make room -- `tight_layout` alone does not reserve
+    space for artists placed outside the axes.
+    """
+    if series_count <= 6:
+        plt.legend(loc="best", fontsize=9)
+        plt.tight_layout()
+        return
+
+    # Lay the axes out normally first; `tight_layout(rect=...)` re-flows the
+    # title into the reserved strip and clips it, so the space for the legend is
+    # taken afterwards with `subplots_adjust`.
+    axes = plt.gca()
+    ticks = axes.get_xticks()
+    if len(ticks) > 10:
+        axes.set_xticks(ticks[:: max(1, len(ticks) // 8)])
+    plt.setp(axes.get_xticklabels(), rotation=45, ha="right")
+    plt.tight_layout()
+
+    # Series labels here are long ("Primary Energy|Coal (Unharmonised baseline)"),
+    # so a second column gets clipped at the figure edge long before a single
+    # column runs out of vertical room. Stay single-column as far as it fits.
+    columns = 1 if series_count <= 22 else 2
+    plt.legend(
+        loc="upper left",
+        bbox_to_anchor=(1.02, 1.0),
+        fontsize=7,
+        ncol=columns,
+        borderaxespad=0.0,
+    )
+    plt.subplots_adjust(right=0.68 if columns == 1 else 0.52)
 
 
 def _wrap_plot_markdown(
@@ -341,24 +662,582 @@ def _wrap_plot_markdown(
     end_year: int | None = None,
     prefix: str = "Showing",
     scope_variable: str | None = None,
+    models_in_data: list | None = None,
+    regions_in_data: list | None = None,
+    all_scenarios: bool | None = None,
+    omitted_series: int = 0,
+    scope_variables: list | None = None,
+    scope_models: list | None = None,
+    comparison_dimension: str | None = None,
+    displayed_series: list | None = None,
+    chart_type: str = "line",
+    unit: str | None = None,
+    comparison_pairing: str | None = None,
 ) -> str:
     # Report the resolved scope structurally so the manager does not have to
     # re-parse the caption. `scope_variable` overrides caption-style variables
     # (e.g. "X vs Y") with the real variable name.
-    record_resolved_scope(
-        variable=scope_variable if scope_variable is not None else variable,
-        region=region,
-        scenario=scenario,
+    concrete_scenarios = [str(value) for value in (scenarios_in_data or []) if value]
+    resolved_all_scenarios = (
+        bool(not scenario and len(concrete_scenarios) > 1)
+        if all_scenarios is None
+        else bool(all_scenarios and not scenario and len(concrete_scenarios) > 1)
     )
-    subject = _plot_subject(variable, region)
+    resolved_variable = scope_variable if scope_variable is not None else variable
+    concrete_variables = [
+        str(value) for value in (scope_variables or []) if str(value or "").strip()
+    ]
+    if not concrete_variables and resolved_variable:
+        concrete_variables = [str(resolved_variable)]
+    concrete_models = [
+        display_model_label(value)
+        for value in (scope_models or [])
+        if str(value or "").strip()
+    ]
+    result_models = sorted({
+        display_model_label(value)
+        for value in (models_in_data or [])
+        if str(value or "").strip()
+    })
+    concrete_displayed_series = [
+        str(value) for value in (displayed_series or []) if str(value or "").strip()
+    ]
+    concrete_regions = dedupe_equivalent_regions(
+        str(value) for value in (regions_in_data or []) if str(value or "").strip()
+    )
+    if (
+        region
+        and concrete_regions
+        and all(regions_equivalent(value, region) for value in concrete_regions)
+    ):
+        concrete_regions = [str(region)]
+    resolved_comparison_dimension = comparison_dimension
+    if comparison_dimension == "region" and len(concrete_regions) < 2:
+        resolved_comparison_dimension = None
+    record_resolved_scope(
+        variable=resolved_variable,
+        variables=concrete_variables,
+        region=region,
+        regions=concrete_regions,
+        scenario=scenario,
+        scenarios=concrete_scenarios,
+        models=concrete_models,
+        result_models=result_models,
+        all_scenarios=resolved_all_scenarios,
+        start_year=start_year,
+        end_year=end_year,
+        comparison=resolved_comparison_dimension,
+        comparison_dimension=resolved_comparison_dimension,
+        displayed_series=concrete_displayed_series,
+        displayed_series_count=len(concrete_displayed_series),
+        omitted_series=int(omitted_series or 0),
+        chart_type=chart_type,
+        unit=unit,
+        comparison_pairing=comparison_pairing,
+        action="plot",
+    )
+    compared_regions = concrete_regions
+    if len(compared_regions) > 1:
+        formatted_regions = [format_region_label(value) for value in compared_regions]
+        if comparison_pairing == "unpaired source scopes":
+            subject = (
+                f"{_pretty_variable_name(variable)} using region-specific sources for "
+                + " and ".join(formatted_regions)
+            )
+        else:
+            subject = f"{_pretty_variable_name(variable)}: " + " vs ".join(formatted_regions)
+    else:
+        subject = _plot_subject(variable, region)
     years = _year_range_text(start_year, end_year)
     if scenario:
         caption = f"{prefix} {subject} for scenario `{scenario}`{years}."
-    elif scenarios_in_data and len([s for s in scenarios_in_data if s]) > 1:
+    elif len(concrete_scenarios) > 1 and resolved_all_scenarios:
         caption = f"{prefix} {subject} across available scenarios{years}."
+    elif len(concrete_scenarios) > 1:
+        quoted_scenarios = [f"`{value}`" for value in concrete_scenarios]
+        selected_scenarios = (
+            f"{quoted_scenarios[0]} and {quoted_scenarios[1]}"
+            if len(quoted_scenarios) == 2
+            else f"{', '.join(quoted_scenarios[:-1])}, and {quoted_scenarios[-1]}"
+        )
+        caption = f"{prefix} {subject} for selected scenarios {selected_scenarios}{years}."
+    elif len(concrete_scenarios) == 1:
+        concrete_scenario = concrete_scenarios[0]
+        caption = f"{prefix} {subject} for scenario `{concrete_scenario}`{years}."
     else:
         caption = f"{prefix} {subject}{years}."
+    # Keep the friendly caption while also exposing the exact runtime taxonomy
+    # value used for a single-variable plot. This makes alias/fuzzy resolution
+    # auditable without coupling the presentation layer to any variable name.
+    if scope_variable is None and "|" in str(variable or ""):
+        caption += f" Resolved variable: `{variable}`."
+    # A chart that carries every model/scenario pair becomes unreadable, so the
+    # renderer trims it. Say so, otherwise the plot silently misrepresents how
+    # much data exists.
+    if omitted_series > 0:
+        displayed_count = len(concrete_displayed_series) or MAX_PLOT_SERIES
+        caption += (
+            f" Showing {displayed_count} of {displayed_count + omitted_series} available series"
+            " for readability; name a scenario or model to see a specific one."
+        )
     return caption + "\n" + plot_str
+
+
+def _model_names_from_records(records) -> list[str]:
+    """Return selectable model labels for no-data recovery suggestions."""
+    return sorted({
+        str(record.get("modelName") or record.get("model") or "").strip()
+        for record in (records or [])
+        if isinstance(record, dict)
+        and is_presentable_model_label(
+            record.get("modelName") or record.get("model")
+        )
+    })
+
+
+def _clean_text(value: Any) -> str:
+    """Convert a scalar dataframe value to text without leaking ``nan`` labels."""
+    if value is None:
+        return ""
+    try:
+        if bool(pd.isna(value)):
+            return ""
+    except (TypeError, ValueError):
+        pass
+    return str(value).strip()
+
+
+def _row_model(row: Any) -> str:
+    """Return the canonical model label from a record or pandas row."""
+    getter = row.get if hasattr(row, "get") else lambda _key, _default=None: _default
+    for key in ("modelName", "model", "_plot_model"):
+        value = _clean_text(getter(key))
+        if value:
+            return value
+    return ""
+
+
+def _distinct_units(records) -> list[str]:
+    """Return meaningful units in stable order, ignoring blank metadata."""
+    units: list[str] = []
+    for record in records or []:
+        if not hasattr(record, "get"):
+            continue
+        unit = str(record.get("unit") or "").strip()
+        if unit and unit not in units:
+            units.append(unit)
+    return units
+
+
+def _unit_key(unit: str, variable: str | None = None) -> str:
+    """Normalise harmless spelling variants without merging different dimensions."""
+    value = re.sub(r"\s+", " ", str(unit or "").strip().casefold())
+    value = value.replace(" per year", "/yr")
+    value = re.sub(r"/\s*(?:year|y|a)(?=$|\b)", "/yr", value)
+    value = re.sub(r"\s+", "", value)
+    variable_key = str(variable or "").strip().casefold()
+    # Carbon-price records in the source catalogue use all three spellings
+    # below for the same price-per-tonne quantity.  This alias is deliberately
+    # variable-scoped; a bare ``/t`` is not assumed to mean CO2 elsewhere.
+    if variable_key == "carbon price" or variable_key.startswith("price|carbon"):
+        value = re.sub(r"/t(?:co2)?$", "/tco2", value)
+    return value
+
+
+def _record_unit_key(record: Any, variable: str | None = None) -> str:
+    record_variable = (
+        _clean_text(record.get("variable"))
+        if hasattr(record, "get")
+        else ""
+    )
+    return _unit_key(
+        record.get("unit") if hasattr(record, "get") else "",
+        record_variable or variable,
+    )
+
+
+def _dominant_unit_subset(
+    records,
+    subject: str,
+    *,
+    variable: str | None = None,
+    requested_unit: str | None = None,
+    coverage_dimension: str | None = None,
+    required_values: list | tuple | set | None = None,
+) -> tuple[list, str, int, str, str | None]:
+    """Choose one coherent unit group without mixing physical dimensions.
+
+    Equivalent spellings remain together.  When a single-variable slice has
+    genuinely inconsistent unit metadata, the largest coherent group is used
+    and the omission is disclosed.  A requested region/model comparison is
+    only allowed when the chosen group still covers every compared member.
+    """
+    concrete_records = [record for record in (records or []) if hasattr(record, "get")]
+    groups: dict[str, list] = {}
+    blank_records: list = []
+    for record in concrete_records:
+        raw_unit = _clean_text(record.get("unit"))
+        if not raw_unit:
+            blank_records.append(record)
+            continue
+        groups.setdefault(_record_unit_key(record, variable), []).append(record)
+
+    if not groups:
+        return concrete_records, "", 0, "", None
+    if len(groups) == 1:
+        selected = concrete_records
+        first_group = next(iter(groups.values()))
+        selected_unit = _clean_text(first_group[0].get("unit"))
+        return selected, selected_unit, 0, "", None
+
+    required = {
+        _clean_text(value).casefold()
+        for value in (required_values or [])
+        if _clean_text(value)
+    }
+
+    def _coverage(group_records: list) -> set[str]:
+        if coverage_dimension == "model":
+            return {_row_model(record).casefold() for record in group_records if _row_model(record)}
+        if coverage_dimension:
+            return {
+                _clean_text(record.get(coverage_dimension)).casefold()
+                for record in group_records
+                if _clean_text(record.get(coverage_dimension))
+            }
+        return set()
+
+    requested_key = _unit_key(requested_unit, variable) if requested_unit else ""
+    selected_key = requested_key if requested_key in groups else ""
+    if not selected_key:
+        variable_key = str(variable or "").casefold()
+
+        def _semantic_preference(unit_key: str) -> int:
+            is_annual_rate = "/yr" in unit_key
+            if "capacity" in variable_key and "addition" in variable_key:
+                return int(is_annual_rate)
+            if "capacity" in variable_key:
+                return int(not is_annual_rate)
+            return 0
+
+        ordered_keys = list(groups)
+        selected_key = max(
+            ordered_keys,
+            key=lambda key: (
+                len(_coverage(groups[key]) & required) if required else 0,
+                len(groups[key]),
+                _semantic_preference(key),
+                -ordered_keys.index(key),
+            ),
+        )
+
+        # A unit such as ``billion US$2010/yr OR local currency`` does not
+        # guarantee comparable values across models, even though it may be the
+        # largest metadata bucket. Prefer a concrete unit when it retains a
+        # substantial share of the records. The 60% threshold prevents a tiny
+        # clean-looking minority from replacing the representative group.
+        def _is_ambiguous_unit_group(key: str) -> bool:
+            return any(
+                re.search(r"\b(?:or|and/or)\b", _clean_text(record.get("unit")), re.IGNORECASE)
+                for record in groups[key]
+            )
+
+        if _is_ambiguous_unit_group(selected_key):
+            selected_size = len(groups[selected_key])
+            concrete_candidates = [
+                key for key in ordered_keys
+                if not _is_ambiguous_unit_group(key)
+                and len(groups[key]) >= 3
+                and len(groups[key]) * 5 >= selected_size * 3
+                and (
+                    not required
+                    or required.issubset(_coverage(groups[key]))
+                )
+            ]
+            if concrete_candidates:
+                selected_key = max(
+                    concrete_candidates,
+                    key=lambda key: (
+                        len(_coverage(groups[key]) & required) if required else 0,
+                        len(groups[key]),
+                        _semantic_preference(key),
+                        -ordered_keys.index(key),
+                    ),
+                )
+
+    if required and not required.issubset(_coverage(groups[selected_key])):
+        error = _incompatible_units_message(concrete_records, subject)
+        return [], "", 0, "", error or (
+            f"I can't combine {subject} on one axis because no compatible unit "
+            "covers every requested series. Plot the unit groups separately."
+        )
+
+    selected = list(groups[selected_key])
+    selected_unit = _clean_text(selected[0].get("unit")) if selected else ""
+    omitted_count = len(concrete_records) - len(selected)
+    omitted_units: list[str] = []
+    for key, group_records in groups.items():
+        if key == selected_key:
+            continue
+        for record in group_records:
+            label = _clean_text(record.get("unit"))
+            if label and label not in omitted_units:
+                omitted_units.append(label)
+    if blank_records:
+        omitted_units.append("unspecified unit")
+    unit_list = ", ".join(f"`{label}`" for label in omitted_units)
+    notice = (
+        f"Note: using the dominant compatible unit `{selected_unit}` for this plot; "
+        f"omitted {omitted_count} series "
+        f"reported in {unit_list}. Plot those unit groups separately to inspect them.\n\n"
+    )
+    return selected, selected_unit, omitted_count, notice, None
+
+
+def _incompatible_units_message(records, subject: str) -> str | None:
+    """Refuse a shared axis when its series use genuinely different units."""
+    units = _distinct_units(records)
+    unit_keys = {
+        _record_unit_key(record)
+        for record in (records or [])
+        if hasattr(record, "get") and _clean_text(record.get("unit"))
+    }
+    if len(unit_keys) <= 1:
+        return None
+    unit_text = ", ".join(f"`{unit}`" for unit in units)
+    return (
+        f"I can't combine {subject} on one axis because the loaded series use "
+        f"incompatible units: {unit_text}. Plot each variable or unit separately, "
+        "or narrow the model/scenario scope."
+    )
+
+
+def _expand_years(records) -> pd.DataFrame:
+    """Turn record ``years`` mappings into plotting columns without aggregation."""
+    frame = pd.DataFrame(records)
+    if "years" in frame.columns:
+        years_frame = frame["years"].apply(
+            lambda value: value if isinstance(value, dict) else {}
+        ).apply(pd.Series)
+        frame = frame.drop("years", axis=1).join(years_frame)
+    if not frame.empty:
+        # Keep the raw ``modelName`` column for source pairing and filtering,
+        # but use a presentation-only model column for legends, captions, and
+        # structured displayed-series scope.
+        frame["_plot_model"] = frame.apply(
+            lambda row: display_model_label(_row_model(row)), axis=1,
+        )
+    return frame
+
+
+def _canonicalize_scoped_region(
+    frame: pd.DataFrame,
+    requested_region: str | None,
+) -> pd.DataFrame:
+    """Collapse equivalent raw labels inside one requested region scope.
+
+    Several source workspaces encode one geography differently (for example
+    ``India`` and ``IND`` or ``World`` and ``WORLD``).  Filtering correctly
+    retains all of those records, but leaving the raw labels in the plotting
+    dataframe makes a single-region chart look like a region comparison.  Keep
+    every record and rewrite only labels proven equivalent to the resolved
+    region the user requested.
+    """
+    canonical = str(requested_region or "").strip()
+    if not canonical or frame.empty or "region" not in frame.columns:
+        return frame
+    equivalent = frame["region"].map(
+        lambda value: regions_equivalent(value, canonical)
+    )
+    if not bool(equivalent.any()):
+        return frame
+    normalized = frame.copy()
+    normalized.loc[equivalent, "region"] = canonical
+    return normalized
+
+
+def _selected_year_columns(
+    frame: pd.DataFrame,
+    start_year: int | None,
+    end_year: int | None,
+) -> list:
+    columns = [column for column in frame.columns if str(column).isdigit()]
+    if is_latest_year_filter(start_year, end_year):
+        return [max(columns, key=lambda value: int(value))] if columns else []
+    selected = [
+        column for column in columns
+        if (start_year is None or int(column) >= int(start_year))
+        and (end_year is None or int(column) <= int(end_year))
+    ]
+    if start_year is not None or end_year is not None:
+        return sorted(selected, key=lambda value: int(value))
+    return sorted(columns, key=lambda value: int(value))
+
+
+def _normalise_chart_type(chart_type: object, year_columns: list) -> str:
+    """Return the chart type the renderer will actually draw."""
+    requested = str(chart_type or "line").strip().casefold().replace("_", " ")
+    if requested in {"bar", "bars", "bar chart", "column", "column chart"} and len(year_columns) == 1:
+        return "bar"
+    if requested in {"scatter", "scatter plot", "scatter chart"}:
+        return "scatter"
+    if requested in {"area", "area plot", "area chart"}:
+        return "area"
+    return "line"
+
+
+def _chart_type_from_question(question: str) -> str | None:
+    tokens = set(re.findall(r"[a-z0-9]+", str(question or "").casefold()))
+    for chart_type, aliases in (
+        ("bar", {"bar", "column"}),
+        ("scatter", {"scatter"}),
+        ("area", {"area"}),
+        ("line", {"line"}),
+    ):
+        if tokens & aliases:
+            return chart_type
+    return None
+
+
+def _resolve_latest_plot_scope(
+    year_columns: list,
+    start_year: int | None,
+    end_year: int | None,
+    chart_type: object = None,
+) -> tuple[int | None, int | None, object]:
+    """Resolve the latest-year sentinel to the concrete displayed year."""
+    if not is_latest_year_filter(start_year, end_year) or not year_columns:
+        return start_year, end_year, chart_type
+    latest_year = max(int(column) for column in year_columns)
+    # A bar conveys a one-year cross-series comparison more clearly than a
+    # collection of disconnected one-point lines. Honour an explicit type.
+    return latest_year, latest_year, chart_type or "bar"
+
+
+def _unique_label(base_label: str, counts: Dict[str, int]) -> str:
+    counts[base_label] = counts.get(base_label, 0) + 1
+    occurrence = counts[base_label]
+    return base_label if occurrence == 1 else f"{base_label} ({occurrence})"
+
+
+def _draw_plot_rows(
+    frame: pd.DataFrame,
+    year_columns: list,
+    label_builder,
+    *,
+    chart_type: object = None,
+    style_builder=None,
+) -> Tuple[list[str], str]:
+    """Render one chart series per row and return its exact display labels."""
+    actual_chart_type = _normalise_chart_type(chart_type, year_columns)
+    labels: list[str] = []
+    label_counts: Dict[str, int] = {}
+    for position, (_, row) in enumerate(frame.iterrows()):
+        label = _unique_label(str(label_builder(row)), label_counts)
+        labels.append(label)
+        values = [row.get(column, float("nan")) for column in year_columns]
+        style = dict(style_builder(row, position) if style_builder else {})
+        if actual_chart_type == "bar":
+            plt.bar(position, values[0], label=label, **style)
+        elif actual_chart_type == "scatter":
+            numeric_years = [int(column) for column in year_columns]
+            plt.scatter(numeric_years, values, label=label, **style)
+        elif actual_chart_type == "area":
+            numeric_years = [int(column) for column in year_columns]
+            plt.fill_between(
+                numeric_years,
+                [0] * len(numeric_years),
+                values,
+                label=label,
+                alpha=0.3,
+                **style,
+            )
+        else:
+            numeric_years = [int(column) for column in year_columns]
+            plt.plot(numeric_years, values, label=label, marker="o", linewidth=2, **style)
+    if actual_chart_type == "bar":
+        plt.xticks(range(len(labels)), labels, rotation=35, ha="right")
+    return labels, actual_chart_type
+
+
+def _common_scope_examples(
+    member_records: Dict[str, List[Dict]],
+    dimensions: Tuple[str, ...],
+    *,
+    limit: int = 3,
+) -> list[dict[str, str]]:
+    """Find concrete scopes that exist for every requested comparison member."""
+    if not member_records or any(not rows for rows in member_records.values()):
+        return []
+
+    def value(record: Dict, dimension: str) -> str:
+        if dimension == "model":
+            return _row_model(record)
+        if dimension == "unit":
+            return _record_unit_key(record)
+        return str(record.get(dimension) or "").strip()
+
+    tuple_sets = []
+    for rows in member_records.values():
+        tuple_sets.append({tuple(value(row, dimension) for dimension in dimensions) for row in rows})
+    common = set.intersection(*tuple_sets) if tuple_sets else set()
+    examples = []
+    for values in sorted(common, key=lambda item: tuple(part.casefold() for part in item))[:limit]:
+        examples.append(dict(zip(dimensions, values)))
+    return examples
+
+
+def _format_common_scope_suggestions(examples: list[dict[str, str]]) -> str:
+    if not examples:
+        return (
+            "No common scope is available for every requested comparison member. "
+            "Plot them separately or change the region, scenario, or model."
+        )
+    lines = ["Common scopes available to every requested comparison member:"]
+    for example in examples:
+        parts = [
+            f"{dimension} `{display_model_label(value) if dimension == 'model' else value}`"
+            for dimension, value in example.items()
+            if value
+        ]
+        lines.append(f"- {'; '.join(parts)}")
+    lines.append("Reply with one of these scopes to retry the comparison.")
+    return "\n".join(lines)
+
+
+def _scenario_filter_members(scenario: str | None, ts_data) -> set[str]:
+    """Resolve a canonical family to concrete runtime scenario values."""
+    if not scenario:
+        return set()
+    available = {
+        str(record.get("scenario") or "").strip()
+        for record in (ts_data or [])
+        if isinstance(record, dict) and str(record.get("scenario") or "").strip()
+    }
+    family = scenario_family_members(str(scenario), available)
+    return set(family or [str(scenario)])
+
+
+def _catalogue_variable_suggestions(
+    question: str,
+    available_vars,
+    *,
+    ignored_values=(),
+    limit: int = 3,
+) -> list[str]:
+    """Return only runtime candidates with meaningful wording coverage."""
+    ranked = rank_catalogue_variable_matches(
+        question,
+        available_vars,
+        ignored_values=ignored_values,
+    )
+    supported = [
+        item["variable"] for item in ranked
+        if item["auto_accept"]
+        or len(item["matched_terms"]) >= 2
+        or item["query_coverage"] >= 0.5
+    ]
+    return supported[:limit]
 
 
 def save_plot_to_base64() -> str:
@@ -372,7 +1251,7 @@ def save_plot_to_base64() -> str:
 
 
 from utils.yaml_loader import load_all_yaml_files
-from langchain_openai import ChatOpenAI
+from llm_factory import get_chat_openai as ChatOpenAI
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 
 # Global metadata instance (lazy loaded)
@@ -431,8 +1310,7 @@ def generate_llm_suggestion(query: str, variable: str, region: str,
         model_name=QA_MODEL,
         temperature=0.7,
         timeout=30,
-        max_retries=1,
-        api_key=api_key
+        max_retries=1
     )
     
     prompt = ChatPromptTemplate.from_messages([
@@ -480,20 +1358,32 @@ def detect_multi_variable_comparison(query: str) -> List[str]:
     """
     query_lower = query.lower()
     
-    # Patterns that indicate multi-variable comparison
+    # The family noun ("primary energy", "capacity", ...) is captured so it can
+    # be carried onto each carrier. Resolving a bare "coal" against the
+    # catalogue picks `Price|Coal`; "coal primary energy" resolves to
+    # `Primary Energy|Coal`, which is what the question asked for.
+    family_pattern = (
+        r'((?:primary|final|secondary)\s+energy'
+        r'|capacity|generation|energy|emissions|production|demand|consumption)'
+    )
     comparison_patterns = [
-        r'compare\s+(\w+)\s+(?:and|vs|versus|with)\s+(\w+)',
-        r'(\w+)\s+(?:and|vs|versus)\s+(\w+)\s+(?:capacity|generation|energy|emissions)',
-        r'(\w+)\s+vs\s+(\w+)',  # Simple "X vs Y" pattern
-        r'both\s+(\w+)\s+and\s+(\w+)',
-        r'(\w+)\s+or\s+(\w+)',
+        (r'compare\s+(\w+)\s+(?:and|vs|versus|with)\s+(\w+)', None),
+        (rf'(\w+)\s+(?:and|vs|versus)\s+(\w+)\s+{family_pattern}', 3),
+        (r'(\w+)\s+vs\s+(\w+)', None),  # Simple "X vs Y" pattern
+        (r'both\s+(\w+)\s+and\s+(\w+)', None),
+        (r'(\w+)\s+or\s+(\w+)', None),
     ]
-    
-    for pattern in comparison_patterns:
+
+    for pattern, family_group in comparison_patterns:
         match = re.search(pattern, query_lower)
-        if match:
-            return [match.group(1), match.group(2)]
-    
+        if not match:
+            continue
+        first, second = match.group(1), match.group(2)
+        family = match.group(family_group).strip() if family_group else ""
+        if family:
+            return [f"{first} {family}", f"{second} {family}"]
+        return [first, second]
+
     return []
 
 
@@ -530,7 +1420,7 @@ def detect_region_comparison(question: str, metadata) -> List[str]:
         left, right = ql.split(splitter, 1)
         r1 = _match_region(left)
         r2 = _match_region(right)
-        if r1 and r2 and r1 != r2:
+        if r1 and r2 and not regions_equivalent(r1, r2):
             return [r1, r2]
     # Handle "between X and Y", "for X and Y", or "in X and Y"
     if " and " in ql and (" between " in ql or " for " in ql or " in " in ql):
@@ -545,7 +1435,7 @@ def detect_region_comparison(question: str, metadata) -> List[str]:
         if len(parts) >= 2:
             r1 = _match_region(parts[0])
             r2 = _match_region(parts[1])
-            if r1 and r2 and r1 != r2:
+            if r1 and r2 and not regions_equivalent(r1, r2):
                 return [r1, r2]
     return []
 
@@ -554,101 +1444,243 @@ def detect_region_comparison(question: str, metadata) -> List[str]:
 def plot_variable_across_regions(question: str, model_data: List[Dict], ts_data: List[Dict],
                                  variable: str, regions: List[str],
                                  scenario: str = None, start_year: int = None,
-                                 end_year: int = None) -> str:
+                                 end_year: int = None,
+                                 scenarios: Optional[List[str]] = None,
+                                 all_scenarios: bool | None = None,
+                                 chart_type: str | None = None) -> str:
     """
     Plot a single variable across multiple regions.
     """
     if not variable or not regions:
         return "Could not identify enough regions to compare."
     metadata = get_metadata(ts_data, model_data)
+    typed_scenarios = explicit_scenarios_from_query(
+        question,
+        {str(record.get("scenario") or "").strip() for record in ts_data if record},
+    )
+    if len(typed_scenarios) == 1:
+        # The rendered comparison query is the final scope contract.  Recover
+        # its exact runtime scenario if an upstream singular/plural conversion
+        # dropped or generalized the structured field.
+        scenario = typed_scenarios[0]
+    requested_scenarios = []
+    for value in scenarios or []:
+        normalized = str(value or "").strip()
+        if normalized and normalized not in requested_scenarios:
+            requested_scenarios.append(normalized)
+    scenario_members = set(requested_scenarios) or _scenario_filter_members(scenario, ts_data)
 
-    # Collect data for each region
-    all_data = {}
-    unit = None
+    # Collect every concrete record. Never collapse rows with
+    # ``groupby(...).first()``: a scenario can be reported by several models.
+    all_data: Dict[str, List[Dict]] = {}
+    catalogue_by_region: Dict[str, List[Dict]] = {}
     for region in regions:
+        catalogue_by_region[region] = [
+            record for record in ts_data
+            if record
+            and str(record.get("variable") or "") == variable
+            and regions_equivalent(record.get("region"), region)
+        ]
         filtered = []
-        for r in ts_data:
+        for r in catalogue_by_region[region]:
             if r is None:
                 continue
-            if str(r.get('variable', '')) != variable:
-                continue
-            if scenario and r.get('scenario') != scenario:
-                continue
-            if region and str(r.get('region', '')).lower() != region.lower():
+            if scenario_members and str(r.get('scenario') or '') not in scenario_members:
                 continue
             filtered.append(r)
         if filtered:
             all_data[region] = filtered
-            if unit is None:
-                unit = filtered[0].get('unit', '')
 
-    if not all_data:
-        region_scope = regions[0] if len(regions) == 1 else None
-        recovery = _matrix_plot_recovery_prompt(
-            metadata,
-            f"No data found for **{variable}** in the requested regions.",
-            variable=variable,
-            region=region_scope,
-            scenario=scenario,
+    missing_regions = [region for region in regions if region not in all_data]
+    if missing_regions:
+        missing_text = ", ".join(f"`{region}`" for region in missing_regions)
+        examples = _common_scope_examples(
+            catalogue_by_region,
+            ("scenario", "model", "unit"),
         )
-        return recovery or f"No data found for **{variable}** in the requested regions."
+        return (
+            f"I can't plot the complete region comparison for **{variable}**: "
+            f"no data matched the requested scope for {missing_text}.\n\n"
+            f"{_format_common_scope_suggestions(examples)}"
+        )
+
+    # A region comparison is meaningful only when the selected lines share a
+    # source identity. Prefer model/scenario keys present in every requested
+    # region; region-only sources are retained only when no paired key exists,
+    # in which case the chart is explicitly presented as an unpaired view.
+    common_source_keys = _common_comparison_source_keys(all_data)
+    paired_source_comparison = bool(common_source_keys)
+    source_omitted_series = 0
+    if paired_source_comparison:
+        original_source_count = sum(len(records) for records in all_data.values())
+        all_data = {
+            compared_region: [
+                record
+                for record in records
+                if _comparison_source_key(record) in common_source_keys
+            ]
+            for compared_region, records in all_data.items()
+        }
+        source_omitted_series = original_source_count - sum(
+            len(records) for records in all_data.values()
+        )
+
+    contributing_records = [record for rows in all_data.values() for record in rows]
+    (
+        compatible_records,
+        unit,
+        unit_omitted_series,
+        unit_notice,
+        unit_error,
+    ) = _dominant_unit_subset(
+        contributing_records,
+        "these regions",
+        variable=variable,
+        coverage_dimension="region",
+        required_values=list(all_data),
+    )
+    if unit_error:
+        return unit_error
+    compatible_ids = {id(record) for record in compatible_records}
+    all_data = {
+        compared_region: [record for record in records if id(record) in compatible_ids]
+        for compared_region, records in all_data.items()
+    }
+
+    frames = []
+    for compared_region, records in all_data.items():
+        frame = _expand_years(records)
+        frame["_comparison_region"] = compared_region
+        frames.append(frame)
+    combined = pd.concat(frames, ignore_index=True)
+    year_cols = _selected_year_columns(combined, start_year, end_year)
+    if not year_cols:
+        return "No time series data is available in the requested year range."
+    start_year, end_year, chart_type = _resolve_latest_plot_scope(
+        year_cols, start_year, end_year, chart_type,
+    )
+
+    scenarios_in_data = {
+        _clean_text(value) for value in combined.get("scenario", []) if _clean_text(value)
+    }
+    models_in_scope = {
+        _clean_text(value) for value in combined.get("_plot_model", []) if _clean_text(value)
+    }
+    if paired_source_comparison:
+        plotted_df, omitted_series, rendered_common_keys = _paired_region_rows(
+            combined,
+            list(all_data),
+        )
+        if not rendered_common_keys:
+            # Unit compatibility can remove one half of every originally common
+            # key. In that rare case keep the available records, but disclose
+            # that the final rendered sources are not paired.
+            paired_source_comparison = False
+            plotted_df, omitted_series = _representative_rows(
+                combined,
+                balance_column="_comparison_region",
+            )
+    else:
+        plotted_df, omitted_series = _representative_rows(
+            combined,
+            balance_column="_comparison_region",
+        )
+    omitted_series += unit_omitted_series + source_omitted_series
 
     plt.figure(figsize=(12, 7))
     colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b']
-    markers = ['o', 's', '^', 'D', 'v', '<']
-    scenarios_in_data = set()
+    region_colors = {
+        compared_region: colors[index % len(colors)]
+        for index, compared_region in enumerate(regions)
+    }
 
-    for idx, (region, data) in enumerate(all_data.items()):
-        df = pd.DataFrame(data)
-        if 'years' in df.columns:
-            years_df = df['years'].apply(pd.Series)
-            df = df.drop('years', axis=1).join(years_df)
+    def region_label(row) -> str:
+        compared_region = _clean_text(row.get("_comparison_region"))
+        model_name = _clean_text(row.get("_plot_model"))
+        row_scenario = _clean_text(row.get("scenario"))
+        if not paired_source_comparison:
+            return " — ".join(
+                part for part in (compared_region, model_name, row_scenario) if part
+            )
+        if len(models_in_scope) > 1:
+            parts = [compared_region, model_name]
+            if len(scenarios_in_data) > 1:
+                parts.append(row_scenario)
+            return " — ".join(part for part in parts if part)
+        if len(scenarios_in_data) > 1 and row_scenario:
+            return f"{compared_region} ({row_scenario})"
+        return compared_region
 
-        year_cols = [col for col in df.columns if str(col).isdigit()]
-        if start_year or end_year:
-            filtered_year_cols = []
-            for col in year_cols:
-                year_int = int(col)
-                if start_year and year_int < start_year:
-                    continue
-                if end_year and year_int > end_year:
-                    continue
-                filtered_year_cols.append(col)
-            if filtered_year_cols:
-                year_cols = filtered_year_cols
+    displayed_series, actual_chart_type = _draw_plot_rows(
+        plotted_df,
+        year_cols,
+        region_label,
+        chart_type=chart_type,
+        style_builder=lambda row, _position: {
+            "color": region_colors.get(_clean_text(row.get("_comparison_region")))
+        },
+    )
 
-        if len(df) > 1:
-            df = df.groupby('scenario').first().reset_index()
-
-        # Plot first row per region (scenario already filtered above)
-        row = df.iloc[0]
-        if 'scenario' in row:
-            scenarios_in_data.add(str(row.get('scenario', '')).strip())
-        values = [row.get(str(year), 0) for year in sorted(year_cols, key=int)]
-        plt.plot(sorted(year_cols, key=int), values,
-                 label=region,
-                 color=colors[idx % len(colors)],
-                 marker=markers[idx % len(markers)],
-                 linewidth=2)
-
-    title = f"{_pretty_variable_name(variable)}: " + " vs ".join(format_region_label(r) for r in regions)
+    if paired_source_comparison:
+        title = f"{_pretty_variable_name(variable)}: " + " vs ".join(
+            format_region_label(region) for region in regions
+        )
+    else:
+        title = f"{_pretty_variable_name(variable)}: region-specific sources — " + " / ".join(
+            format_region_label(region) for region in regions
+        )
+    title += _year_range_text(start_year, end_year)
     plt.title(title, fontsize=12, fontweight='bold')
-    plt.xlabel("Year", fontsize=10)
+    plt.xlabel("Series" if actual_chart_type == "bar" else "Year", fontsize=10)
     if unit:
-        plt.ylabel(f"Value ({unit})", fontsize=10)
-    plt.legend()
+        plt.ylabel(f"{_pretty_variable_name(variable)} ({unit})", fontsize=10)
     plt.grid(alpha=0.3)
-    plt.tight_layout()
+    _finalize_plot_layout(len(displayed_series))
 
     plot_str = save_plot_to_base64()
-    return _wrap_plot_markdown(plot_str, variable, None, scenario, list(scenarios_in_data), start_year, end_year, prefix="Showing")
+    ordered_scenarios = [value for value in requested_scenarios if value in scenarios_in_data]
+    ordered_scenarios.extend(sorted(
+        scenarios_in_data.difference(ordered_scenarios), key=str.casefold,
+    ))
+    displayed_models = sorted({
+        _clean_text(value) for value in plotted_df.get("_plot_model", []) if _clean_text(value)
+    })
+    if paired_source_comparison:
+        source_notice = (
+            "Note: this region comparison uses model/scenario sources available "
+            "in every requested region. Region-only source series were omitted.\n\n"
+            if source_omitted_series
+            else ""
+        )
+        comparison_pairing = "shared model/scenario"
+    else:
+        source_notice = (
+            "Note: no shared model-and-scenario source is available across all "
+            "requested regions. Each line is labeled with its own source; this is "
+            "a side-by-side view, not a like-for-like paired comparison.\n\n"
+        )
+        comparison_pairing = "unpaired source scopes"
+    return unit_notice + source_notice + _wrap_plot_markdown(
+        plot_str, variable, None, scenario, ordered_scenarios, start_year, end_year,
+        prefix="Showing", models_in_data=displayed_models,
+        regions_in_data=list(all_data.keys()),
+        all_scenarios=all_scenarios,
+        omitted_series=omitted_series,
+        scope_variables=[variable],
+        comparison_dimension="region",
+        displayed_series=displayed_series,
+        chart_type=actual_chart_type,
+        unit=unit,
+        comparison_pairing=comparison_pairing,
+    )
 
 
 @_serialized_plot
 def plot_multiple_variables(question: str, model_data: List[Dict], ts_data: List[Dict],
                             variables: List[str], region: str = None, 
                             scenario: str = None, start_year: int = None, 
-                            end_year: int = None) -> str:
+                            end_year: int = None,
+                            chart_type: str | None = None) -> str:
     """
     Generate a plot comparing multiple variables.
     
@@ -666,6 +1698,12 @@ def plot_multiple_variables(question: str, model_data: List[Dict], ts_data: List
         Base64 encoded PNG image or error message
     """
     metadata = get_metadata(ts_data, model_data)
+    scenario_members = _scenario_filter_members(scenario, ts_data)
+    available_vars = {
+        str(record.get("variable") or "").strip()
+        for record in ts_data
+        if record and str(record.get("variable") or "").strip()
+    }
     
     # Check if variables are already exact names (from LLM extraction)
     # or if they need to be resolved (from regex detection)
@@ -680,13 +1718,28 @@ def plot_multiple_variables(question: str, model_data: List[Dict], ts_data: List
                 logger.debug("Using exact variable: '%s'", var)
                 break
         
-        # If not exact, try to resolve using metadata
+        # The alias catalogue understands the family wording ("coal primary
+        # energy" -> `Primary Energy|Coal`); `suggest_variables` only sees the
+        # bare token and answered `Price|Coal`. Try the alias layer first.
+        if not exact_match:
+            alias_match = preferred_variable_from_query(var, available_vars)
+            if alias_match:
+                resolved_variables.append(alias_match)
+                exact_match = True
+                logger.debug("Alias-resolved '%s' to '%s'", var, alias_match)
+
+        # If still unresolved, fall back to catalogue keyword suggestions.
         if not exact_match and metadata:
             suggestions = metadata.suggest_variables(var, limit=3)
             if suggestions:
                 resolved_variables.append(suggestions[0][0])
                 logger.debug("Resolved '%s' to '%s'", var, suggestions[0][0])
     
+    resolved_variables = [
+        _refine_explicit_technology_leaf(question, variable, available_vars)
+        for variable in resolved_variables
+    ]
+    resolved_variables = list(dict.fromkeys(resolved_variables))
     if len(resolved_variables) < 2:
         return f"Could not identify enough variables to compare. Found: {resolved_variables}"
     
@@ -713,119 +1766,173 @@ def plot_multiple_variables(question: str, model_data: List[Dict], ts_data: List
     logger.debug("Using region: %s", region)
     
     # Collect data for each variable
-    all_data = {}
-    units = {}
+    all_data: Dict[str, List[Dict]] = {}
+    catalogue_by_variable: Dict[str, List[Dict]] = {}
     
     for variable in resolved_variables:
+        catalogue_by_variable[variable] = [
+            record for record in ts_data
+            if record and str(record.get("variable") or "") == variable
+        ]
         filtered_data = []
-        for r in ts_data:
+        for r in catalogue_by_variable[variable]:
             if r is None:
                 continue
-            if str(r.get('variable', '')) != variable:
-                continue
-            if scenario and r.get('scenario') != scenario:
+            if scenario_members and str(r.get('scenario') or '') not in scenario_members:
                 continue
             if region:
-                r_region = str(r.get('region', ''))
-                if r_region.lower() != region.lower():
+                if not regions_equivalent(r.get('region'), region):
                     continue
             filtered_data.append(r)
         
         if filtered_data:
             all_data[variable] = filtered_data
-            units[variable] = filtered_data[0].get('unit', '')
-    
-    if not all_data:
-        return f"No data found for the requested variables in region '{region}'."
+
+    missing_variables = [variable for variable in resolved_variables if variable not in all_data]
+    if missing_variables:
+        missing_text = ", ".join(f"`{variable}`" for variable in missing_variables)
+        requested_scope = []
+        if region:
+            requested_scope.append(f"region `{region}`")
+        if scenario:
+            requested_scope.append(f"scenario `{scenario}`")
+        scope_text = f" in {' and '.join(requested_scope)}" if requested_scope else ""
+        examples = _common_scope_examples(
+            catalogue_by_variable,
+            ("region", "scenario", "model", "unit"),
+        )
+        return (
+            f"I can't plot the complete variable comparison{scope_text}: no data "
+            f"matched for {missing_text}.\n\n{_format_common_scope_suggestions(examples)}"
+        )
+
+    unit_omitted_series = 0
+    unit_notices: list[str] = []
+    for compared_variable, records in list(all_data.items()):
+        (
+            compatible_records,
+            _selected_unit,
+            omitted_count,
+            unit_notice,
+            _unit_error,
+        ) = _dominant_unit_subset(
+            records,
+            f"the {_pretty_variable_name(compared_variable)} series",
+            variable=compared_variable,
+        )
+        all_data[compared_variable] = compatible_records
+        unit_omitted_series += omitted_count
+        if unit_notice:
+            unit_notices.append(unit_notice)
+
+    contributing_records = [record for rows in all_data.values() for record in rows]
+    unit_error = _incompatible_units_message(contributing_records, "these variables")
+    if unit_error:
+        return unit_error
+    units = _distinct_units(contributing_records)
+    unit = units[0] if units else ""
+
+    frames = []
+    for compared_variable, records in all_data.items():
+        frame = _expand_years(records)
+        frame["_comparison_variable"] = compared_variable
+        frames.append(frame)
+    combined = pd.concat(frames, ignore_index=True)
+    combined = _canonicalize_scoped_region(combined, region)
+    year_cols = _selected_year_columns(combined, start_year, end_year)
+    if not year_cols:
+        return "No time series data is available in the requested year range."
+    start_year, end_year, chart_type = _resolve_latest_plot_scope(
+        year_cols, start_year, end_year, chart_type,
+    )
+
+    scenarios_in_data = {
+        _clean_text(value) for value in combined.get("scenario", []) if _clean_text(value)
+    }
+    regions_in_data = {
+        _clean_text(value) for value in combined.get("region", []) if _clean_text(value)
+    }
+    models_in_scope = {
+        _clean_text(value) for value in combined.get("_plot_model", []) if _clean_text(value)
+    }
+    plotted_df, omitted_series = _representative_rows(
+        combined,
+        balance_column="_comparison_variable",
+    )
+    omitted_series += unit_omitted_series
     
     # Create comparison plot
     plt.figure(figsize=(12, 7))
     
     colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b']
-    markers = ['o', 's', '^', 'D', 'v', '<']
-    
-    scenarios_in_data = set()
-    for idx, (variable, data) in enumerate(all_data.items()):
-        df = pd.DataFrame(data)
-        
-        # Handle years column
-        if 'years' in df.columns:
-            years_df = df['years'].apply(pd.Series)
-            df = df.drop('years', axis=1).join(years_df)
-        
-        # Get year columns
-        year_cols = [col for col in df.columns if str(col).isdigit()]
-        if not year_cols:
-            continue
-        
-        # Filter to specific year range if requested
-        if start_year or end_year:
-            filtered_year_cols = []
-            for col in year_cols:
-                year_int = int(col)
-                if start_year and year_int < start_year:
-                    continue
-                if end_year and year_int > end_year:
-                    continue
-                filtered_year_cols.append(col)
-            if filtered_year_cols:
-                year_cols = filtered_year_cols
-        
-        # Aggregate if multiple rows (take mean)
-        if len(df) > 1:
-            # Group by scenario and take first of each
-            df = df.groupby('scenario').first().reset_index()
-        
-        # Plot each row
-        for _, row in df.iterrows():
-            label = variable
-            if len(df) > 1:
-                label = f"{variable} ({row.get('scenario', '')})"
-            if 'scenario' in row:
-                scenarios_in_data.add(str(row.get('scenario', '')).strip())
-            
-            values = [row.get(str(year), 0) for year in sorted(year_cols, key=int)]
-            plt.plot(sorted(year_cols, key=int), values, 
-                    label=label, 
-                    color=colors[idx % len(colors)],
-                    marker=markers[idx % len(markers)],
-                    linewidth=2)
+    variable_colors = {
+        compared_variable: colors[index % len(colors)]
+        for index, compared_variable in enumerate(resolved_variables)
+    }
+
+    def variable_label(row) -> str:
+        compared_variable = _clean_text(row.get("_comparison_variable"))
+        parts = [_pretty_variable_name(compared_variable)]
+        if len(models_in_scope) > 1:
+            parts.append(_clean_text(row.get("_plot_model")))
+        if len(scenarios_in_data) > 1:
+            parts.append(_clean_text(row.get("scenario")))
+        if not region and len(regions_in_data) > 1:
+            parts.append(_clean_text(row.get("region")))
+        return " — ".join(part for part in parts if part)
+
+    displayed_series, actual_chart_type = _draw_plot_rows(
+        plotted_df,
+        year_cols,
+        variable_label,
+        chart_type=chart_type,
+        style_builder=lambda row, _position: {
+            "color": variable_colors.get(_clean_text(row.get("_comparison_variable")))
+        },
+    )
     
     # Build title
     title = f"Comparison: {' vs '.join([_pretty_variable_name(v) for v in all_data.keys()])}"
     if region:
         title += f" for {format_region_label(region)}"
+    title += _year_range_text(start_year, end_year)
     
     plt.title(title, fontsize=12, fontweight='bold')
-    plt.xlabel("Year", fontsize=10)
+    plt.xlabel("Series" if actual_chart_type == "bar" else "Year", fontsize=10)
     
-    # Use first unit as Y-axis label (assuming same units)
-    if units:
-        first_unit = list(units.values())[0]
-        plt.ylabel(f"Value ({first_unit})", fontsize=10)
+    if unit:
+        plt.ylabel(f"Value ({unit})", fontsize=10)
     
-    plt.legend(loc='best', fontsize=9)
     plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    
-    # Save to base64
-    buf = BytesIO()
-    plt.savefig(buf, format='png', dpi=100)
-    buf.seek(0)
-    img_base64 = base64.b64encode(buf.read()).decode('utf-8')
-    plt.close()
-    
-    plot_str = f"![Plot](data:image/png;base64,{img_base64})"
+    _finalize_plot_layout(len(displayed_series))
+
+    plot_str = save_plot_to_base64()
     caption_var = " vs ".join([_pretty_variable_name(v) for v in all_data.keys()])
     primary_variable = next(iter(all_data.keys()), "")
-    return _wrap_plot_markdown(plot_str, caption_var, region, scenario, list(scenarios_in_data), start_year, end_year, prefix="Showing comparison of", scope_variable=str(primary_variable))
+    displayed_models = sorted({
+        _clean_text(value) for value in plotted_df.get("_plot_model", []) if _clean_text(value)
+    })
+    return "".join(unit_notices) + _wrap_plot_markdown(
+        plot_str, caption_var, region, scenario, sorted(scenarios_in_data), start_year, end_year,
+        prefix="Showing comparison of", scope_variable=str(primary_variable),
+        models_in_data=displayed_models,
+        omitted_series=omitted_series,
+        scope_variables=list(all_data.keys()),
+        comparison_dimension="variable",
+        displayed_series=displayed_series,
+        chart_type=actual_chart_type,
+        unit=unit,
+    )
 
 
 @_serialized_plot
 def plot_model_comparison(question: str, model_data: List[Dict], ts_data: List[Dict],
                           variable: str, models: List[str], region: str = None,
                           scenario: str = None, start_year: int = None, 
-                          end_year: int = None) -> str:
+                          end_year: int = None,
+                          scenarios: Optional[List[str]] = None,
+                          all_scenarios: bool | None = None,
+                          chart_type: str | None = None) -> str:
     """
     Generate a plot comparing the same variable across different models.
     
@@ -844,6 +1951,9 @@ def plot_model_comparison(question: str, model_data: List[Dict], ts_data: List[D
         Base64 encoded PNG image or error message
     """
     metadata = get_metadata(ts_data, model_data)
+    scenario_members = {
+        str(value).strip() for value in (scenarios or []) if str(value or "").strip()
+    } or _scenario_filter_members(scenario, ts_data)
     
     # Resolve variable name if needed
     resolved_variable = None
@@ -852,7 +1962,7 @@ def plot_model_comparison(question: str, model_data: List[Dict], ts_data: List[D
             resolved_variable = variable
             break
     
-    if not resolved_variable and metadata:
+    if not resolved_variable and metadata and variable:
         suggestions = metadata.suggest_variables(variable, limit=3)
         if suggestions:
             resolved_variable = suggestions[0][0]
@@ -864,23 +1974,32 @@ def plot_model_comparison(question: str, model_data: List[Dict], ts_data: List[D
     # Resolve model names (fuzzy match)
     # Note: ts_data uses 'modelName' field, not 'model'
     resolved_models = []
-    available_models = sorted({str(r.get('modelName', '') or r.get('model', '')) for r in ts_data if r and (r.get('modelName') or r.get('model'))})
+    available_models = sorted({
+        str(r.get('modelName', '') or r.get('model', '')).strip()
+        for r in ts_data
+        if r and is_presentable_model_label(r.get('modelName') or r.get('model'))
+    })
     logger.debug("ts_data length: %s", len(ts_data))
     logger.debug("Available models in ts_data: %s...", available_models[:20])
     logger.debug("Looking for models: %s", models)
     
     # If ts_data is empty, try to get models from model_data
     if not available_models and model_data:
-        available_models = sorted({str(m.get('modelName', '')) for m in model_data if m and m.get('modelName')})
+        available_models = sorted({
+            str(m.get('modelName', '')).strip()
+            for m in model_data
+            if m and is_presentable_model_label(m.get('modelName'))
+        })
         logger.debug("Using model_data instead. Available models: %s...", available_models[:20])
     
+    unmatched_models: List[str] = []
     for model_name in models:
         # Try exact match first
         if model_name in available_models:
             resolved_models.append(model_name)
             logger.debug("Using exact model: '%s'", model_name)
             continue
-        
+
         # Try case-insensitive match
         for avail in available_models:
             if avail.lower() == model_name.lower():
@@ -894,8 +2013,20 @@ def plot_model_comparison(question: str, model_data: List[Dict], ts_data: List[D
                     resolved_models.append(avail)
                     logger.debug("Partial matched model '%s' to '%s'", model_name, avail)
                     break
-    
-    if len(resolved_models) < 2:
+            else:
+                unmatched_models.append(str(model_name))
+
+    if not resolved_models:
+        # Every requested model failed to resolve against the data. When the
+        # user named specific models, that means those models carry no
+        # timeseries — say so instead of dumping the catalogue.
+        if unmatched_models:
+            named = ", ".join(f"`{name}`" for name in dict.fromkeys(unmatched_models))
+            return (
+                f"I can't plot a comparison: {named} "
+                f"{'has' if len(unmatched_models) == 1 else 'have'} no timeseries data "
+                f"in the IAM PARIS dataset for this variable."
+            )
         return f"Could not identify enough models to compare. Found: {resolved_models}. Available models include: {', '.join(available_models[:10])}..."
     
     # Extract region from query if not provided
@@ -905,116 +2036,170 @@ def plot_model_comparison(question: str, model_data: List[Dict], ts_data: List[D
     logger.debug("Model comparison - variable: %s, models: %s, region: %s", resolved_variable, resolved_models, region)
     
     # Collect data for each model
-    all_data = {}
-    units = {}
+    all_data: Dict[str, List[Dict]] = {}
+    catalogue_by_model: Dict[str, List[Dict]] = {}
     
     for model_name in resolved_models:
+        catalogue_by_model[model_name] = [
+            record for record in ts_data
+            if record
+            and str(record.get("variable") or "") == resolved_variable
+            and _row_model(record) == model_name
+        ]
         filtered_data = []
-        for r in ts_data:
+        for r in catalogue_by_model[model_name]:
             if r is None:
                 continue
-            if str(r.get('variable', '')) != resolved_variable:
-                continue
-            # Use modelName field (the actual field name in ts_data)
-            r_model = str(r.get('modelName', '') or r.get('model', ''))
-            if r_model != model_name:
-                continue
-            if scenario and r.get('scenario') != scenario:
+            if scenario_members and str(r.get('scenario') or '') not in scenario_members:
                 continue
             if region:
-                r_region = str(r.get('region', ''))
-                if r_region.lower() != region.lower():
+                if not regions_equivalent(r.get('region'), region):
                     continue
             filtered_data.append(r)
         
         if filtered_data:
             all_data[model_name] = filtered_data
-            units[model_name] = filtered_data[0].get('unit', '')
+    for model_name in unmatched_models:
+        catalogue_by_model.setdefault(model_name, [])
     
     if not all_data:
-        return f"No data found for '{resolved_variable}' across models {resolved_models} in region '{region}'."
-    
+        examples = _common_scope_examples(
+            catalogue_by_model,
+            ("region", "scenario", "unit"),
+        )
+        return (
+            f"No data found for **{resolved_variable}** across the requested models "
+            f"in region `{region}`.\n\n{_format_common_scope_suggestions(examples)}"
+        )
+
+    # A requested model that resolved to nothing, or resolved but has no rows
+    # in this slice, must not turn the whole comparison into a dead end: plot
+    # what exists and say which models are missing.
+    skipped_models = unmatched_models + [
+        model_name for model_name in resolved_models if model_name not in all_data
+    ]
+    comparison_notice = ""
+    if skipped_models:
+        skipped_text = ", ".join(f"`{name}`" for name in dict.fromkeys(skipped_models))
+        shown_text = ", ".join(f"`{name}`" for name in all_data)
+        examples = _common_scope_examples(
+            catalogue_by_model,
+            ("region", "scenario", "unit"),
+        )
+        comparison_notice = (
+            f"Note: no timeseries data for model(s) {skipped_text} in this "
+            f"slice; plotting {shown_text}.\n\n"
+            f"{_format_common_scope_suggestions(examples)}\n\n"
+        )
+
+    contributing_records = [record for rows in all_data.values() for record in rows]
+    (
+        compatible_records,
+        unit,
+        unit_omitted_series,
+        unit_notice,
+        unit_error,
+    ) = _dominant_unit_subset(
+        contributing_records,
+        "these models",
+        variable=resolved_variable,
+        coverage_dimension="model",
+        required_values=list(all_data),
+    )
+    if unit_error:
+        return unit_error
+    compatible_ids = {id(record) for record in compatible_records}
+    all_data = {
+        compared_model: [record for record in records if id(record) in compatible_ids]
+        for compared_model, records in all_data.items()
+    }
+    frames = []
+    for compared_model, records in all_data.items():
+        frame = _expand_years(records)
+        frame["_comparison_model"] = compared_model
+        frames.append(frame)
+    combined = pd.concat(frames, ignore_index=True)
+    combined = _canonicalize_scoped_region(combined, region)
+    year_cols = _selected_year_columns(combined, start_year, end_year)
+    if not year_cols:
+        return "No time series data is available in the requested year range."
+    start_year, end_year, chart_type = _resolve_latest_plot_scope(
+        year_cols, start_year, end_year, chart_type,
+    )
+
+    scenarios_in_data = {
+        _clean_text(value) for value in combined.get("scenario", []) if _clean_text(value)
+    }
+    regions_in_data = {
+        _clean_text(value) for value in combined.get("region", []) if _clean_text(value)
+    }
+    plotted_df, omitted_series = _representative_rows(
+        combined,
+        balance_column="_comparison_model",
+    )
+    omitted_series += unit_omitted_series
+
     # Create comparison plot
     plt.figure(figsize=(12, 7))
     
     colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b']
-    markers = ['o', 's', '^', 'D', 'v', '<']
-    
-    scenarios_in_data = set()
-    for idx, (model_name, data) in enumerate(all_data.items()):
-        df = pd.DataFrame(data)
-        
-        # Handle years column
-        if 'years' in df.columns:
-            years_df = df['years'].apply(pd.Series)
-            df = df.drop('years', axis=1).join(years_df)
-        
-        # Get year columns
-        year_cols = [col for col in df.columns if str(col).isdigit()]
-        if not year_cols:
-            continue
-        
-        # Filter to specific year range if requested
-        if start_year or end_year:
-            filtered_year_cols = []
-            for col in year_cols:
-                year_int = int(col)
-                if start_year and year_int < start_year:
-                    continue
-                if end_year and year_int > end_year:
-                    continue
-                filtered_year_cols.append(col)
-            if filtered_year_cols:
-                year_cols = filtered_year_cols
-        
-        # Aggregate if multiple rows (take mean by scenario)
-        if len(df) > 1:
-            # Group by scenario and take first of each
-            df = df.groupby('scenario').first().reset_index()
-        
-        # Plot each row
-        for _, row in df.iterrows():
-            label = model_name
-            if len(df) > 1:
-                label = f"{model_name} ({row.get('scenario', '')})"
-            if 'scenario' in row:
-                scenarios_in_data.add(str(row.get('scenario', '')).strip())
-            
-            values = [row.get(str(year), 0) for year in sorted(year_cols, key=int)]
-            plt.plot(sorted(year_cols, key=int), values, 
-                    label=label, 
-                    color=colors[idx % len(colors)],
-                    marker=markers[idx % len(markers)],
-                    linewidth=2)
+    model_colors = {
+        compared_model: colors[index % len(colors)]
+        for index, compared_model in enumerate(all_data)
+    }
+
+    def model_label(row) -> str:
+        compared_model = _clean_text(row.get("_comparison_model"))
+        parts = [display_model_label(compared_model)]
+        if len(scenarios_in_data) > 1:
+            parts.append(_clean_text(row.get("scenario")))
+        if not region and len(regions_in_data) > 1:
+            parts.append(_clean_text(row.get("region")))
+        return " — ".join(part for part in parts if part)
+
+    displayed_series, actual_chart_type = _draw_plot_rows(
+        plotted_df,
+        year_cols,
+        model_label,
+        chart_type=chart_type,
+        style_builder=lambda row, _position: {
+            "color": model_colors.get(_clean_text(row.get("_comparison_model")))
+        },
+    )
     
     # Build title
     title = f"Model Comparison: {_pretty_variable_name(resolved_variable)}"
     if region:
         title += f" for {format_region_label(region)}"
-    if start_year or end_year:
-        title += f" ({start_year or '?'}-{end_year or '?'})"
+    title += _year_range_text(start_year, end_year)
     
     plt.title(title, fontsize=12, fontweight='bold')
-    plt.xlabel("Year", fontsize=10)
+    plt.xlabel("Series" if actual_chart_type == "bar" else "Year", fontsize=10)
     
-    # Use first unit as Y-axis label
-    if units:
-        first_unit = list(units.values())[0]
-        plt.ylabel(f"{_pretty_variable_name(resolved_variable)} ({first_unit})", fontsize=10)
+    if unit:
+        plt.ylabel(f"{_pretty_variable_name(resolved_variable)} ({unit})", fontsize=10)
     
-    plt.legend(loc='best', fontsize=9)
     plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    
-    # Save to base64
-    buf = BytesIO()
-    plt.savefig(buf, format='png', dpi=100)
-    buf.seek(0)
-    img_base64 = base64.b64encode(buf.read()).decode('utf-8')
-    plt.close()
-    
-    plot_str = f"![Plot](data:image/png;base64,{img_base64})"
-    return _wrap_plot_markdown(plot_str, f"model comparison of {_pretty_variable_name(resolved_variable)}", region, scenario, list(scenarios_in_data), start_year, end_year, prefix="Showing", scope_variable=str(resolved_variable))
+    _finalize_plot_layout(len(displayed_series))
+
+    plot_str = save_plot_to_base64()
+    displayed_models = sorted({
+        _clean_text(value) for value in plotted_df.get("_comparison_model", []) if _clean_text(value)
+    })
+    return comparison_notice + unit_notice + _wrap_plot_markdown(
+        plot_str, f"model comparison of {_pretty_variable_name(resolved_variable)}",
+        region, scenario, sorted(scenarios_in_data), start_year, end_year,
+        prefix="Showing", scope_variable=str(resolved_variable),
+        models_in_data=displayed_models,
+        all_scenarios=all_scenarios,
+        omitted_series=omitted_series,
+        scope_variables=[resolved_variable],
+        scope_models=list(dict.fromkeys(resolved_models)),
+        comparison_dimension="model",
+        displayed_series=displayed_series,
+        chart_type=actual_chart_type,
+        unit=unit,
+    )
 
 
 @_serialized_plot
@@ -1036,7 +2221,9 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
     # Check for multi-variable comparison from LLM-extracted entities
     variables_list = entities.get('variables')
     models_list = entities.get('models')
+    regions_list = entities.get('regions')
     comparison_type = entities.get('comparison')
+    requested_chart_type = entities.get('chart_type') or entities.get('plot_type')
     
     # Check for model comparison
     if models_list and len(models_list) >= 2:
@@ -1048,14 +2235,68 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
         end_year = entities.get('end_year')
         return plot_model_comparison(question, model_data, ts_data, variable, models_list,
                                     region or region_from_entities, scenario,
-                                    start_year, end_year)
+                                    start_year, end_year,
+                                    scenarios=entities.get("scenarios"),
+                                    all_scenarios=bool(
+                                        entities.get("all_scenarios") is True
+                                        or (not scenario and not entities.get("scenarios"))
+                                    ),
+                                    chart_type=requested_chart_type)
     
     metadata = get_metadata(ts_data, model_data)
+    if isinstance(regions_list, list) and len(regions_list) >= 2:
+        comparison_variable = str(entities.get("variable") or "").strip()
+        if comparison_variable:
+            comparison_scenario = str(entities.get("scenario") or "").strip() or None
+            scoped_scenarios = [
+                str(value).strip() for value in (entities.get("scenarios") or [])
+                if str(value or "").strip()
+            ]
+            if comparison_scenario is None and len(scoped_scenarios) == 1:
+                comparison_scenario = scoped_scenarios[0]
+            return plot_variable_across_regions(
+                question,
+                model_data,
+                ts_data,
+                comparison_variable,
+                [str(value) for value in regions_list if str(value).strip()],
+                comparison_scenario,
+                entities.get("start_year"),
+                entities.get("end_year"),
+                scenarios=scoped_scenarios,
+                all_scenarios=bool(
+                    entities.get("all_scenarios") is True
+                    or (not comparison_scenario and not scoped_scenarios)
+                ),
+                chart_type=requested_chart_type,
+            )
     region_compare = detect_region_comparison(question, metadata)
     available_vars = {str(r.get('variable', '')).strip() for r in ts_data if r and r.get('variable')}
     ranked_vars = []
     significant_words = []
-    if variables_list and len(variables_list) >= 2:
+    structured_scenarios = [
+        str(value).strip() for value in (entities.get("scenarios") or [])
+        if str(value or "").strip()
+    ]
+    structured_scenario_comparison = bool(
+        comparison_type == "scenario"
+        and len(structured_scenarios) >= 2
+        and str(entities.get("variable") or "").strip()
+    )
+    # Some extractors expose only their highest-ranked variable in the
+    # structured list.  A one-item list is not evidence that a natural-language
+    # comparison is singular, so recover both sides from the query before
+    # routing.  Two or more structured variables remain authoritative.
+    if (
+        not structured_scenario_comparison
+        and (not isinstance(variables_list, list) or len(variables_list) < 2)
+    ):
+        detected_variables = detect_multi_variable_comparison(question)
+        if len(detected_variables) >= 2:
+            variables_list = detected_variables
+        elif not isinstance(variables_list, list):
+            variables_list = []
+    if variables_list and len(variables_list) >= 2 and not structured_scenario_comparison:
         region_keywords = {
             "usa", "us", "united", "states", "eu", "europe", "china", "chn", "india", "ind",
             "asia", "africa", "world", "global", "oecd", "latin", "america", "european"
@@ -1069,10 +2310,18 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
         end_year = entities.get('end_year')
         return plot_multiple_variables(question, model_data, ts_data, variables_list, 
                                        region or region_from_entities, scenario,
-                                       start_year, end_year)
+                                       start_year, end_year,
+                                       chart_type=requested_chart_type)
     
     # Fallback: Check for multi-variable comparison using regex patterns
-    comparison_vars = detect_multi_variable_comparison(question)
+    # Structured comparison state is more authoritative than regex noun
+    # splitting.  In a follow-up such as "compare it with <scenario>", the
+    # pronoun and scenario label are not variable names.
+    comparison_vars = (
+        []
+        if structured_scenario_comparison
+        else detect_multi_variable_comparison(question)
+    )
     if region_compare and comparison_vars:
         region_keywords = {
             "usa", "us", "united", "states", "eu", "europe", "china", "chn", "india", "ind",
@@ -1086,14 +2335,19 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
         start_year = entities.get('start_year')
         end_year = entities.get('end_year')
         return plot_multiple_variables(question, model_data, ts_data, comparison_vars, region, scenario,
-                                       start_year, end_year)
+                                       start_year, end_year,
+                                       chart_type=requested_chart_type)
     
     # Reject an explicitly named place that is not a known region, instead of
     # plotting unfiltered global data for a nonexistent location.
     if not (entities.get('region') or region):
         from data_utils import unknown_named_region as _unknown_region
         _rc = sorted({str(r.get('region', '')).strip() for r in ts_data if r and r.get('region')})
-        _mn = sorted({str(m.get('modelName', '')).strip() for m in model_data if m and m.get('modelName')})
+        _mn = sorted({
+            str(m.get('modelName', '')).strip()
+            for m in model_data
+            if m and is_presentable_model_label(m.get('modelName'))
+        })
         _bad = _unknown_region(question, _rc, _mn)
         if _bad:
             return (f"I couldn't find `{_bad}` as a region in the IAM PARIS data, so I can't plot it. "
@@ -1131,9 +2385,32 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
         scenarios_list = typed_scenarios
         scenario = None
         comparison = "scenario"
-    elif len(typed_scenarios) == 1 and scenario != typed_scenarios[0]:
+    elif (
+        len(typed_scenarios) == 1
+        and not scenarios_list
+        and scenario != typed_scenarios[0]
+    ):
+        # A structured comparison may contain the carried scenario plus the
+        # one scenario named in the follow-up.  The single textual mention is
+        # only one side of that pair, so it must not collapse the bounded list.
         scenario = typed_scenarios[0]
         scenarios_list = []
+    if scenario:
+        available_scenarios = {
+            str(record.get("scenario", "")).strip()
+            for record in ts_data
+            if record and str(record.get("scenario", "")).strip()
+        }
+        family_members = scenario_family_members(str(scenario), available_scenarios)
+        if len(family_members) == 1:
+            # Preserve the concrete runtime member in the caption and resolved
+            # scope when a family maps to exactly one available scenario.
+            scenario = family_members[0]
+            scenarios_list = []
+        elif family_members:
+            scenarios_list = family_members
+            scenario = None
+            comparison = "scenario"
     model = _canonical_ts_model(entities.get('model'), ts_data)
     start_year = entities.get('start_year')
     end_year = entities.get('end_year')
@@ -1151,6 +2428,12 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
         if variable and "wind" in ql and "wind" not in v:
             variable = None
         if variable and "capacity" in ql and "capacity" not in v:
+            variable = None
+        if variable and re.search(r"\bcoal\b", ql) and "coal" not in v:
+            variable = None
+        if variable and any(t in ql for t in ("electricity generation", "power generation", "generation from")) and "capacity" in v:
+            variable = None
+        if variable and re.search(r"\b(?:solar\s+pv|photovoltaic|pv)\b", ql) and not ("solar" in v and "pv" in v):
             variable = None
         if variable and _is_capacity_additions_mismatch(question, variable):
             variable = None
@@ -1206,14 +2489,14 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
             preferred_family = _preferred_plot_family_matches(question, available_vars)
             if preferred_family:
                 candidates = preferred_family[:3]
-            if ranked_vars:
-                ranked_candidates = [name for name, _, _, _ in ranked_vars if name in available_vars][:3]
-                for candidate in ranked_candidates:
-                    if candidate not in candidates:
-                        candidates.append(candidate)
-                candidates = candidates[:3]
-            if not candidates:
-                candidates = resolve_natural_language_variable_candidates(question, variable_dict, top_k=3)
+            for candidate in _catalogue_variable_suggestions(
+                question,
+                available_vars,
+                ignored_values=(region, scenario, model, format_region_label(region) if region else ""),
+            ):
+                if candidate not in candidates:
+                    candidates.append(candidate)
+            candidates = candidates[:3]
             if candidates:
                 sample = ", ".join(candidates)
                 return (
@@ -1227,14 +2510,23 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
         metadata = get_metadata(ts_data, model_data)
         if metadata:
             similar = metadata._suggest_similar_variables(question)
+            supported = set(_catalogue_variable_suggestions(
+                question,
+                available_vars,
+                ignored_values=(region, scenario, model, format_region_label(region) if region else ""),
+            ))
+            similar = [candidate for candidate in similar if candidate in supported]
             if similar:
                 return f"Could not identify a variable to plot. Did you mean: {', '.join(similar[:3])}?"
-        return "Could not identify a variable to plot. Please specify a variable like 'solar capacity' or 'CO2 emissions'."
+        return "I could not confidently match that wording to a loaded variable. Which variable should I use?"
 
     metadata = get_metadata(ts_data, model_data)
     region_compare = detect_region_comparison(question, metadata)
     if region_compare and variable:
-        return plot_variable_across_regions(question, model_data, ts_data, variable, region_compare, scenario, start_year, end_year)
+        return plot_variable_across_regions(
+            question, model_data, ts_data, variable, region_compare, scenario,
+            start_year, end_year, chart_type=requested_chart_type,
+        )
     
     # Guard: if variable doesn't exist in loaded data, ask for a valid one
     available_vars = {str(r.get('variable', '')).strip() for r in ts_data if r and r.get('variable')}
@@ -1269,29 +2561,115 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
         return f"Variable '{variable}' not found in loaded data. Try `list variables`."
 
     # Filter data using extracted entities
-    filtered_data = []
-    for r in ts_data:
-        if r is None:
-            continue
-        if str(r.get('variable', '')) != variable:
-            continue
-        if model and str(r.get('modelName', '') or r.get('model', '')) != model:
-            continue
-        row_scenario = str(r.get('scenario', '') or '')
-        if scenarios_list:
-            if row_scenario not in scenarios_list:
+    def _filter_records(use_model: bool) -> list:
+        out = []
+        for r in ts_data:
+            if r is None:
                 continue
-        elif scenario and row_scenario != scenario:
-            continue
-        # Case-insensitive region matching
+            if str(r.get('variable', '')) != variable:
+                continue
+            if use_model and model and str(r.get('modelName', '') or r.get('model', '')) != model:
+                continue
+            row_scenario = str(r.get('scenario', '') or '')
+            if scenarios_list:
+                if row_scenario not in scenarios_list:
+                    continue
+            elif scenario and row_scenario != scenario:
+                continue
+            # Case-insensitive region matching
+            if region:
+                if not regions_equivalent(r.get('region'), region):
+                    continue
+            out.append(r)
+        return out
+
+    filtered_data = _filter_records(use_model=True)
+    # A requested model is part of the answer's scope contract.  Never relax
+    # it and silently plot other models: that produces a valid-looking chart
+    # for data the user did not request.  Instead, keep the miss explicit and
+    # offer models that really do cover the same variable/scope.
+    if not filtered_data and model:
+        same_slice_records = _filter_records(use_model=False)
+        alternative_models = _model_names_from_records(same_slice_records)
+        model_variable_records = [
+            record for record in ts_data
+            if record
+            and str(record.get("variable") or "") == variable
+            and _row_model(record) == model
+        ]
+        available_regions = dedupe_equivalent_regions(sorted({
+            str(record.get("region") or "").strip()
+            for record in model_variable_records
+            if str(record.get("region") or "").strip()
+        }))
+        available_scenarios = sorted({
+            str(record.get("scenario") or "").strip()
+            for record in model_variable_records
+            if str(record.get("scenario") or "").strip()
+        })
+        requested_scope = []
         if region:
-            r_region = str(r.get('region', ''))
-            if r_region.lower() != region.lower():
-                continue
-        filtered_data.append(r)
-    
+            requested_scope.append(f"region `{format_region_label(region)}`")
+        if scenario:
+            requested_scope.append(f"scenario `{scenario}`")
+        elif scenarios_list:
+            requested_scope.append(
+                "scenarios " + ", ".join(f"`{value}`" for value in scenarios_list)
+            )
+        scope_text = f" for {' and '.join(requested_scope)}" if requested_scope else ""
+        suggestions = []
+        if alternative_models:
+            suggestions.append(
+                "Models with data for the requested slice: "
+                + ", ".join(f"`{name}`" for name in alternative_models[:5])
+            )
+        if available_regions:
+            suggestions.append(
+                f"Regions available for `{model}`: "
+                + ", ".join(format_region_label(value) for value in available_regions[:5])
+            )
+        if available_scenarios:
+            suggestions.append(
+                f"Scenarios available for `{model}`: "
+                + ", ".join(f"`{value}`" for value in available_scenarios[:5])
+            )
+        suggestion_text = (
+            "\n".join(suggestions)
+            if suggestions
+            else "Try another model, region, or scenario from the loaded data."
+        )
+        return (
+            f"No data found for **{variable}** in model `{model}`{scope_text}.\n\n"
+            f"{suggestion_text}\n\n"
+            "Tell me which alternative scope you want to plot."
+        )
+
     if not filtered_data:
-        available_regions = sorted(set(str(r.get('region', '')) for r in ts_data if r and r.get('region') and r.get('variable') == variable))
+        # A canonical scenario family (notably ``Net Zero``) may be valid in
+        # the catalogue but unavailable for this exact region. Reuse the
+        # data-side scoped recovery so every suggested scenario works in the
+        # requested region and every suggested region works for the requested
+        # family. Keep this local import to avoid the module-level circular
+        # dependency (data_utils imports this plotter).
+        requested_family = str(entities.get("scenario") or "").strip()
+        if requested_family:
+            from data_utils import _scenario_family_recovery_prompt
+
+            family_prompt = _scenario_family_recovery_prompt(
+                ts_data,
+                variable=variable,
+                region=region,
+                scenario=requested_family,
+                model=model or None,
+            )
+            if family_prompt:
+                return family_prompt
+
+        available_regions = dedupe_equivalent_regions(sorted(set(
+            str(r.get('region', ''))
+            for r in ts_data
+            if r and r.get('region') and r.get('variable') == variable
+        )))
         available_scenarios = sorted(set(str(r.get('scenario', '')) for r in ts_data if r and r.get('scenario') and r.get('variable') == variable))
 
         suggestions = []
@@ -1303,96 +2681,82 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
         suggestion_text = "\n".join(suggestions) if suggestions else "Try `list variables` to see available options."
         return f"No data found for variable '{variable}'.\n{suggestion_text}"
     
-    # Get unit from data if not in entities
-    if not unit:
-        unit = filtered_data[0].get('unit', '')
-    
-    # Prepare data for plotting
-    df = pd.DataFrame(filtered_data)
-    if 'years' in df.columns:
-        years_df = df['years'].apply(pd.Series)
-        df = df.drop('years', axis=1).join(years_df)
-    
-    # Get year columns
-    year_cols = [col for col in df.columns if str(col).isdigit()]
+    (
+        filtered_data,
+        resolved_unit,
+        unit_omitted_series,
+        unit_notice,
+        unit_error,
+    ) = _dominant_unit_subset(
+        filtered_data,
+        "these series",
+        variable=variable,
+    )
+    if unit_error:
+        return unit_error
+    unit = resolved_unit or str(unit or "").strip()
+
+    # Prepare data for plotting without aggregating model/scenario rows.
+    df = _expand_years(filtered_data)
+    df = _canonicalize_scoped_region(df, region)
+    year_cols = _selected_year_columns(df, start_year, end_year)
     if not year_cols:
         return "No time series data available for plotting."
-    
-    # Filter to specific year range if requested
-    if start_year or end_year:
-        filtered_year_cols = []
-        for col in year_cols:
-            year_int = int(col)
-            if start_year and year_int < start_year:
-                continue
-            if end_year and year_int > end_year:
-                continue
-            filtered_year_cols.append(col)
-        if filtered_year_cols:
-            year_cols = filtered_year_cols
-            logger.debug(
-                "Filtered years to range %s-%s: %s...%s",
-                start_year,
-                end_year,
-                year_cols[:5],
-                year_cols[-5:] if len(year_cols) > 5 else "",
-            )
-        else:
-            logger.debug("No years in range %s-%s, using all years", start_year, end_year)
+    start_year, end_year, requested_chart_type = _resolve_latest_plot_scope(
+        year_cols, start_year, end_year, requested_chart_type,
+    )
     
     # Create plot
     plt.figure(figsize=(12, 7))
     
     # Determine how to group data based on comparison type or data variety
-    scenarios_in_data = df['scenario'].unique()
+    scenarios_in_data = df['scenario'].unique() if 'scenario' in df.columns else []
     regions_in_data = df['region'].unique() if 'region' in df.columns else ['All']
-    models_in_data = df['model'].unique() if 'model' in df.columns else ['All']
-    
-    # Choose grouping strategy
-    if comparison == 'scenario' or (len(scenarios_in_data) > 1 and len(regions_in_data) == 1):
-        # Group by scenario
-        for scenario_name in scenarios_in_data:
-            scenario_data = df[df['scenario'] == scenario_name]
-            if not scenario_data.empty:
-                row = scenario_data.iloc[0]
-                label = f"{scenario_name}"
-                values = [row.get(str(year), 0) for year in sorted(year_cols, key=int)]
-                plt.plot(sorted(year_cols, key=int), values, label=label, marker='o', linewidth=2)
-    
-    elif comparison == 'region' or (len(regions_in_data) > 1 and len(scenarios_in_data) == 1):
-        # Group by region
-        for region_name in regions_in_data:
-            region_data = df[df['region'] == region_name]
-            if not region_data.empty:
-                row = region_data.iloc[0]
-                label = f"{region_name}"
-                values = [row.get(str(year), 0) for year in sorted(year_cols, key=int)]
-                plt.plot(sorted(year_cols, key=int), values, label=label, marker='o', linewidth=2)
-    
-    elif comparison == 'model' or (len(models_in_data) > 1):
-        # Group by model
-        for model_name in models_in_data:
-            model_data_row = df[df['model'] == model_name]
-            if not model_data_row.empty:
-                row = model_data_row.iloc[0]
-                label = f"{model_name}"
-                values = [row.get(str(year), 0) for year in sorted(year_cols, key=int)]
-                plt.plot(sorted(year_cols, key=int), values, label=label, marker='o', linewidth=2)
-    
-    else:
-        # Default: plot each row
-        for idx, row in df.iterrows():
-            label_parts = []
-            if 'model' in row:
-                label_parts.append(str(row['model']))
-            if 'scenario' in row:
-                label_parts.append(str(row['scenario']))
-            if 'region' in row:
-                label_parts.append(str(row['region']))
-            label = " - ".join(label_parts) if label_parts else f"Series {idx+1}"
-            
-            values = [row.get(str(year), 0) for year in sorted(year_cols, key=int)]
-            plt.plot(sorted(year_cols, key=int), values, label=label, marker='o')
+    # A plotted line is one concrete record. Grouping only by scenario, region,
+    # or model and taking ``iloc[0]`` silently discarded the other dimensions
+    # whenever more than one varied. Build composite labels from every varying
+    # dimension and render every series instead.
+    dimension_columns = {
+        'scenario': 'scenario',
+        'region': 'region',
+        'model': '_plot_model',
+    }
+    comparison_dimension = str(comparison or '').lower()
+    varying_dimensions = [
+        column
+        for column in ('scenario', 'region', '_plot_model')
+        if column in df.columns
+        and len({_clean_text(value) for value in df[column] if _clean_text(value)}) > 1
+    ]
+    preferred_column = dimension_columns.get(comparison_dimension)
+    if preferred_column in varying_dimensions:
+        varying_dimensions.remove(preferred_column)
+        varying_dimensions.insert(0, preferred_column)
+
+    label_dimensions = varying_dimensions or [
+        column for column in ('_plot_model', 'scenario', 'region') if column in df.columns
+    ]
+    sort_dimensions = varying_dimensions or label_dimensions
+    plotted_df = (
+        df.sort_values(sort_dimensions, kind='stable', na_position='last')
+        if sort_dimensions else df
+    )
+    plotted_df, omitted_series = _representative_rows(plotted_df)
+    omitted_series += unit_omitted_series
+    def direct_label(row) -> str:
+        label_parts = [
+            _clean_text(row.get(column))
+            for column in label_dimensions
+            if _clean_text(row.get(column))
+        ]
+        return " - ".join(label_parts) if label_parts else "Series"
+
+    displayed_series, actual_chart_type = _draw_plot_rows(
+        plotted_df,
+        year_cols,
+        direct_label,
+        chart_type=requested_chart_type,
+    )
     
     # Build title with context
     title_parts = [_pretty_variable_name(variable)]
@@ -1400,12 +2764,11 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
         title_parts.append(f"({scenario})")
     if region and len(regions_in_data) == 1:
         title_parts.append(f"- {format_region_label(region)}")
-    if start_year or end_year:
-        year_range = f"({start_year or '?'}-{end_year or '?'})"
-        title_parts.append(year_range)
+    if start_year is not None or end_year is not None:
+        title_parts.append(_year_range_text(start_year, end_year).strip())
     
     plt.title(" ".join(title_parts), fontsize=12, fontweight='bold')
-    plt.xlabel("Year", fontsize=10)
+    plt.xlabel("Series" if actual_chart_type == "bar" else "Year", fontsize=10)
     
     # Use unit in Y-axis label
     ylabel = _pretty_variable_name(variable)
@@ -1413,19 +2776,29 @@ def simple_plot_query_with_entities(question: str, model_data: List[Dict], ts_da
         ylabel = f"{_pretty_variable_name(variable)} ({unit})"
     plt.ylabel(ylabel, fontsize=10)
     
-    plt.legend(loc='best', fontsize=9)
     plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    
-    # Save to base64
-    buf = BytesIO()
-    plt.savefig(buf, format='png', dpi=100)
-    buf.seek(0)
-    img_base64 = base64.b64encode(buf.read()).decode('utf-8')
-    plt.close()
-    
-    plot_str = f"![Plot](data:image/png;base64,{img_base64})"
-    return _wrap_plot_markdown(plot_str, variable, region, scenario, list(scenarios_in_data), start_year, end_year)
+    _finalize_plot_layout(len(displayed_series))
+
+    plot_str = save_plot_to_base64()
+    displayed_models = sorted({
+        _clean_text(value) for value in plotted_df.get("_plot_model", []) if _clean_text(value)
+    })
+    return unit_notice + _wrap_plot_markdown(
+        plot_str, variable, region, scenario, list(scenarios_in_data), start_year, end_year,
+        models_in_data=displayed_models,
+        regions_in_data=list(regions_in_data),
+        all_scenarios=bool(
+            entities.get("all_scenarios") is True
+            or (not scenario and not scenarios_list)
+        ),
+        omitted_series=omitted_series,
+        scope_variables=[variable],
+        scope_models=[model] if model else None,
+        comparison_dimension=str(comparison or "").strip() or None,
+        displayed_series=displayed_series,
+        chart_type=actual_chart_type,
+        unit=unit,
+    )
 
 
 @_serialized_plot
@@ -1448,7 +2821,8 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
 
     def _extract_year_range(text: str) -> tuple[Optional[int], Optional[int]]:
         return extract_year_range(text)
-    
+
+    legacy_requested_chart_type = _chart_type_from_question(question)
     metadata = get_metadata(ts_data, model_data)
     region_compare = detect_region_comparison(question, metadata)
 
@@ -1464,7 +2838,10 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
     if len(comparison_vars) >= 2:
         logger.debug("Detected multi-variable comparison: %s", comparison_vars)
         start_year, end_year = _extract_year_range(question.lower())
-        return plot_multiple_variables(question, model_data, ts_data, comparison_vars, region, None, start_year, end_year)
+        return plot_multiple_variables(
+            question, model_data, ts_data, comparison_vars, region, None,
+            start_year, end_year, chart_type=legacy_requested_chart_type,
+        )
     
     # Extract region from query if not provided
     if region is None:
@@ -1476,7 +2853,11 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
             region = "World"
         if not region:
             from data_utils import unknown_named_region as _unknown_region
-            _mn = sorted({str(m.get('modelName', '')).strip() for m in model_data if m and m.get('modelName')})
+            _mn = sorted({
+                str(m.get('modelName', '')).strip()
+                for m in model_data
+                if m and is_presentable_model_label(m.get('modelName'))
+            })
             _bad = _unknown_region(question, region_candidates, _mn)
             if _bad:
                 return (f"I couldn't find `{_bad}` as a region in the IAM PARIS data, so I can't plot it. "
@@ -1535,6 +2916,21 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
     if variable:
         if variable not in available_vars:
             variable = ""
+        else:
+            evidence = next(
+                (
+                    item for item in rank_catalogue_variable_matches(
+                        question,
+                        available_vars,
+                        ignored_values=(region, format_region_label(region) if region else ""),
+                    )
+                    if item["variable"] == variable
+                ),
+                None,
+            )
+            preferred_alias = preferred_variable_from_query(question, available_vars)
+            if preferred_alias != variable and not (evidence and evidence["auto_accept"]):
+                variable = ""
     
     # If still no variable and the user gave an explicit variable format, try a closest match
     if not variable and "|" in question:
@@ -1544,7 +2940,10 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
     # If region comparison detected and variable resolved, plot across regions
     if region_compare and variable:
         start_year, end_year = _extract_year_range(question.lower())
-        return plot_variable_across_regions(question, model_data, ts_data, variable, region_compare, None, start_year, end_year)
+        return plot_variable_across_regions(
+            question, model_data, ts_data, variable, region_compare, None,
+            start_year, end_year, chart_type=legacy_requested_chart_type,
+        )
 
     # Try metadata-based variable matching if still no match
     if not variable:
@@ -1552,14 +2951,14 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
         preferred_family = _preferred_plot_family_matches(question, available_vars)
         if preferred_family:
             candidates = preferred_family[:3]
-        if ranked_vars:
-            ranked_candidates = [name for name, _, _, _ in ranked_vars if name in available_vars][:3]
-            for candidate in ranked_candidates:
-                if candidate not in candidates:
-                    candidates.append(candidate)
-            candidates = candidates[:3]
-        if not candidates:
-            candidates = resolve_natural_language_variable_candidates(question, variable_dict, top_k=3)
+        for candidate in _catalogue_variable_suggestions(
+            question,
+            available_vars,
+            ignored_values=(region, format_region_label(region) if region else ""),
+        ):
+            if candidate not in candidates:
+                candidates.append(candidate)
+        candidates = candidates[:3]
         if candidates:
             sample = ", ".join(candidates)
             return (
@@ -1573,13 +2972,23 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
         metadata = get_metadata(ts_data, model_data)
         if metadata:
             similar = metadata._suggest_similar_variables(question)
+            supported = set(_catalogue_variable_suggestions(
+                question,
+                available_vars,
+                ignored_values=(region, format_region_label(region) if region else ""),
+            ))
+            similar = [candidate for candidate in similar if candidate in supported]
             if similar:
                 return f"Could not identify a variable to plot. Did you mean: {', '.join(similar[:3])}?"
-        return "Could not identify a variable to plot. Please specify a variable like 'solar capacity' or 'CO2 emissions'."
+        return "I could not confidently match that wording to a loaded variable. Which variable should I use?"
     
     # Extract model from query if mentioned
     model_match = None
-    model_names = sorted({m.get('modelName', '') for m in model_data if m and m.get('modelName')})
+    model_names = sorted({
+        str(m.get('modelName', '')).strip()
+        for m in model_data
+        if m and is_presentable_model_label(m.get('modelName'))
+    })
     if model_names:
         model_match = match_model_name(question, model_names)
         # Canonicalize to the timeseries record name (e.g. "GCAM" -> "gcam") so
@@ -1590,8 +2999,11 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
     scenario = None
     question_lower = question.lower()
     scenarios = sorted({str(r.get('scenario', '')).strip() for r in ts_data if r and r.get('scenario')})
+    typed_scenarios = explicit_scenarios_from_query(question, scenarios)
+    if len(typed_scenarios) == 1:
+        scenario = typed_scenarios[0]
     m = re.search(r"(?:under|scenario)\s+([\w\-\.]+)", question_lower)
-    if m:
+    if not scenario and m:
         token = m.group(1)
         for s in scenarios:
             if token.lower() in s.lower():
@@ -1605,6 +3017,11 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
                     break
             if scenario:
                 break
+    scenario_members = (
+        set(typed_scenarios)
+        if len(typed_scenarios) >= 2
+        else _scenario_filter_members(scenario, ts_data)
+    )
 
     # Extract year range if mentioned
     start_year, end_year = _extract_year_range(question_lower)
@@ -1617,7 +3034,11 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
         and not metadata.combination_exists(
             variable,
             region=region,
-            scenario=scenario,
+            scenario=(
+                scenario
+                if scenario and scenario_members == {scenario}
+                else None
+            ),
             model=model_match or None,
         )
     ):
@@ -1641,9 +3062,9 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
             continue
         if model_match and r.get('modelName') != model_match:
             continue
-        if scenario and r.get('scenario') != scenario:
+        if scenario_members and str(r.get('scenario') or '') not in scenario_members:
             continue
-        if region and r.get('region') != region:
+        if region and not regions_equivalent(r.get('region'), region):
             continue
         filtered_data.append(r)
     
@@ -1672,7 +3093,7 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
             str(r.get('scenario', '')) for r in ts_data
             if r and r.get('scenario') and r.get('variable') == variable
             and (not model_match or r.get('modelName') == model_match)
-            and (not region or r.get('region') == region)
+            and (not region or regions_equivalent(r.get('region'), region))
         })
 
         def _top_values(key: str, limit: int = 3, filter_region: bool = False) -> list:
@@ -1681,7 +3102,7 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
                 if r and r.get('variable') == variable
                 and (not model_match or r.get('modelName') == model_match)
                 and (not scenario or r.get('scenario') == scenario)
-                and (not filter_region or (region and r.get('region') == region))
+                and (not filter_region or (region and regions_equivalent(r.get('region'), region)))
             ]
             counts = Counter([str(r.get(key, '')).strip() for r in records if r and r.get(key)])
             return [k for k, _ in counts.most_common(limit)]
@@ -1698,7 +3119,7 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
                 "Tell me which region or scenario you want."
             )
 
-        if region and region not in scoped_regions:
+        if region and not any(regions_equivalent(region, value) for value in scoped_regions):
             close_regions = get_close_matches(region, scoped_regions, n=3, cutoff=0.6)
             region_candidates = close_regions or _top_values("region", limit=3)
             scenario_candidates = _top_values("scenario", limit=3)
@@ -1721,77 +3142,64 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
             "Tell me which region or scenario you want."
         )
     
-    # Get unit from data
-    unit = filtered_data[0].get('unit', '')
-    
-    # Prepare data for plotting
-    df = pd.DataFrame(filtered_data)
-    if 'years' in df.columns:
-        years_df = df['years'].apply(pd.Series)
-        df = df.drop('years', axis=1).join(years_df)
-    
-    # Get year columns
-    year_cols = [col for col in df.columns if str(col).isdigit()]
-    if start_year or end_year:
-        filtered_years = select_years([str(year) for year in year_cols], start_year, end_year)
-        if filtered_years:
-            year_cols = filtered_years
+    (
+        filtered_data,
+        unit,
+        unit_omitted_series,
+        unit_notice,
+        unit_error,
+    ) = _dominant_unit_subset(
+        filtered_data,
+        "these series",
+        variable=variable,
+    )
+    if unit_error:
+        return unit_error
+
+    # Prepare every concrete model/scenario/region record for plotting.
+    df = _expand_years(filtered_data)
+    df = _canonicalize_scoped_region(df, region)
+    year_cols = _selected_year_columns(df, start_year, end_year)
     if not year_cols:
         return "No time series data available for plotting."
+    start_year, end_year, legacy_chart_type = _resolve_latest_plot_scope(
+        year_cols, start_year, end_year, legacy_requested_chart_type,
+    )
     
     # Create plot
     plt.figure(figsize=(12, 7))
     
-    # Determine grouping strategy
-    scenarios_in_data = df['scenario'].unique() if 'scenario' in df.columns else ['All']
-    regions_in_data = df['region'].unique() if 'region' in df.columns else ['All']
-    models_in_data = df['model'].unique() if 'model' in df.columns else ['All']
-    
-    # Choose grouping based on data variety
-    if len(scenarios_in_data) > 1 and len(regions_in_data) == 1:
-        # Group by scenario
-        for scenario_name in scenarios_in_data:
-            scenario_data = df[df['scenario'] == scenario_name]
-            if not scenario_data.empty:
-                row = scenario_data.iloc[0]
-                label = f"{scenario_name}"
-                values = [row.get(str(year), 0) for year in sorted(year_cols, key=int)]
-                plt.plot(sorted(year_cols, key=int), values, label=label, marker='o', linewidth=2)
-    
-    elif len(regions_in_data) > 1 and len(scenarios_in_data) == 1:
-        # Group by region
-        for region_name in regions_in_data:
-            region_data = df[df['region'] == region_name]
-            if not region_data.empty:
-                row = region_data.iloc[0]
-                label = f"{region_name}"
-                values = [row.get(str(year), 0) for year in sorted(year_cols, key=int)]
-                plt.plot(sorted(year_cols, key=int), values, label=label, marker='o', linewidth=2)
-    
-    elif len(models_in_data) > 1:
-        # Group by model
-        for model_name in models_in_data:
-            model_data_row = df[df['model'] == model_name]
-            if not model_data_row.empty:
-                row = model_data_row.iloc[0]
-                label = f"{model_name}"
-                values = [row.get(str(year), 0) for year in sorted(year_cols, key=int)]
-                plt.plot(sorted(year_cols, key=int), values, label=label, marker='o', linewidth=2)
-    
-    else:
-        # Default: plot each row
-        for idx, row in df.iterrows():
-            label_parts = []
-            if 'model' in row:
-                label_parts.append(str(row['model']))
-            if 'scenario' in row:
-                label_parts.append(str(row['scenario']))
-            if 'region' in row:
-                label_parts.append(str(row['region']))
-            label = " - ".join(label_parts) if label_parts else f"Series {idx+1}"
-            
-            values = [row.get(str(year), 0) for year in sorted(year_cols, key=int)]
-            plt.plot(sorted(year_cols, key=int), values, label=label, marker='o')
+    scenarios_in_data = [
+        _clean_text(value) for value in df.get('scenario', []) if _clean_text(value)
+    ]
+    regions_in_data = [
+        _clean_text(value) for value in df.get('region', []) if _clean_text(value)
+    ]
+    varying_dimensions = [
+        column for column in ('scenario', 'region', '_plot_model')
+        if column in df.columns
+        and len({_clean_text(value) for value in df[column] if _clean_text(value)}) > 1
+    ]
+    label_dimensions = varying_dimensions or [
+        column for column in ('_plot_model', 'scenario', 'region') if column in df.columns
+    ]
+    plotted_df, omitted_series = _representative_rows(df)
+    omitted_series += unit_omitted_series
+
+    def direct_label(row) -> str:
+        parts = [
+            _clean_text(row.get(column))
+            for column in label_dimensions
+            if _clean_text(row.get(column))
+        ]
+        return " - ".join(parts) if parts else "Series"
+
+    displayed_series, actual_chart_type = _draw_plot_rows(
+        plotted_df,
+        year_cols,
+        direct_label,
+        chart_type=legacy_chart_type,
+    )
     
     # Build title
     title_parts = [_pretty_variable_name(variable)]
@@ -1799,6 +3207,8 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
         title_parts.append(f"({scenario})")
     if region and len(regions_in_data) == 1:
         title_parts.append(f"- {format_region_label(region)}")
+    if start_year is not None or end_year is not None:
+        title_parts.append(_year_range_text(start_year, end_year).strip())
     
     plt.title(" ".join(title_parts), fontsize=12, fontweight='bold')
     plt.xlabel("Year", fontsize=10)
@@ -1808,17 +3218,21 @@ def simple_plot_query(question: str, model_data: List[Dict], ts_data: List[Dict]
     if unit:
         ylabel = f"{_pretty_variable_name(variable)} ({unit})"
     plt.ylabel(ylabel, fontsize=10)
-    
-    plt.legend(loc='best', fontsize=9)
+
     plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    
-    # Save to base64
-    buf = BytesIO()
-    plt.savefig(buf, format='png', dpi=100)
-    buf.seek(0)
-    img_base64 = base64.b64encode(buf.read()).decode('utf-8')
-    plt.close()
-    
-    plot_str = f"![Plot](data:image/png;base64,{img_base64})"
-    return _wrap_plot_markdown(plot_str, variable, region, scenario, list(scenarios_in_data), start_year, end_year)
+    _finalize_plot_layout(len(displayed_series))
+
+    plot_str = save_plot_to_base64()
+    displayed_models = sorted({
+        _clean_text(value) for value in plotted_df.get("_plot_model", []) if _clean_text(value)
+    })
+    return unit_notice + _wrap_plot_markdown(
+        plot_str, variable, region, scenario, list(dict.fromkeys(scenarios_in_data)), start_year, end_year,
+        models_in_data=displayed_models,
+        omitted_series=omitted_series,
+        scope_variables=[variable],
+        scope_models=[model_match] if model_match else None,
+        displayed_series=displayed_series,
+        chart_type=actual_chart_type,
+        unit=unit,
+    )

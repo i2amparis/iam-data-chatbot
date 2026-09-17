@@ -1,11 +1,13 @@
 import os
 import sys
-import pickle
 import time
 import re
 import uuid
 import json
 import threading
+import hmac
+import copy
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
 from collections import OrderedDict
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -18,16 +20,38 @@ from pydantic import BaseModel, Field
 import requests.exceptions
 import logging
 logger = logging.getLogger(__name__)
-from main import IAMParisBot, docs_from_records, build_faiss_index, load_best_cached_results
-from utils.yaml_loader import load_all_yaml_files, yaml_to_documents
+from main import (
+    IAMParisBot,
+    build_faiss_index,
+    cache_file_timestamp,
+    docs_from_records,
+    load_best_cached_results,
+    load_definitions as load_cached_definitions,
+)
 from langchain_openai import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from manager import MultiAgentManager
 from runtime_context import build_runtime_context
+from canonical_aliases import regions_equivalent, scenario_in_family
+from model_aliases import (
+    UNLABELLED_MODEL_LABEL,
+    display_model_label,
+    is_presentable_model_label,
+    is_unlabelled_model_display,
+    resolve_model_family_members,
+)
+from year_filters import YearFilter, is_finite_numeric_value, is_latest_year_filter
+from resolved_scope import consume_resolved_scope, has_numeric_result_table
 
 # Configuration
 INITIALIZATION_TIMEOUT = 300  # 5 minutes timeout for cache building
-API_REQUEST_TIMEOUT = 120    # 2 minutes timeout for individual API calls
+API_REQUEST_TIMEOUT = max(float(os.getenv("IAM_API_REQUEST_TIMEOUT", "120")), 0.1)
+QUERY_EXECUTOR_WORKERS = max(int(os.getenv("IAM_QUERY_EXECUTOR_WORKERS", "8")), 1)
+_query_executor = ThreadPoolExecutor(
+    max_workers=QUERY_EXECUTOR_WORKERS,
+    thread_name_prefix="iam-query",
+)
+_query_slots = threading.BoundedSemaphore(QUERY_EXECUTOR_WORKERS)
 
 # Global variables for cached data
 _cached_resources = None
@@ -45,7 +69,10 @@ _sessions_lock = threading.Lock()
 # header. When unset (e.g. local dev) auth is disabled but a warning is logged.
 API_KEY = os.getenv("IAM_API_KEY", "").strip()
 if not API_KEY:
-    logger.warning("IAM_API_KEY is not set: /query, /status and /monitoring are unauthenticated.")
+    logger.warning(
+        "IAM_API_KEY is not set: /query and /status are unauthenticated; "
+        "/monitoring feedback details are redacted."
+    )
 
 # --- Eval feedback logging ---------------------------------------------------
 # Appends low-confidence/no-data queries to a jsonl for later review. Disable
@@ -72,15 +99,14 @@ ALLOW_CREDENTIALS = "*" not in ALLOWED_ORIGINS
 
 def require_api_key(x_api_key: str = Header(default="", alias="X-API-Key")) -> None:
     """Reject requests when an API key is configured and not supplied/matched."""
-    if API_KEY and x_api_key != API_KEY:
+    if API_KEY and not hmac.compare_digest(x_api_key, API_KEY):
         raise HTTPException(status_code=401, detail="Invalid or missing API key.")
 
 
-# Behind a proxy/CDN every request shares the proxy's IP, so per-IP limiting
-# would throttle all users together. Trust X-Forwarded-For by default (set
-# IAM_TRUST_PROXY=0 when the API is exposed directly, since the header is
-# client-controlled in that case).
-TRUST_PROXY = os.getenv("IAM_TRUST_PROXY", "1").strip().lower() not in ("0", "false", "no")
+# Trust forwarded client IPs only when the deployment explicitly opts in and
+# its reverse proxy strips user-supplied forwarding headers. Direct clients
+# can otherwise rotate X-Forwarded-For to evade the rate limit.
+TRUST_PROXY = os.getenv("IAM_TRUST_PROXY", "0").strip().lower() not in ("0", "false", "no", "")
 
 
 def _client_ip(request: Request) -> str:
@@ -157,7 +183,7 @@ MONITORING_THRESHOLDS = {
 }
 
 _DEFAULT_WORKSPACES = [
-    "afolu", "buildings-transf", "covid-rec", "decarb-potentials", "decipher_1",
+    "afolu", "buildings-transf", "covid-rec", "decarb-potentials", "decipher",
     "energy-systems", "eu-headed", "index-decomp", "industrial-transf", "ndcs-impacts",
     "net-zero", "post-glasgow", "power-people", "study-1", "study-2", "study-3",
     "study-4", "study-6", "study-7", "transp-transf", "world-headed",
@@ -178,23 +204,8 @@ def _load_workspaces() -> List[str]:
 
 
 def load_definitions():
-    """Load YAML definitions with caching."""
-    cache_file = "cache/yaml_definitions.pkl"
-    if os.path.exists(cache_file):
-        with open(cache_file, 'rb') as f:
-            return pickle.load(f)
-    
-    region_path = Path('definitions/region').resolve()
-    variable_path = Path('definitions/variable').resolve()
-    region_yaml = load_all_yaml_files(str(region_path))
-    variable_yaml = load_all_yaml_files(str(variable_path))
-    result = yaml_to_documents(region_yaml), yaml_to_documents(variable_yaml)
-    
-    os.makedirs("cache", exist_ok=True)
-    with open(cache_file, 'wb') as f:
-        pickle.dump(result, f)
-    
-    return result
+    """Use the source-validated YAML definition cache shared with the CLI."""
+    return load_cached_definitions()
 
 
 def _check_timeout(operation: str):
@@ -246,6 +257,8 @@ def initialize_resources():
         }
         ts = bot.fetch_json(bot.env['REST_API_FULL'], payload=ts_payload, cache=True)
         ts, ts_source = load_best_cached_results(ts)
+        results_source_path = str(getattr(bot, "last_fetch_cache_file", "") or "")
+        results_timestamp = cache_file_timestamp(results_source_path)
         logger.info(f"Loaded {len(ts)} timeseries records ({ts_source})")
         
         # Build FAISS index
@@ -275,6 +288,8 @@ def initialize_resources():
             vector_store=faiss_index,
             env=bot.env,
             bot=bot,
+            results_source_path=results_source_path,
+            results_timestamp=results_timestamp,
         )
         
         _initialization_status = "ready"
@@ -339,8 +354,186 @@ class QueryResponse(BaseModel):
     suggested_next_questions: List[str] = Field(default_factory=list)
     entities: Dict[str, Any] = Field(default_factory=dict)
     data_scope: Dict[str, Any] = Field(default_factory=dict)
+    clarification: Dict[str, Any] = Field(default_factory=dict)
     data_provenance: Dict[str, Any] = Field(default_factory=dict)
     route: Dict[str, Any] = Field(default_factory=dict)
+
+
+def _sanitize_model_series_label(value: object) -> str:
+    """Hide a numeric model ID when it is the leading part of a series label."""
+    text = str(value or "").strip()
+    return re.sub(
+        r"^[+-]?\d+(?:[.,]\d+)*(?=\s+(?:—|-)\s+)",
+        UNLABELLED_MODEL_LABEL,
+        text,
+    )
+
+
+def _sanitize_response_model_scope(value: Any, key: str = "") -> Any:
+    """Sanitize model-labelled response fields without changing source records."""
+    if isinstance(value, dict):
+        return {
+            child_key: _sanitize_response_model_scope(child_value, child_key)
+            for child_key, child_value in value.items()
+        }
+    if isinstance(value, (list, tuple, set)):
+        return [_sanitize_response_model_scope(item, key) for item in value]
+    normalized_key = str(key or "").casefold()
+    if normalized_key == "displayed_series":
+        return _sanitize_model_series_label(value)
+    if "model" in normalized_key and not normalized_key.endswith(("count", "confidence")):
+        return display_model_label(value)
+    return value
+
+
+def _manager_response_entities(manager: Any) -> Dict[str, Any]:
+    """Return turn-visible scope while preserving legacy manager support."""
+    resolver = getattr(manager, "response_entities", None)
+    if callable(resolver):
+        try:
+            return dict(_sanitize_response_model_scope(dict(resolver() or {})) or {})
+        except Exception:
+            logger.debug("Could not read structured conversation scope", exc_info=True)
+    active = dict(getattr(manager, "last_entities", {}) or {})
+    if active:
+        return dict(_sanitize_response_model_scope(active) or {})
+    pending = getattr(manager, "clarification_context", None)
+    if pending:
+        return dict(_sanitize_response_model_scope(dict(pending.get("entities", {}) or {})) or {})
+    return {}
+
+
+def _manager_clarification_payload(manager: Any) -> Dict[str, Any]:
+    resolver = getattr(manager, "pending_clarification_payload", None)
+    if callable(resolver):
+        try:
+            payload = dict(resolver() or {})
+            if isinstance(payload.get("options"), list):
+                payload["options"] = [
+                    option for option in payload["options"]
+                    if not (
+                        isinstance(option, dict)
+                        and str(option.get("kind") or "").casefold() == "model"
+                        and not is_presentable_model_label(option.get("value"))
+                    )
+                ]
+            return dict(_sanitize_response_model_scope(payload) or {})
+        except Exception:
+            logger.debug("Could not read structured clarification", exc_info=True)
+    pending = getattr(manager, "clarification_context", None)
+    if not pending:
+        return {}
+    values = list(pending.get("suggested_options") or [])
+    kinds = list(pending.get("suggested_option_kinds") or [])
+    fallback = str(pending.get("suggested_kind") or "variable")
+    options = []
+    for index, value in enumerate(values):
+        kind = str(kinds[index] if index < len(kinds) else fallback)
+        if kind.casefold() == "model" and not is_presentable_model_label(value):
+            continue
+        options.append({"kind": kind, "value": str(value)})
+    return dict(_sanitize_response_model_scope({
+        "missing_dimension": fallback,
+        "base_scope": dict(pending.get("entities") or {}),
+        "options": options,
+    }) or {})
+
+
+_NO_DATA_ANSWER_MARKERS = (
+    "i could not find data",
+    "i couldn't find data",
+    "no data found",
+    "no data matched",
+    "no time series data",
+    "no timeseries data",
+    "i can't combine",
+    "i cannot combine",
+    "incompatible units",
+    "i can't plot",
+    "i cannot plot",
+    "could not identify enough",
+    "could not identify variable",
+    "could not identify a variable",
+    "not found in loaded data",
+)
+
+
+def _runtime_model_scope_override(
+    resources: Dict[str, Any],
+    entities: Dict[str, Any],
+) -> List[str]:
+    """Resolve answer model aliases to concrete time-series labels.
+
+    ``result_models`` names the rows a renderer actually used. Model catalogue
+    answers expose the resolved family members in the same field. These labels
+    are more precise for counting provenance than a display alias such as
+    ``PROMETHEUS``, which may not exist verbatim on any row.
+    """
+    runtime_models = sorted({
+        str(record.get("modelName") or record.get("model") or "").strip()
+        for record in (resources.get("ts") or [])
+        if isinstance(record, dict)
+        and str(record.get("modelName") or record.get("model") or "").strip()
+    }, key=lambda value: (value.casefold(), value))
+    if not runtime_models:
+        return []
+
+    raw_values = entities.get("result_models")
+    force_runtime_scope = raw_values not in (None, "", [])
+    if not force_runtime_scope:
+        raw_values = entities.get("models")
+        force_runtime_scope = raw_values not in (None, "", [])
+    if not force_runtime_scope:
+        raw_values = entities.get("model")
+        if raw_values in (None, ""):
+            return []
+        requested = str(raw_values).strip()
+        if any(requested.casefold() == name.casefold() for name in runtime_models):
+            # Keep the established singular provenance shape when the selected
+            # name is already one concrete runtime label.
+            return []
+
+    values = (
+        list(raw_values)
+        if isinstance(raw_values, (list, tuple, set))
+        else [raw_values]
+    )
+    exact_by_key = {name.casefold(): name for name in runtime_models}
+    resolved: set[str] = set()
+    for value in values:
+        requested = str(value or "").strip()
+        if not requested:
+            continue
+        if is_unlabelled_model_display(requested):
+            resolved.add(UNLABELLED_MODEL_LABEL)
+            continue
+        exact = exact_by_key.get(requested.casefold())
+        if exact:
+            resolved.add(exact)
+            continue
+        resolved.update(resolve_model_family_members(requested, runtime_models))
+    return sorted(resolved, key=lambda value: (value.casefold(), value))
+
+
+def _is_no_data_answer(answer: str, *, has_plot: bool = False) -> bool:
+    """Return whether a data/plot answer failed to produce a usable result.
+
+    Plot answers can include a warning about one missing model while still
+    rendering the remaining series.  An attached plot is therefore stronger
+    evidence than any failure-like wording in the accompanying notice.
+    """
+    text = str(answer or "")
+    if has_numeric_result_table(text):
+        return False
+    if has_plot or re.search(r"!\[plot\]\(", text, flags=re.IGNORECASE):
+        return False
+    lowered = text.casefold()
+    return any(marker in lowered for marker in _NO_DATA_ANSWER_MARKERS) or bool(
+        re.search(
+            r"\bcould(?:n't| not)\s+find\s+.+?\s+as\s+a\s+region\b",
+            lowered,
+        )
+    )
 
 
 def _build_query_trace(
@@ -348,18 +541,26 @@ def _build_query_trace(
     query: str,
     manager: Any,
     answer: str,
+    *,
+    has_plot: bool = False,
 ) -> Dict[str, Any]:
-    entities = dict(getattr(manager, "last_entities", {}) or {})
+    entities = _manager_response_entities(manager)
     route = dict(getattr(manager, "last_route_decision", {}) or {})
     links = list(getattr(manager, "last_links", []) or [])
     text = str(answer or "")
-    no_data = "I could not find data" in text or "No data found" in text
+    unmatched_region = str(entities.get("unmatched_region") or "").strip()
+    no_data = bool(unmatched_region) or _is_no_data_answer(text, has_plot=has_plot)
     resources = getattr(manager, "shared_resources", {}) or {}
-    matched_records = _count_matching_records(resources, entities)
+    runtime_models = _runtime_model_scope_override(resources, entities)
+    count_scope = dict(entities)
+    if unmatched_region:
+        count_scope["region"] = unmatched_region
+        count_scope.pop("regions", None)
+    matched_records = _count_matching_records(resources, count_scope)
     no_data_reason = ""
     if no_data:
         # Prefer the structured diagnosis over guessing from answer text.
-        no_data_reason = _derive_no_data_reason(resources, entities) or _classify_no_data_reason(text)
+        no_data_reason = _resolve_no_data_reason(resources, count_scope, text)
 
     return {
         "session_id": session_id,
@@ -370,9 +571,18 @@ def _build_query_trace(
         "entities": entities,
         "entity_confidence": entities.get("entity_confidence", {}),
         "selected_variable": entities.get("variable", ""),
-        "selected_region": entities.get("region", ""),
+        "selected_variables": list(entities.get("variables") or []),
+        "selected_region": unmatched_region or entities.get("region", ""),
+        "selected_regions": list(entities.get("regions") or []),
         "selected_scenario": entities.get("scenario", ""),
-        "selected_model": entities.get("model", ""),
+        "selected_scenarios": list(entities.get("scenarios") or []),
+        "selected_model": "" if runtime_models else entities.get("model", ""),
+        "selected_models": runtime_models or list(entities.get("models") or []),
+        "comparison_dimension": entities.get("comparison_dimension") or entities.get("comparison", ""),
+        "chart_type": entities.get("chart_type", ""),
+        "displayed_series": list(entities.get("displayed_series") or []),
+        "displayed_series_count": entities.get("displayed_series_count", 0),
+        "omitted_series": entities.get("omitted_series", 0),
         "matched_records": matched_records,
         "no_data_reason": no_data_reason,
         "selected_links": [link.get("title", "") for link in links],
@@ -384,11 +594,19 @@ def _build_query_trace(
     }
 
 
-def _latest_cache_timestamp() -> str:
-    cache_files = []
-    for pattern in ("cache/results*.json", "cache/models*.json", "cache/data_metadata.pkl"):
-        cache_files.extend(Path(".").glob(pattern))
-    existing = [path for path in cache_files if path.exists()]
+def _latest_cache_timestamp(resources: Optional[Dict[str, Any]] = None) -> str:
+    """Return the timestamp of the results file used by this runtime."""
+    recorded = str((resources or {}).get("results_timestamp", "") or "").strip()
+    if recorded:
+        return recorded
+
+    source_path = str((resources or {}).get("results_source_path", "") or "").strip()
+    if source_path:
+        return cache_file_timestamp(source_path)
+
+    # Compatibility fallback for lightweight test resources and older runtime
+    # contexts. Metadata/model cache writes must not make results look newer.
+    existing = [path for path in Path(".").glob("cache/results*.json") if path.exists()]
     if not existing:
         return ""
     latest_mtime = max(path.stat().st_mtime for path in existing)
@@ -400,7 +618,12 @@ def _answer_scope_from_text(answer: str) -> Dict[str, Any]:
     scope: Dict[str, Any] = {}
     header = re.search(r"^###\s+(?P<variable>.+?)(?:\s+in\s+(?P<region>[^\n]+))?$", text, flags=re.MULTILINE)
     if header:
-        scope["variable"] = header.group("variable").strip()
+        header_variable = header.group("variable").strip()
+        # Discovery headings describe catalogue coverage, not a timeseries
+        # variable. Treating ``Data available for GREECE`` as a variable
+        # fabricates a zero-match provenance slice.
+        if not header_variable.casefold().startswith("data available for "):
+            scope["variable"] = header_variable
         if header.group("region"):
             scope["region"] = header.group("region").strip()
 
@@ -421,33 +644,110 @@ def _answer_scope_from_text(answer: str) -> Dict[str, Any]:
     return scope
 
 
-def _build_data_provenance(resources: Dict[str, Any], entities: Dict[str, Any], answer: str, route: Dict[str, Any]) -> Dict[str, Any]:
+def _build_data_provenance(
+    resources: Dict[str, Any],
+    entities: Dict[str, Any],
+    answer: str,
+    route: Dict[str, Any],
+    *,
+    has_plot: bool = False,
+) -> Dict[str, Any]:
+    entities = dict(_sanitize_response_model_scope(dict(entities or {})) or {})
     agent = str((route or {}).get("agent") or "")
     if agent not in {"data_query", "data_plotting"}:
         return {}
 
+    # Dataset-catalogue questions report aggregate metadata rather than a
+    # selected timeseries slice. A ``latest`` sentinel would otherwise be
+    # counted as a literal year filter and displayed as a misleading zero.
+    if (
+        re.search(r"\blatest available projection year\b", str(answer or ""), re.IGNORECASE)
+        and not any(
+            entities.get(key)
+            for key in (
+                "variable", "variables", "region", "regions", "scenario",
+                "scenarios", "model", "models",
+            )
+        )
+    ):
+        return {}
+
     text_scope = _answer_scope_from_text(answer)
+    runtime_models = _runtime_model_scope_override(resources, entities)
+    unmatched_region = str(entities.get("unmatched_region") or "").strip()
+    year_text = text_scope.get("years", "")
+    if not year_text and (
+        entities.get("start_year") is not None
+        or entities.get("end_year") is not None
+    ):
+        year_text = YearFilter(
+            entities.get("start_year"),
+            entities.get("end_year"),
+            explicit=True,
+        ).render()
     selected_filters = {
+        "workspace_code": entities.get("workspace_code", ""),
         "variable": entities.get("variable") or text_scope.get("variable", ""),
+        "variables": list(entities.get("variables") or []),
         "region": entities.get("region") or text_scope.get("region", ""),
+        "regions": list(entities.get("regions") or []),
         "scenario": entities.get("scenario") or text_scope.get("scenario", ""),
-        "model": entities.get("model") or text_scope.get("model", ""),
-        "years": text_scope.get("years", ""),
-        "unit": text_scope.get("unit", ""),
+        "scenarios": list(entities.get("scenarios") or []),
+        "model": (
+            "" if runtime_models
+            else entities.get("model") or text_scope.get("model", "")
+        ),
+        "models": runtime_models or list(entities.get("models") or []),
+        "years": year_text,
+        # For rendered data tables the Unit line describes the records that
+        # actually survived filtering and formatting. Prefer it over any
+        # pre-query extractor guess still present in legacy manager state.
+        # Plot captions do not expose a Unit line, so plots continue to use the
+        # structured unit recorded by the plotter.
+        "unit": (
+            entities.get("unit", "")
+            if str(entities.get("unit") or "").strip().casefold() == "multiple"
+            else text_scope.get("unit") or entities.get("unit", "")
+        ),
     }
+    if unmatched_region:
+        # Preserve the requested invalid geography as the attempted filter.
+        # Counting only the resolved variable here would falsely report every
+        # CO2 record in the database for a query such as "CO2 for Atlantis".
+        selected_filters["region"] = unmatched_region
+        selected_filters["regions"] = []
+    for singular, plural in (
+        ("variable", "variables"),
+        ("region", "regions"),
+        ("scenario", "scenarios"),
+        ("model", "models"),
+    ):
+        if selected_filters.get(plural):
+            selected_filters.pop(singular, None)
     selected_filters = {
         key: value
         for key, value in selected_filters.items()
         if str(value or "").strip() and str(value or "").strip().lower() != "multiple"
     }
 
-    matched_record_count = _count_matching_records(resources, selected_filters)
-    no_data = "I could not find data" in str(answer or "") or "No data found" in str(answer or "")
+    count_scope = dict(selected_filters)
+    if entities.get("start_year") is not None:
+        count_scope["start_year"] = entities.get("start_year")
+    if entities.get("end_year") is not None:
+        count_scope["end_year"] = entities.get("end_year")
+    # A rendered table may omit empty or incompatible model groups. The
+    # manager persists the models that were actually displayed, so provenance
+    # should count that visible scope rather than the broader pre-format match.
+    matched_record_count = _count_matching_records(resources, count_scope)
+    no_data = bool(unmatched_region) or _is_no_data_answer(
+        answer,
+        has_plot=has_plot,
+    )
     if not selected_filters and matched_record_count is None and not no_data:
         return {}
 
     provenance = {
-        "cache_timestamp": _latest_cache_timestamp(),
+        "cache_timestamp": _latest_cache_timestamp(resources),
         "matched_record_count": matched_record_count,
         "selected_filters": selected_filters,
         "route": {
@@ -456,9 +756,21 @@ def _build_data_provenance(resources: Dict[str, Any], entities: Dict[str, Any], 
             "source": (route or {}).get("source", ""),
         },
     }
+    if agent == "data_plotting":
+        plot_details = {
+            "comparison_dimension": entities.get("comparison_dimension") or entities.get("comparison", ""),
+            "chart_type": entities.get("chart_type", ""),
+            "displayed_series": list(entities.get("displayed_series") or []),
+            "displayed_series_count": entities.get("displayed_series_count"),
+            "omitted_series": entities.get("omitted_series"),
+        }
+        provenance.update({
+            key: value for key, value in plot_details.items()
+            if value not in (None, "", [], {})
+        })
     if no_data:
-        provenance["no_data_reason"] = (
-            _derive_no_data_reason(resources, selected_filters) or _classify_no_data_reason(answer)
+        provenance["no_data_reason"] = _resolve_no_data_reason(
+            resources, selected_filters, answer,
         )
     provenance.update(_provenance_display_fields(provenance))
     return provenance
@@ -468,23 +780,40 @@ def _provenance_display_fields(provenance: Dict[str, Any]) -> Dict[str, Any]:
     selected_filters = provenance.get("selected_filters") or {}
     labels = {
         "variable": "Variable",
+        "variables": "Variables",
         "region": "Region",
+        "regions": "Regions",
         "scenario": "Scenario",
+        "scenarios": "Scenarios",
         "model": "Model",
+        "models": "Models",
         "years": "Years",
         "unit": "Unit",
     }
     rows: list[dict[str, str]] = []
-    for key in ("variable", "region", "scenario", "model", "years", "unit"):
+    for key in (
+        "variable", "variables", "region", "regions", "scenario", "scenarios",
+        "model", "models", "years", "unit",
+    ):
         value = selected_filters.get(key)
         if value:
-            rows.append({"label": labels[key], "value": str(value)})
+            rendered = ", ".join(str(item) for item in value) if isinstance(value, list) else str(value)
+            rows.append({"label": labels[key], "value": rendered})
     if provenance.get("matched_record_count") is not None:
         rows.append({"label": "Matched records", "value": str(provenance.get("matched_record_count"))})
     if provenance.get("cache_timestamp"):
         rows.append({"label": "Cache timestamp", "value": str(provenance.get("cache_timestamp"))})
     if provenance.get("no_data_reason"):
         rows.append({"label": "No-data reason", "value": str(provenance.get("no_data_reason"))})
+    for key, label in (
+        ("comparison_dimension", "Comparison"),
+        ("chart_type", "Chart type"),
+        ("displayed_series_count", "Displayed series"),
+        ("omitted_series", "Omitted series"),
+    ):
+        value = provenance.get(key)
+        if value not in (None, ""):
+            rows.append({"label": label, "value": str(value)})
     return {
         "display_title": "Data provenance",
         "display_rows": rows,
@@ -504,31 +833,34 @@ def _write_eval_feedback_candidate(trace: Dict[str, Any], answer: str, log_path:
     if not _should_log_eval_candidate(trace):
         return False
     path = Path(log_path or os.getenv("IAM_EVAL_FEEDBACK_LOG", "docs/eval_feedback_candidates.jsonl"))
-    # Size cap: stop appending once the file is large, so a flood of queries
-    # cannot exhaust disk space.
     try:
+        # Size cap: stop appending once the file is large, so a flood of
+        # queries cannot exhaust disk space.
         if path.exists() and path.stat().st_size >= EVAL_FEEDBACK_MAX_BYTES:
             logger.warning("eval feedback log at size cap (%s bytes); skipping write", EVAL_FEEDBACK_MAX_BYTES)
             return False
+        path.parent.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "query": trace.get("query", ""),
+            "session_id": trace.get("session_id", ""),
+            "route": trace.get("route", ""),
+            "route_confidence": trace.get("route_confidence", 0.0),
+            "entities": trace.get("entities", {}),
+            "entity_confidence": trace.get("entity_confidence", {}),
+            "matched_records": trace.get("matched_records"),
+            "no_data_reason": trace.get("no_data_reason", ""),
+            "answer_preview": str(answer or "").replace("\n", " ")[:300],
+            "eval_hint": "Add this query to eval_queries.csv or eval_holdout_queries.csv after review.",
+        }
+        with path.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(payload, sort_keys=True, default=str) + "\n")
+        return True
     except OSError:
-        pass
-    path.parent.mkdir(parents=True, exist_ok=True)
-    payload = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "query": trace.get("query", ""),
-        "session_id": trace.get("session_id", ""),
-        "route": trace.get("route", ""),
-        "route_confidence": trace.get("route_confidence", 0.0),
-        "entities": trace.get("entities", {}),
-        "entity_confidence": trace.get("entity_confidence", {}),
-        "matched_records": trace.get("matched_records"),
-        "no_data_reason": trace.get("no_data_reason", ""),
-        "answer_preview": str(answer or "").replace("\n", " ")[:300],
-        "eval_hint": "Add this query to eval_queries.csv or eval_holdout_queries.csv after review.",
-    }
-    with path.open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(payload, sort_keys=True, default=str) + "\n")
-    return True
+        # Feedback is best-effort telemetry. Never discard an answer because
+        # the filesystem is read-only, full, or temporarily unavailable.
+        logger.warning("Could not write eval feedback candidate to %s", path, exc_info=True)
+        return False
 
 
 def _update_monitoring(trace: Dict[str, Any] | None = None, *, failed: bool = False) -> None:
@@ -555,24 +887,45 @@ def _rate(numerator: int, denominator: int) -> float:
     return round(numerator / denominator, 4)
 
 
-def _feedback_log_summary(path: str | Path | None = None) -> Dict[str, Any]:
+def _feedback_log_summary(
+    path: str | Path | None = None,
+    *,
+    include_sensitive: bool = True,
+) -> Dict[str, Any]:
     log_path = Path(path or os.getenv("IAM_EVAL_FEEDBACK_LOG", "docs/eval_feedback_candidates.jsonl"))
-    if not log_path.exists():
-        return {"path": str(log_path), "count": 0, "recent": []}
     rows = []
-    with log_path.open(encoding="utf-8") as handle:
-        for line in handle:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                rows.append(json.loads(line))
-            except json.JSONDecodeError:
-                continue
-    return {"path": str(log_path), "count": len(rows), "recent": rows[-5:]}
+    try:
+        if not log_path.exists():
+            result = {"count": 0, "details_redacted": not include_sensitive}
+            if include_sensitive:
+                result.update({"path": str(log_path), "recent": []})
+            return result
+        with log_path.open(encoding="utf-8") as handle:
+            for line in handle:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    rows.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
+    except OSError:
+        logger.warning("Could not read eval feedback log %s", log_path, exc_info=True)
+        result = {
+            "count": 0,
+            "details_redacted": not include_sensitive,
+            "unavailable": True,
+        }
+        if include_sensitive:
+            result.update({"path": str(log_path), "recent": []})
+        return result
+    result = {"count": len(rows), "details_redacted": not include_sensitive}
+    if include_sensitive:
+        result.update({"path": str(log_path), "recent": rows[-5:]})
+    return result
 
 
-def _monitoring_snapshot() -> Dict[str, Any]:
+def _monitoring_snapshot(*, include_sensitive: bool = False) -> Dict[str, Any]:
     total = int(_monitoring_counters.get("total_queries", 0))
     failed = int(_monitoring_counters.get("failed_queries", 0))
     no_data = int(_monitoring_counters.get("no_data_queries", 0))
@@ -600,7 +953,7 @@ def _monitoring_snapshot() -> Dict[str, Any]:
         "thresholds": dict(MONITORING_THRESHOLDS),
         "alerts": alerts,
         "status": "warning" if alerts else "ok",
-        "feedback_candidates": _feedback_log_summary(),
+        "feedback_candidates": _feedback_log_summary(include_sensitive=include_sensitive),
     }
 
 
@@ -628,11 +981,22 @@ def _derive_no_data_reason(resources: Dict[str, Any], entities: Dict[str, Any]) 
 
 def _classify_no_data_reason(answer: str) -> str:
     text = str(answer or "").lower()
+    if "incompatible units" in text or "can't combine" in text or "cannot combine" in text:
+        return "incompatible units"
+    if "requested year range" in text or "no time series data" in text:
+        return "no values in requested year range"
+    if "no timeseries data" in text and "model" in text:
+        return "model combination unavailable"
     if "scenario combination" in text:
         return "scenario combination unavailable"
     if "region combination" in text:
         return "region combination unavailable"
-    if "requested variable is unavailable" in text:
+    if (
+        "requested variable is unavailable" in text
+        or "not found in loaded data" in text
+        or "could not identify variable" in text
+        or "could not identify a variable" in text
+    ):
         return "variable unavailable in current scope"
     if "model `" in text or "using model" in text:
         return "model combination unavailable"
@@ -641,6 +1005,23 @@ def _classify_no_data_reason(answer: str) -> str:
     if " in `" in text or "in region" in text:
         return "region combination unavailable"
     return "no matching data slice"
+
+
+def _resolve_no_data_reason(
+    resources: Dict[str, Any],
+    entities: Dict[str, Any],
+    answer: str,
+) -> str:
+    """Prefer definitive renderer errors over stale or ambiguous scope clues."""
+    classified = _classify_no_data_reason(answer)
+    if classified in {
+        "incompatible units",
+        "no values in requested year range",
+        "model combination unavailable",
+        "variable unavailable in current scope",
+    }:
+        return classified
+    return _derive_no_data_reason(resources, entities) or classified
 
 
 def _prepare_relevant_links(links: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -652,6 +1033,14 @@ def _prepare_relevant_links(links: List[Dict[str, Any]]) -> List[Dict[str, Any]]
         title = str(item.get("title") or "IAM PARIS link")
         search_hint = str(item.get("search_hint") or "").strip()
         url = str(item.get("url") or "")
+        if (
+            str(item.get("category") or "").casefold() == "models"
+            and (
+                not is_presentable_model_label(search_hint or title)
+                or is_unlabelled_model_display(search_hint or title)
+            )
+        ):
+            continue
         if not item.get("display_label"):
             if search_hint and "application_library" in url:
                 item["display_label"] = f"Search Application Library for {search_hint}"
@@ -674,9 +1063,15 @@ def _prepare_relevant_links(links: List[Dict[str, Any]]) -> List[Dict[str, Any]]
     return prepared
 
 
-def _suggested_next_questions(query: str, answer: str, manager: Any) -> List[str]:
+def _suggested_next_questions(
+    query: str,
+    answer: str,
+    manager: Any,
+    *,
+    has_plot: bool = False,
+) -> List[str]:
     route = dict(getattr(manager, "last_route_decision", {}) or {})
-    entities = dict(getattr(manager, "last_entities", {}) or {})
+    entities = _manager_response_entities(manager)
     agent = str(route.get("agent") or "")
     text = str(answer or "")
     suggestions: List[str] = []
@@ -686,20 +1081,36 @@ def _suggested_next_questions(query: str, answer: str, manager: Any) -> List[str
             suggestions.append(item)
 
     available_scenarios = list(getattr(getattr(manager, "entity_extractor", None), "available_scenarios", []) or [])
+    # Scenario suggestions must come from the selected study. The extractor's
+    # catalogue spans every loaded workspace and can otherwise recommend a
+    # scenario that has no records in the user's current study.
+    workspace_code = str(entities.get("workspace_code") or "").strip()
+    if workspace_code:
+        records = list((getattr(manager, "shared_resources", {}) or {}).get("ts") or [])
+        available_scenarios = sorted({
+            str(record.get("scenario") or "").strip()
+            for record in records
+            if str(record.get("workspace_code") or "").strip() == workspace_code
+            and str(record.get("scenario") or "").strip()
+        })
     baseline_scenario = next(
         (scen for scen in available_scenarios if "baseline" in str(scen).lower()),
         "",
     )
     current_scenario = str(entities.get("scenario") or "").lower()
+    unmatched_region = str(entities.get("unmatched_region") or "").strip()
 
     if agent in {"data_query", "data_plotting"}:
-        if "I could not find data" in text or "No data found" in text:
+        if unmatched_region:
+            add("Show available regions")
+            add("Help me choose a region")
+        elif _is_no_data_answer(text, has_plot=has_plot):
             add("Show available scenarios")
             add("Show available regions")
             add("Show available variables")
         else:
             if entities.get("variable") or entities.get("region"):
-                add("Plot it")
+                add("Open the data explorer")
                 if baseline_scenario and "baseline" not in current_scenario:
                     add(f"Compare with {baseline_scenario}")
                 add("By 2050")
@@ -730,13 +1141,59 @@ def _count_matching_records(
     resources: Dict[str, Any],
     entities: Dict[str, Any],
 ) -> Optional[int]:
+    runtime_models = _runtime_model_scope_override(resources, entities)
+    unmatched_region = str(entities.get("unmatched_region") or "").strip()
     scope = {
+        "workspace_code": str(entities.get("workspace_code", "") or "").strip(),
         "variable": str(entities.get("variable", "") or "").strip(),
-        "region": str(entities.get("region", "") or "").strip(),
+        "region": unmatched_region or str(entities.get("region", "") or "").strip(),
         "scenario": str(entities.get("scenario", "") or "").strip(),
-        "model": str(entities.get("model", "") or "").strip(),
+        "model": (
+            "" if runtime_models
+            else str(entities.get("model", "") or "").strip()
+        ),
     }
+    plural_values = {
+        dimension: {
+            str(value).strip()
+            for value in (entities.get(plural) or [])
+            if str(value).strip()
+        }
+        for dimension, plural in (
+            ("variable", "variables"),
+            ("region", "regions"),
+            ("scenario", "scenarios"),
+            ("model", "models"),
+        )
+    }
+    if runtime_models:
+        plural_values["model"] = set(runtime_models)
+    if unmatched_region:
+        plural_values["region"] = set()
+    years_text = str(entities.get("years", "") or "").strip()
+    year_numbers = [int(value) for value in re.findall(r"\b(?:19|20|21)\d{2}\b", years_text)]
+    start_bound = entities.get("start_year")
+    end_bound = entities.get("end_year")
+    latest_requested = is_latest_year_filter(start_bound, end_bound) or (
+        start_bound is None and end_bound is None and "latest" in years_text.casefold()
+    )
+    if start_bound is None and end_bound is None and year_numbers:
+        lowered_years = years_text.casefold()
+        if re.search(r"\b(?:until|through|up to|before)\b", lowered_years):
+            end_bound = max(year_numbers)
+        elif re.search(r"\b(?:from|after|since)\b", lowered_years) and len(year_numbers) == 1:
+            start_bound = year_numbers[0]
+        else:
+            start_bound, end_bound = min(year_numbers), max(year_numbers)
+    unit = str(entities.get("unit", "") or "").strip()
     active_scope = {key: value for key, value in scope.items() if value}
+    for dimension, values in plural_values.items():
+        if values:
+            active_scope[f"{dimension}s"] = values
+    if start_bound is not None or end_bound is not None:
+        active_scope["years"] = (start_bound, end_bound)
+    if unit:
+        active_scope["unit"] = unit
     if not active_scope:
         return None
 
@@ -744,20 +1201,118 @@ def _count_matching_records(
     if not records:
         return 0
 
+    def _normalized_unit(value: object, variable: object = "") -> str:
+        normalized = re.sub(r"\s+", " ", str(value or "").strip()).casefold()
+        normalized = normalized.replace(" per year", "/yr")
+        normalized = re.sub(r"/\s*(?:year|y|a)(?=\b|$)", "/yr", normalized)
+        normalized = re.sub(r"\s+", "", normalized)
+        variable_key = str(variable or "").strip().casefold()
+        if variable_key == "carbon price" or variable_key.startswith("price|carbon"):
+            normalized = re.sub(r"/t(?:co2)?$", "/tco2", normalized)
+        return normalized
+
+    def _year_values(record: Dict[str, Any]) -> dict:
+        values = {
+            int(key): value
+            for key, value in record.items()
+            if str(key).isdigit() and len(str(key)) == 4
+        }
+        nested = record.get("years")
+        if isinstance(nested, dict):
+            values.update({
+                int(key): value
+                for key, value in nested.items()
+                if str(key).isdigit() and len(str(key)) == 4
+            })
+        return values
+
+    latest_by_table = {}
+
+    def _has_value_in_period(record: Dict[str, Any]) -> bool:
+        values = _year_values(record)
+        if latest_requested:
+            year = latest_by_table.get((record.get("variable"), record.get("region")))
+            return year is not None and is_finite_numeric_value(values.get(year))
+        if start_bound is None and end_bound is None:
+            return True
+        return any(
+            (start_bound is None or year >= int(start_bound))
+            and (end_bound is None or year <= int(end_bound))
+            and is_finite_numeric_value(value)
+            for year, value in values.items()
+        )
+
     def _matches(record: Dict[str, Any]) -> bool:
+        if (
+            scope["workspace_code"]
+            and str(record.get("workspace_code", "")).strip() != scope["workspace_code"]
+        ):
+            return False
         if scope["variable"] and str(record.get("variable", "")).strip() != scope["variable"]:
             return False
-        if scope["region"] and str(record.get("region", "")).strip() != scope["region"]:
+        if plural_values["variable"] and str(record.get("variable", "")).strip() not in plural_values["variable"]:
             return False
-        if scope["scenario"] and str(record.get("scenario", "")).strip() != scope["scenario"]:
+        if scope["region"] and not regions_equivalent(record.get("region"), scope["region"]):
             return False
+        if plural_values["region"] and not any(
+            regions_equivalent(record.get("region"), wanted)
+            for wanted in plural_values["region"]
+        ):
+            return False
+        if scope["scenario"]:
+            record_scenario = str(record.get("scenario", "")).strip()
+            if record_scenario != scope["scenario"] and not scenario_in_family(
+                record_scenario, scope["scenario"]
+            ):
+                return False
+        if plural_values["scenario"]:
+            record_scenario = str(record.get("scenario", "")).strip()
+            if not any(
+                record_scenario == wanted or scenario_in_family(record_scenario, wanted)
+                for wanted in plural_values["scenario"]
+            ):
+                return False
         if scope["model"]:
             model = str(record.get("modelName") or record.get("model") or "").strip()
-            if model != scope["model"]:
+            if is_unlabelled_model_display(scope["model"]):
+                if is_presentable_model_label(model):
+                    return False
+            elif model != scope["model"]:
                 return False
+        if plural_values["model"]:
+            model = str(record.get("modelName") or record.get("model") or "").strip()
+            matches_model = any(
+                (
+                    is_unlabelled_model_display(wanted)
+                    and not is_presentable_model_label(model)
+                )
+                or model == wanted
+                for wanted in plural_values["model"]
+            )
+            if not matches_model:
+                return False
+        record_variable = str(record.get("variable") or "").strip()
+        if unit and _normalized_unit(
+            record.get("unit"), record_variable,
+        ) != _normalized_unit(unit, record_variable or scope["variable"]):
+            return False
         return True
 
-    return sum(1 for record in records if isinstance(record, dict) and _matches(record))
+    matching = [record for record in records if isinstance(record, dict) and _matches(record)]
+    if latest_requested:
+        for record in matching:
+            years = _year_values(record)
+            finite_years = [
+                year for year, value in years.items()
+                if is_finite_numeric_value(value)
+            ]
+            if finite_years:
+                key = (record.get("variable"), record.get("region"))
+                latest_by_table[key] = max(
+                    latest_by_table.get(key, -1),
+                    max(finite_years),
+                )
+    return sum(1 for record in matching if _has_value_in_period(record))
 
 
 def _extract_notices(answer: str) -> List[str]:
@@ -775,12 +1330,36 @@ def _extract_notices(answer: str) -> List[str]:
     return notices
 
 
+def _sanitize_model_presentation_text(value: object) -> str:
+    """Defensively sanitize model-labelled Markdown emitted by legacy paths."""
+    text = str(value or "")
+    numeric = r"[+-]?\d+(?:[.,]\d+)*"
+    text = re.sub(
+        rf"(\bmodel(?:s)?\s+`)({numeric})(`)",
+        rf"\1{UNLABELLED_MODEL_LABEL}\3",
+        text,
+        flags=re.IGNORECASE,
+    )
+    text = re.sub(
+        rf"(\*\*)({numeric})(\s+-\s+[^*]+\*\*)",
+        rf"\1{UNLABELLED_MODEL_LABEL}\3",
+        text,
+    )
+    if re.search(r"(?im)^\|\s*Model\s*\|", text):
+        text = re.sub(
+            rf"(?m)^(\|\s*)({numeric})(\s*\|)",
+            rf"\1{UNLABELLED_MODEL_LABEL}\3",
+            text,
+        )
+    return text
+
+
 def _split_answer_payload(answer: str) -> tuple[str, str, str, List[str]]:
     """
     Split mixed text/plot markdown answers into API-friendly fields.
     Returns: cleaned_answer, plot_base64, plot_caption, notices
     """
-    text = str(answer or "").strip()
+    text = _sanitize_model_presentation_text(answer).strip()
     notices = _extract_notices(text)
     for notice in notices:
         text = re.sub(re.escape(notice), "", text, flags=re.IGNORECASE).strip()
@@ -851,6 +1430,9 @@ def _get_or_create_session(session_id: str = "", reset_session: bool = False):
         "manager": MultiAgentManager(_cached_resources, streaming=False),
         "chat_history": [],
         "last_access": time.time(),
+        # A manager owns mutable conversational scope. Serialize requests for
+        # the same session while allowing different sessions to run in parallel.
+        "lock": threading.RLock(),
     }
     with _sessions_lock:
         # Another request may have created this session meanwhile; reuse it.
@@ -862,6 +1444,127 @@ def _get_or_create_session(session_id: str = "", reset_session: bool = False):
         _sessions[session_id] = new_state
         _cleanup_sessions_locked(time.time())
     return session_id, new_state
+
+
+class _QueryDeadlineExceeded(Exception):
+    """Internal signal used when a query cannot finish within its deadline."""
+
+
+def _snapshot_manager_state(manager: Any) -> Dict[str, Any]:
+    """Capture mutable per-conversation state for transactional routing."""
+    snapshot: Dict[str, Any] = {}
+    for name in (
+        "conversation_state",
+        "last_result_models",
+        "last_links",
+        "last_route_decision",
+        "turn_counter",
+        "current_turn",
+    ):
+        if hasattr(manager, name):
+            snapshot[name] = copy.deepcopy(getattr(manager, name))
+    if "conversation_state" not in snapshot:
+        for name in ("last_entities", "clarification_context"):
+            if hasattr(manager, name):
+                snapshot[name] = copy.deepcopy(getattr(manager, name))
+    return snapshot
+
+
+def _restore_manager_state(manager: Any, snapshot: Dict[str, Any]) -> None:
+    for name, value in snapshot.items():
+        setattr(manager, name, value)
+    # Answer formatters use a worker-local resolved-scope channel. A failed or
+    # expired turn must not leak that scope into a later task on the same worker.
+    consume_resolved_scope()
+
+
+def _process_session_query(req: QueryRequest, deadline: float) -> QueryResponse:
+    """Run one complete session turn while the worker owns the session lock.
+
+    A timed-out route may not be safely killed in Python. Keeping the lock in
+    this worker until routing returns prevents a later request from observing
+    partially mutated conversation state.
+    """
+    session_id, session_state = _get_or_create_session(
+        req.session_id,
+        reset_session=req.reset_session,
+    )
+    session_lock = session_state.setdefault("lock", threading.RLock())
+    remaining = deadline - time.monotonic()
+    if remaining <= 0 or not session_lock.acquire(timeout=remaining):
+        raise _QueryDeadlineExceeded("Timed out waiting for the session lock.")
+
+    try:
+        manager = session_state["manager"]
+        chat_history: List[Tuple[str, str]] = session_state["chat_history"]
+        manager_snapshot = _snapshot_manager_state(manager)
+
+        try:
+            response = manager.route_query(req.query, list(chat_history))
+        except Exception:
+            _restore_manager_state(manager, manager_snapshot)
+            raise
+        if time.monotonic() > deadline:
+            _restore_manager_state(manager, manager_snapshot)
+            raise _QueryDeadlineExceeded("Query routing exceeded its deadline.")
+
+        answer_text, plot_base64, plot_caption, notices = _split_answer_payload(response)
+        history_limit = max(int(HISTORY_MAX_TURNS), 1)
+        pending_history = (chat_history + [(req.query, answer_text)])[-history_limit:]
+        trace = _build_query_trace(
+            session_id,
+            req.query,
+            manager,
+            answer_text,
+            has_plot=bool(plot_base64),
+        )
+        logger.info("query_trace %s", json.dumps(trace, sort_keys=True, default=str))
+        _update_monitoring(trace)
+        _write_eval_feedback_candidate(trace, answer_text)
+        relevant_links = _prepare_relevant_links(getattr(manager, "last_links", []))
+        next_questions = _suggested_next_questions(
+            req.query,
+            answer_text,
+            manager,
+            has_plot=bool(plot_base64),
+        )
+        entities = _manager_response_entities(manager)
+        clarification = _manager_clarification_payload(manager)
+        route = dict(getattr(manager, "last_route_decision", {}) or {})
+        data_provenance = _build_data_provenance(
+            getattr(manager, "shared_resources", {}) or {},
+            entities,
+            answer_text,
+            route,
+            has_plot=bool(plot_base64),
+        )
+
+        result = QueryResponse(
+            answer=answer_text,
+            session_id=session_id,
+            history=pending_history,
+            plot_base64=plot_base64,
+            plot_caption=plot_caption,
+            notices=notices,
+            relevant_links=relevant_links,
+            suggested_next_questions=next_questions,
+            entities=entities,
+            data_scope=entities,
+            clarification=clarification,
+            data_provenance=data_provenance,
+            route=route,
+        )
+        if time.monotonic() > deadline:
+            raise _QueryDeadlineExceeded("Response preparation exceeded its deadline.")
+        chat_history[:] = pending_history
+        session_state["last_access"] = time.time()
+        return result
+    except Exception:
+        if "manager_snapshot" in locals():
+            _restore_manager_state(manager, manager_snapshot)
+        raise
+    finally:
+        session_lock.release()
 
 # FastAPI Setup
 from contextlib import asynccontextmanager
@@ -923,49 +1626,32 @@ def query_chatbot(
         )
     
     try:
-        session_id, session_state = _get_or_create_session(
-            req.session_id,
-            reset_session=req.reset_session,
-        )
-        manager = session_state["manager"]
-        chat_history: List[Tuple[str, str]] = session_state["chat_history"]
-        
-        # Route query
-        response = manager.route_query(req.query, chat_history)
-        answer_text, plot_base64, plot_caption, notices = _split_answer_payload(response)
-        chat_history.append((req.query, answer_text))
-        session_state["last_access"] = time.time()
-        trace = _build_query_trace(session_id, req.query, manager, answer_text)
-        logger.info("query_trace %s", json.dumps(trace, sort_keys=True, default=str))
-        _update_monitoring(trace)
-        _write_eval_feedback_candidate(trace, answer_text)
-        relevant_links = _prepare_relevant_links(getattr(manager, "last_links", []))
-        next_questions = _suggested_next_questions(req.query, answer_text, manager)
-        entities = getattr(manager, "last_entities", {})
-        route = getattr(manager, "last_route_decision", {})
-        data_provenance = _build_data_provenance(
-            getattr(manager, "shared_resources", {}) or {},
-            entities,
-            answer_text,
-            route,
-        )
-
-        return QueryResponse(
-            answer=answer_text,
-            session_id=session_id,
-            # Cap the returned history so long conversations do not grow the
-            # payload unbounded; the full history stays in the session state.
-            history=chat_history[-HISTORY_MAX_TURNS:],
-            plot_base64=plot_base64,
-            plot_caption=plot_caption,
-            notices=notices,
-            relevant_links=relevant_links,
-            suggested_next_questions=next_questions,
-            entities=entities,
-            data_scope=entities,
-            data_provenance=data_provenance,
-            route=route,
-        )
+        deadline = time.monotonic() + API_REQUEST_TIMEOUT
+        if not _query_slots.acquire(timeout=API_REQUEST_TIMEOUT):
+            _update_monitoring(failed=True)
+            raise HTTPException(
+                status_code=504,
+                detail="Query timed out waiting for processing capacity.",
+            )
+        try:
+            future = _query_executor.submit(_process_session_query, req, deadline)
+        except Exception:
+            _query_slots.release()
+            raise
+        future.add_done_callback(lambda _future: _query_slots.release())
+        try:
+            remaining = max(deadline - time.monotonic(), 0.0)
+            return future.result(timeout=remaining)
+        except (FutureTimeoutError, _QueryDeadlineExceeded):
+            _update_monitoring(failed=True)
+            logger.warning(
+                "Query exceeded the %.3g second request deadline",
+                API_REQUEST_TIMEOUT,
+            )
+            raise HTTPException(
+                status_code=504,
+                detail="Query timed out. Please narrow the request and try again.",
+            )
     
     except HTTPException:
         raise
@@ -1035,8 +1721,8 @@ def status_check(_auth: None = Depends(require_api_key)):
 
 @app.get('/monitoring')
 def monitoring_check(_auth: None = Depends(require_api_key)):
-    """Operational counters for route failures, no-data and low-confidence behavior."""
-    return _monitoring_snapshot()
+    """Operational counters; query/session details require configured auth."""
+    return _monitoring_snapshot(include_sensitive=bool(API_KEY))
 
 
 if __name__ == "__main__":

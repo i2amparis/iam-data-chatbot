@@ -1,6 +1,6 @@
 # IAM PARIS Data Chatbot
 
-English-only chatbot for IAM PARIS model metadata, time-series results, plots, guided follow-up questions, and relevant `iamparis.eu` links.
+English-only chatbot for IAM PARIS model metadata, compact time-series results, guided follow-up questions, and relevant `iamparis.eu` links.
 
 The app uses cached IAM PARIS API data, YAML region/variable definitions, a shared runtime context, an availability matrix, and an Excel-derived link catalog to answer questions without inventing unavailable data.
 
@@ -8,11 +8,11 @@ The app uses cached IAM PARIS API data, YAML region/variable definitions, a shar
 
 - Model metadata answers with assumptions when available.
 - Time-series answers for variables, regions, scenarios, models, and year filters.
-- Plot generation for chart/graph/visualize requests.
-- Multi-turn follow-ups such as `1`, `yes`, `plot it`, `same for China`, and `compare with baseline`.
+- Data Explorer redirects for chart/graph/visualize requests instead of inline plots.
+- Multi-turn follow-ups such as `1`, `yes`, `same for China`, and `compare with baseline`.
 - No-data recovery with closest valid options.
 - Relevant IAM PARIS links from `iamparis_chatbot_links.xlsx`.
-- FastAPI responses with structured fields for links, plots, entities, route metadata, and notices.
+- FastAPI responses with structured fields for links, entities, route metadata, and notices.
 - Evaluation baseline in `eval_queries.csv`.
 
 ## Setup
@@ -35,12 +35,16 @@ pip install -r requirements.txt
 
 ## Environment
 
-Create an `env` file in the project root:
+Create a `.env` file in the project root:
 
 ```env
 OPENAI_API_KEY=your_openai_api_key
 REST_MODELS_URL=https://cms.iamparis.eu/items/models
 REST_API_FULL=https://api.iamparis.eu/results
+IAM_API_KEY=replace_with_a_long_random_secret
+IAM_API_REQUEST_TIMEOUT=120
+# Set to 1 only behind a trusted proxy that sanitizes X-Forwarded-For.
+IAM_TRUST_PROXY=0
 ```
 
 The app loads this file with `python-dotenv`.
@@ -59,7 +63,7 @@ Single query:
 python main.py --query "show me carbon dioxide emissions for Europe"
 ```
 
-Plot query:
+Data Explorer redirect query:
 
 ```bash
 python main.py --query "plot photovoltaic capacity for Greece"
@@ -111,7 +115,7 @@ Continue a session:
 ```bash
 curl -s -X POST http://127.0.0.1:8000/query \
   -H "Content-Type: application/json" \
-  -d '{"session_id":"SESSION_ID_FROM_PREVIOUS_RESPONSE","query":"plot it"}'
+  -d '{"session_id":"SESSION_ID_FROM_PREVIOUS_RESPONSE","query":"same for China"}'
 ```
 
 Reset a session:
@@ -129,8 +133,7 @@ curl -s -X POST http://127.0.0.1:8000/query \
 - `answer`: markdown answer text.
 - `session_id`: conversation session identifier.
 - `history`: session turns.
-- `plot_base64`: plot image payload without requiring markdown parsing.
-- `plot_caption`: short plot caption.
+- `plot_base64` and `plot_caption`: legacy compatibility fields; normally empty because plot requests redirect to the Data Explorer.
 - `notices`: UI-friendly notices such as missing assumptions metadata.
 - `relevant_links`: selected IAM PARIS links with title, URL, reason, confidence, and search hint.
 - `suggested_next_questions`: future UI suggestions.
@@ -154,7 +157,9 @@ Monitoring:
 curl -s http://127.0.0.1:8000/monitoring
 ```
 
-The monitoring endpoint reports total queries, failed query rate, no-data rate, low-confidence route rate, low-confidence entity rate, configured thresholds, alert status, and recent feedback candidates.
+The monitoring endpoint reports total queries, failed query rate, no-data rate, low-confidence route rate, low-confidence entity rate, configured thresholds, and alert status. Recent feedback entries contain query text and session IDs, so they are returned only when `IAM_API_KEY` is configured and supplied in `X-API-Key`; otherwise those details are redacted.
+
+For deployments behind a reverse proxy, enable `IAM_TRUST_PROXY=1` only if the proxy removes client-supplied forwarding headers and writes the trusted `X-Forwarded-For` value itself.
 
 ## Link Catalog
 

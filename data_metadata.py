@@ -13,9 +13,17 @@ This helps validate queries and provide helpful suggestions.
 import os
 import pickle
 import hashlib
-from typing import Dict, List, Set, Optional, Tuple
+import re
+from typing import Dict, Iterable, List, Set, Optional, Tuple
 from collections import defaultdict
 import logging
+
+from model_aliases import is_presentable_model_label, resolve_model_family_members
+from canonical_aliases import (
+    dedupe_equivalent_regions,
+    region_family_members,
+    regions_equivalent,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +57,7 @@ class DataMetadata:
         self.variable_scenarios: Dict[str, Set[str]] = defaultdict(set)
         self.variable_models: Dict[str, Set[str]] = defaultdict(set)
         self.variable_units: Dict[str, str] = {}
+        self.variable_unit_sets: Dict[str, Set[str]] = defaultdict(set)
         
         self.region_variables: Dict[str, Set[str]] = defaultdict(set)
         self.scenario_variables: Dict[str, Set[str]] = defaultdict(set)
@@ -103,6 +112,8 @@ class DataMetadata:
                 
                 if unit and variable not in self.variable_units:
                     self.variable_units[variable] = unit
+                if unit:
+                    self.variable_unit_sets[variable].add(str(unit).strip())
 
                 region_key = region or ""
                 scenario_key = scenario or ""
@@ -179,10 +190,16 @@ class DataMetadata:
         
         return {
             'variable': matched_var,
-            'regions': sorted(self.variable_regions.get(matched_var, [])),
+            'regions': dedupe_equivalent_regions(sorted(self.variable_regions.get(matched_var, []))),
             'scenarios': sorted(self.variable_scenarios.get(matched_var, [])),
-            'models': sorted(self.variable_models.get(matched_var, [])),
-            'unit': self.variable_units.get(matched_var),
+            'models': self.consolidate_model_labels(
+                self.variable_models.get(matched_var, [])
+            ),
+            'unit': (
+                next(iter(self.variable_unit_sets[matched_var]))
+                if len(self.variable_unit_sets.get(matched_var, set())) == 1
+                else ("multiple" if self.variable_unit_sets.get(matched_var) else None)
+            ),
             'suggestions': []
         }
     
@@ -204,15 +221,81 @@ class DataMetadata:
                 'region': None,
                 'variables': [],
                 'scenarios': [],
+                'models': [],
+                'years': [],
                 'suggestions': self._suggest_similar_regions(region)
             }
-        
+
+        variables: Set[str] = set()
+        scenarios: Set[str] = set()
+        models: Set[str] = set()
+        years: Set[str] = set()
+        for variable, region_map in self.availability_matrix.items():
+            for region_key, scenario_map in region_map.items():
+                if not regions_equivalent(region_key, matched_region):
+                    continue
+                variables.add(variable)
+                for scenario, model_map in scenario_map.items():
+                    if scenario:
+                        scenarios.add(scenario)
+                    for model, model_years in model_map.items():
+                        if model:
+                            models.add(model)
+                        years.update(model_years)
+
         return {
             'region': matched_region,
-            'variables': sorted(self.region_variables.get(matched_region, [])),
-            'scenarios': sorted(self.all_scenarios),
+            'variables': sorted(variables),
+            'scenarios': sorted(scenarios),
+            'models': self.consolidate_model_labels(models),
+            'years': sorted(years, key=lambda value: int(value)),
             'suggestions': []
         }
+
+    def get_available_for_model(self, model: str) -> Dict[str, any]:
+        """Return availability for all runtime aliases of one model family."""
+        members = resolve_model_family_members(model, list(self.all_model_names))
+        if not members and is_presentable_model_label(model):
+            exact = next(
+                (name for name in self.all_model_names if name.casefold() == str(model).casefold()),
+                None,
+            )
+            members = [exact] if exact else []
+        member_set = set(members)
+        variables: Set[str] = set()
+        regions: Set[str] = set()
+        scenarios: Set[str] = set()
+        years: Set[str] = set()
+        for variable, region_map in self.availability_matrix.items():
+            for region, scenario_map in region_map.items():
+                for scenario, model_map in scenario_map.items():
+                    for model_name, model_years in model_map.items():
+                        if model_name not in member_set:
+                            continue
+                        variables.add(variable)
+                        if region:
+                            regions.add(region)
+                        if scenario:
+                            scenarios.add(scenario)
+                        years.update(model_years)
+        return {
+            "model": str(model or "").strip() if members else None,
+            "models": members,
+            "variables": sorted(variables),
+            "regions": dedupe_equivalent_regions(sorted(regions)),
+            "scenarios": sorted(scenarios),
+            "years": sorted(years, key=lambda value: int(value)),
+            "suggestions": [] if members else self.distinct_model_labels()[:5],
+        }
+
+    def all_available_years(self) -> List[str]:
+        years: Set[str] = set()
+        for region_map in self.availability_matrix.values():
+            for scenario_map in region_map.values():
+                for model_map in scenario_map.values():
+                    for model_years in model_map.values():
+                        years.update(model_years)
+        return sorted(years, key=lambda value: int(value))
     
     def validate_combination(self, variable: str, region: str = None, 
                             scenario: str = None, model: str = None) -> Dict[str, any]:
@@ -251,9 +334,14 @@ class DataMetadata:
                 result['valid'] = False
                 result['issues'].append(f"Region '{region}' not found")
                 result['suggestions'].extend(self._suggest_similar_regions(region))
-            elif matched_region not in self.variable_regions.get(matched_var, []):
+            elif not any(
+                regions_equivalent(matched_region, available_region)
+                for available_region in self.variable_regions.get(matched_var, [])
+            ):
                 result['valid'] = False
-                available_regions = sorted(self.variable_regions.get(matched_var, []))
+                available_regions = dedupe_equivalent_regions(
+                    sorted(self.variable_regions.get(matched_var, []))
+                )
                 result['issues'].append(
                     f"No data for '{matched_var}' in region '{matched_region}'"
                 )
@@ -288,7 +376,7 @@ class DataMetadata:
             return False
         regions = self.availability_matrix.get(matched_var, {})
         for region_key, scenarios in regions.items():
-            if region and region_key != region:
+            if region and not regions_equivalent(region_key, region):
                 continue
             for scenario_key, models in scenarios.items():
                 if scenario and scenario_key != scenario:
@@ -312,7 +400,7 @@ class DataMetadata:
         years: Set[str] = set()
         regions = self.availability_matrix.get(matched_var, {})
         for region_key, scenarios in regions.items():
-            if region and region_key != region:
+            if region and not regions_equivalent(region_key, region):
                 continue
             for scenario_key, models in scenarios.items():
                 if scenario and scenario_key != scenario:
@@ -352,7 +440,7 @@ class DataMetadata:
             if not var_name:
                 continue
             for region_key, scenario_map in region_map.items():
-                region_matches = not region or region_key == region
+                region_matches = not region or regions_equivalent(region_key, region)
                 for scenario_key, model_map in scenario_map.items():
                     scenario_matches = not scenario or scenario_key == scenario
                     for model_key in model_map:
@@ -368,9 +456,9 @@ class DataMetadata:
 
         return {
             "variables": sorted(variables)[:limit],
-            "regions": sorted(regions)[:limit],
+            "regions": dedupe_equivalent_regions(sorted(regions))[:limit],
             "scenarios": sorted(scenarios)[:limit],
-            "models": sorted(models)[:limit],
+            "models": self.consolidate_model_labels(models)[:limit],
         }
 
     def suggest_scenarios_by_scope(
@@ -392,7 +480,7 @@ class DataMetadata:
         def add_scenarios(candidate_variable: str, candidate_region: str | None = None):
             region_map = self.availability_matrix.get(candidate_variable, {})
             for region_key in sorted(region_map):
-                if candidate_region and region_key != candidate_region:
+                if candidate_region and not regions_equivalent(region_key, candidate_region):
                     continue
                 for scenario_key in sorted(region_map[region_key]):
                     if not scenario_key or scenario_key == exclude or scenario_key in seen:
@@ -535,6 +623,10 @@ class DataMetadata:
         for r in self.all_regions:
             if r.lower() == region_lower:
                 return r
+
+        country_members = region_family_members(region, sorted(self.all_regions))
+        if country_members:
+            return country_members[0]
         
         # Common region name mappings
         region_mappings = {
@@ -592,9 +684,9 @@ class DataMetadata:
         """Get a summary of available data."""
         return {
             'total_variables': len(self.all_variables),
-            'total_regions': len(self.all_regions),
+            'total_regions': len(dedupe_equivalent_regions(sorted(self.all_regions))),
             'total_scenarios': len(self.all_scenarios),
-            'total_models': len(self.all_model_names),
+            'total_models': len(self.distinct_model_labels()),
             'categories': len(self.variable_categories)
         }
     
@@ -620,11 +712,80 @@ class DataMetadata:
 
     def detect_topic_category(self, text: str) -> Optional[str]:
         """Return the internal variable category implied by a topic qualifier, if any."""
-        lowered = (text or "").lower()
-        for category, keywords in self._TOPIC_CATEGORY_KEYWORDS.items():
-            if any(kw in lowered for kw in keywords):
-                return category
-        return None
+        categories = self.detect_topic_categories(text)
+        return categories[0] if categories else None
+
+    @staticmethod
+    def _contains_topic_keyword(text: str, keyword: str) -> bool:
+        """Match a topic phrase on token boundaries with flexible separators."""
+        tokens = re.findall(r"[a-z0-9]+", str(keyword or "").casefold())
+        if not tokens:
+            return False
+        pattern = r"(?<![a-z0-9])" + r"[^a-z0-9]+".join(
+            re.escape(token) for token in tokens
+        ) + r"(?![a-z0-9])"
+        return bool(re.search(pattern, str(text or "").casefold()))
+
+    def detect_topic_categories(self, text: str) -> List[str]:
+        """Return every topic category explicitly mentioned, in catalog order."""
+        return [
+            category
+            for category, keywords in self._TOPIC_CATEGORY_KEYWORDS.items()
+            if any(self._contains_topic_keyword(text, keyword) for keyword in keywords)
+        ]
+
+    def models_covering_topics(self, text: str) -> List[Tuple[str, List[str]]]:
+        """Return model coverage independently for every mentioned topic."""
+        results: List[Tuple[str, List[str]]] = []
+        for category in self.detect_topic_categories(text):
+            keywords = self._TOPIC_CATEGORY_KEYWORDS.get(category, [])
+            models: Set[str] = set()
+            for variable in self.all_variables:
+                if any(self._contains_topic_keyword(variable, keyword) for keyword in keywords):
+                    models |= self.variable_models.get(variable, set())
+            results.append((category, self.consolidate_model_labels(models)))
+        return results
+
+    @staticmethod
+    def consolidate_model_labels(models: Iterable[str]) -> List[str]:
+        """Collapse case/separator aliases while preserving distinct versions.
+
+        When both an unversioned runtime alias and one or more versioned labels
+        exist for the same normalized base, the versioned labels are the more
+        informative display values. Multiple versions remain distinct.
+        """
+        groups: Dict[str, Dict[str, List[str]]] = defaultdict(
+            lambda: {"versioned": [], "plain": []}
+        )
+        for raw in models or []:
+            label = str(raw or "").strip()
+            if not is_presentable_model_label(label):
+                continue
+            match = re.fullmatch(r"(.+?)[\s_-]+v?(\d+(?:\.\d+)*)", label, flags=re.IGNORECASE)
+            base = match.group(1) if match else label
+            key = re.sub(r"[^a-z0-9]+", "", base.casefold()) or label.casefold()
+            bucket = "versioned" if match else "plain"
+            if label not in groups[key][bucket]:
+                groups[key][bucket].append(label)
+
+        selected: List[str] = []
+        for group in groups.values():
+            candidates = group["versioned"] or group["plain"]
+            if group["versioned"]:
+                selected.extend(candidates)
+                continue
+            # Prefer the most readable casing when aliases differ only by case
+            # or separators; the choice is deterministic and data-driven.
+            selected.append(max(candidates, key=lambda value: (
+                any(char.isupper() for char in value),
+                sum(not char.isalnum() for char in value),
+                len(value),
+                value,
+            )))
+        return sorted(selected, key=lambda value: value.casefold())
+
+    def distinct_model_labels(self) -> List[str]:
+        return self.consolidate_model_labels(self.all_model_names)
 
     def models_covering_topic(self, text: str) -> Tuple[Optional[str], List[str]]:
         """
@@ -632,19 +793,10 @@ class DataMetadata:
         the sorted list of models that report at least one variable in that category.
         Returns (None, []) when no topic is detected.
         """
-        category = self.detect_topic_category(text)
-        if not category:
+        matches = self.models_covering_topics(text)
+        if not matches:
             return None, []
-        # Match the topic keywords directly against full variable names so sector
-        # variables (e.g. "Final Energy|Residential") are not lost to the single
-        # category bucket assigned in _categorize_variables.
-        keywords = self._TOPIC_CATEGORY_KEYWORDS.get(category, [])
-        models: Set[str] = set()
-        for variable in self.all_variables:
-            lowered = variable.lower()
-            if any(kw in lowered for kw in keywords):
-                models |= self.variable_models.get(variable, set())
-        return category, sorted(m for m in models if m)
+        return matches[0]
 
 
 def _metadata_signature(ts_data: List[dict], models: List[dict] = None) -> str:

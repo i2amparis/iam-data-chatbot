@@ -31,6 +31,12 @@ class LinkCatalogTests(unittest.TestCase):
             by_title["Climate Watch"]["fallback_instruction"],
             "Open the Application Library and search for: Climate Watch",
         )
+        self.assertEqual(by_title["GCAM"]["url"], "https://iamparis.eu/models")
+        self.assertEqual(by_title["GCAM"]["search_hint"], "GCAM")
+        self.assertEqual(
+            by_title["GCAM"]["fallback_instruction"],
+            "Open the Models directory and search for: GCAM",
+        )
 
     def test_generated_catalog_is_deterministic(self):
         with tempfile.TemporaryDirectory() as temp_dir:

@@ -3,6 +3,7 @@
     {
       "id": "conv-001",
       "title": "CO2 Europe Follow-Ups",
+      "tags": ["data", "scope-change", "plot", "follow-up"],
       "turns": [
         {
           "query": "show me carbon dioxide emissions for Europe",
@@ -13,30 +14,37 @@
           "useful_link": "results",
           "no_hallucinated_data": "yes"
         },
-        {
-      "query": "same for China",
-      "expected_route": "data_query",
-      "expected_variable": "Emissions|CO2",
-      "expected_region": "China",
-      "useful_clarification": "yes",
+      {
+        "query": "same for China",
+        "expected_route": "data_query",
+        "expected_variable": "Emissions|CO2",
+        "expected_region": "China",
+        "useful_clarification": "yes",
           "useful_link": "results",
           "no_hallucinated_data": "yes"
         },
         {
           "query": "what about 2050",
           "expected_route": "data_query",
-          "expected_variable": "Emissions|CO2",
-          "expected_region": "China",
-          "useful_clarification": "yes",
+        "expected_variable": "Emissions|CO2",
+        "expected_region": "China",
+        "expected_start_year": "2050",
+        "expected_end_year": "2050",
+        "useful_clarification": "yes",
           "useful_link": "results",
           "no_hallucinated_data": "yes"
         },
         {
           "query": "plot it",
-          "expected_route": "data_plotting",
-          "expected_variable": "Emissions|CO2",
-          "expected_region": "China",
-          "useful_clarification": "yes",
+        "expected_route": "data_plotting",
+        "expected_variable": "Emissions|CO2",
+        "expected_region": "China",
+        "expected_start_year": "2050",
+        "expected_end_year": "2050",
+        "expected_action": "plot",
+        "expected_chart_type": "bar",
+        "expected_plot": "yes",
+        "useful_clarification": "yes",
           "useful_link": "results",
           "no_hallucinated_data": "yes"
         }
@@ -45,6 +53,7 @@
     {
       "id": "conv-002",
       "title": "Clarify Electricity Variable Then Plot",
+      "tags": ["data", "clarification", "plot", "follow-up"],
       "turns": [
         {
           "query": "electricity for India",
@@ -66,9 +75,11 @@
         {
           "query": "plot it",
           "expected_route": "data_plotting",
-          "expected_variable": "Secondary Energy|Electricity",
-          "expected_region": "India",
-          "useful_clarification": "yes",
+        "expected_variable": "Secondary Energy|Electricity",
+        "expected_region": "India",
+        "expected_action": "plot",
+        "expected_plot": "yes",
+        "useful_clarification": "yes",
           "useful_link": "results",
           "no_hallucinated_data": "yes"
         }
@@ -77,14 +88,17 @@
     {
       "id": "conv-003",
       "title": "Baseline Year Follow-Ups",
+      "tags": ["data", "year-scope", "comparison", "plot", "follow-up"],
       "turns": [
         {
           "query": "show Emissions|CO2 for World under Baseline in 2030",
           "expected_route": "data_query",
           "expected_variable": "Emissions|CO2",
-          "expected_region": "World",
-          "expected_scenario": "Baseline",
-          "useful_clarification": "no",
+        "expected_region": "World",
+        "expected_scenario": "Baseline",
+        "expected_start_year": "2030",
+        "expected_end_year": "2030",
+        "useful_clarification": "no",
           "useful_link": "results",
           "no_hallucinated_data": "yes"
         },
@@ -92,9 +106,11 @@
           "query": "after 2030",
           "expected_route": "data_query",
           "expected_variable": "Emissions|CO2",
-          "expected_region": "World",
-          "expected_scenario": "Baseline",
-          "useful_clarification": "no",
+        "expected_region": "World",
+        "expected_scenario": "Baseline",
+        "expected_start_year": "2031",
+        "expected_end_year": "none",
+        "useful_clarification": "no",
           "useful_link": "results",
           "no_hallucinated_data": "yes"
         },
@@ -102,9 +118,14 @@
       "query": "compare with current policy",
       "expected_route": "data_plotting",
       "expected_variable": "Emissions|CO2",
-      "expected_region": "World",
-      "expected_scenario": "Current Policies",
-      "useful_clarification": "no",
+        "expected_region": "World",
+        "expected_scenario": "Current Policies",
+        "expected_start_year": "2031",
+        "expected_end_year": "none",
+        "expected_action": "plot",
+        "expected_comparison": "scenario",
+        "expected_plot": "yes",
+        "useful_clarification": "no",
           "useful_link": "results",
           "no_hallucinated_data": "yes"
         }
@@ -113,6 +134,7 @@
     {
       "id": "conv-004",
       "title": "Application Library Grounded Links",
+      "tags": ["links", "navigation", "application-library"],
       "turns": [
         {
           "query": "open Aqueduct details",
@@ -133,11 +155,11 @@
     {
       "id": "conv-005",
       "title": "IAM COMPACT Workspaces",
+      "tags": ["links", "navigation", "workspace"],
       "turns": [
         {
           "query": "Fit-for-55 EU net zero results",
           "expected_route": "general_qa",
-          "expected_region": "EU",
           "useful_clarification": "no",
           "useful_link": "iam_compact",
           "no_hallucinated_data": "yes"
@@ -161,6 +183,7 @@
     {
       "id": "conv-006",
       "title": "NDC ASPECTS Workspaces",
+      "tags": ["links", "navigation", "workspace"],
       "turns": [
         {
           "query": "global impacts of NDCs",
@@ -188,6 +211,7 @@
     {
       "id": "conv-007",
       "title": "Model Metadata Then Data",
+      "tags": ["model-description", "data", "clarification", "follow-up"],
       "turns": [
         {
           "query": "tell me about GCAM model assumptions",
@@ -219,6 +243,7 @@
     {
       "id": "conv-008",
       "title": "No Data Recovery",
+      "tags": ["data", "clarification", "failed-scope-recovery", "follow-up"],
       "turns": [
         {
           "query": "show Emissions|CO2 for World under Policy",
@@ -235,7 +260,7 @@
           "expected_route": "data_query",
           "expected_variable": "Emissions|CO2",
           "expected_region": "World",
-          "useful_clarification": "yes",
+          "useful_clarification": "no",
           "useful_link": "results",
           "no_hallucinated_data": "yes"
         }
@@ -244,6 +269,7 @@
     {
       "id": "conv-009",
       "title": "Stale Clarification Reset",
+      "tags": ["data", "clarification", "model-discovery", "follow-up"],
       "turns": [
         {
           "query": "oil demand for EU",
@@ -272,6 +298,7 @@
     {
       "id": "conv-010",
       "title": "Contact And Analysis Links",
+      "tags": ["links", "navigation"],
       "turns": [
         {
           "query": "custom analysis service",
@@ -285,6 +312,474 @@
           "expected_route": "general_qa",
           "useful_clarification": "no",
           "useful_link": "contact",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    },
+    {
+      "id": "conv-011",
+      "title": "GCAM Description And Pronoun Follow-Ups",
+      "tags": ["model-description", "model-scope", "links", "follow-up"],
+      "turns": [
+        {
+          "query": "Tell me about GCAM.",
+          "expected_route": "model_explanation",
+          "expected_model": "GCAM",
+          "useful_clarification": "no",
+          "useful_link": "models",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "Who develops this model?",
+          "expected_route": "model_explanation",
+          "expected_model": "GCAM",
+          "useful_clarification": "no",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "What limitations should I keep in mind?",
+          "expected_route": "model_explanation",
+          "expected_model": "GCAM",
+          "expected_answer_contains": "Interpretation notes",
+          "useful_clarification": "no",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "Which regions does it cover?",
+          "expected_route": "data_query",
+          "expected_model": "GCAM",
+          "useful_clarification": "no",
+          "useful_link": "models",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    },
+    {
+      "id": "conv-012",
+      "title": "Model Pair Comparison And Documentation",
+      "tags": ["model-description", "model-comparison", "links", "follow-up"],
+      "turns": [
+        {
+          "query": "Compare GCAM and WITCH as models.",
+          "expected_route": "model_explanation",
+          "expected_model": "GCAM",
+          "useful_clarification": "no",
+          "useful_link": "models",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "How do these two differ in methodology?",
+          "expected_route": "model_explanation",
+          "expected_model": "GCAM",
+          "expected_answer_contains": "WITCH",
+          "useful_clarification": "no",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "Give me documentation links for both models",
+          "expected_route": "model_explanation",
+          "expected_model": "GCAM",
+          "expected_link_url": "https://iamparis.eu/models",
+          "useful_clarification": "no",
+          "useful_link": "models",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    },
+    {
+      "id": "conv-013",
+      "title": "Region And Open Year Scope Changes",
+      "tags": ["data", "scope-change", "year-scope", "plot", "follow-up"],
+      "turns": [
+        {
+          "query": "show Emissions|CO2 for India under NDC_EI from 2030 to 2050",
+          "expected_route": "data_query",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "India",
+          "expected_region_count": "1",
+          "expected_scenario": "NDC_EI",
+          "expected_start_year": "2030",
+          "expected_end_year": "2050",
+          "useful_clarification": "no",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "now for CHN",
+          "expected_route": "data_query",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "China",
+          "expected_region_count": "1",
+          "expected_scenario": "NDC_EI",
+          "expected_start_year": "2030",
+          "expected_end_year": "2050",
+          "useful_clarification": "yes",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "until 2040",
+          "expected_route": "data_query",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "China",
+          "expected_region_count": "1",
+          "expected_scenario": "NDC_EI",
+          "expected_start_year": "none",
+          "expected_end_year": "2040",
+          "useful_clarification": "no",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "plot it",
+          "expected_route": "data_plotting",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "China",
+          "expected_region_count": "1",
+          "expected_scenario": "NDC_EI",
+          "expected_start_year": "none",
+          "expected_end_year": "2040",
+          "expected_action": "plot",
+          "expected_chart_type": "line",
+          "expected_plot": "yes",
+          "useful_clarification": "no",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    },
+    {
+      "id": "conv-014",
+      "title": "Plot Variable And Chart Type Changes",
+      "tags": ["data", "scope-change", "plot", "follow-up"],
+      "turns": [
+        {
+          "query": "plot Primary Energy|Coal for CHN under PR_CurPol_CP from 2030 to 2050",
+          "expected_route": "data_plotting",
+          "expected_variable": "Primary Energy|Coal",
+          "expected_region": "China",
+          "expected_region_count": "1",
+          "expected_scenario": "PR_CurPol_CP",
+          "expected_start_year": "2030",
+          "expected_end_year": "2050",
+          "expected_action": "plot",
+          "expected_chart_type": "line",
+          "expected_plot": "yes",
+          "useful_clarification": "no",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "change only the variable to Primary Energy|Gas",
+          "expected_route": "data_plotting",
+          "expected_variable": "Primary Energy|Gas",
+          "expected_region": "China",
+          "expected_region_count": "1",
+          "expected_scenario": "PR_CurPol_CP",
+          "expected_start_year": "2030",
+          "expected_end_year": "2050",
+          "expected_action": "plot",
+          "expected_chart_type": "line",
+          "expected_plot": "yes",
+          "useful_clarification": "no",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "plot it as a bar chart",
+          "expected_route": "data_plotting",
+          "expected_variable": "Primary Energy|Gas",
+          "expected_region": "China",
+          "expected_region_count": "1",
+          "expected_scenario": "PR_CurPol_CP",
+          "expected_start_year": "2030",
+          "expected_end_year": "2050",
+          "expected_action": "plot",
+          "expected_chart_type": "bar",
+          "expected_plot": "yes",
+          "useful_clarification": "no",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    },
+    {
+      "id": "conv-015",
+      "title": "Successful Region Comparison Follow-Up",
+      "tags": ["data", "scope-change", "comparison", "plot", "follow-up"],
+      "turns": [
+        {
+          "query": "show Emissions|CO2 for EU under PR_CurPol_CP in 2050",
+          "expected_route": "data_query",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "EU",
+          "expected_region_count": "1",
+          "expected_scenario": "PR_CurPol_CP",
+          "expected_start_year": "2050",
+          "expected_end_year": "2050",
+          "useful_clarification": "no",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "same for China",
+          "expected_route": "data_query",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "China",
+          "expected_region_count": "1",
+          "expected_scenario": "PR_CurPol_CP",
+          "expected_start_year": "2050",
+          "expected_end_year": "2050",
+          "useful_clarification": "no",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "plot the comparison between the two regions",
+          "expected_route": "data_plotting",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "EU",
+          "expected_region_count": "2",
+          "expected_scenario": "PR_CurPol_CP",
+          "expected_start_year": "2050",
+          "expected_end_year": "2050",
+          "expected_action": "plot",
+          "expected_chart_type": "bar",
+          "expected_comparison": "region",
+          "expected_plot": "yes",
+          "useful_clarification": "no",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    },
+    {
+      "id": "conv-016",
+      "title": "Site Navigation Route Follow-Ups",
+      "tags": ["links", "navigation", "follow-up"],
+      "turns": [
+        {
+          "query": "Open the IAM PARIS Models page.",
+          "expected_route": "general_qa",
+          "expected_link_url": "https://iamparis.eu/models",
+          "useful_clarification": "no",
+          "useful_link": "models",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "Now open the model comparison page.",
+          "expected_route": "general_qa",
+          "expected_link_url": "https://iamparis.eu/models/comparison",
+          "useful_clarification": "no",
+          "useful_link": "models",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "Take me to My Workspace.",
+          "expected_route": "general_qa",
+          "expected_link_url": "https://iamparis.eu/scientific_module",
+          "useful_clarification": "no",
+          "useful_link": "workspace",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    },
+    {
+      "id": "conv-017",
+      "title": "Application Library Navigation Follow-Ups",
+      "tags": ["links", "navigation", "application-library", "follow-up"],
+      "turns": [
+        {
+          "query": "Where can I find Aqueduct?",
+          "expected_route": "general_qa",
+          "expected_link_url": "https://iamparis.eu/application_library/474",
+          "useful_clarification": "no",
+          "useful_link": "application_library",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "What about Climate Watch?",
+          "expected_route": "general_qa",
+          "useful_clarification": "no",
+          "useful_link": "application_library",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "Open the Application Library.",
+          "expected_route": "general_qa",
+          "expected_link_url": "https://iamparis.eu/application_library",
+          "useful_clarification": "no",
+          "useful_link": "application_library",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    },
+    {
+      "id": "conv-018",
+      "title": "Reject Then Select A Variable Clarification",
+      "tags": ["data", "clarification", "plot", "follow-up"],
+      "turns": [
+        {
+          "query": "electricity for India in 2050",
+          "expected_route": "data_query",
+          "expected_region": "India",
+          "expected_region_count": "1",
+          "expected_start_year": "2050",
+          "expected_end_year": "2050",
+          "useful_clarification": "yes",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "no",
+          "expected_route": "data_query",
+          "expected_region": "India",
+          "expected_region_count": "1",
+          "expected_start_year": "2050",
+          "expected_end_year": "2050",
+          "useful_clarification": "yes",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "1",
+          "expected_route": "data_query",
+          "expected_variable": "Final Energy|Electricity",
+          "expected_region": "India",
+          "expected_region_count": "1",
+          "expected_start_year": "2050",
+          "expected_end_year": "2050",
+          "useful_clarification": "no",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "plot it",
+          "expected_route": "data_plotting",
+          "expected_variable": "Final Energy|Electricity",
+          "expected_region": "India",
+          "expected_region_count": "1",
+          "expected_start_year": "2050",
+          "expected_end_year": "2050",
+          "expected_action": "plot",
+          "expected_chart_type": "bar",
+          "expected_plot": "yes",
+          "useful_clarification": "yes",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    },
+    {
+      "id": "conv-019",
+      "title": "Typo Recovery Plot And Provenance",
+      "tags": ["data", "typo", "plot", "provenance", "follow-up"],
+      "turns": [
+        {
+          "query": "emisions for europ",
+          "expected_route": "data_query",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "EU",
+          "expected_region_count": "1",
+          "useful_clarification": "no",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "same for World in 2050",
+          "expected_route": "data_query",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "World",
+          "expected_region_count": "1",
+          "expected_start_year": "2050",
+          "expected_end_year": "2050",
+          "useful_clarification": "yes",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "plot it",
+          "expected_route": "data_plotting",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "World",
+          "expected_region_count": "1",
+          "expected_start_year": "2050",
+          "expected_end_year": "2050",
+          "expected_action": "plot",
+          "expected_chart_type": "bar",
+          "expected_plot": "yes",
+          "useful_clarification": "yes",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "Which models contributed to it?",
+          "expected_route": "data_query",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "World",
+          "expected_region_count": "1",
+          "expected_start_year": "2050",
+          "expected_end_year": "2050",
+          "expected_plot": "no",
+          "expected_answer_contains": "includes these models",
+          "useful_clarification": "no",
+          "no_hallucinated_data": "yes"
+        }
+      ]
+    },
+    {
+      "id": "conv-020",
+      "title": "Failed Scenario Comparison And Recovery",
+      "tags": ["data", "comparison", "failed-scope-recovery", "follow-up"],
+      "turns": [
+        {
+          "query": "show Emissions|CO2 for World under Baseline in 2050",
+          "expected_route": "data_query",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "World",
+          "expected_scenario": "Baseline",
+          "expected_start_year": "2050",
+          "expected_end_year": "2050",
+          "useful_clarification": "no",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "under Policy instead",
+          "expected_route": "data_query",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "World",
+          "expected_scenario": "Baseline",
+          "expected_start_year": "2050",
+          "expected_end_year": "2050",
+          "expected_plot": "no",
+          "expected_answer_contains": "under `Policy`",
+          "useful_clarification": "yes",
+          "useful_link": "results",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "plot the comparison between the two scenarios",
+          "expected_route": "data_query",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "World",
+          "expected_scenario": "Baseline",
+          "expected_start_year": "2050",
+          "expected_end_year": "2050",
+          "expected_plot": "no",
+          "expected_answer_contains": "did not return data",
+          "useful_clarification": "no",
+          "no_hallucinated_data": "yes"
+        },
+        {
+          "query": "under PR_CurPol_CP instead",
+          "expected_route": "data_query",
+          "expected_variable": "Emissions|CO2",
+          "expected_region": "World",
+          "expected_scenario": "PR_CurPol_CP",
+          "expected_start_year": "2050",
+          "expected_end_year": "2050",
+          "useful_clarification": "no",
+          "useful_link": "results",
           "no_hallucinated_data": "yes"
         }
       ]

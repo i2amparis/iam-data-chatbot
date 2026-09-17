@@ -1,6 +1,14 @@
 import os
 import sys
+import json
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from dotenv import load_dotenv
+
+# Load project configuration before importing modules whose constants are read
+# from the environment at import time (LLM model selection and API settings).
+# Deployment-provided environment variables retain precedence over .env.
+load_dotenv()
+
 import glob
 import requests.exceptions
 import time
@@ -12,15 +20,15 @@ import argparse
 import requests
 import subprocess
 import pandas as pd
-from dotenv import load_dotenv
 from typing import List, Tuple, Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 import base64
 
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_openai import OpenAIEmbeddings
+from llm_factory import get_chat_openai as ChatOpenAI
 from langchain_community.vectorstores import FAISS
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain.chains import ConversationalRetrievalChain
@@ -35,6 +43,7 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from data_utils import data_query
 from utils.yaml_loader import load_all_yaml_files, yaml_to_documents
 from manager import MultiAgentManager
+from model_aliases import is_presentable_model_label
 from runtime_context import build_runtime_context
 from utils_query import (
     get_available_models,
@@ -51,16 +60,53 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def cache_file_timestamp(path: str | Path | None) -> str:
+    """Return the UTC modification time for the cache file actually loaded."""
+    if not path:
+        return ""
+    try:
+        modified = Path(path).stat().st_mtime
+    except OSError:
+        return ""
+    return datetime.fromtimestamp(modified, tz=timezone.utc).isoformat()
+
+
+
+
+def _definition_source_signature() -> str:
+    """Fingerprint definition contents so their parsed cache cannot go stale."""
+    digest = hashlib.sha256()
+    definition_root = Path("definitions")
+    files = sorted(
+        path for path in definition_root.rglob("*")
+        if path.is_file() and path.suffix.lower() in {".yaml", ".yml"}
+    )
+    for path in files:
+        digest.update(path.relative_to(definition_root).as_posix().encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(path.read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()
 
 
 def load_definitions():
-    #try file cache
-    cache_file ='cache/yaml_definitions.pkl'
+    # Cache parsed definitions only while the YAML source fingerprint matches.
+    cache_file = 'cache/yaml_definitions.pkl'
+    source_signature = _definition_source_signature()
     if os.path.exists(cache_file):
         logging.getLogger(__name__).info('loading yaml definitions from file cache..')
         try:
-            with open(cache_file,'rb') as f:
-                return pickle.load(f)
+            with open(cache_file, 'rb') as f:
+                cached = pickle.load(f)
+            if (
+                isinstance(cached, dict)
+                and cached.get("source_signature") == source_signature
+                and "result" in cached
+            ):
+                return cached["result"]
+            logging.getLogger(__name__).info(
+                'YAML definition sources changed; rebuilding parsed cache.'
+            )
         except Exception:
             logging.getLogger(__name__).warning(
                 'Failed to load %s; regenerating from YAML.', cache_file, exc_info=True
@@ -77,7 +123,7 @@ def load_definitions():
     #save to cache
     os.makedirs('cache',exist_ok=True)
     with open(cache_file, 'wb') as f:
-        pickle.dump(result,f)
+        pickle.dump({"source_signature": source_signature, "result": result}, f)
     
     return result
 
@@ -102,6 +148,11 @@ def docs_from_records(records: list) -> List[Document]:
     docs = []
     for rec in records:
         if rec is None:
+            continue
+        if "modelName" in rec and not is_presentable_model_label(rec.get("modelName")):
+            # Keep source records in the runtime dataset, but do not put a
+            # numeric-only identifier into semantic retrieval where it could
+            # be repeated as if it were a meaningful model name.
             continue
         # Handle case where description/modelName might be float (nan) instead of string
         desc_val = rec.get("description") or rec.get("modelName") or ""
@@ -128,15 +179,21 @@ def docs_from_records(records: list) -> List[Document]:
 
 def load_best_cached_results(current_records: list | None = None) -> tuple[list, str]:
     """
-    Merge all cached results files and prefer the richest deduplicated dataset.
-    This helps the live app use the fullest local cache for query clarification.
+    Treat every supplied current response, including an empty one, as
+    authoritative. Only combine result caches when no current response was
+    supplied at all (``current_records is None``).
+
+    Historical result files may contain series that were deliberately removed
+    upstream, so they must never be merged back into a successful current
+    response merely because the union is larger.
     """
+    if current_records is not None:
+        return list(current_records), "current"
+
     cache_files = sorted(glob.glob("cache/results*.json"))
     if not cache_files:
-        return current_records or [], "current"
+        return [], "current"
 
-    best_records = list(current_records or [])
-    best_source = "current"
     seen = set()
     merged = []
 
@@ -149,15 +206,6 @@ def load_best_cached_results(current_records: list | None = None) -> tuple[list,
             str(record.get("region", "")),
             str(record.get("variable", "")),
         )
-
-    for record in best_records:
-        if record is None:
-            continue
-        key = _record_key(record)
-        if key in seen:
-            continue
-        seen.add(key)
-        merged.append(record)
 
     for cache_file in cache_files:
         try:
@@ -173,27 +221,50 @@ def load_best_cached_results(current_records: list | None = None) -> tuple[list,
             seen.add(key)
             merged.append(record)
 
-    if len(merged) > len(best_records):
-        best_records = merged
-        best_source = "merged-cache"
+    return merged, "cache-fallback" if merged else "current"
 
-    merged_cache_file = "cache/results_merged.json"
-    if best_source == "merged-cache":
-        try:
-            pd.DataFrame(best_records).to_json(merged_cache_file)
-        except Exception:
-            pass
 
-    return best_records, best_source
+def _faiss_cache_signature(docs: list, embeddings: Any) -> str:
+    """Return a stable signature for documents and embedding configuration."""
+    digest = hashlib.sha256()
+    embedding_config = {
+        "class": f"{embeddings.__class__.__module__}.{embeddings.__class__.__qualname__}",
+        "model": getattr(embeddings, "model", None),
+        "dimensions": getattr(embeddings, "dimensions", None),
+    }
+    digest.update(json.dumps(embedding_config, sort_keys=True, default=str).encode("utf-8"))
+    digest.update(b"\0")
+    for doc in docs:
+        payload = {
+            "page_content": str(getattr(doc, "page_content", "")),
+            "metadata": getattr(doc, "metadata", {}) or {},
+        }
+        digest.update(json.dumps(payload, sort_keys=True, default=str).encode("utf-8"))
+        digest.update(b"\0")
+    return digest.hexdigest()
 
 def build_faiss_index(docs:list, embeddings) ->FAISS:
-    #try file cache
+    # Load only when the indexed content and embedding configuration match.
     index_dir = 'cache/faiss_index'
     index_file = os.path.join(index_dir, 'index.faiss')
-    
-    if os.path.exists(index_file):
-        logger.info('Loading FAISS index from file cache ..')
-        return FAISS.load_local(index_dir, embeddings, allow_dangerous_deserialization=True)
+    signature_file = Path(index_dir) / "signature.json"
+    expected_signature = _faiss_cache_signature(docs, embeddings)
+
+    if os.path.exists(index_file) and signature_file.exists():
+        try:
+            cached_signature = json.loads(signature_file.read_text()).get("signature")
+            if cached_signature == expected_signature:
+                logger.info('Loading FAISS index from validated file cache ..')
+                return FAISS.load_local(
+                    index_dir,
+                    embeddings,
+                    allow_dangerous_deserialization=True,
+                )
+            logger.info('FAISS source signature changed; rebuilding index.')
+        except (OSError, ValueError, TypeError):
+            logger.warning('Could not validate FAISS cache; rebuilding it.', exc_info=True)
+    elif os.path.exists(index_file):
+        logger.info('Legacy FAISS cache has no source signature; rebuilding index.')
 
     # Create FAISS index if cache doesn't exist
     logger.info('Creating FAISS index...')
@@ -202,6 +273,7 @@ def build_faiss_index(docs:list, embeddings) ->FAISS:
     # Save to cache using FAISS native save method
     os.makedirs(index_dir, exist_ok=True)
     faiss_index.save_local(index_dir)
+    signature_file.write_text(json.dumps({"signature": expected_signature}))
     
     return faiss_index
 
@@ -269,6 +341,16 @@ def _extract_plot_markdown(response: str) -> tuple[str, str]:
 def _normalize_cli_query(query: str) -> str:
     return re.sub(r"^(?:\s*(?:you|query):\s*)+", "", str(query or ""), flags=re.IGNORECASE).strip()
 
+
+def load_workspace_codes(path: str = "config/workspaces.json") -> list[str]:
+    """Load the complete configured workspace catalogue outside application code."""
+    data = json.loads(Path(path).read_text())
+    workspaces = data.get("workspaces", []) if isinstance(data, dict) else []
+    values = list(dict.fromkeys(str(value).strip() for value in workspaces if str(value).strip()))
+    if not values:
+        raise RuntimeError(f"No workspace codes configured in {path}")
+    return values
+
 class IAMParisBot:
     def __init__(self, streaming: bool = True):
         self.streaming = streaming
@@ -277,7 +359,7 @@ class IAMParisBot:
         self.load_env()
 
     def load_env(self):
-        load_dotenv(override=True)
+        load_dotenv()
         required = ["OPENAI_API_KEY", "REST_MODELS_URL", "REST_API_FULL"]
         self.env = {k: os.getenv(k) for k in required}
         if missing := [k for k, v in self.env.items() if not v]:
@@ -287,40 +369,73 @@ class IAMParisBot:
         os.makedirs("cache", exist_ok=True)
         def _strip_internal(d: dict) -> dict:
             return {k: v for k, v in d.items() if not str(k).startswith("_")}
+        def _record_key(record: dict):
+            stable_id = record.get("resultId") or record.get("id")
+            if stable_id not in (None, ""):
+                return ("id", str(stable_id))
+            return (
+                "scope",
+                str(record.get("workspace_code", "")),
+                str(record.get("study", "")),
+                str(record.get("modelName", "")),
+                str(record.get("scenario", "")),
+                str(record.get("region", "")),
+                str(record.get("variable", "")),
+                str(record.get("unit", "")),
+                json.dumps(record.get("years", {}), sort_keys=True, default=str),
+            )
         def _expand_by_workspace(url: str, payload_clean: dict, timeout: int) -> list:
             all_records = []
             seen = set()
+            page_limit = 1000
             for ws in payload_clean.get("workspace_code", []):
-                ws_payload = dict(payload_clean)
-                ws_payload["workspace_code"] = [ws]
-                resp_ws = requests.post(url, json=ws_payload, timeout=timeout)
-                self.logger.info("API call completed: status %s (workspace=%s)", resp_ws.status_code, ws)
-                if resp_ws.status_code >= 500:
-                    continue
-                resp_ws.raise_for_status()
-                data_ws = resp_ws.json()
-                records_ws = data_ws.get("data") if isinstance(data_ws, dict) else data_ws
-                for r in records_ws or []:
-                    key = (
-                        str(r.get("resultId", "")),
-                        str(r.get("workspace_code", "")),
-                        str(r.get("modelName", "")),
-                        str(r.get("scenario", "")),
-                        str(r.get("region", "")),
-                        str(r.get("variable", "")),
+                page = 0
+                while True:
+                    ws_payload = dict(payload_clean)
+                    ws_payload.update({"workspace_code": [ws], "limit": page_limit, "offset": page})
+                    resp_ws = requests.post(url, json=ws_payload, timeout=timeout)
+                    self.logger.info(
+                        "API call completed: status %s (workspace=%s, page=%s)",
+                        resp_ws.status_code, ws, page,
                     )
-                    if key in seen:
-                        continue
-                    seen.add(key)
-                    all_records.append(r)
+                    resp_ws.raise_for_status()
+                    data_ws = resp_ws.json()
+                    records_ws = data_ws.get("data") if isinstance(data_ws, dict) else data_ws
+                    if not isinstance(records_ws, list) or not records_ws:
+                        break
+                    new_count = 0
+                    for record in records_ws:
+                        key = _record_key(record)
+                        if key in seen:
+                            continue
+                        seen.add(key)
+                        all_records.append(record)
+                        new_count += 1
+                    if len(records_ws) < page_limit or new_count == 0:
+                        break
+                    page += 1
+                self.logger.info("Workspace %s complete after %s page(s)", ws, page + 1)
             return all_records
         # Convert params and payload to strings for hashing if they contain dicts
-        params_str = str(sorted(params.items())) if params is not None else ""
-        payload_str = str(sorted(payload.items())) if payload is not None else ""
+        # Internal control flags affect how the request is executed, not the
+        # identity of the remote data. A forced refresh must overwrite the
+        # cache used by the equivalent ordinary startup request.
+        params_clean = _strip_internal(params or {})
+        payload_for_cache = _strip_internal(payload or {})
+        params_str = str(sorted(params_clean.items())) if params is not None else ""
+        payload_str = str(sorted(payload_for_cache.items())) if payload is not None else ""
         # Use hashlib for consistent hashing across Python sessions
         import hashlib
-        hash_key = hashlib.md5((params_str + payload_str).encode()).hexdigest()[:16]
+        pagination_cache_version = (
+            "paged-workspaces-v2"
+            if payload and payload.get("limit") == -1 and payload.get("workspace_code")
+            else ""
+        )
+        hash_key = hashlib.md5(
+            (url + "\0" + params_str + payload_str + pagination_cache_version).encode()
+        ).hexdigest()[:16]
         cache_file = f"cache/{url.split('/')[-1]}_{hash_key}.json"
+        self.last_fetch_cache_file = cache_file
         def _load_cache() -> list:
             if cache and os.path.exists(cache_file):
                 with open(cache_file, 'r') as f:
@@ -345,6 +460,15 @@ class IAMParisBot:
                     payload_clean = _strip_internal(payload)
                     # Support paged fetch when limit == -1 for POST endpoints
                     if payload_clean.get("limit") == -1:
+                        if (
+                            "results" in url
+                            and isinstance(payload_clean.get("workspace_code"), list)
+                        ):
+                            combined = _expand_by_workspace(url, payload_clean, timeout)
+                            self.logger.info("Records fetched: %s (all workspace pages)", len(combined))
+                            with open(cache_file, 'w') as f:
+                                pd.DataFrame(combined).to_json(f)
+                            return combined
                         combined = []
                         seen_ids = set()
                         page_limit = 1000
@@ -366,7 +490,9 @@ class IAMParisBot:
                             if not records:
                                 break
                             # If no id field, stop after first page to avoid duplicates
-                            if not isinstance(records, list) or not records or "id" not in records[0]:
+                            if not isinstance(records, list) or not records or not (
+                                records[0].get("id") or records[0].get("resultId")
+                            ):
                                 # If results API is capped and no id field, expand by workspace
                                 if (
                                     "results" in url
@@ -376,13 +502,13 @@ class IAMParisBot:
                                 else:
                                     combined.extend(records if isinstance(records, list) else [])
                                 break
-                            new_records = [r for r in records if r.get("id") not in seen_ids]
+                            new_records = [r for r in records if _record_key(r) not in seen_ids]
                             for r in new_records:
-                                seen_ids.add(r.get("id"))
+                                seen_ids.add(_record_key(r))
                             combined.extend(new_records)
                             if len(records) < page_limit or len(new_records) == 0:
                                 break
-                            offset += page_limit
+                            offset += 1
                         self.logger.info("Records fetched: %s", len(combined))
                         with open(cache_file, 'w') as f:
                             pd.DataFrame(combined).to_json(f)
@@ -460,8 +586,7 @@ Context: ```{context}```"""
             streaming=self.streaming,
             timeout=30,
             max_retries=1,
-            callbacks=[StreamingStdOutCallbackHandler()] if self.streaming else None,
-            api_key=self.env["OPENAI_API_KEY"]
+            callbacks=[StreamingStdOutCallbackHandler()] if self.streaming else None
         )
         return ConversationalRetrievalChain.from_llm(
             llm=llm,
@@ -496,14 +621,8 @@ def main():
     try:
         models = bot.fetch_json(bot.env["REST_MODELS_URL"], params={"limit": -1}, cache=True)
         
-        # Fetch ALL data from IAMPARIS API (all workspaces)
-        # Using workspace_code filter to get all data
-        all_workspaces = [
-            "afolu", "buildings-transf", "covid-rec", "decarb-potentials", "decipher_1",
-            "energy-systems", "eu-headed", "index-decomp", "industrial-transf", "ndcs-impacts",
-            "net-zero", "post-glasgow", "power-people", "study-1", "study-2", "study-3",
-            "study-4", "study-6", "study-7", "transp-transf", "world-headed"
-        ]
+        # Fetch every page for every workspace configured in one data file.
+        all_workspaces = load_workspace_codes()
         ts_payload = {
             "workspace_code": all_workspaces,
             "limit": -1,
@@ -511,6 +630,8 @@ def main():
         }
         ts = bot.fetch_json(bot.env["REST_API_FULL"], payload=ts_payload, cache=True)
         ts, ts_source = load_best_cached_results(ts)
+        results_source_path = str(getattr(bot, "last_fetch_cache_file", "") or "")
+        results_timestamp = cache_file_timestamp(results_source_path)
         
         print(f"ts fetch: {len(ts)} records ({ts_source})")
 
@@ -528,21 +649,13 @@ def main():
         print("Please check your internet connection and try again.")
         return
 
-    # Check if FAISS cache exists before processing documents
-    index_dir = "cache/faiss_index"
-    if os.path.exists(os.path.join(index_dir, "index.faiss")):
-        print("Loading FAISS index from cache...")
-        embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=bot.env["OPENAI_API_KEY"], timeout=30, max_retries=1)
-        faiss_index = FAISS.load_local(index_dir, embeddings, allow_dangerous_deserialization=True)
-    else:
-        print("Creating new FAISS index...")
-        region_docs, variable_docs = load_definitions()
-        all_docs = docs_from_records(models) + region_docs + variable_docs
-        chunks = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=80).split_documents(all_docs)
-        embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=bot.env["OPENAI_API_KEY"], timeout=30, max_retries=1)
-        faiss_index = FAISS.from_documents(chunks, embeddings)
-        os.makedirs(index_dir, exist_ok=True)
-        faiss_index.save_local(index_dir)
+    # Always derive the source signature; build_faiss_index reuses the cache
+    # only when the model metadata and YAML-derived chunks still match it.
+    region_docs, variable_docs = load_definitions()
+    all_docs = docs_from_records(models) + region_docs + variable_docs
+    chunks = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=80).split_documents(all_docs)
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=bot.env["OPENAI_API_KEY"], timeout=30, max_retries=1)
+    faiss_index = build_faiss_index(chunks, embeddings)
 
     shared_resources = build_runtime_context(
         models=models,
@@ -551,6 +664,8 @@ def main():
         vector_store=faiss_index,
         env=bot.env,
         bot=bot,
+        results_source_path=results_source_path,
+        results_timestamp=results_timestamp,
     )
 
     manager = MultiAgentManager(shared_resources, streaming=not args.no_stream)

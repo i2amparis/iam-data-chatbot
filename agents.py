@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import List, Tuple, Optional, Dict, Any
 from pathlib import Path
 
@@ -10,10 +11,11 @@ from langchain.prompts import (
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate,
 )
-from langchain_openai import ChatOpenAI
+from llm_factory import get_chat_openai as ChatOpenAI
 from langchain_community.chat_message_histories import ChatMessageHistory
 
 from llm_config import QA_MODEL
+from model_aliases import is_presentable_model_label
 
 
 def _load_skill_guidance(max_chars: int = 4000) -> str:
@@ -61,7 +63,11 @@ class DataQueryAgent(BaseAgent):
         models = self.resources.get("models", [])
         ts = self.resources.get("ts", [])
         
-        model_names = sorted([m.get('modelName', '') for m in models if m and m.get('modelName')])
+        model_names = sorted([
+            str(m.get('modelName', '')).strip()
+            for m in models
+            if m and is_presentable_model_label(m.get('modelName'))
+        ])
         scenarios = sorted({r.get('scenario', '') for r in ts if r and r.get('scenario')})
         variables = sorted({str(r.get('variable', '')) for r in ts if r and r.get('variable')})
         regions = sorted({str(r.get('region', '')) for r in ts if r and r.get('region')})
@@ -145,7 +151,7 @@ Context from vector store: ```{{context}}```"""
         models = self.resources.get("models", [])
         ts = self.resources.get("ts", [])
         metadata = self.resources.get("metadata")
-        return data_query(query, models, ts, history=history, metadata=metadata).strip()
+        return data_query(query, models, ts, history=history, metadata=metadata, allow_plots=False).strip()
 
     def handle_with_entities(
         self,
@@ -164,6 +170,7 @@ Context from vector store: ```{{context}}```"""
             history=history,
             forced_entities=entities,
             metadata=metadata,
+            allow_plots=False,
         ).strip()
 
 
@@ -180,16 +187,19 @@ class ModelExplanationAgent(BaseAgent):
         
         # Get all model names for the system prompt
         models = self.resources.get("models", [])
-        model_names = sorted([m.get('modelName', '') for m in models if m and m.get('modelName')])
+        model_names = sorted([
+            str(m.get('modelName', '')).strip()
+            for m in models
+            if m and is_presentable_model_label(m.get('modelName'))
+        ])
         model_list = ", ".join(model_names)
-        
+
         llm = ChatOpenAI(
             model_name=QA_MODEL,
             temperature=0,
             streaming=self.streaming,
             timeout=30,
-            max_retries=1,
-            api_key=self.resources["env"]["OPENAI_API_KEY"],
+            max_retries=1
         )
 
         message_history = ChatMessageHistory()
@@ -274,7 +284,21 @@ class DataPlottingAgent(BaseAgent):
         models = self.resources.get("models", [])
         ts = self.resources.get("ts", [])
         sanitized = dict(entities or {})
-        if sanitized.get("variable"):
+        # Keyword sanitization cross-checks an *extracted* variable against the
+        # words of the query. A structured comparison built from the resolved
+        # scope of previous turns (e.g. "plot both models together") carries a
+        # trusted variable that the follow-up text never names, so checking it
+        # against that text would wrongly discard it.
+        structured_comparison = bool(
+            sanitized.get("comparison")
+            and (
+                sanitized.get("variables")
+                or sanitized.get("models")
+                or sanitized.get("regions")
+                or sanitized.get("scenarios")
+            )
+        )
+        if sanitized.get("variable") and not structured_comparison:
             sanitized["variable"] = sanitize_variable_for_query(sanitized["variable"], query)
 
         if not sanitized.get("variable") and not sanitized.get("variables") and not sanitized.get("models"):
@@ -334,16 +358,19 @@ class GeneralQAAgent(BaseAgent):
 
         # Get all model names for the system prompt
         models = self.resources.get("models", [])
-        model_names = sorted([m.get('modelName', '') for m in models if m and m.get('modelName')])
+        model_names = sorted([
+            str(m.get('modelName', '')).strip()
+            for m in models
+            if m and is_presentable_model_label(m.get('modelName'))
+        ])
         model_list = ", ".join(model_names)
 
         llm = ChatOpenAI(
             model_name=QA_MODEL,
             temperature=0,
-            streaming=True,
+            streaming=self.streaming,
             timeout=30,
-            max_retries=1,
-            api_key=self.resources["env"]["OPENAI_API_KEY"],
+            max_retries=1
         )
 
         skill_guidance = _load_skill_guidance()

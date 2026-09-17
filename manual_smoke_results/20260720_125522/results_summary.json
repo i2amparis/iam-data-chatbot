@@ -1,0 +1,282 @@
+{
+  "generated": "20260720_125522",
+  "count": 3,
+  "rows": [
+    {
+      "query": "primary energy for the World from IMAGE",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Primary Energy",
+        "region": "World",
+        "scenario": null,
+        "model": "IMAGE",
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85,
+          "model": 0.8
+        },
+        "confidence": 0.85,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline"
+        ],
+        "result_models": [
+          "42",
+          "GCAM",
+          "GCAM 7.0",
+          "GCAM-PR 5.3",
+          "PROMETHEUS V1",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T09:55:14.834667+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Primary Energy",
+          "region": "World",
+          "model": "IMAGE",
+          "years": "2005-2100",
+          "unit": "EJ/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Primary Energy"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Model",
+            "value": "IMAGE"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "EJ/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T09:55:14.834667+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Note: no timeseries data for model `IMAGE` in this slice; showing results across the models that do have it.\n\n### Primary Energy in World\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `EJ/yr`\n\nAnswer:\nSummary: 55 series across 11 models and 12 scenarios.\nShowing series 1-12 of 55, ordered by model and scenario. Narrow by model or scenario to view the 43 remaining series.\n\n",
+      "session_id": "c30A3_all"
+    },
+    {
+      "query": "now the same from WITCH",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Primary Energy",
+        "variables": null,
+        "region": "World",
+        "model": "WITCH",
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85,
+          "model": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "deterministic",
+        "all_scenarios": true,
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline"
+        ],
+        "result_models": [
+          "42",
+          "GCAM",
+          "GCAM 7.0",
+          "GCAM-PR 5.3",
+          "PROMETHEUS V1",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ]
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T09:55:14.834667+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Primary Energy",
+          "region": "World",
+          "model": "WITCH",
+          "years": "2005-2100",
+          "unit": "EJ/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Primary Energy"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Model",
+            "value": "WITCH"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "EJ/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T09:55:14.834667+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Note: no timeseries data for model `WITCH` in this slice; showing results across the models that do have it.\n\n### Primary Energy in World\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `EJ/yr`\n\nAnswer:\nSummary: 55 series across 11 models and 12 scenarios.\nShowing series 1-12 of 55, ordered by model and scenario. Narrow by model or scenario to view the 43 remaining series.\n\n",
+      "session_id": "c30A3_all"
+    },
+    {
+      "query": "plot both together",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "conversation_state",
+        "reason": "previous-scope comparison plot"
+      },
+      "entities": {
+        "action": "plot",
+        "start_year": 2005,
+        "end_year": 2100,
+        "all_scenarios": true,
+        "variable": "Primary Energy",
+        "models": [
+          "IMAGE",
+          "WITCH"
+        ],
+        "comparison": "model",
+        "region": "World"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T09:55:14.834667+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Primary Energy",
+          "region": "World"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "conversation_state"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Primary Energy"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T09:55:14.834667+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Could not identify enough models to compare. Found: []. Available models include: 42, ALADIN, ATOM, DLR_LEV, DREEM, E3ME 6.1, E4SMA-EU-TIMES 1.0, EnergyPLAN, FORECAST, GCAM...",
+      "session_id": "c30A3_all"
+    }
+  ]
+}

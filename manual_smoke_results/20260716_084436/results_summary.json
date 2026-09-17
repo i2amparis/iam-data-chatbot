@@ -1,0 +1,206 @@
+{
+  "generated": "20260716_084436",
+  "count": 5,
+  "rows": [
+    {
+      "query": "final energy for China from PROMETHEUS",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 2,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Final Energy",
+        "region": "CHN",
+        "scenario": null,
+        "model": "PROMETHEUS",
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85,
+          "model": 1.0
+        },
+        "confidence": 0.85,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT"
+        ],
+        "result_models": [
+          "PROMETHEUS V1"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T05:44:22.671297+00:00",
+        "matched_record_count": 0,
+        "selected_filters": {
+          "variable": "Final Energy",
+          "region": "CHN",
+          "model": "PROMETHEUS",
+          "years": "2005-2100",
+          "unit": "EJ/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Final Energy"
+          },
+          {
+            "label": "Region",
+            "value": "CHN"
+          },
+          {
+            "label": "Model",
+            "value": "PROMETHEUS"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "EJ/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "0"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T05:44:22.671297+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Final Energy in CHN\n\nScope: scenario `multiple`, model `PROMETHEUS V1`, years `2005-2100`\nUnit: `EJ/yr`\n\nAnswer:\n**PROMETHEUS V1 - CP_EI**\n| Year | Value | Unit |\n|------|-------|------|\n| 2015 | 83.65 | EJ/yr |\n| 2020 | 85.07 | EJ/yr |\n| 2025 | 89.25 | EJ/yr |\n| 2030 | 91.18 | EJ/yr |\n| 2035 | 95.01 | EJ/yr |\n| 2040 | 96.11 | EJ/yr |\n| 2045 | 96.78 | EJ/yr |\n| 2050 | 97.36 | EJ/yr |\n\n**PROMET",
+      "session_id": "vsing_1"
+    },
+    {
+      "query": "who develops the IMAGE model?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.45,
+        "source": "deterministic",
+        "reason": "low confidence entity clarification"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I matched `IMAGE` as the model, but confidence is low. Which model should I use?",
+      "session_id": "vsing_2"
+    },
+    {
+      "query": "what is IMAGE used for?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.45,
+        "source": "deterministic",
+        "reason": "low confidence entity clarification"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I matched `IMAGE` as the model, but confidence is low. Which model should I use?",
+      "session_id": "vsing_3"
+    },
+    {
+      "query": "how many scenarios are in the database?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "scenario availability request"
+      },
+      "entities": {},
+      "data_provenance": {},
+      "answer_preview": "I found scenarios matching your request like Baseline, Baseline_HP, Baseline|Harmonized, INDEPENDENCE, Increased_ambition, PR_Baseline, Unharmonised baseline and baseline and 1 more. You can plot variables for any of these scenarios.\n\nShowing 8 of 9. Say `show all scenarios` if you need the full list.\n\nReply with a scenario, model, region, or year to narrow the answer.",
+      "session_id": "vsing_4"
+    },
+    {
+      "query": "what data does PROMETHEUS have for the EU?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": "EU",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "region": 0.85
+        },
+        "confidence": 0.85,
+        "extraction_method": "deterministic"
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T05:44:22.671297+00:00",
+        "matched_record_count": 10508,
+        "selected_filters": {
+          "region": "EU"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Matched records",
+            "value": "10508"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T05:44:22.671297+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Model `eu_times` has these variables: Benchmarking|Buildings|CO2 intensity, Benchmarking|Buildings|District heat rate, Benchmarking|Buildings|Electrification rate, Benchmarking|Buildings|Energy per capita, Benchmarking|Industry|CO2 intensity (gross), Benchmarking|Industry|CO2 intensity (net), Benchmarking|Industry|Electrification rate, Benchmarking|Industry|Energy intensity, Benchmarking|Industry|",
+      "session_id": "vsing_5"
+    }
+  ]
+}

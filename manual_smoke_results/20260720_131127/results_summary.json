@@ -1,0 +1,222 @@
+{
+  "generated": "20260720_131127",
+  "count": 3,
+  "rows": [
+    {
+      "query": "population for Japan",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.75,
+        "source": "deterministic",
+        "reason": "extracted data entities"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Population",
+        "region": "JPN",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "baseline"
+        ],
+        "result_models": [
+          "42",
+          "MUSE",
+          "TIAM_Grantham",
+          "gcam",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T09:57:34.679485+00:00",
+        "matched_record_count": 39,
+        "selected_filters": {
+          "variable": "Population",
+          "region": "JPN",
+          "years": "2005-2100"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.75,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Population"
+          },
+          {
+            "label": "Region",
+            "value": "JPN"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Matched records",
+            "value": "39"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T09:57:34.679485+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Population in JPN\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `multiple`\n\nAnswer:\nSummary: 39 series across 7 models and 12 scenarios.\nShowing series 1-12 of 39, ordered by model and scenario. Narrow by model or scenario to view the 27 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 20",
+      "session_id": "H100G_all"
+    },
+    {
+      "query": "plot it until 2080",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "Population",
+        "variables": null,
+        "region": "JPN",
+        "models": null,
+        "start_year": 2080,
+        "end_year": 2080,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9,
+          "variable": 0.9,
+          "region": 0.85,
+          "years": 0.9
+        },
+        "confidence": 0.883,
+        "extraction_method": "deterministic",
+        "all_scenarios": true,
+        "scenarios": [
+          "baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "Baseline",
+          "PR_Baseline",
+          "PR_CurPol_EI",
+          "PR_NDC_EI",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_NDC_CP",
+          "PR_NDC_CPO"
+        ],
+        "result_models": [
+          "42",
+          "MUSE",
+          "TIAM_Grantham",
+          "gcam",
+          "ices",
+          "muse",
+          "tiam"
+        ]
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-20T09:57:34.679485+00:00",
+        "matched_record_count": 39,
+        "selected_filters": {
+          "variable": "Population",
+          "region": "JPN"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Population"
+          },
+          {
+            "label": "Region",
+            "value": "JPN"
+          },
+          {
+            "label": "Matched records",
+            "value": "39"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-20T09:57:34.679485+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing Population in JPN across available scenarios (2080-2080).\n\nReply with a scenario, model, region, or year to narrow the answer.",
+      "session_id": "H100G_all"
+    },
+    {
+      "query": "what related questions can I ask?",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 0,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "general_qa",
+        "confidence": 0.6,
+        "source": "llm",
+        "reason": "unclear deterministic route"
+      },
+      "entities": {
+        "action": "query",
+        "variable": null,
+        "variables": null,
+        "region": null,
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9
+        },
+        "confidence": 0.9,
+        "extraction_method": "llm"
+      },
+      "data_provenance": {},
+      "answer_preview": "Here are some related questions you can ask about population projections for Japan:\n\n1. **Population Growth Trends**: What are the projected population growth trends for Japan over the next few decades?\n2. **Demographic Changes**: How are demographic changes, such as aging population, expected to impact Japan's population projections?\n3. **Economic Impacts**: What are the potential economic impact",
+      "session_id": "H100G_all"
+    }
+  ]
+}

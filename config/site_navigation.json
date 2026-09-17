@@ -1,10 +1,10 @@
 {
   "_comment": "Terms used by the router to detect IAM PARIS site/navigation requests. Edit this file (no code change needed) when workspaces, data stories or site pages are added or renamed. All matching is lowercase substring.",
   "navigation_terms": [
-    "where can i find", "where do i find", "where is", "open ", "find ",
+    "where can i find", "where do i find", "where is", "is there", "open ", "find ",
     "link", "url", "page", "website", "application library",
     "raw data application", "data story", "data stories",
-    "policy catalogue", "policy catalog", "database", "explorer"
+    "policy catalogue", "policy catalog", "database", "explorer", "download"
   ],
   "named_site_items": [
     "aqueduct", "climate watch", "cdp open data portal", "data portal",
@@ -30,14 +30,22 @@
   ],
   "generic_site_targets": [
     "documentation", "docs", "user guide", "scenario explorer",
-    "model documentation", "application library", "data portal",
-    "dashboard", "tutorial", "iam paris results", "paris results",
-    "results page", "scenario database"
+    "model documentation", "model catalogue", "model catalog",
+    "models catalogue", "models catalog", "model directory", "model names",
+    "models page", "results page", "results section",
+    "application library", "data portal",
+    "dashboard", "tutorial", "project publications", "publications", "project outputs",
+    "iam paris results", "paris results",
+    "scenario database",
+    "download the data", "download data", "data download",
+    "scenario data", "homepage", "home page", "main page", "landing page",
+    "workspace page", "workspaces page", "my workspace", "workspaces"
   ],
   "strong_nav_phrases": [
-    "where can i find", "where do i find", "where is",
+    "where can i find", "where do i find", "where is", "where can i read", "where should i read",
     "give me the link", "send me the link", "take me to", "navigate to",
-    "how do i access", "how can i access", "how do i open", "link to"
+    "how do i access", "how can i access", "how do i open", "link to",
+    "where can i download", "where do i download", "how do i download", "how can i download"
   ],
   "extra_unambiguous_site_terms": [
     "application library", "raw data application", "data story", "data stories",

@@ -1,0 +1,382 @@
+{
+  "generated": "20260721_085620",
+  "count": 4,
+  "rows": [
+    {
+      "query": "plot renewable electricity for China",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "Secondary Energy|Electricity|Non-Biomass Renewables",
+        "region": "CHN",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": null,
+        "end_year": null,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "baseline",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_EI",
+          "Unharmonised baseline",
+          "PR_CurPol_CPO",
+          "PR_NDC_CPO"
+        ],
+        "result_models": [
+          "MUSE",
+          "PROMETHEUS V1",
+          "e3me",
+          "gcam",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-21T05:56:18.799059+00:00",
+        "matched_record_count": 37,
+        "selected_filters": {
+          "variable": "Secondary Energy|Electricity|Non-Biomass Renewables",
+          "region": "CHN"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Secondary Energy|Electricity|Non-Biomass Renewables"
+          },
+          {
+            "label": "Region",
+            "value": "CHN"
+          },
+          {
+            "label": "Matched records",
+            "value": "37"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-21T05:56:18.799059+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing Electricity Generation in CHN across available scenarios. Resolved variable: `Secondary Energy|Electricity|Non-Biomass Renewables`.\n\nReply with a scenario, model, region, or year to narrow the answer.",
+      "session_id": "FX3_1"
+    },
+    {
+      "query": "renewable electricity for Germany",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Secondary Energy|Electricity|Non-Biomass Renewables",
+        "region": "DEU",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_EI",
+          "Unharmonised baseline"
+        ],
+        "result_models": [
+          "e3me"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-21T05:56:18.799059+00:00",
+        "matched_record_count": 6,
+        "selected_filters": {
+          "variable": "Secondary Energy|Electricity|Non-Biomass Renewables",
+          "region": "DEU",
+          "model": "e3me",
+          "years": "2005-2100",
+          "unit": "EJ/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Secondary Energy|Electricity|Non-Biomass Renewables"
+          },
+          {
+            "label": "Region",
+            "value": "DEU"
+          },
+          {
+            "label": "Model",
+            "value": "e3me"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "EJ/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "6"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-21T05:56:18.799059+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Secondary Energy|Electricity|Non-Biomass Renewables in DEU\n\nScope: scenario `multiple`, model `e3me`, years `2005-2100`\nUnit: `EJ/yr`\n\nAnswer:\n**e3me - PR_Baseline**\n| Year | Value | Unit |\n|------|-------|------|\n| 2010 | 0.25 | EJ/yr |\n| 2015 | 0.49 | EJ/yr |\n| 2020 | 0.88 | EJ/yr |\n| 2025 | 1.16 | EJ/yr |\n| 2030 | 1.33 | EJ/yr |\n| 2035 | 1.46 | EJ/yr |\n| 2040 | 1.63 | EJ/yr |\n| 2045 | 1.83 ",
+      "session_id": "FX3_2"
+    },
+    {
+      "query": "renewable electricity generation for Germany",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 3,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Secondary Energy|Electricity|Non-Biomass Renewables",
+        "region": "DEU",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_EI",
+          "Unharmonised baseline"
+        ],
+        "result_models": [
+          "e3me"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-21T05:56:18.799059+00:00",
+        "matched_record_count": 6,
+        "selected_filters": {
+          "variable": "Secondary Energy|Electricity|Non-Biomass Renewables",
+          "region": "DEU",
+          "model": "e3me",
+          "years": "2005-2100",
+          "unit": "EJ/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Secondary Energy|Electricity|Non-Biomass Renewables"
+          },
+          {
+            "label": "Region",
+            "value": "DEU"
+          },
+          {
+            "label": "Model",
+            "value": "e3me"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "EJ/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "6"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-21T05:56:18.799059+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Secondary Energy|Electricity|Non-Biomass Renewables in DEU\n\nScope: scenario `multiple`, model `e3me`, years `2005-2100`\nUnit: `EJ/yr`\n\nAnswer:\n**e3me - PR_Baseline**\n| Year | Value | Unit |\n|------|-------|------|\n| 2010 | 0.25 | EJ/yr |\n| 2015 | 0.49 | EJ/yr |\n| 2020 | 0.88 | EJ/yr |\n| 2025 | 1.16 | EJ/yr |\n| 2030 | 1.33 | EJ/yr |\n| 2035 | 1.46 | EJ/yr |\n| 2040 | 1.63 | EJ/yr |\n| 2045 | 1.83 ",
+      "session_id": "FX3_3"
+    },
+    {
+      "query": "electricity generation for India",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Secondary Energy|Electricity",
+        "region": "IND",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "Unharmonised baseline",
+          "baseline"
+        ],
+        "result_models": [
+          "42",
+          "GEMINI-E3 7.0",
+          "MUSE",
+          "PROMETHEUS V1",
+          "TIAM_Grantham",
+          "e3me",
+          "gcam",
+          "gemini_e3",
+          "ices",
+          "muse",
+          "tiam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-21T05:56:18.799059+00:00",
+        "matched_record_count": 64,
+        "selected_filters": {
+          "variable": "Secondary Energy|Electricity",
+          "region": "IND",
+          "years": "2005-2100",
+          "unit": "EJ/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Secondary Energy|Electricity"
+          },
+          {
+            "label": "Region",
+            "value": "IND"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "EJ/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "64"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-21T05:56:18.799059+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Secondary Energy|Electricity in IND\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `EJ/yr`\n\nAnswer:\nSummary: 58 series across 11 models and 13 scenarios.\nShowing series 1-12 of 58, ordered by model and scenario. Narrow by model or scenario to view the 46 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | ",
+      "session_id": "FX3_4"
+    }
+  ]
+}

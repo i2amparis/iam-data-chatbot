@@ -10,6 +10,8 @@ from canonical_aliases import preferred_variable_from_query
 from data_metadata import DataMetadata
 from data_utils import _aggregate_region_candidates, _looks_like_category_list_request
 from query_extractor import QueryEntityExtractor
+from utils.yaml_loader import load_all_yaml_files
+from utils_query import extract_region_from_query
 
 
 class N4ModelCoverageTests(unittest.TestCase):
@@ -43,6 +45,39 @@ class N4ModelCoverageTests(unittest.TestCase):
         self.assertIsNone(category)
         self.assertEqual(models, [])
 
+    def test_multiple_topics_return_separate_model_sets(self):
+        metadata = DataMetadata([
+            {"variable": "Agriculture|Output", "modelName": "FarmModel"},
+            {"variable": "Land Use|Forest", "modelName": "LandModel"},
+            {"variable": "Agriculture|Land Use", "modelName": "CoupledModel"},
+        ])
+
+        matches = metadata.models_covering_topics(
+            "Which models provide agriculture or land-use variables?"
+        )
+
+        self.assertEqual(
+            matches,
+            [
+                ("Agriculture", ["CoupledModel", "FarmModel"]),
+                ("Land Use", ["CoupledModel", "LandModel"]),
+            ],
+        )
+
+    def test_topic_matching_uses_token_boundaries(self):
+        metadata = DataMetadata([
+            {"variable": "Island Population", "modelName": "IslandModel"},
+        ])
+
+        self.assertEqual(metadata.models_covering_topics("land-use models"), [("Land Use", [])])
+
+    def test_model_label_consolidation_preserves_versions_and_drops_aliases(self):
+        labels = DataMetadata.consolidate_model_labels([
+            "Alpha 1.0", "alpha", "Alpha 2.0", "Beta_Model", "beta-model", "42",
+        ])
+
+        self.assertEqual(labels, ["Alpha 1.0", "Alpha 2.0", "Beta_Model"])
+
 
 class N6RegionRecoveryTests(unittest.TestCase):
     def test_germany_prefers_eu_aggregate(self):
@@ -53,6 +88,25 @@ class N6RegionRecoveryTests(unittest.TestCase):
 
     def test_non_european_region_has_no_eu_aggregate(self):
         self.assertEqual(_aggregate_region_candidates("China", ["EU", "CHN"]), [])
+
+    def test_country_runtime_code_beats_containing_aggregate(self):
+        definitions = load_all_yaml_files("definitions/region")
+        self.assertEqual(
+            extract_region_from_query(
+                "Show a metric for South Korea in 2050",
+                definitions,
+                ["G20 Members", "KOR", "World"],
+            ),
+            "KOR",
+        )
+        self.assertEqual(
+            extract_region_from_query(
+                "Use Brazil and keep the other filters",
+                definitions,
+                ["G20 Members", "BRA", "World"],
+            ),
+            "BRA",
+        )
 
 
 class N7PopulationTests(unittest.TestCase):
@@ -124,6 +178,80 @@ class N5ContextPersistenceTests(unittest.TestCase):
         )
         self.assertEqual(stub.last_entities.get("variable"), "GDP|MER")
         self.assertEqual(stub.last_entities.get("region"), "China")
+
+
+class StructuredFollowupScopeTests(unittest.TestCase):
+    class _Stub:
+        from manager import MultiAgentManager as _M
+        _FOLLOWUP_FILLER = _M._FOLLOWUP_FILLER
+        _is_generic_followup = _M._is_generic_followup
+        _is_contextual_dimension_followup = _M._is_contextual_dimension_followup
+        _compose_contextual_query = _M._compose_contextual_query
+        _from_switch_model = _M._from_switch_model
+        _carrier_switch_variable = _M._carrier_switch_variable
+        _VARIABLE_SEGMENT_SWITCH_TOKENS = _M._VARIABLE_SEGMENT_SWITCH_TOKENS
+
+        class _Extractor:
+            available_variables = [
+                "Secondary Energy|Electricity|Solar",
+                "Secondary Energy|Electricity|Wind",
+                "Emissions|CO2",
+            ]
+            available_models: list = []
+
+        entity_extractor = _Extractor()
+
+        def _model_switch_names(self):
+            return []
+
+        def _match_scenario_from_text(self, _text):
+            return None
+
+        def _resolve_region_from_text(self, text):
+            return "China" if str(text).strip().lower() == "china" else ""
+
+        def _resolve_carry_dimension(self, token):
+            mapping = {"china": ("region", "China")}
+            return mapping.get(str(token).lower())
+
+    def test_plot_it_preserves_scope_including_year(self):
+        scope = {
+            "variable": "Emissions|CO2",
+            "region": "World",
+            "scenario": "Baseline",
+            "start_year": 2030,
+            "end_year": 2030,
+        }
+        query = self._Stub()._compose_contextual_query("Plot it", scope)
+        self.assertIn("plot Emissions|CO2", query)
+        self.assertIn("for World", query)
+        self.assertIn("under Baseline", query)
+        self.assertIn("in 2030", query)
+
+    def test_year_comparison_preserves_original_year(self):
+        scope = {
+            "variable": "Emissions|CO2",
+            "region": "World",
+            "scenario": "Baseline",
+            "start_year": 2030,
+            "end_year": 2030,
+        }
+        query = self._Stub()._compose_contextual_query("Compare that with 2050", scope)
+        self.assertIn("Emissions|CO2", query)
+        self.assertIn("from 2030 to 2050", query)
+
+    def test_same_for_region_keeps_all_scenarios(self):
+        scope = {
+            "variable": "Primary Energy|Coal",
+            "region": "EU",
+            "all_scenarios": True,
+            "start_year": 2030,
+            "end_year": 2030,
+        }
+        query = self._Stub()._compose_contextual_query("Same for China", scope)
+        self.assertIn("Primary Energy|Coal", query)
+        self.assertIn("for China", query)
+
 
 
 if __name__ == "__main__":

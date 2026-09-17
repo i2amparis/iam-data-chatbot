@@ -3,10 +3,15 @@ import unittest
 from collections import OrderedDict
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
 import fastapi_app
+from data_utils import format_time_series_data
+from manager import MultiAgentManager as ProductionManager
+from model_aliases import UNLABELLED_MODEL_LABEL
+from resolved_scope import ConversationState
 
 
 class _ManagerStub:
@@ -47,6 +52,16 @@ class _ManagerStub:
                 "suggested_kind": "variable",
             }
             return "Choose the variable: 1. `Emissions|CO2` (CO2 emissions) Reply with a number (1-1), or `yes` for option 1."
+        if query == "electricity for India":
+            self.last_entities = {}
+            self.clarification_context = {
+                "clarification_id": "clarification-1",
+                "entities": {"region": "IND", "action": "query"},
+                "suggested_options": ["Final Energy", "Secondary Energy|Electricity"],
+                "suggested_option_kinds": ["variable", "variable"],
+                "suggested_kind": "variable",
+            }
+            return "Choose the variable: 1. `Final Energy` 2. `Secondary Energy|Electricity`"
         if query == "1":
             self.last_entities = {"variable": "Emissions|CO2", "region": "World"}
             self.clarification_context = None
@@ -63,7 +78,104 @@ class _ManagerStub:
             )
         if query == "plot it":
             return f"plotted {self.last_entities.get('variable', 'missing')} for {self.last_entities.get('region', 'missing')}"
+        if query == "incompatible plot":
+            self.last_route_decision = {
+                "agent": "data_plotting",
+                "confidence": 0.95,
+                "source": "deterministic",
+                "reason": "plot smoke test",
+            }
+            return (
+                "I can't combine these variables on one axis because the loaded "
+                "series use incompatible units: `EJ/yr`, `Mt CO2/yr`."
+            )
+        if query == "partial plot":
+            self.last_entities = {
+                "variable": "Emissions|CO2",
+                "region": "World",
+                "unit": "Mt CO2/yr",
+                "chart_type": "line",
+                "displayed_series": ["GCAM"],
+                "displayed_series_count": 1,
+            }
+            self.last_route_decision = {
+                "agent": "data_plotting",
+                "confidence": 0.95,
+                "source": "deterministic",
+                "reason": "plot smoke test",
+            }
+            return (
+                "Note: no timeseries data for model `Missing Model` in this slice; "
+                "plotting `GCAM`.\n\n"
+                "Showing Emissions|CO2 in World.\n"
+                "![Plot](data:image/png;base64,ZmFrZQ==)"
+            )
+        if query == "CO2 for Atlantis":
+            self.last_entities = {
+                "action": "query",
+                "variable": "Emissions|CO2",
+                "unmatched_region": "Atlantis",
+                "entity_confidence": {
+                    "action": 0.75,
+                    "variable": 0.9,
+                    "region": 0.0,
+                },
+            }
+            self.clarification_context = None
+            return (
+                "I couldn't find `Atlantis` as a region in the IAM PARIS data, "
+                "so I can't return results for it."
+            )
         return f"Smoke answer for: {query}"
+
+
+class _ResolvedTableUnitManager(ProductionManager):
+    """Minimal production-state manager used to exercise the API boundary."""
+
+    _CASES = {
+        "population unit": ("Population", "NGA", "EJ/yr"),
+        "secondary energy unit": ("Secondary Energy", "EU", "Mt CO2/yr"),
+        "solar electricity unit": (
+            "Secondary Energy|Electricity|Solar", "EU", "Mt CO2/yr",
+        ),
+        "wind electricity unit": (
+            "Secondary Energy|Electricity|Wind", "World", "Mt CO2/yr",
+        ),
+    }
+
+    def __init__(self, resources, streaming=False):
+        self.shared_resources = resources
+        self.streaming = streaming
+        self.conversation_state = ConversationState()
+        self.last_result_models = []
+        self.last_links = []
+        self.last_route_decision = {
+            "agent": "data_query",
+            "confidence": 1.0,
+            "source": "test",
+            "reason": "resolved table unit regression",
+        }
+        self.turn_counter = 0
+        self.current_turn = 0
+        self.clarification_context = None
+
+    def route_query(self, query, _history=None):
+        variable, region, stale_unit = self._CASES[query]
+        records = [
+            record for record in (self.shared_resources.get("ts") or [])
+            if record.get("variable") == variable and record.get("region") == region
+        ]
+        answer = format_time_series_data(records, variable, region)
+        self._persist_last_entities(
+            {
+                "action": "query",
+                "variable": variable,
+                "region": region,
+                "unit": stale_unit,
+            },
+            answer,
+        )
+        return answer
 
 
 class FastAPISmokeTests(unittest.TestCase):
@@ -77,6 +189,7 @@ class FastAPISmokeTests(unittest.TestCase):
         self._orig_api_key = fastapi_app.API_KEY
         self._orig_rate_limit = fastapi_app.RATE_LIMIT_PER_MINUTE
         self._orig_max_sessions = fastapi_app.MAX_SESSIONS
+        self._orig_history_max_turns = fastapi_app.HISTORY_MAX_TURNS
 
         fastapi_app._initialization_status = "ready"
         fastapi_app._initialization_error = None
@@ -106,6 +219,7 @@ class FastAPISmokeTests(unittest.TestCase):
         fastapi_app.API_KEY = self._orig_api_key
         fastapi_app.RATE_LIMIT_PER_MINUTE = self._orig_rate_limit
         fastapi_app.MAX_SESSIONS = self._orig_max_sessions
+        fastapi_app.HISTORY_MAX_TURNS = self._orig_history_max_turns
 
     def test_health_endpoint_reports_ready(self):
         client = TestClient(fastapi_app.app)
@@ -116,6 +230,32 @@ class FastAPISmokeTests(unittest.TestCase):
         body = response.json()
         self.assertEqual(body["status"], "ready")
         self.assertTrue(body["resources_loaded"])
+
+    def test_numeric_model_identity_is_sanitized_at_api_boundary(self):
+        manager = type("Manager", (), {
+            "last_entities": {
+                "model": "42",
+                "models": ["42", "GCAM"],
+                "result_models": ["42"],
+                "displayed_series": ["42 - Baseline", "GCAM - Baseline"],
+            },
+            "clarification_context": None,
+        })()
+
+        entities = fastapi_app._manager_response_entities(manager)
+        answer, _image, _caption, _notices = fastapi_app._split_answer_payload(
+            "| Model | Scenario |\n|---|---|\n| 42 | Baseline |"
+        )
+
+        self.assertEqual(entities["model"], UNLABELLED_MODEL_LABEL)
+        self.assertEqual(entities["models"], [UNLABELLED_MODEL_LABEL, "GCAM"])
+        self.assertEqual(entities["result_models"], [UNLABELLED_MODEL_LABEL])
+        self.assertEqual(
+            entities["displayed_series"][0],
+            f"{UNLABELLED_MODEL_LABEL} - Baseline",
+        )
+        self.assertIn(f"| {UNLABELLED_MODEL_LABEL} | Baseline |", answer)
+        self.assertNotRegex(answer, r"\b42\b")
 
     def test_query_endpoint_returns_answer_and_history(self):
         client = TestClient(fastapi_app.app)
@@ -140,8 +280,37 @@ class FastAPISmokeTests(unittest.TestCase):
         self.assertEqual(body["route"]["agent"], "data_query")
         self.assertEqual(body["route"]["source"], "deterministic")
         self.assertEqual(body["route"]["confidence"], 0.9)
-        self.assertIn("Plot it", body["suggested_next_questions"])
+        self.assertIn("Open the data explorer", body["suggested_next_questions"])
+        self.assertNotIn("Plot it", body["suggested_next_questions"])
         self.assertIn("matched_record_count", body["data_provenance"])
+
+    def test_suggestions_use_scenarios_from_selected_study(self):
+        manager = _ManagerStub({})
+        manager.last_entities = {
+            "workspace_code": "world-headed", "variable": "Emissions|CO2",
+            "region": "World", "scenario": "Policy",
+        }
+        manager.entity_extractor = type("Extractor", (), {
+            "available_scenarios": ["AFOLU_Baseline", "World Baseline", "Policy"],
+        })()
+        manager.shared_resources["ts"] = [
+            {"workspace_code": "world-headed", "scenario": "World Baseline"},
+            {"workspace_code": "world-headed", "scenario": "Policy"},
+            {"workspace_code": "afolu", "scenario": "AFOLU_Baseline"},
+        ]
+
+        suggestions = fastapi_app._suggested_next_questions(
+            "show emissions", "### Emissions|CO2 in World\n\nAnswer: data", manager,
+        )
+
+        self.assertIn("Compare with World Baseline", suggestions)
+        self.assertNotIn("Compare with AFOLU_Baseline", suggestions)
+
+    def test_workspace_ingestion_uses_verified_decipher_code(self):
+        workspaces = fastapi_app._load_workspaces()
+
+        self.assertIn("decipher", workspaces)
+        self.assertNotIn("decipher_1", workspaces)
 
     def test_application_library_link_fallback_has_search_action(self):
         links = fastapi_app._prepare_relevant_links([
@@ -178,6 +347,400 @@ class FastAPISmokeTests(unittest.TestCase):
         self.assertIn("cache_timestamp", provenance)
         self.assertEqual(provenance["display_title"], "Data provenance")
         self.assertTrue(any(row["label"] == "Matched records" for row in provenance["display_rows"]))
+
+    def test_endpoint_uses_rendered_table_unit_for_scope_and_provenance(self):
+        rows = [
+            ("Population", "NGA", "million"),
+            ("Secondary Energy", "EU", "EJ/yr"),
+            ("Secondary Energy|Electricity|Solar", "EU", "EJ/yr"),
+            ("Secondary Energy|Electricity|Wind", "World", "EJ/yr"),
+        ]
+        fastapi_app._cached_resources["ts"] = [
+            {
+                "variable": variable,
+                "region": region,
+                "scenario": "Path",
+                "modelName": "Model",
+                "unit": unit,
+                "years": {"2050": 1},
+            }
+            for variable, region, unit in rows
+        ]
+        fastapi_app.MultiAgentManager = _ResolvedTableUnitManager
+        fastapi_app._sessions = OrderedDict()
+        client = TestClient(fastapi_app.app)
+
+        expected = {
+            "population unit": ("Population", "NGA", "million"),
+            "secondary energy unit": ("Secondary Energy", "EU", "EJ/yr"),
+            "solar electricity unit": (
+                "Secondary Energy|Electricity|Solar", "EU", "EJ/yr",
+            ),
+            "wind electricity unit": (
+                "Secondary Energy|Electricity|Wind", "World", "EJ/yr",
+            ),
+        }
+        for query, (variable, region, unit) in expected.items():
+            with self.subTest(query=query):
+                body = client.post("/query", json={"query": query}).json()
+
+                self.assertEqual(body["entities"]["variable"], variable)
+                self.assertEqual(body["entities"]["region"], region)
+                self.assertEqual(body["entities"]["unit"], unit)
+                provenance = body["data_provenance"]
+                self.assertEqual(provenance["selected_filters"]["unit"], unit)
+                self.assertEqual(provenance["matched_record_count"], 1)
+
+    def test_invalid_region_has_zero_attempted_scope_provenance_and_safe_suggestions(self):
+        client = TestClient(fastapi_app.app)
+
+        response = client.post("/query", json={"query": "CO2 for Atlantis"})
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body["entities"]["unmatched_region"], "Atlantis")
+        provenance = body["data_provenance"]
+        self.assertEqual(provenance["selected_filters"]["variable"], "Emissions|CO2")
+        self.assertEqual(provenance["selected_filters"]["region"], "Atlantis")
+        self.assertEqual(provenance["matched_record_count"], 0)
+        self.assertEqual(
+            provenance["no_data_reason"],
+            "region combination unavailable",
+        )
+        self.assertIn("Show available regions", body["suggested_next_questions"])
+        self.assertIn("Help me choose a region", body["suggested_next_questions"])
+        self.assertNotIn("Plot it", body["suggested_next_questions"])
+        self.assertFalse(any(
+            suggestion.startswith("Compare with")
+            for suggestion in body["suggested_next_questions"]
+        ))
+
+    def test_provenance_resolves_gemini_e3_alias_to_runtime_family_members(self):
+        resources = {
+            "ts": [
+                {"variable": "GDP|MER", "region": "EU", "scenario": "Path A", "modelName": "GEMINI-E3 7.0"},
+                {"variable": "GDP|MER", "region": "World", "scenario": "Path B", "modelName": "gemini_e3"},
+                {"variable": "GDP|MER", "region": "World", "scenario": "Path C", "modelName": "Other"},
+            ]
+        }
+
+        provenance = fastapi_app._build_data_provenance(
+            resources,
+            {"model": "GEMINI-E3"},
+            "Model `GEMINI-E3` reports data for years 2020–2050.",
+            {"agent": "data_query", "confidence": 1.0, "source": "test"},
+        )
+
+        self.assertEqual(
+            provenance["selected_filters"]["models"],
+            ["GEMINI-E3 7.0", "gemini_e3"],
+        )
+        self.assertNotIn("model", provenance["selected_filters"])
+        self.assertEqual(provenance["matched_record_count"], 2)
+
+    def test_provenance_does_not_resolve_gem_e3_to_gemini_e3(self):
+        resources = {
+            "ts": [
+                {"variable": "GDP|MER", "region": "EU", "scenario": "Path A", "modelName": "GEMINI-E3 7.0"},
+                {"variable": "GDP|MER", "region": "World", "scenario": "Path B", "modelName": "gemini_e3"},
+            ]
+        }
+
+        provenance = fastapi_app._build_data_provenance(
+            resources,
+            {"model": "GEM-E3"},
+            "I could not find any years recorded for model `GEM-E3`.",
+            {"agent": "data_query", "confidence": 1.0, "source": "test"},
+        )
+
+        self.assertEqual(provenance["selected_filters"]["model"], "GEM-E3")
+        self.assertNotIn("models", provenance["selected_filters"])
+        self.assertEqual(provenance["matched_record_count"], 0)
+
+    def test_numeric_model_scope_uses_neutral_label_and_preserves_count(self):
+        resources = {
+            "ts": [
+                {
+                    "variable": "Emissions|CO2", "region": "World",
+                    "scenario": "Baseline", "modelName": "42",
+                    "unit": "Mt CO2/yr", "years": {"2030": 1},
+                },
+                {
+                    "variable": "Emissions|CO2", "region": "World",
+                    "scenario": "Baseline", "modelName": "GCAM",
+                    "unit": "Mt CO2/yr", "years": {"2030": 2},
+                },
+            ]
+        }
+
+        provenance = fastapi_app._build_data_provenance(
+            resources,
+            {
+                "variable": "Emissions|CO2", "region": "World",
+                "scenario": "Baseline", "result_models": ["42"],
+                "start_year": 2030, "end_year": 2030,
+            },
+            "### Emissions|CO2 in World\n\nAnswer: available data.",
+            {"agent": "data_query", "confidence": 1.0, "source": "test"},
+        )
+
+        self.assertEqual(
+            provenance["selected_filters"]["models"],
+            [UNLABELLED_MODEL_LABEL],
+        )
+        self.assertEqual(provenance["matched_record_count"], 1)
+        model_rows = [
+            row["value"] for row in provenance["display_rows"]
+            if row["label"] in {"Model", "Models"}
+        ]
+        self.assertEqual(model_rows, [UNLABELLED_MODEL_LABEL])
+
+    def test_provenance_prefers_prometheus_result_model_over_display_alias(self):
+        resources = {
+            "ts": [
+                {
+                    "variable": "Final Energy", "region": "CHN",
+                    "scenario": "CP_EI", "modelName": "PROMETHEUS V1",
+                    "years": {"2005": 4, "2050": 8, "2100": 12},
+                },
+                {
+                    "variable": "Final Energy", "region": "CHN",
+                    "scenario": "CP_EI", "modelName": "Other",
+                    "years": {"2005": 3, "2050": 6, "2100": 9},
+                },
+            ]
+        }
+
+        provenance = fastapi_app._build_data_provenance(
+            resources,
+            {
+                "variable": "Final Energy", "region": "CHN",
+                "model": "PROMETHEUS", "result_models": ["PROMETHEUS V1"],
+                "scenarios": ["Baseline", "CP_EI", "NDC_EI"],
+                "start_year": 2005, "end_year": 2100,
+            },
+            "### Final Energy in CHN\n\nAnswer: available data.",
+            {"agent": "data_query", "confidence": 1.0, "source": "test"},
+        )
+
+        self.assertEqual(
+            provenance["selected_filters"]["models"],
+            ["PROMETHEUS V1"],
+        )
+        self.assertNotIn("model", provenance["selected_filters"])
+        self.assertEqual(
+            provenance["selected_filters"]["scenarios"],
+            ["Baseline", "CP_EI", "NDC_EI"],
+        )
+        self.assertEqual(provenance["matched_record_count"], 1)
+
+    def test_region_data_availability_heading_is_not_treated_as_variable(self):
+        resources = {
+            "ts": [
+                {"variable": "Metric A", "region": "GREECE", "scenario": "Path"},
+                {"variable": "Metric B", "region": "GREECE", "scenario": "Path"},
+                {"variable": "Metric A", "region": "EU", "scenario": "Path"},
+            ]
+        }
+
+        provenance = fastapi_app._build_data_provenance(
+            resources,
+            {"region": "GREECE"},
+            "### Data available for GREECE (Greece)\n\n- Variables: 2",
+            {"agent": "data_query", "confidence": 1.0, "source": "test"},
+        )
+
+        self.assertEqual(provenance["selected_filters"], {"region": "GREECE"})
+        self.assertEqual(provenance["matched_record_count"], 2)
+
+    def test_latest_year_catalogue_answer_omits_slice_provenance(self):
+        provenance = fastapi_app._build_data_provenance(
+            {"ts": [{"variable": "Metric", "region": "World", "years": {"2100": 1}}]},
+            {"start_year": -1, "end_year": -1},
+            "The latest available projection year is **2100**.",
+            {"agent": "data_query", "confidence": 1.0, "source": "test"},
+        )
+
+        self.assertEqual(provenance, {})
+
+    def test_plot_provenance_preserves_plural_comparison_scope(self):
+        resources = {
+            "ts": [
+                {"variable": "Metric", "region": "R1", "scenario": "Path", "modelName": "M"},
+                {"variable": "Metric", "region": "R2", "scenario": "Path", "modelName": "M"},
+            ]
+        }
+        provenance = fastapi_app._build_data_provenance(
+            resources,
+            {
+                "variable": "Metric", "regions": ["R1", "R2"],
+                "scenario": "Path", "models": ["M"],
+                "comparison": "region", "comparison_dimension": "region",
+                "chart_type": "line",
+                "displayed_series": ["R1 - M", "R2 - M"],
+                "displayed_series_count": 2,
+                "omitted_series": 3,
+            },
+            "Showing a comparison plot.",
+            {"agent": "data_plotting", "confidence": 0.9, "source": "test"},
+        )
+
+        self.assertEqual(provenance["selected_filters"]["regions"], ["R1", "R2"])
+        self.assertEqual(provenance["selected_filters"]["models"], ["M"])
+        self.assertEqual(provenance["matched_record_count"], 2)
+        self.assertEqual(provenance["comparison_dimension"], "region")
+        self.assertEqual(provenance["chart_type"], "line")
+        self.assertEqual(provenance["displayed_series_count"], 2)
+        self.assertEqual(provenance["omitted_series"], 3)
+        self.assertEqual(provenance["displayed_series"], ["R1 - M", "R2 - M"])
+
+    def test_record_count_understands_scenario_family_scope(self):
+        resources = {
+            "ts": [
+                {"variable": "Metric", "region": "EU", "scenario": "PR_CurPol_CP"},
+                {"variable": "Metric", "region": "EU", "scenario": "PR_CurPol_EI"},
+                {"variable": "Metric", "region": "EU", "scenario": "PR_Baseline"},
+            ]
+        }
+
+        count = fastapi_app._count_matching_records(
+            resources,
+            {"variable": "Metric", "region": "EU", "scenario": "Current Policies"},
+        )
+
+        self.assertEqual(count, 2)
+
+    def test_record_count_respects_workspace_scope(self):
+        resources = {
+            "ts": [
+                {
+                    "workspace_code": "world-headed", "variable": "Emissions|CO2",
+                    "region": "World", "scenario": "Baseline", "modelName": "GCAM",
+                    "years": {"2050": 1},
+                },
+                {
+                    "workspace_code": "afolu", "variable": "Emissions|CO2",
+                    "region": "World", "scenario": "Baseline", "modelName": "GCAM",
+                    "years": {"2050": 2},
+                },
+            ]
+        }
+
+        count = fastapi_app._count_matching_records(resources, {
+            "workspace_code": "world-headed",
+            "variable": "Emissions|CO2",
+            "region": "World",
+            "start_year": 2050,
+            "end_year": 2050,
+        })
+
+        self.assertEqual(count, 1)
+
+    def test_multi_variable_provenance_counts_all_units_without_fake_shared_unit(self):
+        resources = {"ts": [
+            {
+                "workspace_code": "world-headed", "variable": "Emissions|CO2",
+                "region": "World", "scenario": "Baseline", "modelName": "GCAM",
+                "unit": "Mt CO2/yr", "years": {"2050": 100},
+            },
+            {
+                "workspace_code": "world-headed", "variable": "Emissions|CH4",
+                "region": "World", "scenario": "Baseline", "modelName": "GCAM",
+                "unit": "Mt CH4/yr", "years": {"2050": 10},
+            },
+        ]}
+        entities = {
+            "workspace_code": "world-headed",
+            "variables": ["Emissions|CO2", "Emissions|CH4"],
+            "region": "World", "scenarios": ["Baseline"],
+            "result_models": ["GCAM"], "unit": "multiple",
+            "start_year": 2050, "end_year": 2050,
+        }
+        answer = (
+            "### Emissions|CO2 in World\n\nUnit: `Mt CO2/yr`\n\n"
+            "### Emissions|CH4 in World\n\nUnit: `Mt CH4/yr`"
+        )
+
+        provenance = fastapi_app._build_data_provenance(
+            resources, entities, answer,
+            {"agent": "data_query", "confidence": 1.0, "source": "test"},
+        )
+
+        self.assertEqual(provenance["matched_record_count"], 2)
+        self.assertNotIn("unit", provenance["selected_filters"])
+
+    def test_record_count_respects_visible_models_years_and_equivalent_units(self):
+        resources = {
+            "ts": [
+                {
+                    "variable": "Metric", "region": "R1", "scenario": "Path",
+                    "modelName": "Visible A", "unit": "EJ/y", "years": {"2050": 1},
+                },
+                {
+                    "variable": "Metric", "region": "R1", "scenario": "Path",
+                    "modelName": "Visible B", "unit": "EJ/yr", "2050": 2,
+                },
+                {
+                    "variable": "Metric", "region": "R1", "scenario": "Path",
+                    "modelName": "Empty", "unit": "EJ/yr", "years": {"2040": 3},
+                },
+                {
+                    "variable": "Metric", "region": "R1", "scenario": "Path",
+                    "modelName": "Outlier", "unit": "Mt CO2/yr", "years": {"2050": 4},
+                },
+            ]
+        }
+
+        count = fastapi_app._count_matching_records(
+            resources,
+            {
+                "variable": "Metric", "region": "R1", "scenario": "Path",
+                "models": ["Visible A", "Visible B"], "years": "2050", "unit": "EJ/yr",
+            },
+        )
+
+        self.assertEqual(count, 2)
+
+    def test_query_endpoint_classifies_plot_validation_failure_as_no_data(self):
+        client = TestClient(fastapi_app.app)
+
+        with patch("fastapi_app._write_eval_feedback_candidate", return_value=False):
+            response = client.post("/query", json={"query": "incompatible plot"})
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body["data_provenance"]["no_data_reason"], "incompatible units")
+        self.assertEqual(fastapi_app._monitoring_counters["no_data_queries"], 1)
+        self.assertIn("Show available variables", body["suggested_next_questions"])
+        self.assertEqual(body["plot_base64"], "")
+
+    def test_query_endpoint_does_not_misclassify_partial_plot_notice(self):
+        client = TestClient(fastapi_app.app)
+
+        response = client.post("/query", json={"query": "partial plot"})
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body["plot_base64"], "ZmFrZQ==")
+        self.assertNotIn("no_data_reason", body["data_provenance"])
+        self.assertEqual(fastapi_app._monitoring_counters["no_data_queries"], 0)
+        self.assertNotIn("Show available variables", body["suggested_next_questions"])
+
+    def test_record_count_normalizes_unit_whitespace_and_per_year_aliases(self):
+        resources = {
+            "ts": [
+                {"variable": "Price|Carbon", "unit": "US$2010/tCO2/y", "2050": 1},
+                {"variable": "Price|Carbon", "unit": "US$2010/t CO2/yr", "2050": 2},
+                {"variable": "Price|Carbon", "unit": "US$2010/tCO2/a", "2050": 3},
+            ]
+        }
+
+        count = fastapi_app._count_matching_records(
+            resources,
+            {"variable": "Price|Carbon", "unit": "US$2010/t CO2/yr"},
+        )
+
+        self.assertEqual(count, 3)
 
     def test_query_trace_contains_monitoring_fields(self):
         manager = _ManagerStub({}, streaming=False)
@@ -298,6 +861,19 @@ class FastAPISmokeTests(unittest.TestCase):
         self.assertEqual(second["entities"], {"variable": "Emissions|CO2", "region": "World"})
         self.assertEqual(len(second["history"]), 2)
 
+    def test_pending_clarification_exposes_resolved_base_scope(self):
+        client = TestClient(fastapi_app.app)
+
+        body = client.post("/query", json={"query": "electricity for India"}).json()
+
+        self.assertEqual(body["entities"]["region"], "IND")
+        self.assertEqual(body["clarification"]["missing_dimension"], "variable")
+        self.assertEqual(body["clarification"]["base_scope"]["region"], "IND")
+        self.assertEqual(
+            body["clarification"]["options"][1],
+            {"kind": "variable", "value": "Secondary Energy|Electricity"},
+        )
+
     def test_session_plot_it_uses_previous_scope(self):
         client = TestClient(fastapi_app.app)
 
@@ -366,6 +942,19 @@ class FastAPISmokeTests(unittest.TestCase):
         self.assertLessEqual(len(fastapi_app._sessions), 2)
         # The oldest session should have been evicted.
         self.assertNotIn(first, fastapi_app._sessions)
+
+    def test_session_history_is_capped_in_memory(self):
+        fastapi_app.HISTORY_MAX_TURNS = 2
+        client = TestClient(fastapi_app.app)
+
+        first = client.post("/query", json={"query": "one"}).json()
+        client.post("/query", json={"query": "two", "session_id": first["session_id"]})
+        third = client.post("/query", json={"query": "three", "session_id": first["session_id"]}).json()
+
+        self.assertEqual([turn[0] for turn in third["history"]], ["two", "three"])
+        state = fastapi_app._sessions[first["session_id"]]
+        self.assertEqual(len(state["chat_history"]), 2)
+        self.assertIn("lock", state)
 
     def test_health_does_not_leak_error_details(self):
         fastapi_app._initialization_error = "Connection error: postgres://secret-host:5432"

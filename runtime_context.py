@@ -24,6 +24,8 @@ class RuntimeContext:
     metadata: DataMetadata | None = None
     link_catalog: list[dict] = field(default_factory=list)
     workspace_lookup: dict[str, list[dict]] = field(default_factory=dict)
+    results_source_path: str = ""
+    results_timestamp: str = ""
 
     def get(self, key: str, default: Any = None) -> Any:
         return getattr(self, key, default)
@@ -49,6 +51,8 @@ class RuntimeContext:
             "metadata": self.metadata,
             "link_catalog": self.link_catalog,
             "workspace_lookup": self.workspace_lookup,
+            "results_source_path": self.results_source_path,
+            "results_timestamp": self.results_timestamp,
         }
 
 
@@ -81,6 +85,8 @@ def build_runtime_context(
     workspace_lookup: dict[str, list[dict]] | None = None,
     link_catalog_path: Path = DEFAULT_LINK_CATALOG,
     metadata_cache_file: str = "cache/data_metadata.pkl",
+    results_source_path: str = "",
+    results_timestamp: str = "",
 ) -> RuntimeContext:
     metadata = build_metadata_with_cache(ts, models, cache_file=metadata_cache_file)
     link_catalog = load_link_catalog(link_catalog_path)
@@ -93,4 +99,6 @@ def build_runtime_context(
         metadata=metadata,
         link_catalog=link_catalog,
         workspace_lookup=workspace_lookup or build_workspace_lookup(ts),
+        results_source_path=results_source_path,
+        results_timestamp=results_timestamp,
     )

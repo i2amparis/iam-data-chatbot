@@ -1,0 +1,370 @@
+{
+  "generated": "20260716_140227",
+  "count": 4,
+  "rows": [
+    {
+      "query": "greenhouse gas emissions for World",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|Kyoto Gases",
+        "region": "World",
+        "scenario": null,
+        "model": null,
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.9,
+          "region": 0.85
+        },
+        "confidence": 0.875,
+        "extraction_method": "deterministic",
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT",
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI"
+        ],
+        "result_models": [
+          "GCAM",
+          "GCAM-PR 5.3",
+          "gcam"
+        ],
+        "all_scenarios": true
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 17,
+        "selected_filters": {
+          "variable": "Emissions|Kyoto Gases",
+          "region": "World",
+          "years": "2005-2100",
+          "unit": "Mt CO2-equiv/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|Kyoto Gases"
+          },
+          {
+            "label": "Region",
+            "value": "World"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2-equiv/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "17"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Emissions|Kyoto Gases in World\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2-equiv/yr`\n\nAnswer:\nSummary: 13 series across 3 models and 11 scenarios.\nShowing series 1-12 of 13, ordered by model and scenario. Narrow by model or scenario to view the 1 remaining series.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055",
+      "session_id": "R3b14_all"
+    },
+    {
+      "query": "same for EU",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|Kyoto Gases",
+        "variables": null,
+        "region": "EU",
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.95,
+          "region": 0.85
+        },
+        "variable_candidates": [
+          "Emissions|Kyoto Gases",
+          "Emissions|Kyoto Gases|AFOLU",
+          "Emissions|Kyoto Gases|Other"
+        ],
+        "unmatched_variable_terms": [],
+        "confidence": 0.9,
+        "extraction_method": "deterministic",
+        "all_scenarios": true,
+        "scenarios": [
+          "PR_Baseline",
+          "PR_CurPol_CP",
+          "PR_CurPol_CPO",
+          "PR_CurPol_EI",
+          "PR_NDC_CP",
+          "PR_NDC_CPO",
+          "PR_NDC_EI",
+          "PR_WWH_CP"
+        ],
+        "result_models": [
+          "GCAM-PR 5.3",
+          "gcam"
+        ]
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 8,
+        "selected_filters": {
+          "variable": "Emissions|Kyoto Gases",
+          "region": "EU",
+          "years": "2005-2100",
+          "unit": "Mt CO2-equiv/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|Kyoto Gases"
+          },
+          {
+            "label": "Region",
+            "value": "EU"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2-equiv/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "8"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Emissions|Kyoto Gases in EU\n\nScope: scenario `multiple`, model `multiple`, years `2005-2100`\nUnit: `Mt CO2-equiv/yr`\n\nAnswer:\nSummary: 8 series across 2 models and 8 scenarios.\nSeries are ordered by model and scenario.\n\n| Model | Scenario | 2005 | 2010 | 2015 | 2020 | 2025 | 2030 | 2035 | 2040 | 2045 | 2050 | 2055 | 2060 | 2065 | 2070 | 2075 | 2080 | 2085 | 2090 | 2095 | 2100 | Unit |\n|---|---",
+      "session_id": "R3b14_all"
+    },
+    {
+      "query": "same for India",
+      "plot_present": false,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_query",
+        "confidence": 0.9,
+        "source": "deterministic",
+        "reason": "data request"
+      },
+      "entities": {
+        "action": "query",
+        "variable": "Emissions|Kyoto Gases",
+        "variables": null,
+        "region": "India",
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.75,
+          "variable": 0.95,
+          "region": 0.85
+        },
+        "variable_candidates": [
+          "Emissions|Kyoto Gases",
+          "Emissions|Kyoto Gases|AFOLU",
+          "Emissions|Kyoto Gases|Other"
+        ],
+        "unmatched_variable_terms": [],
+        "confidence": 0.9,
+        "extraction_method": "deterministic",
+        "all_scenarios": true,
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT"
+        ],
+        "result_models": [
+          "GCAM-PR 5.3"
+        ]
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 8,
+        "selected_filters": {
+          "variable": "Emissions|Kyoto Gases",
+          "region": "India",
+          "model": "GCAM-PR 5.3",
+          "years": "2005-2100",
+          "unit": "Mt CO2-equiv/yr"
+        },
+        "route": {
+          "agent": "data_query",
+          "confidence": 0.9,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|Kyoto Gases"
+          },
+          {
+            "label": "Region",
+            "value": "India"
+          },
+          {
+            "label": "Model",
+            "value": "GCAM-PR 5.3"
+          },
+          {
+            "label": "Years",
+            "value": "2005-2100"
+          },
+          {
+            "label": "Unit",
+            "value": "Mt CO2-equiv/yr"
+          },
+          {
+            "label": "Matched records",
+            "value": "8"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "### Emissions|Kyoto Gases in India\n\nScope: scenario `multiple`, model `GCAM-PR 5.3`, years `2005-2100`\nUnit: `Mt CO2-equiv/yr`\n\nAnswer:\n**GCAM-PR 5.3 - Baseline**\n| Year | Value | Unit |\n|------|-------|------|\n| 2005 | 2.4K | Mt CO2-equiv/yr |\n| 2010 | 3.0K | Mt CO2-equiv/yr |\n| 2015 | 3.5K | Mt CO2-equiv/yr |\n| 2020 | 4.0K | Mt CO2-equiv/yr |\n| 2025 | 4.8K | Mt CO2-equiv/yr |\n| 2030 | 5.5K | Mt ",
+      "session_id": "R3b14_all"
+    },
+    {
+      "query": "plot India",
+      "plot_present": true,
+      "no_data": false,
+      "relevant_links_count": 1,
+      "suggested_next_questions_count": 3,
+      "route": {
+        "agent": "data_plotting",
+        "confidence": 0.95,
+        "source": "deterministic",
+        "reason": "plot request"
+      },
+      "entities": {
+        "action": "plot",
+        "variable": "Emissions|Kyoto Gases",
+        "variables": null,
+        "region": "India",
+        "models": null,
+        "start_year": 2005,
+        "end_year": 2100,
+        "comparison": null,
+        "entity_confidence": {
+          "action": 0.9,
+          "variable": 0.95,
+          "region": 0.85
+        },
+        "variable_candidates": [
+          "Emissions|Kyoto Gases",
+          "Emissions|Kyoto Gases|AFOLU",
+          "Emissions|Kyoto Gases|Other"
+        ],
+        "unmatched_variable_terms": [],
+        "confidence": 0.9,
+        "extraction_method": "deterministic",
+        "all_scenarios": true,
+        "scenarios": [
+          "Baseline",
+          "CP_EI",
+          "NDC_EI",
+          "NDC_LTT"
+        ],
+        "result_models": [
+          "GCAM-PR 5.3"
+        ]
+      },
+      "data_provenance": {
+        "cache_timestamp": "2026-07-16T10:48:43.402880+00:00",
+        "matched_record_count": 8,
+        "selected_filters": {
+          "variable": "Emissions|Kyoto Gases",
+          "region": "India"
+        },
+        "route": {
+          "agent": "data_plotting",
+          "confidence": 0.95,
+          "source": "deterministic"
+        },
+        "display_title": "Data provenance",
+        "display_rows": [
+          {
+            "label": "Variable",
+            "value": "Emissions|Kyoto Gases"
+          },
+          {
+            "label": "Region",
+            "value": "India"
+          },
+          {
+            "label": "Matched records",
+            "value": "8"
+          },
+          {
+            "label": "Cache timestamp",
+            "value": "2026-07-16T10:48:43.402880+00:00"
+          }
+        ]
+      },
+      "answer_preview": "Showing Kyoto Gases Emissions in India across available scenarios (2005-2100). Resolved variable: `Emissions|Kyoto Gases`.\n\nReply with a scenario, model, region, or year to narrow the answer.",
+      "session_id": "R3b14_all"
+    }
+  ]
+}

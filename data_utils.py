@@ -1,5 +1,6 @@
 import os
 import re
+import json
 import pandas as pd
 import matplotlib
 matplotlib.use("Agg", force=True)
@@ -9,12 +10,16 @@ from datetime import datetime
 import logging
 import base64
 from io import BytesIO
+from pathlib import Path
 import requests.exceptions
 
 from canonical_aliases import (
     canonical_region_from_query,
+    dedupe_equivalent_regions,
     explicit_scenarios_from_query,
     preferred_variable_from_query,
+    rank_catalogue_variable_matches,
+    regions_equivalent,
     scenario_in_family,
     SCENARIO_FAMILY_PATTERNS,
 )
@@ -42,12 +47,29 @@ def _scenario_is_family_label(scenario_match: str) -> bool:
     gate on the verbatim label — the family-aware filter does the precise match.
     """
     return bool(scenario_match) and scenario_match in SCENARIO_FAMILY_PATTERNS
-from simple_plotter import simple_plot_query
-from model_aliases import extract_model_hint, match_model_name, resolve_model_candidates
-from model_profiles import find_model_profile, format_model_profile_answer, has_strong_model_metadata
+from simple_plotter import simple_plot_query, simple_plot_query_with_entities
+from model_aliases import (
+    display_model_label,
+    extract_model_hint,
+    is_presentable_model_label,
+    match_model_name,
+    resolve_model_candidates,
+    resolve_model_family_members,
+)
+from model_profiles import (
+    _iamparis_model_url,
+    find_model_profile,
+    format_model_profile_answer,
+    has_strong_model_metadata,
+)
 from query_normalizer import normalize_query_text, query_tokens
-from year_filters import extract_year_range, is_latest_year_filter, select_years
-from resolved_scope import record_resolved_scope
+from year_filters import (
+    extract_year_range,
+    is_finite_numeric_value,
+    is_latest_year_filter,
+    select_years,
+)
+from resolved_scope import consume_resolved_scope, record_resolved_scope
 from utils_query import (
     match_variable_from_yaml,
     extract_examples_from_data,
@@ -58,8 +80,110 @@ from utils_query import (
     resolve_natural_language_variable_candidates,
     resolve_natural_language_variable_ranked,
     extract_region_from_query,
+    region_mentions_from_query,
     format_region_label,
 )
+
+
+_WORKSPACE_CATALOG_PATH = Path("config/workspace_catalog.json")
+
+
+def _workspace_catalog() -> dict[str, dict]:
+    """Load public workspace labels and links without hard-coding them in routing."""
+    try:
+        payload = json.loads(_WORKSPACE_CATALOG_PATH.read_text())
+    except (OSError, ValueError):
+        return {}
+    entries = payload.get("workspaces", []) if isinstance(payload, dict) else []
+    return {
+        str(entry.get("code", "")).strip(): entry
+        for entry in entries
+        if isinstance(entry, dict) and str(entry.get("code", "")).strip()
+    }
+
+
+def _workspace_entries(ts_data: list) -> list[dict]:
+    """Return loaded workspaces with a public title, retaining their internal code privately."""
+    catalogue = _workspace_catalog()
+    records_by_code: dict[str, list[dict]] = {}
+    for record in ts_data:
+        code = str((record or {}).get("workspace_code", "")).strip()
+        if code:
+            records_by_code.setdefault(code, []).append(record)
+
+    entries = []
+    for code, records in records_by_code.items():
+        configured = dict(catalogue.get(code, {}))
+        runtime_title = next(
+            (
+                str(record.get(key, "")).strip()
+                for record in records
+                for key in ("workspace_title", "workspace_name", "study_title", "studyName")
+                if str(record.get(key, "")).strip()
+            ),
+            "",
+        )
+        entries.append({
+            **configured,
+            "code": code,
+            "title": str(configured.get("title") or runtime_title or code.replace("-", " ").replace("_", " ").title()),
+            "records": records,
+        })
+    return sorted(entries, key=lambda entry: str(entry["title"]).casefold())
+
+
+def _matched_workspace(question: str, entries: list[dict]) -> dict | None:
+    normalized_query = re.sub(r"[^a-z0-9]+", " ", str(question or "").casefold()).strip()
+    allows_internal_code = bool(re.search(
+        r"\b(?:study|workspace|results?|data\s+explorer|explainer)\b",
+        normalized_query,
+    ))
+    for entry in entries:
+        values = [entry.get("title")]
+        # Short internal codes such as ``net-zero`` are also ordinary query
+        # language. Do not let them select a study unless the user explicitly
+        # frames the message as a study/workspace/results request.
+        if allows_internal_code:
+            values.append(entry.get("code"))
+        for value in values:
+            normalized_value = re.sub(r"[^a-z0-9]+", " ", str(value or "").casefold()).strip()
+            if normalized_value and len(normalized_value) > 3 and re.search(
+                rf"(?<![a-z0-9]){re.escape(normalized_value)}(?![a-z0-9])", normalized_query
+            ):
+                return entry
+    return None
+
+
+def _workspace_summary(entry: dict) -> str:
+    records = entry.get("records", [])
+    variables = sorted({str(record.get("variable", "")).strip() for record in records if record.get("variable")})
+    scenarios = sorted({str(record.get("scenario", "")).strip() for record in records if record.get("scenario")})
+    title = str(entry.get("title") or "Workspace")
+    lines = [f"### {title}", "", "Available in this study:"]
+    lines.append(f"- **Variables ({len(variables)}):** " + (", ".join(f"`{value}`" for value in variables[:10]) or "none"))
+    lines.append(f"- **Scenarios ({len(scenarios)}):** " + (", ".join(f"`{value}`" for value in scenarios[:10]) or "none"))
+    explorer_url = str(entry.get("explorer_url") or "").strip()
+    explainer_url = str(entry.get("explainer_url") or "").strip()
+    if explorer_url or explainer_url:
+        lines.extend(["", "Explore this study:"])
+        if explorer_url:
+            lines.append(f"- [Open the data explorer]({explorer_url})")
+        if explainer_url:
+            lines.append(f"- [Read the study explainer]({explainer_url})")
+    return "\n".join(lines)
+
+
+def _workspace_choice_response(entries: list[dict]) -> str:
+    sample = entries[:10]
+    titles = "; ".join(str(entry.get("title") or entry.get("code")) for entry in sample)
+    remaining = len(entries) - len(sample)
+    suffix = f"; and {remaining} more" if remaining > 0 else ""
+    return (
+        "Please choose a study before I return numeric results, so I do not mix "
+        "records from different studies. Available studies include: "
+        f"{titles}{suffix}. Ask about one study to see its variables, scenarios, "
+        "and direct data-explorer link."
+    )
 from utils.yaml_loader import load_all_yaml_files
 from difflib import get_close_matches
 import pickle
@@ -96,6 +220,27 @@ variable_dict, region_dict = get_cached_yaml_definitions()
 logger = logging.getLogger(__name__)
 
 
+def _positive_int_setting(name: str, default: int) -> int:
+    """Read a positive integer setting without making formatting fragile."""
+    try:
+        value = int(os.getenv(name, str(default)))
+    except (TypeError, ValueError):
+        return default
+    return value if value > 0 else default
+
+
+# Detailed per-series tables remain easier to read for small result sets. Larger
+# scopes switch to a compact matrix, with a separate cap on rendered series so a
+# catalogue-wide query cannot produce an unbounded response. Deployments can
+# tune both policies without changing query- or domain-specific code.
+DATA_COMPACT_GROUP_THRESHOLD = _positive_int_setting(
+    "IAM_DATA_COMPACT_GROUP_THRESHOLD", 6
+)
+DATA_GROUP_DISPLAY_LIMIT = _positive_int_setting(
+    "IAM_DATA_GROUP_DISPLAY_LIMIT", 12
+)
+
+
 def _normalize_free_text(text: str) -> str:
     return normalize_query_text(text)
 
@@ -113,8 +258,9 @@ def _looks_like_comparison_request(text: str) -> bool:
     q = _normalize_free_text(text)
     tokens = _token_set(text)
     return bool(
-        {"compare", "comparison", "versus", "vs"} & tokens
-        or re.search(r"\bcompare\b", q)
+        {"compare", "comparison", "contrast", "difference", "different", "versus", "vs"} & tokens
+        or re.search(r"\bcompar(?:e|ed|es|ing|ison)\b", q)
+        or re.search(r"\b(?:contrast|differ(?:s|ed|ent|ently|ence|ences)?)\b", q)
         or re.search(r"\bvs\b", q)
         or re.search(r"\bversus\b", q)
     )
@@ -217,13 +363,17 @@ def _model_scoped_category(text: str) -> str | None:
     caller supplies the actual model (named in the query or carried context).
     """
     q = _normalize_free_text(text)
-    cat = re.search(r"\b(scenario|scenarios|variable|variables|region|regions|data)\b", q)
+    cat = re.search(r"\b(scenario|scenarios|variable|variables|region|regions|year|years|data)\b", q)
     if not cat:
         return None
+    # A possessive verb ("does GCAM have") or an availability phrasing
+    # ("what years are available for GCAM") both scope the request to a model;
+    # the caller still requires an actual model, so plain listings such as
+    # "what scenarios are available" keep using the normal listing path.
     if not re.search(
-        r"\b(does|do|has|have|run|runs|use|uses|cover|covers|report|reports|offer|offers)\b",
+        r"\b(does|do|has|have|run|runs|use|uses|cover|covers|report|reports|reported|reporting|offer|offers)\b",
         q,
-    ):
+    ) and not re.search(r"\b(?:available|are\s+there|exist|exists)\b", q):
         return None
     token = cat.group(1)
     if token == "data":
@@ -231,25 +381,102 @@ def _model_scoped_category(text: str) -> str | None:
     return token.rstrip("s") + "s"
 
 
-def _list_model_category(category: str, model: str, ts_data: list, show_all: bool = False) -> str:
-    """List the distinct scenarios/variables/regions recorded for one model."""
+def _display_variable_label(value: object) -> str:
+    """Clean source-only artefacts when presenting a variable catalogue.
+
+    The underlying variable value remains untouched for filtering and
+    provenance.  This is deliberately conservative: it removes stray leading
+    quote characters and fixes the known standalone ``Energys`` segment.
+    """
+    label = str(value or "").strip().lstrip("'\"").strip()
+    return re.sub(r"(?i)(^|\|)energys(?=\||$)", r"\1Energy", label)
+
+
+def _display_variable_catalog(values) -> list[str]:
+    return sorted({
+        label
+        for value in values
+        if (label := _display_variable_label(value))
+    })
+
+
+def _list_model_category(
+    category: str,
+    model: str,
+    ts_data: list,
+    show_all: bool = False,
+    model_members: list[str] | None = None,
+) -> str:
+    """List the distinct scenarios/variables/regions/years recorded for one model."""
+    runtime_models = sorted({
+        str(record.get("modelName", "")).strip()
+        for record in ts_data
+        if record and is_presentable_model_label(record.get("modelName"))
+    })
+    family_members = list(model_members or resolve_model_family_members(model, runtime_models))
+    if not family_members and model in runtime_models:
+        family_members = [model]
+    family_set = set(family_members)
+    display_model = str(model or "").strip()
+    family_note = (
+        f" Runtime labels included: {', '.join(family_members)}."
+        if len(family_members) > 1 else ""
+    )
+    if category == "years":
+        years = sorted({
+            int(year)
+            for r in ts_data
+            if r and str(r.get("modelName", "")).strip() in family_set
+            for year in (r.get("years") or {})
+            if str(year).isdigit()
+        })
+        if not years:
+            return f"I could not find any years recorded for model `{display_model}`."
+        listed = ", ".join(str(year) for year in years)
+        record_resolved_scope(
+            model=display_model,
+            models=family_members,
+            result_models=family_members,
+            action="query",
+        )
+        return (
+            f"Model `{display_model}` reports data for years {years[0]}–{years[-1]} "
+            f"({len(years)} distinct years: {listed}).{family_note}"
+        )
     field = {"scenarios": "scenario", "variables": "variable", "regions": "region"}[category]
-    values = sorted({
+    all_values = {
         str(r.get(field, "")).strip()
         for r in ts_data
-        if r and str(r.get("modelName", "")).strip() == model and r.get(field)
+        if r and str(r.get("modelName", "")).strip() in family_set and r.get(field)
+    }
+    primary_values = sorted({
+        str(r.get(field, "")).strip()
+        for r in ts_data
+        if r and str(r.get("modelName", "")).strip() == display_model and r.get(field)
     })
+    values = primary_values + sorted(all_values - set(primary_values))
+    if category == "regions":
+        values = dedupe_equivalent_regions(values)
+    elif category == "variables":
+        values = _display_variable_catalog(values)
     if not values:
-        return f"I could not find any {category} recorded for model `{model}`."
+        return f"I could not find any {category} recorded for model `{display_model}`."
     shown = values if show_all else values[:15]
     more = "" if len(values) <= len(shown) else f" and {len(values) - len(shown)} more"
     hint = (
         f"\n\nShowing {len(shown)} of {len(values)}. "
-        f"Say `show all {category} for {model}` if you need the full list."
+        f"Say `show all {category} for {display_model}` if you need the full list."
         if more else ""
     )
+    record_resolved_scope(
+        model=display_model,
+        models=family_members,
+        result_models=family_members,
+        action="query",
+    )
     return (
-        f"Model `{model}` has these {category}: {', '.join(shown)}{more}."
+        f"Model `{display_model}` has these {category}: {', '.join(shown)}{more}."
+        + family_note
         + hint
     )
 
@@ -260,12 +487,55 @@ def _looks_like_model_info_request(text: str) -> bool:
     if tokens & {
         "info", "information", "details", "describe", "about", "explain",
         "assumption", "assumptions", "methodology", "structure", "works",
+        "developer", "developers", "institution", "institutions",
+        "limitation", "limitations", "caveat", "caveats", "constraint",
+        "constraints", "coverage", "scope", "sector", "sectors",
+        "application", "applications", "technology", "technologies",
+        "purpose", "overview", "intended", "designed",
     }:
         return True
     return bool(
         re.search(r"\btell\s+me\s+about\b", q)
+        or re.search(r"\bgive\s+me\s+(?:an?\s+)?overview\s+of\b", q)
+        or re.search(r"\bwhat\s+(?:problems?|questions?)\s+is\b[^?]*\bdesigned\s+to\b", q)
+        or re.search(r"\bwhat\s+(?:kinds?\s+of\s+)?policy\s+questions?\s+can\b[^?]*\banswer\b", q)
+        or re.search(r"\bwhat\b[^?]*\b(?:is\s+intended|is\s+designed|used)\s+(?:for|to)\b", q)
         or re.search(r"\bhow\s+does\b", q)
+        or re.search(
+            r"\bwhat\s+does\s+(?:the\s+)?"
+            r"(?!it|this|that|they|these|those\b)"
+            r"[a-z0-9][\w./-]*\s+model\s+do\b",
+            q,
+        )
         or re.search(r"\bwhat\s+are\s+the\s+assumptions\b", q)
+        or re.search(r"\bwho\s+(?:develops?|built|created)\b", q)
+        or re.search(
+            r"\bwhich\s+one\s+(?:is\s+associated\s+with|uses?|includes?|represents?)\b",
+            q,
+        )
+        # Descriptive yes/no and "what kind" questions about a named model. The
+        # subject after is/does must be a model *name*, never a pronoun — that
+        # keeps a model-scoped availability question ("which regions does it
+        # cover?") on the data path. The caller also pairs this with an actual
+        # model reference, so a data query like "does China have data?" is safe.
+        or re.search(r"\bwhat\s+(?:kind|type|sort)\s+of\s+model\b", q)
+        or re.search(
+            r"\bis\s+(?!it|this|that|they|these|those|the\b)\w[\w./-]*\s+(?:a|an)\b[^?]*\bmodel\b",
+            q,
+        )
+        or re.search(
+            r"\bdoes\s+(?!it|this|that|they|these|those|the\b)\w[\w./-]*\s+"
+            r"(?:model|cover|covers|include|includes|"
+            r"represent|represents|simulate|simulates|capture|captures|account\s+for)\b",
+            q,
+        )
+        or re.search(
+            r"\bis\s+(?!it|this|that|they|these|those|the\b)\w[\w./-]*\s+(?:a|an)\s+"
+            r"(?:general\s+equilibrium|partial\s+equilibrium|"
+            r"computable|recursive|dynamic|optimi[sz]ation|simulation|energy\s+system|"
+            r"integrated\s+assessment|macro-?economic|bottom-?up|top-?down)\b",
+            q,
+        )
     )
 
 
@@ -287,6 +557,12 @@ def _looks_like_category_list_request(text: str, category: str) -> bool:
     if tokens & {"assumption", "assumptions", "about", "explain", "describe", "details", "info", "information"}:
         return False
     if re.search(rf"\bwhat\s+(?:{category_pattern})\s+can\s+i\s+use\b", q):
+        return True
+    # Count questions ("how many scenarios are there", "number of models") are
+    # catalogue-metadata requests, not per-region data queries.
+    if re.search(rf"\bhow\s+many\s+(?:{category_pattern})\b", q) or re.search(
+        rf"\bnumber\s+of\s+(?:{category_pattern})\b", q
+    ):
         return True
     if (
         category == "variables"
@@ -356,6 +632,7 @@ def _rank_variable_candidates(
     available_vars: set,
     ranked_vars: list | None = None,
     significant_words: list | None = None,
+    ignored_values: list[str] | None = None,
     limit: int = 3,
 ) -> list[str]:
     """
@@ -388,6 +665,12 @@ def _rank_variable_candidates(
         w for w in re.findall(r"\b\w+\b", query_lower)
         if len(w) > 2 and w not in stop_words
     )
+    ignored_terms = {
+        term
+        for value in (ignored_values or [])
+        for term in _tokenize_text(str(value or ""))
+    }
+    query_terms -= ignored_terms
 
     if query_terms:
         term_matches = [
@@ -428,40 +711,123 @@ def _rank_variable_candidates(
     for candidate in candidates:
         if candidate and candidate not in deduped:
             deduped.append(candidate)
-        if len(deduped) >= limit:
-            break
-    return deduped
+
+    # Re-rank against the runtime catalogue and require meaningful wording
+    # coverage. This prevents one generic overlapping token from surfacing an
+    # otherwise unrelated variable merely because it sorts first.
+    evidence = rank_catalogue_variable_matches(
+        question,
+        available_vars,
+        ignored_values=ignored_values or [],
+    )
+    evidence_by_name = {item["variable"]: item for item in evidence}
+    supported = [
+        candidate for candidate in deduped
+        if candidate in evidence_by_name
+        and (
+            candidate == preferred
+            or evidence_by_name[candidate]["auto_accept"]
+            or len(evidence_by_name[candidate]["matched_terms"]) >= 2
+            or evidence_by_name[candidate]["query_coverage"] >= 0.5
+        )
+    ]
+    supported.sort(
+        key=lambda candidate: (
+            -evidence_by_name[candidate]["score"],
+            candidate,
+        )
+    )
+    return supported[:limit]
 
 
 def _preferred_available_variable(question: str, available_vars: set[str]) -> str | None:
     return preferred_variable_from_query(question, available_vars)
 
 
-def unknown_named_region(question: str, region_candidates, model_names=None) -> str | None:
-    """Return a place named after "for"/"in" (a proper noun) that resolves to no
-    known region nor model, so callers can reject invented locations (Gotham,
-    Atlantis, Mars, …) instead of silently returning unfiltered global data.
-    Returns None when the place resolves to a real region/model or none is named.
+def unknown_named_region(
+    question: str,
+    region_candidates,
+    model_names=None,
+    scenario_names=None,
+    variable_names=None,
+) -> str | None:
+    """Return a syntactically scoped place that is absent from live catalogues.
 
-    Strict matching (exact region code/label or a canonical alias) is used so a
-    partial like "Middle Earth" is not accepted as "Middle East".
+    Location phrases are read after ``for``/``in`` and validated against the
+    runtime region, model, scenario and variable vocabularies.  Capitalization
+    is not treated as evidence, so ordinary lowercase input works without
+    turning variable qualifiers such as ``in industry`` into fake regions.
     """
-    m = re.search(r"\b(?:for|in)\s+([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*)", str(question or ""))
-    if not m:
+    text = str(question or "")
+    regions = [str(value).strip() for value in (region_candidates or []) if str(value).strip()]
+    models = [str(value).strip() for value in (model_names or []) if str(value).strip()]
+    scenarios = [str(value).strip() for value in (scenario_names or []) if str(value).strip()]
+    variables = [str(value).strip() for value in (variable_names or []) if str(value).strip()]
+    boundary_words = {
+        "across", "after", "at", "before", "between", "by", "during", "for",
+        "from", "in", "on", "over", "please", "since", "through", "to", "under",
+        "until", "using", "versus", "via", "with",
+    }
+    non_location_phrases = {
+        "a chart", "a graph", "a plot", "a table", "all models", "all scenarios",
+        "available models", "available scenarios", "both models", "each model",
+    }
+
+    def _tokens(value: object) -> set[str]:
+        return set(re.findall(r"[a-z0-9]+", str(value or "").casefold()))
+
+    variable_token_sets = [_tokens(value) for value in variables]
+    scenario_token_sets = [_tokens(value) for value in scenarios]
+
+    unknown_places: list[str] = []
+    found_known_region = False
+    for marker in re.finditer(r"\b(?:for|in)\s+", text, re.IGNORECASE):
+        tail = text[marker.end():]
+        words: list[str] = []
+        last_end = 0
+        for token_match in re.finditer(r"[A-Za-z][A-Za-z'’-]*|\d{4}", tail):
+            # Stop if punctuation separated this token from the previous one.
+            if words and re.search(r"[,.?!;:]", tail[last_end:token_match.start()]):
+                break
+            word = token_match.group(0)
+            lower = word.casefold()
+            if word.isdigit() or (words and lower in boundary_words):
+                break
+            if not words and lower in {"a", "an", "the"}:
+                words.append(word)
+                continue
+            words.append(word)
+            last_end = token_match.end()
+            if len(words) >= 4:
+                break
+        place = " ".join(words).strip()
+        if not place:
+            continue
+        pl = place.casefold()
+        place_tokens = _tokens(place)
+        if pl in {"world", "global"} or pl in non_location_phrases:
+            if pl in {"world", "global"}:
+                found_known_region = True
+            continue
+        if any(pl == region.casefold() for region in regions):
+            found_known_region = True
+            continue
+        if any(pl == format_region_label(region).strip().casefold() for region in regions):
+            found_known_region = True
+            continue
+        if canonical_region_from_query(place, regions):
+            found_known_region = True
+            continue
+        if models and match_model_name(place, models):
+            continue
+        if place_tokens and any(place_tokens <= tokens for tokens in scenario_token_sets):
+            continue
+        if place_tokens and any(place_tokens <= tokens for tokens in variable_token_sets):
+            continue
+        unknown_places.append(place)
+    if found_known_region:
         return None
-    place = m.group(1).strip()
-    pl = place.lower()
-    if pl in ("world", "global"):
-        return None
-    if any(pl == str(r).strip().lower() for r in region_candidates):
-        return None
-    if any(pl == format_region_label(r).strip().lower() for r in region_candidates):
-        return None
-    if canonical_region_from_query(place, region_candidates):
-        return None
-    if model_names and match_model_name(place, model_names):
-        return None
-    return place
+    return unknown_places[0] if unknown_places else None
 
 
 def _explicit_variable_in_query(question: str, available_vars: set[str]) -> str | None:
@@ -623,6 +989,8 @@ def _has_meaningful_query_signal(
     region: str | None = None,
     scenario: str | None = None,
     model: str | None = None,
+    ignored_values: list[str] | None = None,
+    available_variables: set[str] | None = None,
 ) -> bool:
     """
     Decide whether the user's free-text query contains enough semantic signal
@@ -631,7 +999,8 @@ def _has_meaningful_query_signal(
     profile = _query_profile(question, significant_words)
     terms = set(profile["terms"])
 
-    for value in [region, scenario, model]:
+    scope_values = [region, scenario, model, *(ignored_values or [])]
+    for value in scope_values:
         if value:
             terms -= _tokenize_text(str(value))
 
@@ -639,10 +1008,20 @@ def _has_meaningful_query_signal(
         "data", "show", "give", "plot", "graph", "chart", "value", "values",
         "time", "series", "timeseries", "query", "information", "info"
     }
-    terms = {term for term in terms if term not in weak_terms}
+    terms = {
+        term for term in terms
+        if term not in weak_terms and not term.isdigit()
+    }
 
     if profile["metric_terms"] or profile["sector_terms"] or profile["energy_terms"]:
         return True
+    if available_variables:
+        ranked = rank_catalogue_variable_matches(
+            question,
+            available_variables,
+            ignored_values=scope_values,
+        )
+        return bool(ranked and ranked[0]["matched_terms"])
     return len(terms) >= 2
 
 
@@ -832,6 +1211,17 @@ def _variable_relevance_score(
                 score -= 6.0
         if "investment" in var_lower:
             score -= 8.0
+
+        # With only a fuel name, lead the clarification with the broad fuel
+        # balance rather than a narrow technology such as oil-fired capacity.
+        # The user can still choose the narrower candidates that follow.
+        if re.fullmatch(r"\s*oil\s*[?!.]*\s*", question, flags=re.IGNORECASE):
+            if var_lower == "primary energy|oil":
+                score += 18.0
+            elif var_lower.startswith(("primary energy|oil|", "final energy|oil", "final energy|liquids")):
+                score += 8.0
+            elif "capacity|electricity|oil" in var_lower:
+                score -= 6.0
 
     if "electricity" in question.lower() and not (
         set(profile["energy_terms"]) & {"solar", "wind", "oil", "gas", "hydrogen", "nuclear", "hydro", "coal", "bioenergy"}
@@ -1319,6 +1709,7 @@ def _suggest_variable_candidates(
     region: str | None = None,
     scenario: str | None = None,
     model: str | None = None,
+    ignored_values: list[str] | None = None,
     limit: int = 3,
 ) -> list[str]:
     """
@@ -1332,7 +1723,7 @@ def _suggest_variable_candidates(
         for r in ts_data
         if r and r.get('variable')
         and _record_has_year_data(r)
-        and (not region or r.get('region') == region)
+        and (not region or regions_equivalent(r.get('region'), region))
         and (not scenario or r.get('scenario') == scenario)
         and (not model or r.get('modelName') == model)
     }
@@ -1366,7 +1757,7 @@ def _suggest_variable_candidates(
         variable = str(record.get('variable', '')).strip()
         if variable not in scoped_vars:
             continue
-        if region and record.get('region') != region:
+        if region and not regions_equivalent(record.get('region'), region):
             continue
         if scenario and record.get('scenario') != scenario:
             continue
@@ -1378,6 +1769,11 @@ def _suggest_variable_candidates(
     strict_scoped_vars = _filter_vars_by_intent(scoped_vars, intent, strict=True)
     if strict_scoped_vars:
         scoped_vars = set(strict_scoped_vars)
+    elif intent != "general":
+        # A specific semantic request with no matching family is uncertainty,
+        # not permission to recommend an unrelated popular variable. Returning
+        # no candidates lets the caller ask for clarification truthfully.
+        return []
     else:
         scoped_vars = set(_filter_vars_by_intent(scoped_vars, intent, strict=False))
 
@@ -1387,6 +1783,7 @@ def _suggest_variable_candidates(
         scoped_vars,
         ranked_vars=ranked_vars,
         significant_words=significant_words,
+        ignored_values=ignored_values,
         limit=max(limit, 6),
     )
     if not candidates:
@@ -1399,6 +1796,42 @@ def _suggest_variable_candidates(
         popularity=popularity,
         limit=limit,
     )
+
+
+def _unmatched_variable_qualifiers(
+    question: str,
+    candidates: list[str],
+    *,
+    region: str | None = None,
+    scenario: str | None = None,
+    model: str | None = None,
+    ignored_values: list[str] | None = None,
+) -> list[str]:
+    """Return meaningful query modifiers absent from all candidate names.
+
+    This is a confidence explanation, not a domain alias table.  It allows the
+    chatbot to say that a modifier was not represented in the runtime variable
+    catalogue instead of presenting merely related variables as exact matches.
+    """
+    if not candidates:
+        return []
+    terms = set(_query_terms(question))
+    candidate_terms = set().union(*(_tokenize_text(candidate) for candidate in candidates))
+    for scoped_value in (region, scenario, model, *(ignored_values or [])):
+        terms -= _tokenize_text(str(scoped_value or ""))
+    if region:
+        terms -= _tokenize_text(format_region_label(region))
+    terms = {term for term in terms if not term.isdigit()}
+    # These describe the requested measurement operation rather than a
+    # taxonomy qualifier. Their exact spelling is often absent from IAMC-style
+    # variable paths even when the candidate is compatible.
+    measurement_terms = {
+        "produce", "produced", "production", "generate", "generated", "generation",
+        "supply", "demand", "consumption", "output", "total", "amount", "level",
+        "capacity", "emission", "emissions", "energy", "electricity", "power",
+    }
+    terms -= measurement_terms
+    return sorted(term for term in terms if term not in candidate_terms)
 
 
 def _suggest_recovery_variables(
@@ -1422,7 +1855,7 @@ def _suggest_recovery_variables(
             for r in ts_data
             if r and r.get('variable') and _record_has_year_data(r)
             and (not model or r.get('modelName') == model)
-            and (not rg or (region and r.get('region') == region))
+            and (not rg or (region and regions_equivalent(r.get('region'), region)))
             and (not sc or (scenario and r.get('scenario') == scenario))
         }
 
@@ -1449,7 +1882,7 @@ def _suggest_recovery_variables(
                 continue
             if model and record.get('modelName') != model:
                 continue
-            if region and record.get('region') != region and scenario and record.get('scenario') != scenario:
+            if region and not regions_equivalent(record.get('region'), region) and scenario and record.get('scenario') != scenario:
                 continue
             if _record_has_year_data(record):
                 popularity[variable] = popularity.get(variable, 0) + 1
@@ -1520,7 +1953,10 @@ def _starter_variable_candidates(
         for record in ts_data:
             if not record or not record.get("variable"):
                 continue
-            if region_scope and str(record.get("region", "")).strip() not in region_scope:
+            if region_scope and not any(
+                regions_equivalent(record.get("region"), candidate)
+                for candidate in region_scope
+            ):
                 continue
             if scenario and record.get("scenario") != scenario:
                 continue
@@ -1687,11 +2123,16 @@ def _matrix_recovery_prompt(
             # Only keep candidates that actually have data in the requested
             # region (and scenario), so a selected option never dead-ends.
             if region:
-                if region not in getattr(metadata, "variable_regions", {}).get(candidate, set()):
+                candidate_regions = getattr(metadata, "variable_regions", {}).get(candidate, set())
+                matching_regions = [
+                    value for value in candidate_regions
+                    if regions_equivalent(value, region)
+                ]
+                if not matching_regions:
                     return False
                 if scenario:
                     region_map = getattr(metadata, "availability_matrix", {}).get(candidate, {})
-                    if scenario not in region_map.get(region, {}):
+                    if not any(scenario in region_map.get(value, {}) for value in matching_regions):
                         return False
             elif scenario:
                 if scenario not in getattr(metadata, "variable_scenarios", {}).get(candidate, set()):
@@ -1736,7 +2177,10 @@ def _matrix_recovery_prompt(
         ).get("variables", [])
         variable_options = [opt for opt in variable_options if opt != variable]
 
-    region_options = [opt for opt in options.get("regions", []) if opt != region]
+    region_options = [
+        opt for opt in options.get("regions", [])
+        if not region or not regions_equivalent(opt, region)
+    ]
     if hasattr(metadata, "suggest_scenarios_by_scope"):
         scenario_options = metadata.suggest_scenarios_by_scope(
             variable=variable,
@@ -1755,6 +2199,93 @@ def _matrix_recovery_prompt(
         variable_options=variable_options,
         region_options=region_options,
         scenario_options=scenario_options,
+    )
+
+
+def _scenario_family_recovery_prompt(
+    ts_data: list,
+    *,
+    variable: str,
+    region: str | None,
+    scenario: str | None,
+    model: str | None = None,
+) -> str | None:
+    """Offer only one-dimension changes that lead to a real data slice.
+
+    Canonical scenario families such as ``Net Zero`` expand to several runtime
+    codes.  When the requested region has no member of that family, a generic
+    availability fallback can recommend a scenario that exists only somewhere
+    else, which still fails if selected.  Build the two honest recovery sets
+    directly from the records instead:
+
+    * scenarios that contain the requested variable in the requested region;
+    * regions that contain the requested variable in the requested family.
+    """
+    family = str(scenario or "").strip()
+    requested_region = str(region or "").strip()
+    requested_variable = str(variable or "").strip()
+    requested_model = str(model or "").strip()
+    if not requested_variable or not _scenario_is_family_label(family):
+        return None
+
+    records = [
+        record for record in (ts_data or [])
+        if record
+        and str(record.get("variable", "")).strip() == requested_variable
+        and (not requested_model or str(record.get("modelName", "")).strip() == requested_model)
+        and _record_has_year_data(record)
+    ]
+    if not records:
+        return None
+
+    def _dedupe_labels(values: set[str]) -> list[str]:
+        ordered = sorted(
+            values,
+            key=lambda value: (
+                value.casefold(),
+                0 if value[:1].isupper() else 1,
+                value,
+            ),
+        )
+        deduped: list[str] = []
+        seen: set[str] = set()
+        for value in ordered:
+            key = value.casefold()
+            if key in seen:
+                continue
+            seen.add(key)
+            deduped.append(value)
+        return deduped
+
+    compatible_regions = dedupe_equivalent_regions(_dedupe_labels({
+        str(record.get("region", "")).strip()
+        for record in records
+        if str(record.get("region", "")).strip()
+        and not regions_equivalent(record.get("region"), requested_region)
+        and _scenario_match_ok(record.get("scenario"), family)
+    }))
+
+    compatible_scenarios = _dedupe_labels({
+        str(record.get("scenario", "")).strip()
+        for record in records
+        if requested_region
+        and regions_equivalent(record.get("region"), requested_region)
+        and str(record.get("scenario", "")).strip()
+        and not _scenario_match_ok(record.get("scenario"), family)
+    })
+
+    if not compatible_regions and not compatible_scenarios:
+        return None
+
+    region_label = format_region_label(requested_region) if requested_region else "the requested region"
+    model_note = f" for model `{requested_model}`" if requested_model else ""
+    return _compact_recovery_prompt(
+        (
+            f"I could not find data for `{requested_variable}` in region `{region_label}` "
+            f"under the requested scenario family `{family}`{model_note}."
+        ),
+        region_options=compatible_regions[:3],
+        scenario_options=compatible_scenarios[:3],
     )
 
 
@@ -1787,17 +2318,18 @@ def _renewable_share_prompt(candidates: list[str]) -> str:
 
 
 def _format_model_info_answer(model_name: str, record: dict, asks_assumptions: bool = False) -> str:
-    desc = str(record.get('description', '') or '').strip()
-    asum = str(record.get('assumptions', '') or '').strip()
-    source = str(record.get('source', '') or '').strip()
+    from model_profiles import clean_metadata_text
+    desc = clean_metadata_text(record.get('description'))
+    asum = clean_metadata_text(record.get('assumptions'))
+    source = clean_metadata_text(record.get('source'))
     profile = find_model_profile(model_name)
     use_profile = bool(profile and not has_strong_model_metadata(record))
 
     parts = [f"### {model_name}"]
     if desc:
         parts.append(f"Description:\n{desc}")
-    elif profile:
-        parts.append(f"Description:\n{profile.get('description', '')}")
+    elif profile and clean_metadata_text(profile.get('description')):
+        parts.append(f"Description:\n{clean_metadata_text(profile.get('description'))}")
     if asum:
         parts.append(f"Assumptions:\n{asum}")
     elif asks_assumptions:
@@ -1818,7 +2350,11 @@ def _format_model_info_answer(model_name: str, record: dict, asks_assumptions: b
             parts.append("Interpretation notes:\n- " + "\n- ".join(limitations))
     if source:
         parts.append(f"Source:\n{source}")
-    parts.append("Related model documentation:\n- [IAM PARIS Models](https://iamparis.eu/models)")
+    model_url = _iamparis_model_url(record) or _iamparis_model_url(profile or {})
+    if model_url:
+        parts.append(f"Related model documentation:\n- [IAM PARIS model page]({model_url})")
+    else:
+        parts.append("Related model documentation:\n- [IAM PARIS Models](https://iamparis.eu/models)")
 
     if len(parts) == 2 and parts[-1].startswith("Related model documentation"):
         return f"I found the model `{model_name}`, but no description was provided in metadata."
@@ -1833,6 +2369,208 @@ def data_query(
     history: list | None = None,
     forced_entities: dict | None = None,
     metadata: Any | None = None,
+    allow_plots: bool = True,
+) -> str:
+    entities = dict(forced_entities or {})
+    if not allow_plots:
+        entities["action"] = "query"
+        if _looks_like_plot_request(question):
+            entry = _matched_workspace(question, _workspace_entries(ts_data)) or _workspace_catalog().get(
+                str(entities.get("workspace_code") or ""), {}
+            )
+            url = entry.get("explorer_url") or "https://iamparis.eu/results"
+            return f"Please use the [IAM PARIS data explorer]({url}) to plot these results."
+        if any(len(entities.get(key) or []) > 1 for key in ("variables", "regions", "scenarios", "models")):
+            return _comparison_tables(question, ts_data, entities)
+    answer = _data_query(question, model_data, ts_data, history, entities, metadata, allow_plots)
+    if (
+        re.search(r"\boil\b", str(question or ""), re.IGNORECASE)
+        and "Final Energy|Liquids" in answer
+        and not re.search(r"Final Energy\|[^`\n]*Oil", answer, re.IGNORECASE)
+    ):
+        answer = (
+            "Interpretation: the available liquid-fuel demand indicator is broader than oil "
+            "and may include other liquid fuels. It is not an oil-only estimate.\n\n" + answer
+        )
+    return answer
+
+
+def _comparison_tables(question: str, records: list, entities: dict) -> str:
+    """Render a bounded comparison without passing through the plotting resolver."""
+    entries = _workspace_entries(records)
+    named = _matched_workspace(question, entries)
+    workspace = str((named or {}).get("code") or entities.get("workspace_code") or "")
+    if not workspace and len(entries) > 1:
+        return "Please choose a study before comparing numeric results. Ask `list workspaces` to see the available studies."
+    if not workspace and len(entries) == 1:
+        workspace = entries[0]["code"]
+    selections = {}
+    for key in ("variable", "region", "scenario", "model"):
+        selections[key] = list(entities.get(key + "s") or ([entities[key]] if entities.get(key) else []))
+    if not selections["variable"] or not selections["region"]:
+        return "Please provide the variable and region for the numeric comparison."
+    scoped = [row for row in records if not workspace or row.get("workspace_code") == workspace]
+    for key, choices in selections.items():
+        if not choices:
+            continue
+        field = "modelName" if key == "model" else key
+        if key == "region":
+            scoped = [row for row in scoped if any(regions_equivalent(row.get(field), value) for value in choices)]
+        elif key == "scenario":
+            scoped = [row for row in scoped if any(_scenario_match_ok(row.get(field), value) for value in choices)]
+        else:
+            scoped = [row for row in scoped if row.get(field) in choices]
+    text_start, text_end = extract_year_range(question)
+    start = entities.get("start_year", text_start)
+    end = entities.get("end_year", text_end)
+
+    def _row_values(row: dict) -> dict:
+        values = {
+            str(key): value for key, value in row.items()
+            if str(key).isdigit() and len(str(key)) == 4
+        }
+        nested = row.get("years")
+        if isinstance(nested, dict):
+            values.update({
+                str(key): value for key, value in nested.items()
+                if str(key).isdigit() and len(str(key)) == 4
+            })
+        return values
+
+    # Each variable/region table chooses its latest year across all series.
+    # Missing-member detection must use that same year, not each row's latest.
+    table_years = {}
+    for variable in selections["variable"]:
+        for region in selections["region"]:
+            years = {
+                year for row in scoped
+                if row.get("variable") == variable and regions_equivalent(row.get("region"), region)
+                for year, value in _row_values(row).items()
+                if is_finite_numeric_value(value)
+            }
+            table_years[(variable, region)] = select_years(sorted(years, key=int), start, end)
+
+    def _has_value_in_period(row: dict) -> bool:
+        values = _row_values(row)
+        years = {
+            year for (variable, region), selected in table_years.items()
+            if row.get("variable") == variable and regions_equivalent(row.get("region"), region)
+            for year in selected
+        }
+        return any(is_finite_numeric_value(values.get(year)) for year in years)
+
+    visible_rows = [row for row in scoped if _has_value_in_period(row)]
+    missing = []
+    for key, choices in selections.items():
+        if not choices:
+            continue
+        field = "modelName" if key == "model" else key
+        if key == "region":
+            present = lambda value: any(
+                regions_equivalent(row.get(field), value) for row in visible_rows
+            )
+        elif key == "scenario":
+            present = lambda value: any(
+                _scenario_match_ok(row.get(field), value) for row in visible_rows
+            )
+        else:
+            present = lambda value: any(
+                str(row.get(field) or "") == str(value) for row in visible_rows
+            )
+        absent = [value for value in choices if not present(value)]
+        if absent:
+            missing.append((key, absent))
+
+    consume_resolved_scope()
+    sections = []
+    section_scopes = []
+    for variable in selections["variable"]:
+        for region in selections["region"]:
+            rows = [row for row in scoped if row.get("variable") == variable and regions_equivalent(row.get("region"), region)]
+            sections.append(format_time_series_data(rows, variable, region, start, end, workspace))
+            scope = consume_resolved_scope()
+            if scope:
+                section_scopes.append(scope)
+            available = [row for row in rows if _has_value_in_period(row)]
+            absent_pairs = []
+            for scenario in selections["scenario"] or [None]:
+                for model in selections["model"] or [None]:
+                    if not any(
+                        (scenario is None or _scenario_match_ok(row.get("scenario"), scenario))
+                        and (model is None or row.get("modelName") == model)
+                        for row in available
+                    ):
+                        labels = []
+                        if scenario is not None:
+                            labels.append(f"scenario: `{scenario}`")
+                        if model is not None:
+                            labels.append(f"model: `{model}`")
+                        if labels:
+                            absent_pairs.append(", ".join(labels))
+            if absent_pairs:
+                sections.append(
+                    f"For `{variable}` in `{region}`, no data is available for the requested period "
+                    f"for {'; '.join(absent_pairs)}."
+                )
+
+    if section_scopes:
+        def _scope_values(singular: str, plural: str) -> list:
+            values = []
+            for scope in section_scopes:
+                candidates = list(scope.get(plural) or [])
+                if not candidates and scope.get(singular):
+                    candidates = [scope[singular]]
+                for value in candidates:
+                    if value not in values:
+                        values.append(value)
+            return values
+
+        variables = _scope_values("variable", "variables")
+        regions = _scope_values("region", "regions")
+        scenarios = _scope_values("scenario", "scenarios")
+        models = _scope_values("model", "result_models")
+        units = _scope_values("unit", "units")
+        aggregate = {
+            "variables": variables,
+            "regions": regions,
+            "scenarios": scenarios,
+            "result_models": models,
+            "unit": units[0] if len(units) == 1 else "multiple",
+            "start_year": start,
+            "end_year": end,
+            "action": "query",
+            "workspace_code": workspace,
+            "comparison": entities.get("comparison") or "",
+            "all_scenarios": len(scenarios) > 1,
+        }
+        for singular, values in (
+            ("variable", variables), ("region", regions),
+            ("scenario", scenarios), ("model", models),
+        ):
+            if len(values) == 1:
+                aggregate[singular] = values[0]
+        record_resolved_scope(**aggregate)
+    warning = ""
+    if missing:
+        details = "; ".join(
+            f"{key}: " + ", ".join(f"`{value}`" for value in values)
+            for key, values in missing
+        )
+        warning = (
+            "Some requested comparison members have no data in this study for the requested period "
+            f"({details}). The table below contains only the available members.\n\n"
+        )
+    return warning + "\n\n".join(sections)
+
+
+def _data_query(
+    question: str,
+    model_data: list,
+    ts_data: list,
+    history: list | None = None,
+    forced_entities: dict | None = None,
+    metadata: Any | None = None,
+    allow_plots: bool = True,
 ) -> str:
     """Process a user query about IAM data, optionally returning results or plots."""
     if not question or not isinstance(question, str):
@@ -1843,6 +2581,79 @@ def data_query(
     forced_region = str(forced_entities.get("region", "") or "").strip()
     forced_scenario = str(forced_entities.get("scenario", "") or "").strip()
     forced_model = str(forced_entities.get("model", "") or "").strip()
+    forced_workspace = str(forced_entities.get("workspace_code", "") or "").strip()
+    requested_forced_model = forced_model
+    forced_start_year = forced_entities.get("start_year")
+    forced_end_year = forced_entities.get("end_year")
+
+    def _resolved_year_range() -> tuple[int | None, int | None]:
+        """Prefer structured caller scope, falling back to the question text."""
+        text_start, text_end = _extract_year_range(question)
+        start = forced_start_year if forced_start_year is not None else text_start
+        end = forced_end_year if forced_end_year is not None else text_end
+        # An open bound stays open. Mirroring one side onto the other turned
+        # every open-ended request into a single year: "after 2040" answered for
+        # 2041 alone and "until 2080" for 2080 alone, quietly answering a
+        # different question than the one asked. `select_years` already treats
+        # `None` as unbounded on either side.
+        #
+        # The mirroring is still right when the question names one year and the
+        # phrasing is not open-ended ("in 2050"), but `extract_year_range`
+        # already returns both bounds in that case, so nothing to do here.
+        if start is not None and end is not None and start > end:
+            start, end = end, start
+        return start, end
+
+    def _interpretation_notice(variable: str | None) -> str:
+        tokens = _token_set(question)
+        specific_gas_terms = {
+            "co2", "carbon", "dioxide", "ch4", "methane", "n2o", "nitrous",
+            "ghg", "greenhouse", "kyoto", "afolu",
+        }
+        if (
+            str(variable or "") == "Emissions|CO2"
+            and tokens & {"emission", "emissions", "emisions", "emisson"}
+            and not tokens & specific_gas_terms
+        ):
+            return (
+                "Interpretation: I treated bare **emissions** as `Emissions|CO2` "
+                "(carbon-dioxide emissions).\n\n"
+            )
+        return ""
+    # Keep all discovery and result selection within a named study when the
+    # user selected one earlier in the conversation, or names it directly.
+    # Workspace codes remain internal; matching uses the public study title.
+    initial_workspace_entries = _workspace_entries(ts_data)
+    named_workspace = _matched_workspace(question, initial_workspace_entries)
+    # An explicitly named study replaces conversation state from an earlier
+    # turn. Otherwise a request naming study B can return records from study A.
+    workspace_code = str((named_workspace or {}).get("code") or "") or forced_workspace
+    if workspace_code:
+        ts_data = [
+            record for record in ts_data
+            if str((record or {}).get("workspace_code", "")).strip() == workspace_code
+        ]
+        metadata = None
+
+    # Numeric records from different studies are not interchangeable.  When
+    # several studies are loaded, do not group identically named
+    # model/scenario series across them or pick whichever record came first.
+    # Ask the user to establish a study scope before returning values.
+    if (
+        not workspace_code
+        and len(initial_workspace_entries) > 1
+        and _looks_like_data_request(question)
+        and bool(re.search(
+            r"\b(?:this|that|the)\s+(?:study|workspace)\b",
+            q,
+        ))
+        and not any(
+            _looks_like_category_list_request(question, category)
+            for category in ("models", "variables", "regions", "scenarios", "workspaces")
+        )
+    ):
+        return _workspace_choice_response(initial_workspace_entries)
+
     # A scenario name typed verbatim (e.g. "BAU", "PR_Baseline") is ground truth
     # and overrides an extractor result that collapsed it to a generic family
     # (e.g. "Baseline"), which would otherwise cause a false "no data".
@@ -1871,12 +2682,45 @@ def data_query(
     # Recognize an explicit "from <model>" clause the extractor missed (e.g.
     # "CO2 emissions for EU from E3ME"). Matching the isolated token avoids the
     # surrounding words diluting the model match.
+    _from_model = None
     if not forced_model:
         _from_model = re.search(r"\bfrom\s+([A-Za-z0-9][\w\-\.]*)\s*$", question, re.IGNORECASE)
         if _from_model:
             _resolved_from = match_model_name(_from_model.group(1).strip(), ts_model_names)
             if _resolved_from:
                 forced_model = _resolved_from
+
+    # Resolve exact user wording before deciding whether a numeric slice spans
+    # studies. Entity extraction can collapse a verbatim scenario (for example
+    # BAU) to a family label, and explicit ``from <model>`` clauses may not have
+    # been included in forced entities. Scoping earlier would select the wrong
+    # study or ask an unnecessary study question.
+    if not workspace_code and forced_variable:
+        explicit_model_without_records = bool(_from_model and not forced_model)
+        matching_records = [] if explicit_model_without_records else [
+            record for record in ts_data
+            if str(record.get("variable") or "") == forced_variable
+            and (not forced_region or regions_equivalent(record.get("region"), forced_region))
+            and (not forced_scenario or _scenario_match_ok(record.get("scenario"), forced_scenario))
+            and (not forced_model or str(record.get("modelName") or "") == forced_model)
+        ]
+        matching_codes = sorted({
+            str(record.get("workspace_code") or "").strip()
+            for record in matching_records if str(record.get("workspace_code") or "").strip()
+        })
+        if len(matching_codes) > 1:
+            choices = [
+                entry for entry in initial_workspace_entries
+                if str(entry.get("code") or "") in matching_codes
+            ]
+            return _workspace_choice_response(choices)
+        if len(matching_codes) == 1:
+            workspace_code = matching_codes[0]
+            ts_data = [
+                record for record in ts_data
+                if str(record.get("workspace_code") or "").strip() == workspace_code
+            ]
+            metadata = None
 
     def _extract_model_hint(query: str) -> str:
         return extract_model_hint(query)
@@ -1912,6 +2756,55 @@ def data_query(
     def _is_data_request(text: str) -> bool:
         return _looks_like_data_request(text)
 
+    # Resolve the region before variable ranking. A natural-language location
+    # may differ from its stored runtime code (for example an alias resolving
+    # to an aggregate code), and must be treated as scope rather than variable
+    # evidence throughout every route below.
+    region_candidates = sorted({
+        str(record.get("region", "")).strip()
+        for record in ts_data
+        if record and str(record.get("region", "")).strip()
+    })
+    query_region_match = forced_region or extract_region_from_query(
+        question, region_dict, region_candidates
+    )
+    query_region_mentions = region_mentions_from_query(
+        question,
+        region_dict,
+        region_candidates,
+        resolved_region=query_region_match or None,
+    )
+
+    # Phrases such as "pathways by country" describe a geographic dimension,
+    # not a concrete location. Returning a blended cross-region table hides
+    # which geography each series belongs to and makes follow-ups unreliable,
+    # so turn the missing scope into a typed clarification instead.
+    generic_geography_scope = bool(re.search(
+        r"\b(?:by|for|in|across)\s+(?:(?:each|a|the)\s+)?(?:country|countries|region|regions)\b",
+        q,
+    ))
+    geography_is_catalogue_request = any(
+        _looks_like_category_list_request(question, category)
+        for category in ("regions", "variables", "scenarios", "models")
+    )
+    if (
+        generic_geography_scope
+        and not query_region_match
+        and not geography_is_catalogue_request
+        and _is_data_request(q)
+    ):
+        preferred_regions = [
+            region for region in ("CHN", "IND", "USA", "EU", "World")
+            if region in region_candidates
+        ]
+        if not preferred_regions:
+            preferred_regions = region_candidates[:3]
+        return _choice_prompt(
+            "I need a specific country or region before I can return a grounded pathway.",
+            "region",
+            preferred_regions[:3],
+        )
+
     def _show_all_requested(category: str) -> bool:
         singular = category.rstrip("s")
         return bool(re.search(rf"\b(?:show|list|get)\s+all\s+{singular}s?\b", q))
@@ -1921,6 +2814,160 @@ def data_query(
             return ""
         return f"\n\nShowing {shown} of {total}. Say `show all {category}` if you need the full list."
 
+    def _years_in_records(records: list[dict]) -> list[int]:
+        years: set[int] = set()
+        for record in records:
+            if not record:
+                continue
+            nested = record.get("years")
+            if isinstance(nested, dict):
+                years.update(int(year) for year in nested if str(year).isdigit())
+            years.update(int(key) for key in record if str(key).isdigit())
+        return sorted(years)
+
+    def _model_family_scope() -> tuple[str, list[str]]:
+        request_name = requested_forced_model or forced_model
+        lookup_text = request_name or question
+        members = resolve_model_family_members(lookup_text, ts_model_names)
+        if not members and forced_model in ts_model_names:
+            members = [forced_model]
+        display = request_name
+        if not display and members:
+            display = members[0]
+        return display, members
+
+    # Exact catalogue facts must be computed from the loaded records, never
+    # delegated to free-form QA.  These run before discovery/listing so words
+    # such as "database" cannot accidentally become scenario qualifiers.
+    count_match = re.search(
+        r"\b(?:how\s+many|number\s+of)\s+"
+        r"(models?|variables?|indicators?|regions?|countries|scenarios?|pathways?|workspaces?)\b",
+        q,
+    )
+    if count_match:
+        raw_category = count_match.group(1)
+        category = (
+            "variables" if raw_category.startswith(("variable", "indicator"))
+            else "regions" if raw_category.startswith(("region", "countr"))
+            else "scenarios" if raw_category.startswith(("scenario", "pathway"))
+            else "workspaces" if raw_category.startswith("workspace")
+            else "models"
+        )
+        _display_model, _family_members = _model_family_scope()
+        scoped_records = [
+            record for record in ts_data
+            if record
+            and (not query_region_match or regions_equivalent(record.get("region"), query_region_match))
+            and (not _family_members or str(record.get("modelName", "")).strip() in set(_family_members))
+        ]
+        field = {
+            "variables": "variable", "regions": "region",
+            "scenarios": "scenario", "workspaces": "workspace_code",
+            "models": "modelName",
+        }[category]
+        if category == "models" and not query_region_match and not _family_members:
+            values = {
+                str(model.get("modelName", "")).strip()
+                for model in model_data if model and model.get("modelName")
+            }
+        else:
+            values = {
+                str(record.get(field, "")).strip()
+                for record in scoped_records if record.get(field)
+            }
+        if category == "regions":
+            values = set(dedupe_equivalent_regions(sorted(values)))
+        scope_parts = []
+        if query_region_match:
+            scope_parts.append(f"region `{format_region_label(query_region_match)}`")
+        if _display_model:
+            scope_parts.append(f"model `{_display_model}`")
+        scope_text = f" for {' and '.join(scope_parts)}" if scope_parts else " in the loaded database"
+        return f"There are **{len(values)} distinct {category}**{scope_text}."
+
+    latest_start, latest_end = _resolved_year_range()
+    global_latest_request = (
+        is_latest_year_filter(latest_start, latest_end)
+        and not forced_variable
+        and not re.search(
+            r"\b(?:emissions?|co2|ch4|n2o|gdp|population|energy|capacity|"
+            r"electricity|price|production|demand|supply|investment)\b",
+            q,
+        )
+    )
+    if global_latest_request:
+        _display_model, _family_members = _model_family_scope()
+        scoped_records = [
+            record for record in ts_data
+            if record
+            and (not query_region_match or regions_equivalent(record.get("region"), query_region_match))
+            and (not _family_members or str(record.get("modelName", "")).strip() in set(_family_members))
+        ]
+        years = _years_in_records(scoped_records)
+        if not years:
+            return "I could not find any projection years in the loaded IAM PARIS data for that scope."
+        scope_parts = []
+        if query_region_match:
+            scope_parts.append(f"region `{format_region_label(query_region_match)}`")
+        if _display_model:
+            scope_parts.append(f"model `{_display_model}`")
+        scope_text = f" for {' and '.join(scope_parts)}" if scope_parts else ""
+        return (
+            f"The latest available projection year{scope_text} is **{years[-1]}**. "
+            f"The loaded records span {years[0]}–{years[-1]} ({len(years)} distinct years)."
+        )
+
+    region_summary_model_members = resolve_model_family_members(
+        requested_forced_model or forced_model or question,
+        ts_model_names,
+    )
+    region_summary_is_model_scoped = bool(
+        _model_scoped_category(question)
+        and (requested_forced_model or forced_model or region_summary_model_members)
+    )
+    if query_region_match and not region_summary_is_model_scoped and re.search(
+        r"\bwhat\s+data\s+(?:do|does|can|could|is|are|'s|s)\b[^?]*\b(?:for|in)\b",
+        q,
+    ):
+        if metadata:
+            region_info = metadata.get_available_for_region(query_region_match)
+            variables = region_info.get("variables", [])
+            scenarios = region_info.get("scenarios", [])
+            scoped_models = region_info.get("models", [])
+            years = [int(year) for year in region_info.get("years", []) if str(year).isdigit()]
+        else:
+            region_records = [
+                record for record in ts_data
+                if record and regions_equivalent(record.get("region"), query_region_match)
+            ]
+            variables = _display_variable_catalog(
+                record.get("variable") for record in region_records if record.get("variable")
+            )
+            scenarios = sorted({str(record.get("scenario", "")).strip() for record in region_records if record.get("scenario")})
+            scoped_models = sorted({
+                str(record.get("modelName", "")).strip()
+                for record in region_records
+                if record and is_presentable_model_label(record.get("modelName"))
+            })
+            years = _years_in_records(region_records)
+        variables = _display_variable_catalog(variables)
+        if not variables:
+            return (
+                f"I found region `{format_region_label(query_region_match)}`, but no timeseries data is loaded for it. "
+                "Ask `list regions` to see regions with available results."
+            )
+        year_text = f"{years[0]}–{years[-1]}" if years else "no year values"
+        sample = ", ".join(f"`{value}`" for value in variables[:8])
+        more = f" and {len(variables) - 8} more" if len(variables) > 8 else ""
+        return (
+            f"### Data available for {format_region_label(query_region_match)}\n\n"
+            f"- **Variables:** {len(variables)} ({sample}{more})\n"
+            f"- **Scenarios:** {len(scenarios)}\n"
+            f"- **Models:** {len(scoped_models)}\n"
+            f"- **Years:** {year_text}\n\n"
+            "Ask for one variable, for example `CO2 emissions`, to retrieve values or make a plot."
+        )
+
     # Scenarios/variables/regions scoped to a specific model, e.g.
     # "what scenarios does GCAM have" or (with a model carried in context)
     # "what scenarios does it have". Must run before the generic discovery and
@@ -1929,22 +2976,40 @@ def data_query(
     if scoped_category:
         # Resolve against the timeseries model names so the listing matches the
         # record casing/format (e.g. "gcam"), not the display catalogue ("GCAM").
-        scoped_model = forced_model or match_model_name(question, ts_model_names)
-        if scoped_model and scoped_model not in ts_model_names:
-            canonical_scoped = match_model_name(scoped_model, ts_model_names)
-            if canonical_scoped:
-                scoped_model = canonical_scoped
+        requested_scoped_model = forced_model or requested_forced_model
+        family_lookup = requested_forced_model or forced_model or question
+        scoped_members = resolve_model_family_members(family_lookup, ts_model_names)
+        runtime_candidates = resolve_model_candidates(question, ts_model_names)
+        # A model may exist in the descriptive catalogue while carrying no
+        # loaded timeseries. Resolve its name from the model catalogue too so a
+        # scoped request returns an honest empty scope instead of falling
+        # through to an unscoped list of every variable in the database.
+        catalogue_candidates = resolve_model_candidates(question, model_names)
+        scoped_model = (
+            requested_scoped_model
+            or (catalogue_candidates[0] if catalogue_candidates else "")
+            or (runtime_candidates[0] if runtime_candidates else "")
+        )
+        if scoped_model and not scoped_members:
+            scoped_members = resolve_model_family_members(scoped_model, ts_model_names)
+        if not scoped_members and scoped_model in ts_model_names:
+            scoped_members = [scoped_model]
         if scoped_model:
             return _list_model_category(
                 scoped_category,
                 scoped_model,
                 ts_data,
                 show_all=_show_all_requested(scoped_category),
+                model_members=scoped_members,
             )
 
     # Route variable-discovery phrasing to the variable list path.
-    if _looks_like_category_list_request(question, "variables") and _looks_like_plot_request(question):
-        vars = sorted({str(r.get('variable', '')) for r in ts_data if r and r.get('variable')})
+    if not forced_choice and _looks_like_category_list_request(question, "variables") and _looks_like_plot_request(question):
+        listing_records = [
+            record for record in ts_data
+            if record and (not query_region_match or regions_equivalent(record.get("region"), query_region_match))
+        ]
+        vars = _display_variable_catalog(r.get("variable") for r in listing_records if r.get("variable"))
         if not vars:
             return "I don't see any variables in the loaded dataset. Try reloading or check the IAM PARIS results website."
 
@@ -1952,8 +3017,10 @@ def data_query(
         sample = vars if show_all else (vars[:12] if len(vars) > 8 else vars)
         more = "" if len(vars) <= len(sample) else f" and {len(vars)-len(sample)} more"
         sample_str = "\n- ".join(sample)
+        example_region = query_region_match or "Greece"
         return (f"I can work with these variables:\n- {sample_str}{more}\n\n"
-                "Try queries like 'Capacity|Electricity|Solar|Utility for Greece' or 'plot [variable name] in Greece'."
+                f"Try queries like 'Capacity|Electricity|Solar|Utility for {example_region}' "
+                f"or 'plot [variable name] in {example_region}'."
                 + ("" if show_all else _show_all_hint("variables", len(vars), len(sample))))
 
     # Discovery mode: the user wants help understanding what is available
@@ -1964,10 +3031,16 @@ def data_query(
         r"\bexplore data\b",
     ]
     if _looks_like_discovery_request(question) or any(re.search(pattern, q) for pattern in discovery_phrases):
-        models = sorted({str(m.get('modelName', '')).strip() for m in model_data if m and m.get('modelName')})
-        variables = sorted({str(r.get('variable', '')).strip() for r in ts_data if r and r.get('variable')})
+        models = sorted({
+            str(m.get('modelName', '')).strip()
+            for m in model_data
+            if m and is_presentable_model_label(m.get('modelName'))
+        })
+        variables = _display_variable_catalog(r.get("variable") for r in ts_data if r and r.get("variable"))
         scenarios = sorted({str(r.get('scenario', '')).strip() for r in ts_data if r and r.get('scenario')})
-        regions = sorted({str(r.get('region', '')).strip() for r in ts_data if r and r.get('region')})
+        regions = dedupe_equivalent_regions(sorted({
+            str(r.get('region', '')).strip() for r in ts_data if r and r.get('region')
+        }))
         workspaces = sorted({str(r.get('workspace_code', '')).strip() for r in ts_data if r and r.get('workspace_code')})
 
         def _pick_examples(items: list[str], keywords: list[str], limit: int = 4) -> list[str]:
@@ -2009,16 +3082,38 @@ def data_query(
         response += "- `Plot solar vs wind capacity for EU`\n"
         return response
 
+    # Reject an explicitly named but unavailable location before either the
+    # plotter or variable recommender can reinterpret it as taxonomy wording.
+    if (
+        not forced_region
+        and not query_region_match
+        and (
+            _looks_like_data_request(question)
+            or _looks_like_plot_request(question)
+            or _looks_like_comparison_request(question)
+        )
+    ):
+        unknown_place = unknown_named_region(question, region_candidates, model_names)
+        if unknown_place:
+            examples = sorted(region_candidates, key=lambda value: (len(value), value.casefold()))[:5]
+            labels = ", ".join(f"`{format_region_label(region)}`" for region in examples)
+            suffix = f" Try one of the available regions, e.g. {labels}," if labels else ""
+            return (
+                f"I couldn't find `{unknown_place}` as a region in the IAM PARIS data, "
+                f"so I can't return results for it.{suffix} "
+                "or ask `list regions` to see all options."
+            )
+
     # -------------------------------
     # Handle COMPARISON QUERIES (route to plotter)
     # -------------------------------
-    if _looks_like_comparison_request(question):
+    if allow_plots and _looks_like_comparison_request(question):
         return simple_plot_query(question, model_data, ts_data)
 
     # -------------------------------
     # Handle PLOTTING QUERIES
     # -------------------------------
-    if not forced_choice and (
+    if allow_plots and not forced_choice and (
         _looks_like_plot_request(question)
         or (_looks_like_data_request(question) and any(word in q for word in ['show', 'display']))
     ):
@@ -2031,7 +3126,9 @@ def data_query(
         has_variable_hint = any(h in q_lower for h in variable_hints) or "|" in question
         is_explicit_plot = any(word in q for word in ['plot', 'graph', 'visualize'])
 
-        # If the user only said "show" without a clear variable, don't guess—fall through to clarification
+        # Before the plotting resolver's broad fallback, require at least one
+        # catalogue variable from the requested semantic family. This prevents
+        # a specific but unavailable concept from drifting to an unrelated plot.
         if not has_variable_hint and not is_explicit_plot:
             pass
         else:
@@ -2040,9 +3137,57 @@ def data_query(
             if natural_variable:
                 # Check if this variable exists in our data
                 available_vars = {str(r.get('variable', '')) for r in ts_data if r and r.get('variable')}
-                if natural_variable in available_vars:
+                if natural_variable in available_vars and sanitize_variable_for_query(
+                    natural_variable, question
+                ):
                     # Use simple_plot_query with resolved variable
                     return simple_plot_query(question, model_data, ts_data)
+
+            variable_intent = _infer_variable_intent(question)
+            if variable_intent != "general":
+                guarded_candidates = _suggest_variable_candidates(
+                    question,
+                    variable_dict,
+                    ts_data,
+                    region=query_region_match or None,
+                    ignored_values=query_region_mentions,
+                    limit=3,
+                )
+                if not guarded_candidates:
+                    return "I could not confidently match that wording to a loaded variable. Which variable should I use?"
+                if len(guarded_candidates) > 1:
+                    unresolved_qualifiers = _unmatched_variable_qualifiers(
+                        question,
+                        guarded_candidates,
+                        region=query_region_match,
+                        scenario=forced_scenario,
+                        model=forced_model,
+                        ignored_values=query_region_mentions,
+                    )
+                    if unresolved_qualifiers:
+                        rendered = ", ".join(f"`{term}`" for term in unresolved_qualifiers)
+                        prefix = (
+                            f"I could not match the qualifier(s) {rendered} exactly in the loaded "
+                            "variable catalogue. These are the nearest variables in the requested semantic family."
+                        )
+                    else:
+                        prefix = "I found several loaded variables in that semantic family."
+                    return _choice_prompt(
+                        prefix,
+                        "variable",
+                        guarded_candidates,
+                    )
+                guarded_entities = {"variable": guarded_candidates[0], "action": "plot"}
+                guarded_region = query_region_match
+                if guarded_region:
+                    guarded_entities["region"] = guarded_region
+                guarded_start, guarded_end = extract_year_range(question)
+                if guarded_start is not None:
+                    guarded_entities["start_year"] = guarded_start
+                    guarded_entities["end_year"] = guarded_end
+                return simple_plot_query_with_entities(
+                    question, model_data, ts_data, guarded_entities
+                )
 
             # Fallback to existing plotting logic
             return simple_plot_query(question, model_data, ts_data)
@@ -2050,8 +3195,21 @@ def data_query(
     # -------------------------------
     # LIST AVAILABLE MODELS
     # -------------------------------
-    if _looks_like_category_list_request(question, "models"):
-        models = sorted({r.get('modelName', '') for r in model_data if r and r.get('modelName')})
+    if not forced_choice and _looks_like_category_list_request(question, "models"):
+        if query_region_match:
+            models = sorted({
+                str(record.get("modelName", "")).strip()
+                for record in ts_data
+                if record
+                and regions_equivalent(record.get("region"), query_region_match)
+                and is_presentable_model_label(record.get("modelName"))
+            })
+        else:
+            models = sorted({
+                str(r.get('modelName', '')).strip()
+                for r in model_data
+                if r and is_presentable_model_label(r.get('modelName'))
+            })
         if not models:
             return "I couldn't find any models in the data right now. Try `help` or refresh the data."
 
@@ -2064,14 +3222,17 @@ def data_query(
         return (f"There are {len(models)} models available. "
                 f"Examples: {sample}. "
                 "You can ask for details about a specific model using `info [model name]`, "
-                "or say `list variables` to see the kinds of outputs available."
-                + _show_all_hint("models", len(models), 8))
+                "or say `list variables` to see the kinds of outputs available.")
 
     # -------------------------------
     # LIST AVAILABLE VARIABLES
     # -------------------------------
-    if _looks_like_category_list_request(question, "variables"):
-        vars = sorted({str(r.get('variable', '')) for r in ts_data if r and r.get('variable')})
+    if not forced_choice and _looks_like_category_list_request(question, "variables"):
+        listing_records = [
+            record for record in ts_data
+            if record and (not query_region_match or regions_equivalent(record.get("region"), query_region_match))
+        ]
+        vars = _display_variable_catalog(r.get("variable") for r in listing_records if r.get("variable"))
         if not vars:
             return "I don't see any variables in the loaded dataset. Try reloading or check the IAM PARIS results website."
 
@@ -2087,15 +3248,25 @@ def data_query(
         sample = vars if show_all else (vars[:12] if len(vars) > 8 else vars)
         more = "" if len(vars) <= len(sample) else f" and {len(vars)-len(sample)} more"
         sample_str = "\n- ".join(sample)
-        return (f"I can work with these variables:\n- {sample_str}{more}\n\n"
-                "Try queries like 'Capacity|Electricity|Solar|Utility for Greece' or 'plot [variable name] in Greece'."
+        scope_text = (
+            f" for region `{format_region_label(query_region_match)}`"
+            if query_region_match else ""
+        )
+        example_region = query_region_match or "Greece"
+        return (f"I can work with these variables{scope_text}:\n- {sample_str}{more}\n\n"
+                f"Try queries like 'Capacity|Electricity|Solar|Utility for {example_region}' "
+                f"or 'plot [variable name] in {example_region}'."
                 + ("" if show_all else _show_all_hint("variables", len(vars), len(sample))))
 
     # -------------------------------
     # LIST AVAILABLE SCENARIOS
     # -------------------------------
-    if _looks_like_category_list_request(question, "scenarios"):
-        scenarios = sorted({r.get('scenario', '') for r in ts_data if r and r.get('scenario')})
+    if not forced_choice and _looks_like_category_list_request(question, "scenarios"):
+        scenarios = sorted({
+            r.get('scenario', '') for r in ts_data
+            if r and r.get('scenario')
+            and (not query_region_match or regions_equivalent(r.get("region"), query_region_match))
+        })
         if not scenarios:
             return "No scenarios are loaded in the current dataset. Try a different query or check IAM PARIS results."
 
@@ -2132,7 +3303,9 @@ def data_query(
         more = "" if len(scenarios) <= 8 else f" and {len(scenarios)-8} more"
         sample_str = ", ".join(sample[:-1]) + (" and " + sample[-1] if len(sample) > 1 else sample[0])
         return (
-            f"I found scenarios{qualifier_label} like {sample_str}{'' if show_all else more}. "
+            f"I found scenarios{qualifier_label}"
+            f"{' for ' + format_region_label(query_region_match) if query_region_match else ''} "
+            f"like {sample_str}{'' if show_all else more}. "
             "You can plot variables for any of these scenarios."
             + ("" if show_all else _show_all_hint("scenarios", len(scenarios), len(sample)))
         )
@@ -2140,8 +3313,10 @@ def data_query(
     # -------------------------------
     # LIST AVAILABLE REGIONS
     # -------------------------------
-    if _looks_like_category_list_request(question, "regions"):
-        regions = sorted({str(r.get('region', '')).strip() for r in ts_data if r and r.get('region')})
+    if not forced_choice and _looks_like_category_list_request(question, "regions"):
+        regions = dedupe_equivalent_regions(sorted({
+            str(r.get('region', '')).strip() for r in ts_data if r and r.get('region')
+        }))
         if not regions:
             return "No regions are loaded in the current dataset. Try a different query or check IAM PARIS results."
 
@@ -2155,18 +3330,42 @@ def data_query(
             + ("" if show_all else _show_all_hint("regions", len(regions), len(sample)))
         )
 
-    if _looks_like_category_list_request(question, "workspaces"):
-        workspaces = get_available_workspaces(ts_data)
-        if not workspaces:
+    workspace_entries = _workspace_entries(ts_data)
+    matched_workspace = _matched_workspace(question, workspace_entries)
+    workspace_overview_request = bool(re.search(
+        r"\b(?:about|overview|summary|what(?:\s+is|\s+results?|\s+data)?|show|tell\s+me|"
+        r"available|workspace|study)\b",
+        q,
+    ))
+    # A named study without a data dimension is best introduced through its
+    # own variables/scenarios, rather than through the global variable matcher.
+    if not forced_choice and matched_workspace and workspace_overview_request and not re.search(
+        r"\b(?:plot|chart|graph|table|value|values|timeseries|time\s+series|"
+        r"emissions?|capacity|price|gdp)\b",
+        q,
+    ):
+        record_resolved_scope(workspace_code=str(matched_workspace["code"]), action="query")
+        return _workspace_summary(matched_workspace)
+
+    results_overview_request = bool(re.fullmatch(
+        r"\s*(?:(?:what|which)\s+)?(?:results?|stud(?:y|ies)|workspaces?)\s+"
+        r"(?:are\s+)?(?:available|loaded|included)(?:\s+(?:here|now))?[?.!]?\s*",
+        q,
+    ))
+    if not forced_choice and (
+        _looks_like_category_list_request(question, "workspaces")
+        or results_overview_request
+    ):
+        if not workspace_entries:
             return "No workspaces are loaded in the current dataset. Try a different query or check IAM PARIS results."
 
         show_all = _show_all_requested("workspaces")
-        sample = workspaces if show_all else workspaces[:12]
-        more = "" if len(workspaces) <= len(sample) else f" and {len(workspaces)-len(sample)} more"
+        sample = workspace_entries if show_all else workspace_entries[:12]
+        more = "" if len(workspace_entries) <= len(sample) else f" and {len(workspace_entries)-len(sample)} more"
         return (
-            f"I found these workspaces: {', '.join(sample)}{more}. "
-            "Ask for data within one, e.g. `emissions in the net-zero workspace`."
-            + ("" if show_all else _show_all_hint("workspaces", len(workspaces), len(sample)))
+            "I found these workspaces (studies): " + "; ".join(str(entry["title"]) for entry in sample) + more + ". "
+            "Ask about a study to see its variables, scenarios, and direct IAM PARIS links."
+            + ("" if show_all else _show_all_hint("workspaces", len(workspace_entries), len(sample)))
         )
 
     # -------------------------------
@@ -2175,10 +3374,14 @@ def data_query(
     if re.search(r"\b(list|get)\b.*\b(all|available)\b.*\b(models?|results?|workspaces?)\b", q) or \
        re.search(r"\b(models?|results?|workspaces?)\b.*\b(list|get|available)\b", q) or \
        re.search(r"\b(list|get)\b.*\b(models?|results?|workspaces?)\b.*\b(and|,)\b.*\b(models?|results?|workspaces?)\b", q):
-        models = sorted({r.get('modelName', '') for r in model_data if r and r.get('modelName')})
-        variables = sorted({str(r.get('variable', '')) for r in ts_data if r and r.get('variable')})
+        models = sorted({
+            str(r.get('modelName', '')).strip()
+            for r in model_data
+            if r and is_presentable_model_label(r.get('modelName'))
+        })
+        variables = _display_variable_catalog(r.get("variable") for r in ts_data if r and r.get("variable"))
         scenarios = sorted({r.get('scenario', '') for r in ts_data if r and r.get('scenario')})
-        workspaces = get_available_workspaces(ts_data)
+        workspaces = _workspace_entries(ts_data)
 
         response = "### Available Models, Results, and Workspaces\n\n"
         model_sample = models[:10]
@@ -2186,8 +3389,8 @@ def data_query(
         response += (f" and {len(models)-10} more" if len(models) > 10 else "") + "\n\n"
         response += f"**Results - Variables ({len(variables)}):**\n" + ", ".join(variables[:10]) + (f" and {len(variables)-10} more" if len(variables) > 10 else "") + "\n\n"
         response += f"**Results - Scenarios ({len(scenarios)}):**\n" + ", ".join(scenarios[:10]) + (f" and {len(scenarios)-10} more" if len(scenarios) > 10 else "") + "\n\n"
-        response += f"**Workspaces ({len(workspaces)}):**\n" + ", ".join(workspaces) + "\n\n"
-        response += "For more details on any item, ask specific questions like 'list models' or 'plot [variable]'."
+        response += f"**Studies ({len(workspaces)}):**\n" + ", ".join(str(entry["title"]) for entry in workspaces) + "\n\n"
+        response += "Ask about a specific study to see up to 10 of its variables and scenarios, plus direct IAM PARIS links."
         return response
 
     # -------------------------------
@@ -2199,7 +3402,15 @@ def data_query(
     hinted_model = _extract_model_hint(question)
     direct_model_match = _match_model_name(question)
     candidate_model_matches = [direct_model_match] if direct_model_match else _resolve_model_candidates(hinted_model or question)
-    if (_looks_like_model_info_request(question) and (candidate_model_matches or 'model' in q)) or ('model' in q) or (explicit_model_question and candidate_model_matches):
+    model_info_request = (
+        (_looks_like_model_info_request(question) and (candidate_model_matches or 'model' in q))
+        or ('model' in q)
+        or (explicit_model_question and candidate_model_matches)
+    )
+    # A rendered conversational patch may include ``for model <name>`` as part
+    # of a complete data scope. Once a variable was explicitly forced, that is
+    # a model filter—not a request for the model's description.
+    if model_info_request and not forced_choice:
         if not model_names:
             if profile_match:
                 return format_model_profile_answer(
@@ -2264,6 +3475,35 @@ def data_query(
         rec = records[0] if records else {}
 
         asks_assumptions = bool(re.search(r"\bassumption\b|\bassumptions\b", q))
+        # A qualitative coverage question must remain grounded in the model
+        # profile.  In particular, do not let its topic (for example "energy")
+        # fall through to the variable resolver and suggest unrelated results
+        # variables.  The focused profile formatter says when coverage is not
+        # stated and supplies the model-specific IAM PARIS page when an ID or
+        # URL is available in the catalogue record.
+        coverage_question = bool(re.search(
+            r"\bdoes\s+[^?]+\s+(?:cover(?:s|ed|ing)?|include(?:s|d|ing)?|"
+            r"represent(?:s|ed|ing)?|simulate(?:s|d|ing)?|capture(?:s|d|ing)?|account\s+for)\b",
+            q,
+        ))
+        profile = find_model_profile(model_name)
+        if coverage_question and (profile or rec):
+            profile_with_catalogue_link = dict(profile or {})
+            for key in (
+                "description", "developer", "sectors", "typical_use_cases",
+                "methodology_note", "technology_note", "assumptions_note",
+                "iamparis_model_url", "model_url", "modelUrl", "url", "URL",
+                "route", "path", "slug", "href", "model_id", "modelId",
+                "modelID", "id", "ID", "pk", "modelPk", "model_pk",
+            ):
+                if rec.get(key) not in (None, ""):
+                    profile_with_catalogue_link[key] = rec[key]
+            return format_model_profile_answer(
+                profile_with_catalogue_link,
+                requested_name=model_name,
+                asks_assumptions=asks_assumptions,
+                query=question,
+            )
         return _format_model_info_answer(model_name, rec, asks_assumptions=asks_assumptions)
 
     # -------------------------------
@@ -2279,7 +3519,16 @@ def data_query(
     available_vars = {str(r.get('variable', '')).strip() for r in ts_data if r and r.get('variable')}
     preferred_variable = _preferred_available_variable(question, available_vars)
     explicit_variable_name = _explicit_variable_in_query(question, available_vars)
-    if explicit_variable_name and not forced_variable:
+    # A natural-language phrase with explicit qualifiers ("primary energy from
+    # coal", "solar PV capacity") is more specific than a base variable name
+    # that merely appears as a substring of that phrase.
+    prefer_semantic = bool(
+        preferred_variable
+        and explicit_variable_name
+        and preferred_variable.count("|") > explicit_variable_name.count("|")
+        and "|" not in question
+    )
+    if explicit_variable_name and not forced_variable and not prefer_semantic:
         variable_match = explicit_variable_name
         var_score = 999
         matched_words = []
@@ -2297,9 +3546,8 @@ def data_query(
     region_match = None
 
     # Always try to extract region, regardless of variable match success
-    region_candidates = sorted({str(r.get('region', '')).strip() for r in ts_data if r and r.get('region')})
     extracted = extract_variable_and_region_from_query(question, variable_dict, region_dict, region_candidates)
-    region_match = extracted['region']
+    region_match = query_region_match or extracted['region']
     if re.search(r"\b(world|global)\b", question.lower()):
         region_match = "World"
     if forced_variable:
@@ -2323,11 +3571,22 @@ def data_query(
     # silently fall back to unfiltered (global) data — say so and suggest valid
     # regions. This guards against inventing results for any nonexistent place.
     if not region_match and not forced_region:
-        _place = unknown_named_region(question, region_candidates, model_names)
+        _place = unknown_named_region(
+            question,
+            region_candidates,
+            model_names,
+            scenario_names={
+                str(record.get("scenario", "")).strip()
+                for record in ts_data
+                if record and str(record.get("scenario", "")).strip()
+            },
+            variable_names=available_vars,
+        )
         if _place:
-            _examples = [r for r in ("World", "EU", "USA", "CHN", "IND", "JPN", "BRA") if r in region_candidates]
-            if not _examples:
-                _examples = sorted(region_candidates)[:5]
+            _examples = sorted(
+                region_candidates,
+                key=lambda value: (len(value), value.casefold()),
+            )[:5]
             _labels = ", ".join(f"`{format_region_label(r)}`" for r in _examples[:5])
             return (
                 f"I couldn't find `{_place}` as a region in the IAM PARIS data, "
@@ -2335,6 +3594,119 @@ def data_query(
                 f"Try one of the available regions, e.g. {_labels}, "
                 f"or ask `list regions` to see all options."
             )
+
+    availability_question = bool(
+        re.search(r"\b(?:does|do|is|are|can)\b", q)
+        and re.search(
+            r"\b(?:report|reports|reported|have|has|include|includes|"
+            r"provide|provides|contain|contains|available)\b",
+            q,
+        )
+    )
+    if variable_match and availability_question:
+        requested_model_label = requested_forced_model or forced_model
+        model_members = resolve_model_family_members(
+            requested_model_label or question,
+            ts_model_names,
+        )
+        if not model_members and forced_model in ts_model_names:
+            model_members = [forced_model]
+        model_set = set(model_members)
+        # A named model that has no runtime timeseries member is an empty model
+        # scope, not an instruction to drop the model filter.  Treating an empty
+        # set as "all models" produced false claims such as "WITCH reports..."
+        # while the supporting runtime labels contained no WITCH model at all.
+        if requested_model_label and not model_set:
+            alternatives = sorted({
+                str(record.get("modelName", "")).strip()
+                for record in ts_data
+                if record
+                and str(record.get("variable", "")).strip() == variable_match
+                and (not region_match or regions_equivalent(record.get("region"), region_match))
+                and is_presentable_model_label(record.get("modelName"))
+            })
+            region_text = (
+                f" in region `{format_region_label(region_match)}`"
+                if region_match else ""
+            )
+            alternative_text = (
+                f" Models that do have this slice include: {', '.join(alternatives[:5])}."
+                if alternatives else ""
+            )
+            return (
+                f"No. I could not find loaded timeseries data for model "
+                f"`{requested_model_label}` reporting `{variable_match}`{region_text}."
+                + alternative_text
+            )
+        named_subject = re.search(
+            r"\b(?:does|do)\s+([A-Za-z0-9][\w.-]*)\s+"
+            r"(?:report|reports|have|has|include|includes|provide|provides|contain|contains)\b",
+            question,
+            re.IGNORECASE,
+        )
+        if (
+            named_subject
+            and named_subject.group(1).casefold() not in {"the", "data", "dataset", "database", "results"}
+            and not model_set
+            and not requested_model_label
+        ):
+            return (
+                f"I could not match model `{named_subject.group(1)}` to a model with loaded timeseries data. "
+                "Ask `list models` to see the available model names."
+            )
+        matching_records = [
+            record for record in ts_data
+            if record
+            and str(record.get("variable", "")).strip() == variable_match
+            and (not region_match or regions_equivalent(record.get("region"), region_match))
+            and (not model_set or str(record.get("modelName", "")).strip() in model_set)
+        ]
+        model_scope_named = bool(requested_model_label or model_members)
+        if matching_records:
+            matched_models = sorted({
+                str(record.get("modelName", "")).strip()
+                for record in matching_records
+                if is_presentable_model_label(record.get("modelName"))
+            })
+            matched_scenarios = sorted({
+                str(record.get("scenario", "")).strip()
+                for record in matching_records if record.get("scenario")
+            })
+            matched_years = _years_in_records(matching_records)
+            model_text = (
+                f"Model `{requested_model_label or ', '.join(matched_models)}`"
+                if model_scope_named else "The loaded IAM PARIS results"
+            )
+            region_text = f" for region `{format_region_label(region_match)}`" if region_match else ""
+            details = []
+            if matched_models:
+                details.append(f"runtime model label(s): {', '.join(matched_models)}")
+            if matched_scenarios:
+                details.append(f"{len(matched_scenarios)} scenario(s)")
+            if matched_years:
+                details.append(f"years {matched_years[0]}–{matched_years[-1]}")
+            detail_text = f" ({'; '.join(details)})" if details else ""
+            return f"Yes. {model_text} reports `{variable_match}`{region_text}{detail_text}."
+
+        model_text = f"model `{requested_model_label}`" if requested_model_label else "that model scope"
+        region_text = f" in region `{format_region_label(region_match)}`" if region_match else ""
+        alternatives = sorted({
+            str(record.get("modelName", "")).strip()
+            for record in ts_data
+            if record
+            and str(record.get("variable", "")).strip() == variable_match
+            and (not region_match or regions_equivalent(record.get("region"), region_match))
+            and is_presentable_model_label(record.get("modelName"))
+        })
+        alternative_text = (
+            f" Models that do have this slice include: {', '.join(alternatives[:5])}."
+            if alternatives else ""
+        )
+        return (
+            f"No. I could not find `{variable_match}`{region_text} for {model_text} "
+            "in the loaded IAM PARIS timeseries data."
+            + alternative_text
+        )
 
     if forced_choice:
         model_match = forced_model or _match_model_name(question)
@@ -2353,6 +3725,15 @@ def data_query(
                 model=model_match or None,
             )
         ):
+            family_prompt = _scenario_family_recovery_prompt(
+                ts_data,
+                variable=variable_match,
+                region=region_match,
+                scenario=scenario_match,
+                model=model_match or None,
+            )
+            if family_prompt:
+                return family_prompt
             matrix_prompt = _matrix_recovery_prompt(
                 metadata,
                 (
@@ -2378,7 +3759,7 @@ def data_query(
                     continue
                 if scenario_match and not _scenario_match_ok(r.get('scenario'), scenario_match):
                     continue
-                if region_match and r.get('region') != region_match:
+                if region_match and not regions_equivalent(r.get('region'), region_match):
                     continue
                 out.append(r)
             return out
@@ -2394,24 +3775,44 @@ def data_query(
             if recovered:
                 model_match = ""
                 filtered_data = recovered
-        # When the model was explicitly requested but has no data for this slice
-        # (e.g. it carries no timeseries, or only a sibling variant does), relax
-        # the model filter and tell the user instead of returning a false no-data.
+        # An explicit model is a hard data-integrity boundary.  Never substitute
+        # rows from other models merely because the requested slice is empty.
         elif not filtered_data and model_match and forced_model:
-            recovered = _filter(use_model=False)
-            if recovered:
-                model_relaxed_notice = (
-                    f"Note: no timeseries data for model `{model_match}` in this "
-                    f"slice; showing results across the models that do have it.\n\n"
-                )
-                model_match = ""
-                filtered_data = recovered
+            alternatives = sorted({
+                str(record.get("modelName", "")).strip()
+                for record in _filter(use_model=False)
+                if is_presentable_model_label(record.get("modelName"))
+            })
+            requested_label = requested_forced_model or model_match
+            region_text = (
+                f" in `{format_region_label(region_match)}`" if region_match else ""
+            )
+            scenario_text = (
+                f" under `{scenario_match}`" if scenario_match else ""
+            )
+            alternative_text = (
+                f" Models that do have this exact slice include: {', '.join(alternatives[:5])}."
+                if alternatives else ""
+            )
+            return (
+                f"I could not find `{variable_match}`{region_text}{scenario_text} "
+                f"for the explicitly requested model `{requested_label}`. "
+                "I did not substitute results from a different model."
+                + alternative_text
+            )
 
         if filtered_data:
             has_year_data = any(_record_has_year_data(record) for record in filtered_data)
             if has_year_data:
-                start_year, end_year = _extract_year_range(question)
-                return model_relaxed_notice + format_time_series_data(filtered_data, variable_match, region_match, start_year, end_year)
+                start_year, end_year = _resolved_year_range()
+                return (
+                    _interpretation_notice(variable_match)
+                    + model_relaxed_notice
+                    + format_time_series_data(
+                        filtered_data, variable_match, region_match, start_year, end_year,
+                        workspace_code=workspace_code,
+                    )
+                )
 
             same_scope_variables = sorted({
                 str(r.get('variable', '')).strip()
@@ -2419,7 +3820,7 @@ def data_query(
                 if r and r.get('variable')
                 and (not model_match or r.get('modelName') == model_match)
                 and (not scenario_match or _scenario_match_ok(r.get('scenario'), scenario_match))
-                and (not region_match or r.get('region') == region_match)
+                and (not region_match or regions_equivalent(r.get('region'), region_match))
                 and _record_has_year_data(r)
             })
             same_scope_variables = _filter_vars_by_intent(same_scope_variables, variable_intent)
@@ -2437,6 +3838,16 @@ def data_query(
                 f"I found records for `{variable_match}`, but they do not include year values. "
                 "Try a different variable or ask for `list variables`."
             )
+
+        family_prompt = _scenario_family_recovery_prompt(
+            ts_data,
+            variable=variable_match,
+            region=region_match,
+            scenario=scenario_match,
+            model=model_match or None,
+        )
+        if family_prompt:
+            return family_prompt
 
         matrix_prompt = _matrix_recovery_prompt(
             metadata,
@@ -2513,6 +3924,8 @@ def data_query(
             question,
             significant_words=significant_words,
             region=region_match,
+            ignored_values=query_region_mentions,
+            available_variables=available_vars,
         ):
             candidates = _suggest_variable_candidates(
                 question,
@@ -2521,6 +3934,7 @@ def data_query(
                 ranked_vars=ranked_vars,
                 significant_words=significant_words,
                 region=region_match,
+                ignored_values=query_region_mentions,
                 limit=3,
             )
             if candidates:
@@ -2671,8 +4085,18 @@ def data_query(
     # If the user asked for data but no variable could be resolved, guide them to choose one
     if not variable_match and not forced_choice:
         q_lower = question.lower()
-        broad_policy_or_ndc = bool(re.fullmatch(r"\s*(policy|policies|ndc|ndcs)\s*", q_lower, flags=re.IGNORECASE))
+        broad_policy_or_ndc = re.fullmatch(
+            r"\s*(policy|policies|ndc|ndcs)\s*",
+            q_lower,
+            flags=re.IGNORECASE,
+        )
         if broad_policy_or_ndc:
+            if broad_policy_or_ndc.group(1).lower() in {"ndc", "ndcs"}:
+                return (
+                    "I need one more detail. Are you looking for NDC scenario results, "
+                    "NDC ASPECTS workspaces, or a specific variable and region? Try "
+                    "`NDC emissions for EU` or `global impacts of NDCs`."
+                )
             return (
                 "I need one more detail. Are you looking for policy results, NDC ASPECTS workspaces, "
                 "or a scenario such as `Current Policies`? Try `current policy emissions for EU` "
@@ -2699,6 +4123,8 @@ def data_query(
                 region=region_match,
                 scenario=forced_scenario or _match_scenario_name(question),
                 model=forced_model or _match_model_name(question),
+                ignored_values=query_region_mentions,
+                available_variables=available_vars,
             )
             if not any(h in q_lower for h in variable_hints) and not has_signal:
                 if region_match:
@@ -2713,6 +4139,7 @@ def data_query(
                 region=region_match,
                 scenario=forced_scenario or _match_scenario_name(question),
                 model=forced_model or _match_model_name(question),
+                ignored_values=query_region_mentions,
                 limit=3,
             )
             if candidates:
@@ -2755,6 +4182,7 @@ def data_query(
             ranked_vars=ranked_vars,
             significant_words=significant_words,
             region=region_match,
+            ignored_values=query_region_mentions,
             limit=3,
         )
         if candidates:
@@ -2768,7 +4196,7 @@ def data_query(
     if variable_match:
         model_match = forced_model or _match_model_name(question)
         scenario_match = forced_scenario or _match_scenario_name(question)
-        start_year, end_year = _extract_year_range(question)
+        start_year, end_year = _resolved_year_range()
 
         if (
             metadata
@@ -2800,7 +4228,7 @@ def data_query(
                 str(r.get('variable', '')).strip()
                 for r in ts_data
                 if r and r.get('variable')
-                and (not region_match or r.get('region') == region_match)
+                and (not region_match or regions_equivalent(r.get('region'), region_match))
                 and (not scenario_match or _scenario_match_ok(r.get('scenario'), scenario_match))
                 and (not model_match or r.get('modelName') == model_match)
                 and _record_has_year_data(r)
@@ -2838,7 +4266,7 @@ def data_query(
             if regions_for_var and len(regions_for_var) > 1:
                 region_options = [format_region_label(r) for r in regions_for_var[:3]]
                 return _choice_prompt(
-                    "I found the variable, but I still need the region.",
+                    f"I found variable `{variable_match}`, but I still need the region.",
                     "region",
                     region_options,
                 )
@@ -2849,7 +4277,7 @@ def data_query(
                 for r in ts_data
                 if r and r.get('variable') == variable_match and r.get('scenario')
                 and (not model_match or r.get('modelName') == model_match)
-                and (not region_match or r.get('region') == region_match)
+                and (not region_match or regions_equivalent(r.get('region'), region_match))
             })
             if scenarios_for_var and len(scenarios_for_var) > 1:
                 variable_label = _describe_choice_option("variable", variable_match)
@@ -2919,7 +4347,7 @@ def data_query(
                     continue
                 if scenario_match and not _scenario_match_ok(record.get('scenario'), scenario_match):
                     continue
-                if region_match and record.get('region') == region_match:
+                if region_match and regions_equivalent(record.get('region'), region_match):
                     filtered_data.append(record)
                 elif not region_match:  # No region specified, include all
                     filtered_data.append(record)
@@ -2933,7 +4361,7 @@ def data_query(
                     if r and r.get('variable')
                     and (not model_match or r.get('modelName') == model_match)
                     and (not scenario_match or _scenario_match_ok(r.get('scenario'), scenario_match))
-                    and (not region_match or r.get('region') == region_match)
+                    and (not region_match or regions_equivalent(r.get('region'), region_match))
                     and _record_has_year_data(r)
                 })
                 same_scope_variables = _filter_vars_by_intent(same_scope_variables, variable_intent)
@@ -2952,8 +4380,21 @@ def data_query(
                     "Try a different variable or ask for `list variables`."
                 )
             # Format and return the data
-            return format_time_series_data(filtered_data, variable_match, region_match, start_year, end_year)
+            return _interpretation_notice(variable_match) + format_time_series_data(
+                filtered_data, variable_match, region_match, start_year, end_year,
+                workspace_code=workspace_code,
+            )
         else:
+            family_prompt = _scenario_family_recovery_prompt(
+                ts_data,
+                variable=variable_match,
+                region=region_match,
+                scenario=scenario_match,
+                model=model_match or None,
+            )
+            if family_prompt:
+                return family_prompt
+
             matrix_prompt = _matrix_recovery_prompt(
                 metadata,
                 f"No data found for **{variable_match}** in region `{region_match}` under scenario `{scenario_match}`.",
@@ -2979,7 +4420,7 @@ def data_query(
                 for r in ts_data
                 if r and r.get('variable') == variable_match and r.get('scenario')
                 and (not model_match or r.get('modelName') == model_match)
-                and (not region_match or r.get('region') == region_match)
+                and (not region_match or regions_equivalent(r.get('region'), region_match))
             })
             key_terms = {
                 "methane", "ch4", "demand", "electricity", "emission", "emissions", "co2", "capacity",
@@ -2996,7 +4437,7 @@ def data_query(
                     for r in ts_data
                     if r
                     and r.get('variable')
-                    and r.get('region') == region_match
+                    and regions_equivalent(r.get('region'), region_match)
                     and _scenario_match_ok(r.get('scenario'), scenario_match)
                     and (not model_match or r.get('modelName') == model_match)
                 })
@@ -3027,7 +4468,10 @@ def data_query(
                     if r and r.get('variable') == variable_match
                     and (not model_match or r.get('modelName') == model_match)
                     and (not scenario_match or _scenario_match_ok(r.get('scenario'), scenario_match))
-                    and (not filter_region or (region_match and r.get('region') == region_match))
+                    and (
+                        not filter_region
+                        or (region_match and regions_equivalent(r.get('region'), region_match))
+                    )
                 ]
                 counts = Counter([str(r.get(key, '')).strip() for r in records if r and r.get(key)])
                 return [k for k, _ in counts.most_common(limit)]
@@ -3070,7 +4514,9 @@ def data_query(
                 )
 
             # Best-effort recommendations when a specific region/scenario is missing
-            if region_match and region_match not in scoped_regions:
+            if region_match and not any(
+                regions_equivalent(region_match, value) for value in scoped_regions
+            ):
                 # N6: prefer the requested sub-region's aggregate (e.g. EU for Germany)
                 # over alphabetically/first-by-count regions.
                 aggregate_regions = _aggregate_region_candidates(region_match, scoped_regions)
@@ -3087,7 +4533,7 @@ def data_query(
                         for r in ts_data
                         if r and r.get("variable") and _record_has_year_data(r)
                         and (not model_match or r.get("modelName") == model_match)
-                        and (not region_match or r.get("region") == region_match)
+                        and (not region_match or regions_equivalent(r.get("region"), region_match))
                     }
                     similar_vars = find_similar_available_variables(
                         variable_match,
@@ -3142,7 +4588,7 @@ def data_query(
                     for r in ts_data
                     if r and r.get("variable") and _record_has_year_data(r)
                     and (not model_match or r.get("modelName") == model_match)
-                    and (not region_match or r.get("region") == region_match)
+                    and (not region_match or regions_equivalent(r.get("region"), region_match))
                     and (not scenario_match or _scenario_match_ok(r.get("scenario"), scenario_match))
                 }
                 similar_vars = find_similar_available_variables(
@@ -3193,7 +4639,11 @@ def data_query(
     # MODEL INFO REQUESTS
     # -------------------------------
     if any(w in q for w in ('info', 'details', 'describe', 'about', 'tell me about')):
-        model_names = sorted({r.get('modelName', '') for r in model_data if r and r.get('modelName')})
+        model_names = sorted({
+            str(r.get('modelName', '')).strip()
+            for r in model_data
+            if r and is_presentable_model_label(r.get('modelName'))
+        })
         profile_match = find_model_profile(question)
         if not model_names:
             if profile_match:
@@ -3288,6 +4738,8 @@ def data_query(
             question,
             significant_words=significant_words,
             region=region_match,
+            ignored_values=query_region_mentions,
+            available_variables=available_vars,
         )
         if not any(h in q for h in variable_hints) and not has_signal:
             if region_match:
@@ -3300,6 +4752,7 @@ def data_query(
             ranked_vars=ranked_vars,
             significant_words=significant_words,
             region=region_match,
+            ignored_values=query_region_mentions,
             limit=3,
         )
         if candidates:
@@ -3363,21 +4816,73 @@ def find_similar_available_variables(
         limit=3,
     )
 
+def _normalize_display_unit(unit: object, variable: str = "") -> str:
+    """Normalize harmless spelling variants without changing unit meaning."""
+    value = re.sub(r"\s+", " ", str(unit or "").strip())
+    value = re.sub(r"/\s*(?:y|year)(?=\b)", "/yr", value, flags=re.IGNORECASE)
+    if str(variable or "").casefold().startswith("price|carbon"):
+        # Source records spell the same denominator as /tCO2, /t CO2 and /t.
+        # Keep the currency/year prefix intact and normalize only that suffix.
+        value = re.sub(r"/\s*t(?:\s*co2)?\s*$", "/t CO2", value, flags=re.IGNORECASE)
+    return value or "N/A"
+
+
+def _unit_dimension(unit: object) -> str:
+    """Return a broad physical dimension used to catch mixed-unit outliers.
+
+    This deliberately classifies only well-known unit tokens. Unknown or
+    compound units are left untouched rather than guessed.
+    """
+    value = _normalize_display_unit(unit).casefold()
+    compact = re.sub(r"\s+", "", value)
+    if value == "n/a":
+        return "unknown"
+    if re.search(r"(?:^|[^a-z])(?:ej|pj|tj|gj|mj|kj)(?:[^a-z]|$)", value):
+        return "energy"
+    if re.search(r"(?:^|[^a-z])(?:kwh|mwh|gwh|twh)(?:[^a-z]|$)", value):
+        return "energy"
+    if re.search(r"(?:^|[^a-z])(?:kg|kt|mt|gt|tonne|tonnes|ton|tons)(?:[^a-z]|$)", value):
+        return "mass"
+    if re.search(r"(?:^|[^a-z])(?:kw|mw|gw|tw)(?:[^a-z]|$)", value):
+        return "power"
+    if any(token in compact for token in ("usd", "eur", "gbp", "jpy", "€", "$", "£")):
+        return "currency"
+    if re.search(r"(?:^|[^a-z])(?:person|persons|people|capita)(?:[^a-z]|$)", value):
+        return "population"
+    return "unknown"
+
+
 def format_time_series_data(
     data_records: list,
     variable: str,
     region: str = "",
     start_year: Optional[int] = None,
     end_year: Optional[int] = None,
+    workspace_code: str = "",
 ) -> str:
     """Format time series data into a readable table."""
     if not data_records:
         return f"No data found for variable '{variable}'{' in ' + region if region else ''}."
 
-    # Group by scenario and model
+    record_workspaces = sorted({
+        str(record.get("workspace_code") or "").strip()
+        for record in data_records if str(record.get("workspace_code") or "").strip()
+    })
+    if not workspace_code and len(record_workspaces) > 1:
+        entries = [
+            entry for entry in _workspace_entries(data_records)
+            if str(entry.get("code") or "") in record_workspaces
+        ]
+        return _workspace_choice_response(entries)
+    if not workspace_code and len(record_workspaces) == 1:
+        workspace_code = record_workspaces[0]
+
+    # Group by scenario and model. Groups are validated against the requested
+    # year window below before any heading, scope metadata, or row is rendered.
     scenario_groups = {}
     for record in data_records:
-        key = (str(record.get('scenario', 'Unknown')), str(record.get('modelName', 'Unknown')))
+        key = (str(record.get('scenario', 'Unknown')), str(record.get('modelName', 'Unknown')),
+               _normalize_display_unit(record.get('unit'), variable))
         if key not in scenario_groups:
             scenario_groups[key] = []
         scenario_groups[key].append(record)
@@ -3397,94 +4902,201 @@ def format_time_series_data(
 
     all_years: list[str] = []
     for record in data_records:
-        all_years.extend([k for k in record.keys() if str(k).isdigit()])
+        all_years.extend([
+            str(key) for key, value in record.items()
+            if str(key).isdigit() and is_finite_numeric_value(value)
+        ])
         nested_years = record.get("years")
         if isinstance(nested_years, dict):
-            all_years.extend([k for k in nested_years.keys() if str(k).isdigit()])
+            all_years.extend([
+                str(key) for key, value in nested_years.items()
+                if str(key).isdigit() and is_finite_numeric_value(value)
+            ])
     selected_years = select_years(
         sorted({str(year) for year in all_years}, key=lambda y: int(y)),
         start_year,
         end_year,
     )
-    units = sorted({str(record.get("unit", "")).strip() for record in data_records if record.get("unit")})
-    scenarios = sorted({scenario for scenario, _model in scenario_groups})
-    models = sorted({model for _scenario, model in scenario_groups})
+    def _value_for_year(records: list, year: str):
+        for record in records:
+            if year in record and is_finite_numeric_value(record[year]):
+                return record[year]
+            nested_years = record.get("years")
+            if (
+                isinstance(nested_years, dict)
+                and year in nested_years
+                and is_finite_numeric_value(nested_years[year])
+            ):
+                return nested_years[year]
+        return None
+
+    visible_groups = {}
+    group_units = {}
+    for key, records in scenario_groups.items():
+        values = {
+            year: _value_for_year(records, str(year))
+            for year in selected_years
+        }
+        values = {year: value for year, value in values.items() if value is not None}
+        if not values:
+            continue
+        visible_groups[key] = (records, values)
+        raw_unit = next((record.get("unit") for record in records if record.get("unit")), "N/A")
+        group_units[key] = _normalize_display_unit(raw_unit, variable)
+
+    if not visible_groups:
+        place = f" in {region}" if region else ""
+        period = _year_scope_text(selected_years)
+        return f"No data found for variable '{variable}'{place} for the requested period ({period})."
+
+    # When one physical dimension clearly dominates, do not silently mix a
+    # conflicting outlier into the same table. Unknown units are retained; a
+    # tie is also retained because there is no principled dominant dimension.
+    dimension_counts = {}
+    for key in visible_groups:
+        dimension = _unit_dimension(group_units[key])
+        if dimension != "unknown":
+            dimension_counts[dimension] = dimension_counts.get(dimension, 0) + 1
+    excluded_groups = []
+    if len(dimension_counts) > 1:
+        ranked_dimensions = sorted(dimension_counts.items(), key=lambda item: (-item[1], item[0]))
+        dominant_dimension, dominant_count = ranked_dimensions[0]
+        if dominant_count > ranked_dimensions[1][1]:
+            for key in list(visible_groups):
+                dimension = _unit_dimension(group_units[key])
+                if dimension not in {"unknown", dominant_dimension}:
+                    scenario, model, _unit = key
+                    excluded_groups.append((display_model_label(model), scenario, group_units[key]))
+                    visible_groups.pop(key)
+                    group_units.pop(key, None)
+
+    units = sorted(set(group_units.values()))
+    scenarios = sorted({scenario for scenario, _model, _unit in visible_groups})
+    raw_models = sorted({model for _scenario, model, _unit in visible_groups})
+    models = sorted({display_model_label(model) for model in raw_models})
+
+    def _format_value(value: object) -> str:
+        if isinstance(value, (int, float)):
+            if abs(value) >= 1e6:
+                return f"{value/1e6:.1f}M"
+            if abs(value) >= 1e3:
+                return f"{value/1e3:.1f}K"
+            return f"{value:.2f}"
+        return str(value)
+
+    def _markdown_cell(value: object) -> str:
+        return str(value).replace("\n", " ").replace("|", "\\|")
+
+    def _series_sort_key(key: tuple[str, str, str]) -> tuple:
+        scenario, model, unit = key
+        return (model.casefold(), scenario.casefold(), model, scenario, unit)
+
+    ordered_group_keys = sorted(visible_groups, key=_series_sort_key)
+    use_compact_matrix = len(ordered_group_keys) > DATA_COMPACT_GROUP_THRESHOLD
 
     response = f"### {variable}"
     if region:
         response += f" in {region}"
     response += "\n\n"
     scenario_scope = scenarios[0] if len(scenarios) == 1 else "multiple"
-    model_scope = models[0] if len(models) == 1 else "multiple"
+    model_scope = display_model_label(raw_models[0]) if len(raw_models) == 1 else "multiple"
+    # The formatter has the authoritative unit after removing empty or
+    # physically incompatible groups. Record that resolved value alongside
+    # the other scope dimensions so the manager does not retain an extractor
+    # guess from before the data was filtered (for example ``EJ/yr`` for
+    # Population or ``Mt CO2/yr`` for electricity output).
+    unit_scope = units[0] if len(units) == 1 else ("multiple" if units else "N/A")
     record_resolved_scope(
         variable=variable,
         region=region,
         scenario=scenario_scope,
-        model=model_scope,
+        scenarios=scenarios,
+        result_models=models,
+        unit=unit_scope,
+        start_year=int(selected_years[0]) if selected_years else start_year,
+        end_year=int(selected_years[-1]) if selected_years else end_year,
+        all_scenarios=len(scenarios) > 1,
+        action="query",
+        workspace_code=workspace_code,
     )
-    unit_scope = units[0] if len(units) == 1 else ("multiple" if units else "N/A")
     response += (
         f"Scope: scenario `{scenario_scope}`, model `{model_scope}`, "
         f"years `{_year_scope_text(selected_years)}`\n"
     )
     response += f"Unit: `{unit_scope}`\n\n"
+    if excluded_groups:
+        excluded = ", ".join(
+            f"`{model} - {scenario}` ({unit})"
+            for model, scenario, unit in excluded_groups
+        )
+        response += (
+            "Note: excluded incompatible unit group(s) from this table: "
+            f"{excluded}.\n\n"
+        )
     response += "Answer:\n"
 
-    for (scenario, model), records in scenario_groups.items():
-        response += f"**{model} - {scenario}**\n"
-
-        # Get year columns
-        years = []
-        for record in records:
-            years.extend([k for k in record.keys() if str(k).isdigit()])
-            nested_years = record.get("years")
-            if isinstance(nested_years, dict):
-                years.extend([k for k in nested_years.keys() if str(k).isdigit()])
-        years = select_years(sorted({str(year) for year in years}, key=lambda y: int(y)), start_year, end_year)
-
-        if not years:
-            response += "No year data available\n\n"
-            continue
-
-        # Create table header
-        response += "| Year | Value | Unit |\n|------|-------|------|\n"
-
-        # Get data for each year
-        unit = records[0].get('unit', 'N/A') if records else 'N/A'
-
-        for year in years:
-            if not str(year).isdigit():
-                continue
-            # Find value for this year (take first record that has it)
-            value = None
-            for record in records:
-                if str(year) in record and record[str(year)] is not None:
-                    value = record[str(year)]
-                    break
-                nested_years = record.get("years")
-                if isinstance(nested_years, dict) and str(year) in nested_years and nested_years[str(year)] is not None:
-                    value = nested_years[str(year)]
-                    break
-
-            if value is not None:
-                # Format large numbers
-                if isinstance(value, (int, float)):
-                    if abs(value) >= 1e6:
-                        formatted_value = f"{value/1e6:.1f}M"
-                    elif abs(value) >= 1e3:
-                        formatted_value = f"{value/1e3:.1f}K"
-                    else:
-                        formatted_value = f"{value:.2f}"
-                else:
-                    formatted_value = str(value)
-                response += f"| {year} | {formatted_value} | {unit} |\n"
-
+    if use_compact_matrix:
+        total_series = len(ordered_group_keys)
+        display_limit = max(1, DATA_GROUP_DISPLAY_LIMIT)
+        displayed_keys = ordered_group_keys[:display_limit]
+        displayed_count = len(displayed_keys)
+        model_label = "model" if len(raw_models) == 1 else "models"
+        scenario_label = "scenario" if len(scenarios) == 1 else "scenarios"
+        response += (
+            f"Summary: {total_series} series across {len(raw_models)} {model_label} "
+            f"and {len(scenarios)} {scenario_label}.\n"
+        )
+        if displayed_count < total_series:
+            remaining = total_series - displayed_count
+            response += (
+                f"Showing series 1-{displayed_count} of {total_series}, ordered by model "
+                "and scenario. "
+                f"Narrow by model or scenario to view the {remaining} remaining "
+                "series.\n"
+            )
+        else:
+            response += "Series are ordered by model and scenario.\n"
         response += "\n"
 
-    next_bits = [f"`plot {variable}`"]
-    if region:
-        next_bits[0] = f"`plot {variable} for {region}`"
-    response += "Next:\n"
-    response += f"- Ask {next_bits[0]} to visualize this result.\n"
+        year_columns = [year for year in selected_years if str(year).isdigit()]
+        header_cells = ["Model", "Scenario", *year_columns, "Unit"]
+        response += "| " + " | ".join(header_cells) + " |\n"
+        response += "|" + "|".join("---" for _ in header_cells) + "|\n"
+        for scenario, model, series_unit in displayed_keys:
+            _records, values = visible_groups[(scenario, model, series_unit)]
+            value_cells = [
+                _format_value(values[year]) if year in values else "—"
+                for year in year_columns
+            ]
+            row_cells = [
+                _markdown_cell(display_model_label(model)),
+                _markdown_cell(scenario),
+                *(_markdown_cell(value) for value in value_cells),
+                _markdown_cell(group_units[(scenario, model, series_unit)]),
+            ]
+            response += "| " + " | ".join(row_cells) + " |\n"
+        response += "\n"
+    else:
+        # Preserve the familiar detailed layout for small scopes. Iterating in
+        # insertion order keeps this path backward compatible with prior output.
+        for (scenario, model, series_unit), (_records, values) in visible_groups.items():
+            response += f"**{display_model_label(model)} - {scenario}**\n"
+
+            response += "| Year | Value | Unit |\n|------|-------|------|\n"
+            unit = group_units[(scenario, model, series_unit)]
+
+            for year, value in values.items():
+                if not str(year).isdigit():
+                    continue
+                response += f"| {year} | {_format_value(value)} | {unit} |\n"
+
+            response += "\n"
+
+    workspace_entry = _workspace_catalog().get(str(workspace_code or "").strip(), {})
+    explorer_url = str(workspace_entry.get("explorer_url") or "https://iamparis.eu/results")
+    response += (
+        "For interactive charts and additional filters, use the "
+        f"[IAM PARIS data explorer]({explorer_url}).\n"
+    )
 
     return response
