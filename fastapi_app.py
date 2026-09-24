@@ -371,6 +371,11 @@ def _sanitize_model_series_label(value: object) -> str:
 
 def _sanitize_response_model_scope(value: Any, key: str = "") -> Any:
     """Sanitize model-labelled response fields without changing source records."""
+    normalized_key = str(key or "").casefold()
+    # Confidence maps hold numeric scores keyed by dimension name (including
+    # "model"), so their values are never model labels.
+    if normalized_key.endswith("confidence"):
+        return value
     if isinstance(value, dict):
         return {
             child_key: _sanitize_response_model_scope(child_value, child_key)
@@ -378,7 +383,6 @@ def _sanitize_response_model_scope(value: Any, key: str = "") -> Any:
         }
     if isinstance(value, (list, tuple, set)):
         return [_sanitize_response_model_scope(item, key) for item in value]
-    normalized_key = str(key or "").casefold()
     if normalized_key == "displayed_series":
         return _sanitize_model_series_label(value)
     if "model" in normalized_key and not normalized_key.endswith(("count", "confidence")):
@@ -820,10 +824,20 @@ def _provenance_display_fields(provenance: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def _is_low_confidence(value: Any) -> bool:
+    """True for a numeric confidence below 0.5; non-numeric values are ignored."""
+    try:
+        return float(value) < 0.5
+    except (TypeError, ValueError):
+        return False
+
+
 def _should_log_eval_candidate(trace: Dict[str, Any]) -> bool:
     route_confidence = float(trace.get("route_confidence") or 0.0)
     entity_confidence = trace.get("entity_confidence") or {}
-    low_entity = any(float(value or 0.0) < 0.5 for value in entity_confidence.values())
+    low_entity = isinstance(entity_confidence, dict) and any(
+        _is_low_confidence(value) for value in entity_confidence.values()
+    )
     return bool(trace.get("no_data_reason") or route_confidence < 0.55 or low_entity)
 
 
@@ -876,7 +890,9 @@ def _update_monitoring(trace: Dict[str, Any] | None = None, *, failed: bool = Fa
         if float(trace.get("route_confidence") or 0.0) < 0.55:
             _monitoring_counters["low_confidence_route_queries"] += 1
         entity_confidence = trace.get("entity_confidence") or {}
-        if any(float(value or 0.0) < 0.5 for value in entity_confidence.values()):
+        if isinstance(entity_confidence, dict) and any(
+            _is_low_confidence(value) for value in entity_confidence.values()
+        ):
             _monitoring_counters["low_confidence_entity_queries"] += 1
         _save_monitoring_counters()
 

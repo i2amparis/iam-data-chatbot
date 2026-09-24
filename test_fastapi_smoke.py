@@ -742,6 +742,37 @@ class FastAPISmokeTests(unittest.TestCase):
 
         self.assertEqual(count, 3)
 
+    def test_response_sanitizer_keeps_entity_confidence_numeric(self):
+        sanitized = fastapi_app._sanitize_response_model_scope({
+            "model": "42",
+            "entity_confidence": {"model": 0.75, "action": 0.9},
+        })
+        self.assertEqual(
+            sanitized["entity_confidence"], {"model": 0.75, "action": 0.9}
+        )
+        self.assertEqual(sanitized["model"], UNLABELLED_MODEL_LABEL)
+
+    def test_monitoring_ignores_non_numeric_entity_confidence(self):
+        with patch("fastapi_app._save_monitoring_counters"):
+            fastapi_app._update_monitoring({
+                "route_confidence": 0.9,
+                "entity_confidence": {"model": UNLABELLED_MODEL_LABEL, "action": 0.75},
+            })
+        self.assertEqual(fastapi_app._monitoring_counters["total_queries"], 1)
+        self.assertEqual(
+            fastapi_app._monitoring_counters["low_confidence_entity_queries"], 0
+        )
+
+    def test_eval_candidate_check_ignores_non_numeric_entity_confidence(self):
+        self.assertFalse(fastapi_app._should_log_eval_candidate({
+            "route_confidence": 0.9,
+            "entity_confidence": {"model": UNLABELLED_MODEL_LABEL},
+        }))
+        self.assertTrue(fastapi_app._should_log_eval_candidate({
+            "route_confidence": 0.9,
+            "entity_confidence": {"model": 0.2},
+        }))
+
     def test_query_trace_contains_monitoring_fields(self):
         manager = _ManagerStub({}, streaming=False)
         trace = fastapi_app._build_query_trace(
