@@ -71,6 +71,10 @@ LOCAL_LLM_BASE_URL=http://localhost:11434
   `IAM_OPENAI_EMBEDDING_MODEL` (default `text-embedding-3-small`).
 - `LOCAL_LLM_REASONING_EFFORT=none` disables reasoning tokens (`think: false`) for
   models such as qwen3; without it the `<think>` output breaks JSON parsing.
+- `LOCAL_LLM_TIMEOUT` (seconds) overrides the HTTP timeout for local models. CPU
+  inference is much slower than the OpenAI endpoints the call sites were tuned
+  for, so a long prompt can exceed the default 30s; set e.g. `120`-`240` together
+  with a matching `IAM_API_REQUEST_TIMEOUT`.
 - On the server, run Ollama and pull the models:
 
   ```bash

@@ -63,9 +63,21 @@ def _reasoning_setting():
     return value  # low / medium / high
 
 
+def _local_timeout(default):
+    """Local CPU inference can be much slower than the OpenAI defaults, so allow
+    LOCAL_LLM_TIMEOUT (seconds) to override the timeout from the call sites."""
+    value = (os.getenv("LOCAL_LLM_TIMEOUT") or "").strip()
+    if not value:
+        return default
+    try:
+        return float(value)
+    except ValueError:
+        return default
+
+
 def _build_local(model_name: str, **kwargs):
     # Translate OpenAI-client kwargs into ChatOllama equivalents.
-    timeout = kwargs.pop("timeout", None)
+    timeout = _local_timeout(kwargs.pop("timeout", None))
     streaming = kwargs.pop("streaming", None)
     for key in ("max_retries", "openai_api_key", "api_key", "openai_api_base", "base_url"):
         kwargs.pop(key, None)
@@ -104,8 +116,9 @@ def get_embeddings(**kwargs):
         # Keep a bounded HTTP timeout so a slow/unreachable Ollama cannot hang
         # the boot-time FAISS build indefinitely.
         client_kwargs = dict(kwargs.get("client_kwargs") or {})
-        if kwargs.get("timeout") is not None:
-            client_kwargs.setdefault("timeout", kwargs["timeout"])
+        timeout = _local_timeout(kwargs.get("timeout"))
+        if timeout is not None:
+            client_kwargs.setdefault("timeout", timeout)
         return OllamaEmbeddings(
             model=local_model,
             base_url=LOCAL_LLM_BASE_URL,
