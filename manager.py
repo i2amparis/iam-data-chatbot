@@ -4882,13 +4882,23 @@ class MultiAgentManager:
             normalized_query = re.sub(r"\s+", " ", str(query or "").casefold()).strip()
             # An exact catalogue variable in the user's wording is authoritative.
             # Prefer its scoped availability over a broader topic-family summary;
-            # the vocabulary remains entirely runtime-driven.
+            # the vocabulary remains entirely runtime-driven. Normalizing outside
+            # the f-string keeps its expression free of backslashes, which
+            # f-strings before Python 3.12 reject.
+            normalized_variables = sorted(
+                (
+                    (str(variable), re.sub(r"\s+", " ", str(variable).casefold()).strip())
+                    for variable in available_variables
+                ),
+                key=lambda item: -len(item[0]),
+            )
             explicit_variable = next(
                 (
-                    str(variable)
-                    for variable in sorted(available_variables, key=lambda value: -len(str(value)))
-                    if re.search(
-                        rf"(?<![\w|]){re.escape(re.sub(r'\s+', ' ', str(variable).casefold()).strip())}(?![\w|])",
+                    original
+                    for original, normalized_variable in normalized_variables
+                    if normalized_variable
+                    and re.search(
+                        rf"(?<![\w|]){re.escape(normalized_variable)}(?![\w|])",
                         normalized_query,
                     )
                 ),
