@@ -1,8 +1,9 @@
+import json
 import logging
 import unittest
 from unittest.mock import patch
 
-from data_utils import format_time_series_data
+from data_utils import _looks_like_capability_question, format_time_series_data
 from agents import DataQueryAgent
 from manager import MultiAgentManager, _looks_like_site_navigation_request
 from main import _normalize_cli_query
@@ -88,6 +89,69 @@ class ManagerFallbackTests(unittest.TestCase):
         mgr.turn_counter = 0
         mgr.current_turn = 0
         return mgr
+
+    def test_assistant_capability_question_routes_to_general_qa(self):
+        mgr = self._build_manager(
+            {
+                "action": "query",
+                "scenario": "Policy",
+                "entity_confidence": {"action": 0.75, "scenario": 0.9},
+            }
+        )
+        data_agent = _AgentStub(response="data handled")
+        general_agent = _AgentStub(response="general handled")
+        mgr.agents = {
+            "data_query": data_agent,
+            "general_qa": general_agent,
+            "model_explanation": _AgentStub(response="model"),
+            "data_plotting": _AgentStub(response="plot"),
+            "modelling_suggestions": _AgentStub(response="suggest"),
+        }
+
+        response = mgr._route_single(
+            "How can IAM PARIS help with climate policy research?"
+        )
+
+        self.assertEqual(response, "general handled")
+        self.assertEqual(mgr.last_route_decision["agent"], "general_qa")
+        self.assertEqual(
+            mgr.last_route_decision["reason"], "assistant capability question"
+        )
+        self.assertEqual(data_agent.calls, 0)
+        self.assertNotIn("Policy", json.dumps(mgr.last_entities))
+
+    def test_data_request_is_not_mistaken_for_a_capability_question(self):
+        mgr = self._build_manager({})
+        data_agent = _AgentStub(response="data handled")
+        general_agent = _AgentStub(response="general handled")
+        mgr.agents = {
+            "data_query": data_agent,
+            "general_qa": general_agent,
+            "model_explanation": _AgentStub(response="model"),
+            "data_plotting": _AgentStub(response="plot"),
+            "modelling_suggestions": _AgentStub(response="suggest"),
+        }
+
+        response = mgr._route_single("Show me CO2 emissions for Europe in 2050")
+
+        self.assertEqual(response, "data handled")
+        self.assertEqual(mgr.last_route_decision["agent"], "data_query")
+        self.assertEqual(general_agent.calls, 0)
+
+    def test_capability_detector_matches_general_shapes_only(self):
+        for question in (
+            "How can IAM PARIS help with climate policy research?",
+            "What can you do?",
+            "How could this platform help me explore mitigation pathways?",
+        ):
+            self.assertTrue(_looks_like_capability_question(question), question)
+
+        for question in (
+            "Can you help me find CO2 emissions data?",
+            "Show me CO2 emissions for Europe in 2050",
+            "What models are available?",
+        ):
+            self.assertFalse(_looks_like_capability_question(question), question)
 
     def test_plot_request_redirects_to_data_explorer_without_calling_plot_agent(self):
         mgr = self._build_manager({})

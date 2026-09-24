@@ -14,7 +14,7 @@ import requests.exceptions
 import time
 import hashlib
 import re
-from llm_config import QA_MODEL
+from llm_config import EXTRACTOR_MODEL, QA_MODEL, ROUTER_MODEL
 from pathlib import Path
 import argparse
 import requests
@@ -27,8 +27,7 @@ import base64
 
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
-from llm_factory import get_chat_openai as ChatOpenAI
+from llm_factory import get_chat_openai as ChatOpenAI, get_embeddings, is_local_model
 from langchain_community.vectorstores import FAISS
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain.chains import ConversationalRetrievalChain
@@ -360,10 +359,23 @@ class IAMParisBot:
 
     def load_env(self):
         load_dotenv()
-        required = ["OPENAI_API_KEY", "REST_MODELS_URL", "REST_API_FULL"]
-        self.env = {k: os.getenv(k) for k in required}
-        if missing := [k for k, v in self.env.items() if not v]:
+        self.env = {
+            k: os.getenv(k) for k in ("OPENAI_API_KEY", "REST_MODELS_URL", "REST_API_FULL")
+        }
+        required = ["REST_MODELS_URL", "REST_API_FULL"]
+        if self._openai_required():
+            required.append("OPENAI_API_KEY")
+        if missing := [k for k in required if not self.env.get(k)]:
             raise RuntimeError(f"Missing environment variables: {', '.join(missing)}")
+
+    @staticmethod
+    def _openai_required() -> bool:
+        """OpenAI credentials are only mandatory while a role or embeddings use OpenAI."""
+        embeddings_local = bool(os.getenv("IAM_EMBEDDING_MODEL", "").strip())
+        roles_local = all(
+            is_local_model(model) for model in (ROUTER_MODEL, EXTRACTOR_MODEL, QA_MODEL)
+        )
+        return not (embeddings_local and roles_local)
 
     def fetch_json(self, url: str, params=None, payload=None, cache=True, max_retries=3) -> list:
         os.makedirs("cache", exist_ok=True)
@@ -654,7 +666,7 @@ def main():
     region_docs, variable_docs = load_definitions()
     all_docs = docs_from_records(models) + region_docs + variable_docs
     chunks = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=80).split_documents(all_docs)
-    embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=bot.env["OPENAI_API_KEY"], timeout=30, max_retries=1)
+    embeddings = get_embeddings(model="text-embedding-3-small", api_key=bot.env["OPENAI_API_KEY"], timeout=30, max_retries=1)
     faiss_index = build_faiss_index(chunks, embeddings)
 
     shared_resources = build_runtime_context(

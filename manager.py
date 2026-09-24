@@ -16,6 +16,7 @@ from data_utils import (
     _model_scoped_category,
     _looks_like_comparison_request,
     _looks_like_category_list_request,
+    _looks_like_capability_question,
     _looks_like_data_request,
     _looks_like_model_info_request,
     _looks_like_plot_request,
@@ -2136,6 +2137,15 @@ class MultiAgentManager:
                 "reason": "model information request",
             }
 
+        if _looks_like_capability_question(query):
+            return {
+                "agent": "general_qa",
+                "confidence": 0.9,
+                "source": "deterministic",
+                "reason": "assistant capability question",
+                "clear_entities": True,
+            }
+
         if explicit_data_query:
             return {
                 "agent": "data_query",
@@ -2237,6 +2247,8 @@ class MultiAgentManager:
             for category in ("models", "variables", "regions", "scenarios")
         ) or re.search(r"\b(list|available|what)\b.*\bworkspaces?\b", q):
             return "data_query"
+        if _looks_like_capability_question(query):
+            return "general_qa"
         if any(entities.get(k) for k in ("variable", "region", "scenario", "model")):
             return "data_query"
         if _looks_like_data_request(query):
@@ -6076,6 +6088,10 @@ class MultiAgentManager:
 
             route_decision = self._deterministic_route_decision(query, entities)
             if route_decision:
+                if route_decision.get("clear_entities"):
+                    # Capability questions carry no data scope; a scenario-like
+                    # noun such as "policy" must not leak into follow-up state.
+                    entities = {}
                 agent_name = self._record_route_decision(
                     route_decision["agent"],
                     route_decision["confidence"],

@@ -285,6 +285,39 @@ def _looks_like_data_request(text: str) -> bool:
     return bool(re.search(r"\btime\s+series\b", q) or re.search(r"\bunder\s+different\s+scenarios\b", q))
 
 
+_ASSISTANT_REFERENCE_RE = re.compile(
+    r"\b(?:you|your|yours|iam\s+paris|"
+    r"(?:this|the)\s+(?:chatbot|bot|assistant|site|website|platform|tool|service|"
+    r"explorer|data\s+explorer))\b"
+)
+
+_ASSISTANT_CAPABILITY_RE = re.compile(
+    r"\bhow\s+(?:can|could|do|does|would|might)\b[^?]{0,140}?"
+    r"\b(?:help|assist|support|useful|be\s+used|work)\b"
+    r"|\bwhat\s+(?:can|could)\s+(?:you|it)\s+(?:do|offer|provide|help)\b"
+    r"|\bwhat\s+(?:can|could)\s+(?:iam\s+paris|(?:this|the)\s+"
+    r"(?:chatbot|bot|assistant|site|website|platform|tool|service|explorer|"
+    r"data\s+explorer))\s+(?:do|offer|provide|help\s+with)\b"
+    r"|\bwhat\s+(?:can|could)\s+i\s+(?:do|ask|explore|query|find|use)\s+with\b"
+)
+
+
+def _looks_like_capability_question(text: str) -> bool:
+    """Questions about what the assistant/platform can do, not data requests.
+
+    "How can IAM PARIS help with climate policy research?" asks about the
+    assistant's scope, so the noun "policy" must not turn it into a data
+    request. Pattern-based (not query-specific) so it generalizes to any
+    "how can <assistant> help with ...", "what can you do", etc.
+    """
+    q = normalize_query_text(text, expand_synonyms=False)
+    if not q:
+        return False
+    if not _ASSISTANT_REFERENCE_RE.search(q):
+        return False
+    return bool(_ASSISTANT_CAPABILITY_RE.search(q))
+
+
 # N6: map common sub-regions (countries) to the aggregate region codes that are
 # most likely to actually carry data, so no-data recovery suggests EU for Germany
 # instead of an unrelated alphabetical region.

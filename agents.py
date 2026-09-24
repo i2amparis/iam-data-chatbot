@@ -84,7 +84,7 @@ class DataQueryAgent(BaseAgent):
             streaming=self.streaming,
             timeout=30,
             max_retries=1,
-            api_key=self.resources["env"]["OPENAI_API_KEY"],
+            api_key=(self.resources.get("env") or {}).get("OPENAI_API_KEY"),
         )
 
         message_history = ChatMessageHistory()

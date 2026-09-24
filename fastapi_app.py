@@ -28,7 +28,7 @@ from main import (
     load_best_cached_results,
     load_definitions as load_cached_definitions,
 )
-from langchain_openai import OpenAIEmbeddings
+from llm_factory import get_embeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from manager import MultiAgentManager
 from runtime_context import build_runtime_context
@@ -277,7 +277,7 @@ def initialize_resources():
         
         logger.info("Building FAISS vector index...")
         _check_timeout("FAISS index building")
-        embeddings = OpenAIEmbeddings(model='text-embedding-3-small', api_key=bot.env['OPENAI_API_KEY'], timeout=30, max_retries=1)
+        embeddings = get_embeddings(model='text-embedding-3-small', api_key=bot.env['OPENAI_API_KEY'], timeout=30, max_retries=1)
         faiss_index = build_faiss_index(chunks, embeddings)
         logger.info("FAISS index built successfully")
         

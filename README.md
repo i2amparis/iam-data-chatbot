@@ -49,6 +49,42 @@ IAM_TRUST_PROXY=0
 
 The app loads this file with `python-dotenv`.
 
+### Local models (Qwen + Ollama) alongside OpenAI
+
+Model selection is configuration-only, so the OpenAI path is never removed. With
+nothing set the app behaves exactly as before (OpenAI only). To run everything on
+a local Ollama server, set:
+
+```env
+LOCAL_LLM_MODEL=qwen3:0.6b-q4_K_M
+LOCAL_LLM_REASONING_EFFORT=none
+IAM_EMBEDDING_MODEL=nomic-embed-text
+LOCAL_LLM_BASE_URL=http://localhost:11434
+```
+
+- `LOCAL_LLM_MODEL` makes every role (router, extractor, QA) default to that model.
+  Override a single role with `IAM_ROUTER_MODEL`, `IAM_EXTRACTOR_MODEL` or
+  `IAM_QA_MODEL`, e.g. keep `IAM_QA_MODEL=gpt-4o` while routing locally.
+- `IAM_EMBEDDING_MODEL` switches embeddings to Ollama. Because the dimensions
+  differ (768 vs 1536), the FAISS index is rebuilt automatically the first time.
+  While it is unset, embeddings use OpenAI; override that OpenAI model with
+  `IAM_OPENAI_EMBEDDING_MODEL` (default `text-embedding-3-small`).
+- `LOCAL_LLM_REASONING_EFFORT=none` disables reasoning tokens (`think: false`) for
+  models such as qwen3; without it the `<think>` output breaks JSON parsing.
+- On the server, run Ollama and pull the models:
+
+  ```bash
+  ollama pull qwen3:0.6b-q4_K_M
+  ollama pull nomic-embed-text
+  ```
+
+- Remove those variables (or unset `LOCAL_LLM_MODEL`) to return to OpenAI. If the
+  app runs in a container, `localhost` does not reach the host: point
+  `LOCAL_LLM_BASE_URL` at the host gateway (e.g. `http://172.17.0.1:11434`) and
+  bind Ollama to that gateway only, e.g. `OLLAMA_HOST=172.17.0.1:11434`. Never
+  expose port 11434 publicly: Ollama has no authentication, so restrict it with
+  the host firewall to the container network.
+
 ## CLI Usage
 
 Interactive mode:
