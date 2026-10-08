@@ -100,7 +100,7 @@ VARIABLE_ALIASES: tuple[tuple[tuple[str, ...], tuple[str, ...]], ...] = (
     # Keep the generic CO2 alias after the sector-specific phrases above.
     # Otherwise its shorter phrase (``CO2 emissions``) wins first and silently
     # erases an explicitly requested AFOLU or power-sector scope.
-    (("carbon dioxide emissions", "carbon dioxide release", "co2 emissions",
+    (("carbon dioxide emissions", "carbon dioxide release", "carbon dioxide", "co2 emissions",
       "carbon emissions", "co2"),
      ("Emissions|CO2",)),
     (("industrial final energy demand", "industry final energy demand",
@@ -129,7 +129,27 @@ VARIABLE_ALIASES: tuple[tuple[tuple[str, ...], tuple[str, ...]], ...] = (
     (("final energy demand", "final energy"), ("Final Energy",)),
     (("primary energy demand", "primary energy", "primary enegy"), ("Primary Energy",)),
     (("secondary energy",), ("Secondary Energy",)),
+    (("energy demand", "energy use", "energy consumption"), ("Final Energy",)),
+    (("energy production", "energy output"), ("Secondary Energy",)),
 )
+
+
+def renewable_capacity_variables_from_query(query: str, available_variables) -> list[str]:
+    """Use a reported aggregate, or separate renewable technology totals.
+
+    Do not sum parent/child technologies or assume their model scopes overlap.
+    """
+    if not re.search(r"\brenewables?\s+(?:(?:power|electricity)\s+)?capacity\b", str(query), re.I):
+        return []
+    available = {str(value).casefold(): str(value) for value in available_variables}
+    for aggregate in ("Capacity|Electricity|Renewables", "Capacity|Electricity|Non-Biomass Renewables"):
+        if aggregate.casefold() in available:
+            return [available[aggregate.casefold()]]
+    return [
+        available[path.casefold()]
+        for carrier in ("Solar", "Wind", "Hydro", "Biomass", "Geothermal", "Ocean")
+        if (path := f"Capacity|Electricity|{carrier}").casefold() in available
+    ]
 
 
 SCENARIO_ALIASES: tuple[tuple[tuple[str, ...], str], ...] = (
@@ -423,7 +443,9 @@ _VARIABLE_QUERY_FILLER = {
     "together", "does", "report", "reports", "reported", "reporting", "model",
     # Time-window prepositions accompany a year, not a variable name. (These
     # carry no variable evidence; the year itself is parsed separately.)
-    "after", "before", "until", "around", "during", "since", "over", "till",
+    "after", "before", "until", "around", "during", "since", "over", "till", "get", "find", "against", "instead", "about", "case", "switch", "this", "that", "result", "results",
+    "recorded", "record", "figure", "figures", "set", "keep", "use", "now",
+    "i", "you", "want", "could", "would",
 }
 
 # A spelling-similarity hit is useful recovery evidence, but it must not outrank
@@ -488,6 +510,18 @@ def rank_catalogue_variable_matches(
 
     query_weight = sum(weight(token) for token in set(query_tokens)) or 1.0
     normalized_query = _normalized_catalog_key(query)
+    padded_query = f" {normalized_query} "
+    # Similarity of each query token to each catalogue token, computed once:
+    # catalogue tokens repeat across thousands of variables.
+    pair_ratio: dict[tuple[str, str], float] = {}
+
+    def token_ratio(token: str, candidate_token: str) -> float:
+        key = (token, candidate_token)
+        ratio = pair_ratio.get(key)
+        if ratio is None:
+            ratio = SequenceMatcher(None, token, candidate_token).ratio()
+            pair_ratio[key] = ratio
+        return ratio
     explicit_structured = "|" in str(query or "")
     ranked: list[dict] = []
 
@@ -501,7 +535,7 @@ def rank_catalogue_variable_matches(
             best_candidate = ""
             best_ratio = 0.0
             for candidate_token in candidate_tokens:
-                ratio = SequenceMatcher(None, token, candidate_token).ratio()
+                ratio = token_ratio(token, candidate_token)
                 if ratio > best_ratio:
                     best_candidate, best_ratio = candidate_token, ratio
             if best_ratio >= 0.88:
@@ -530,13 +564,9 @@ def rank_catalogue_variable_matches(
         query_coverage = matched_weight / query_weight
         candidate_coverage = len(matched_candidate_terms) / len(candidate_tokens)
         candidate_key = _normalized_catalog_key(variable)
-        exact_phrase = bool(
-            candidate_key
-            and re.search(
-                r"(?:^|\s)" + re.escape(candidate_key) + r"(?:$|\s)",
-                normalized_query,
-            )
-        )
+        # Both keys are single-space-joined tokens, so a padded substring test
+        # is the whole-phrase match without compiling a regex per variable.
+        exact_phrase = bool(candidate_key and f" {candidate_key} " in padded_query)
         structured_exact = bool(explicit_structured and exact_phrase)
         score = (
             matched_weight
@@ -646,6 +676,7 @@ def _energy_base_blocked(query: str, candidate: str) -> bool:
     return any(re.search(r"\b" + tok + r"\b", ql) for tok in _ENERGY_SPECIFIC_TOKENS)
 
 
+@lru_cache(maxsize=65536)
 def _token_supports(query_token: str, segment_token: str) -> bool:
     """Whether a query token evidences a variable-path segment token, tolerating
     a common word-form variant so a user word like "transport" still matches the
@@ -669,10 +700,18 @@ def _token_supports(query_token: str, segment_token: str) -> bool:
 def preferred_variable_from_query(query: str, available_variables: Iterable[str]) -> str | None:
     q = str(query or "")
     available = set(available_variables or [])
+    if re.search(r"\bper\s+capita\b", q, re.IGNORECASE):
+        # A normalization qualifier cannot be satisfied by a total series.
+        # Restrict aliases/refinement to catalogue variables carrying it.
+        available = {v for v in available if re.search(r"\bper\s+capita\b", v, re.IGNORECASE)}
+    renewable_variables = renewable_capacity_variables_from_query(q, available)
+    if renewable_variables:
+        return renewable_variables[0]
     structural_words = {
         "a", "an", "and", "as", "at", "between", "but", "by", "for", "from",
         "in", "into", "of", "on", "or", "the", "to", "under", "with",
-        "show", "plot", "give", "me", "data", "value", "values", "year", "years",
+        "show", "display", "plot", "give", "me", "data", "value", "values", "year", "years",
+        "keep", "use", "set", "recorded",
     }
     query_tokens = {
         token for token in re.findall(r"[a-z0-9]+", q.lower())

@@ -1,0 +1,115 @@
+{
+  "_comment": "Golden questions run against the real cached data by test_golden_real_data.py (LLM disabled). Each turn may assert: route agent/reason, substrings that must or must not appear, and that every suggested next question is answerable. Covers response_fixes_todo.md items 1-12.",
+  "max_seconds_per_turn": 3.0,
+  "conversations": [
+    {
+      "id": "default-study-and-followups",
+      "turns": [
+        {"query": "CO2 emissions for World in 2050", "agent": "data_query",
+         "contains": ["Showing results from the study", "| 2050 |", "ranges from"],
+         "absent": ["Please choose a study", "K Mt"]},
+        {"query": "same for China", "contains": ["in CHN"], "absent": ["comparison members", "| 2030 |"]},
+        {"query": "Post-Glasgow targets", "reason": "study switch for previous question", "contains": ["in CHN"]},
+        {"query": "compare with baseline", "absent": ["plot these results"]},
+        {"query": "Open the data explorer", "contains": ["post-glasgow-targets/graphs"]}
+      ]
+    },
+    {
+      "id": "suggestions-are-answerable",
+      "check_suggestions": true,
+      "turns": [
+        {"query": "CO2 emissions for World in 2050"}
+      ]
+    },
+    {
+      "id": "two-region-comparison-default-study",
+      "turns": [
+        {"query": "compare solar capacity for Germany and Greece in 2030", "agent": "data_query",
+         "contains": ["Showing results from the study", "in DEU", "in GREECE"],
+         "absent": ["Please choose a study"]}
+      ]
+    },
+    {
+      "id": "latest-year-in-results",
+      "turns": [
+        {"query": "what is the latest year in the results", "agent": "data_query",
+         "reason": "catalogue year coverage request", "contains": ["**2100**"],
+         "absent": ["**2020**"]}
+      ]
+    },
+    {
+      "id": "causal-climate-questions",
+      "turns": [
+        {"query": "What are the main uncertainties in IAM projections of net zero pathways?", "agent": "general_qa"},
+        {"query": "Why might energy transitions differ between countries?", "agent": "general_qa"},
+        {"query": "How does carbon pricing affect energy transitions?", "agent": "general_qa"}
+      ]
+    },
+    {
+      "id": "region-not-model",
+      "turns": [
+        {"query": "how much solar capacity does Germany have", "contains": ["in DEU"], "absent": ["could not match model"]}
+      ]
+    },
+    {
+      "id": "named-topic-models",
+      "turns": [
+        {"query": "which models report hydrogen", "contains": ["Models reporting hydrogen"]}
+      ]
+    },
+    {
+      "id": "data-wording-is-not-a-region",
+      "turns": [
+        {"query": "what does net zero mean for electricity prices", "absent": ["as a region"]}
+      ]
+    },
+    {
+      "id": "unknown-region",
+      "turns": [
+        {"query": "CO2 for Atlantis", "contains": ["couldn't find `Atlantis` as a region"]}
+      ]
+    },
+    {
+      "id": "named-study-navigation",
+      "turns": [
+        {"query": "what are the main differences between the scenarios in Where is the EU headed?",
+         "contains": ["### Where is the EU headed?", "where-is-the-eu-headed"], "absent": ["fit-for-55"]}
+      ]
+    },
+    {
+      "id": "study-suggestions",
+      "turns": [
+        {"query": "suggest research ideas on transport", "agent": "modelling_suggestions", "absent": ["Choose the variable"]}
+      ]
+    },
+    {
+      "id": "model-comparison-scope",
+      "turns": [
+        {"query": "compare GCAM and REMIND", "agent": "model_explanation", "absent": ["REMIND-MFA"]}
+      ]
+    },
+    {
+      "id": "model-list-counts",
+      "turns": [
+        {"query": "which models are available", "contains": ["have loaded results"]}
+      ]
+    },
+    {
+      "id": "charts-go-to-explorer",
+      "turns": [
+        {"query": "plot photovoltaic capacity for Greece", "contains": ["data explorer"]},
+        {"query": "hello", "absent": ["plot"]}
+      ]
+    },
+    {"id": "year-count-results", "turns": [{"query": "how many distinct years are in the results", "agent": "data_query", "contains": ["distinct years", "2100"], "absent": ["as a region"]}]},
+    {"id": "electricity-specific-model-coverage", "turns": [{"query": "which models cover electricity", "agent": "data_query", "contains": ["electricity"], "absent": ["Models covering Energy Supply"]}]},
+    {"id": "energy-demand-alias", "turns": [{"query": "energy demand for India in 2050", "agent": "data_query", "contains": ["Final Energy in IND", "2050"], "absent": ["Choose the variable"]}]},
+    {"id": "energy-production-alias", "turns": [{"query": "energy production for World in 2050", "agent": "data_query", "contains": ["Secondary Energy in World", "2050"], "absent": ["Choose the variable"]}]},
+    {"id": "carbon-dioxide-alias", "turns": [{"query": "carbon dioxide for World in 2030", "agent": "data_query", "contains": ["Emissions|CO2 in World", "2030"], "absent": ["Choose the variable"]}]},
+    {"id": "renewable-capacity-components", "turns": [{"query": "compare renewable capacity in EU between 2030 and 2050", "agent": "data_query", "contains": ["capacities separately", "2030", "2050"], "absent": ["Choose the variable"]}]},
+    {"id": "unavailable-comparison-region", "turns": [{"query": "compare energy use in Europe and Asia in 2050", "agent": "data_query", "contains": ["`Asia` as a region"], "absent": ["Choose the variable"]}]},
+    {"id": "model-iam-classification", "turns": [{"query": "is EnergyPLAN an integrated assessment model?", "agent": "model_explanation", "contains": ["Simulation model", "integrated assessment model"], "absent": ["Description:"]}]},
+    {"id": "exclusive-before-year", "turns": [{"query": "CO2 emissions for World before 2050", "agent": "data_query", "contains": ["2049"], "absent": ["| 2050 |"]}]},
+    {"id": "active-study-explorer-phrasing", "turns": [{"query": "CO2 emissions for World in 2050", "contains": ["2050"]}, {"query": "take me to the active study data explorer", "agent": "general_qa", "contains": ["where-is-the-world-headed/graphs"], "absent": ["| Model |"]}, {"query": "same for China", "contains": ["in CHN", "2050"]}, {"query": "Post-Glasgow targets", "contains": ["in CHN", "2050"]}, {"query": "take me to the data explorer for the active study", "agent": "general_qa", "contains": ["post-glasgow-targets/graphs"], "absent": ["MARIO", "/models"]}, {"query": "same for World", "contains": ["in World", "2050"]}]}
+  ]
+}

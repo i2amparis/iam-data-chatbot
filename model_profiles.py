@@ -544,7 +544,7 @@ def _focused_profile_dimension(query: str) -> str:
     ):
         return "developer"
     if re.search(
-        r"\b(?:general[-\s]+equilibrium|partial[-\s]+equilibrium|cge|"
+        r"\b(?:integrated\s+assessment\s+model|iam|general[-\s]+equilibrium|partial[-\s]+equilibrium|cge|"
         r"methodolog(?:y|ies|ical)|model(?:ling|ing)?\s+types?|"
         r"types?\s+of\s+models?|what\s+(?:kind|type|sort)\s+of\s+model|"
         r"optimi[sz](?:ation|e|ed|es|ing)|"
@@ -596,6 +596,7 @@ def _method_concept_from_query(query: str) -> tuple[str, tuple[str, ...]]:
     """Return the user-facing concept and grounded spellings to match."""
     q = str(query or "").casefold().replace("-", " ")
     concepts = (
+        ("integrated assessment model", ("integrated assessment", "iam")),
         ("general equilibrium", ("general equilibrium", "computable general equilibrium", "cge")),
         ("partial equilibrium", ("partial equilibrium",)),
         ("computable general equilibrium (CGE)", ("computable general equilibrium", "cge")),
@@ -606,7 +607,7 @@ def _method_concept_from_query(query: str) -> tuple[str, tuple[str, ...]]:
         ("top-down model", ("top-down", "top down")),
     )
     for label, spellings in concepts:
-        if any(spelling in q for spelling in spellings):
+        if any(re.search(r"\b" + re.escape(spelling) + r"\b", q) for spelling in spellings):
             return label, spellings
     return "", ()
 
@@ -637,10 +638,11 @@ def _focused_model_profile_answer(
         concept_noun = (
             concept if concept.endswith("model") else f"{concept} model"
         ) if concept else ""
+        article = "an" if concept_noun[:1].casefold() in "aeiou" else "a"
         if not methodology:
             if concept:
                 lines.append(
-                    f"The loaded IAM PARIS profile does not state whether `{name}` is a {concept_noun}."
+                    f"The loaded IAM PARIS profile does not state whether `{name}` is {article} {concept_noun}."
                 )
             else:
                 lines.append(
@@ -666,7 +668,7 @@ def _focused_model_profile_answer(
             elif concept:
                 lines.append(
                     f"The loaded catalogue classifies `{name}` as `{methodology}`, but it does not "
-                    f"explicitly establish whether that is a {concept_noun}."
+                    f"explicitly establish whether that is {article} {concept_noun}."
                 )
             else:
                 lines.append(f"Methodology/model type: {methodology}")

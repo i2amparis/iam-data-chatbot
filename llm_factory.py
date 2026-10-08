@@ -75,7 +75,20 @@ def _local_timeout(default):
         return default
 
 
-def _build_local(model_name: str, **kwargs):
+def _local_num_ctx() -> int:
+    """Context window for local models (LOCAL_LLM_NUM_CTX, default 8192).
+
+    Ollama's server default can be smaller than the general-QA prompt (model
+    list, skill guidance, retrieved chunks and history), and Ollama truncates
+    an overlong prompt silently instead of failing.
+    """
+    try:
+        return max(int(os.getenv("LOCAL_LLM_NUM_CTX", "8192") or 8192), 512)
+    except ValueError:
+        return 8192
+
+
+def _build_local(model_name: str, json_output: bool = False, **kwargs):
     # Translate OpenAI-client kwargs into ChatOllama equivalents.
     timeout = _local_timeout(kwargs.pop("timeout", None))
     streaming = kwargs.pop("streaming", None)
@@ -88,6 +101,9 @@ def _build_local(model_name: str, **kwargs):
     if streaming is not None:
         kwargs.setdefault("disable_streaming", not streaming)
 
+    if json_output:
+        kwargs.setdefault("format", "json")
+    kwargs.setdefault("num_ctx", _local_num_ctx())
     return ChatOllama(
         model=model_name,
         base_url=LOCAL_LLM_BASE_URL,
@@ -96,10 +112,19 @@ def _build_local(model_name: str, **kwargs):
     )
 
 
-def get_chat_openai(model_name: str, **kwargs):
-    """Return a chat client for OpenAI or for the local Ollama server."""
+def get_chat_openai(model_name: str, json_output: bool = False, **kwargs):
+    """Return a chat client for OpenAI or for the local Ollama server.
+
+    ``json_output`` constrains the reply to a JSON object (Ollama
+    ``format="json"``, OpenAI ``response_format=json_object``) so small models
+    cannot wrap extraction output in prose or code fences.
+    """
     if is_local_model(model_name):
-        return _build_local(model_name, **kwargs)
+        return _build_local(model_name, json_output=json_output, **kwargs)
+    if json_output:
+        model_kwargs = dict(kwargs.pop("model_kwargs", None) or {})
+        model_kwargs.setdefault("response_format", {"type": "json_object"})
+        kwargs["model_kwargs"] = model_kwargs
 
     if "openai_api_key" not in kwargs:
         kwargs["openai_api_key"] = os.getenv("OPENAI_API_KEY")

@@ -5,6 +5,7 @@ from typing import Any
 
 from data_metadata import DataMetadata, build_metadata_with_cache
 from link_catalog import DEFAULT_OUTPUT as DEFAULT_LINK_CATALOG
+from model_aliases import register_model_display_names
 
 
 @dataclass
@@ -88,6 +89,9 @@ def build_runtime_context(
     results_source_path: str = "",
     results_timestamp: str = "",
 ) -> RuntimeContext:
+    register_model_display_names(
+        record.get("modelName") for record in (models or []) if isinstance(record, dict)
+    )
     metadata = build_metadata_with_cache(ts, models, cache_file=metadata_cache_file)
     link_catalog = load_link_catalog(link_catalog_path)
     return RuntimeContext(

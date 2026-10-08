@@ -24,6 +24,15 @@ class QualityGateTests(unittest.TestCase):
 
         self.assertEqual(commands[-1].name, "IAM PARIS link validation")
 
+    def test_static_reports_can_be_redirected_away_from_docs(self):
+        commands = build_commands(report_dir="/tmp/gate-reports")
+        static = [command for command in commands if command.name.endswith("eval report")]
+
+        self.assertEqual(len(static), 4)
+        for command in static:
+            output = command.args[command.args.index("--output") + 1]
+            self.assertTrue(output.startswith("/tmp/gate-reports/"), output)
+
     def test_run_commands_returns_zero_when_all_pass(self):
         calls = []
 

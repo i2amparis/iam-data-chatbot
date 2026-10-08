@@ -23,6 +23,7 @@ from canonical_aliases import (
     _REGION_ALIAS_TOKENS,
     canonical_scenario_from_query,
     preferred_variable_from_query,
+    renewable_capacity_variables_from_query,
     rank_catalogue_variable_matches,
     scenario_family_members,
     scenario_scope_tokens_in_query,
@@ -42,6 +43,7 @@ from utils_query import (
     format_region_label,
     region_mentions_from_query,
 )
+from record_cache import records_by_field
 from year_filters import extract_year_range
 from llm_config import EXTRACTOR_MODEL
 
@@ -64,7 +66,8 @@ class QueryEntityExtractor:
             openai_api_key=api_key,
             temperature=0,
             timeout=30,
-            max_retries=1
+            max_retries=1,
+            json_output=True,
         )
         
         # Create extraction prompt
@@ -176,6 +179,21 @@ class QueryEntityExtractor:
             if gcam_pr_models:
                 return next((model for model in sorted(gcam_pr_models, reverse=True) if "7.0" in model), sorted(gcam_pr_models, reverse=True)[0])
         match_names = getattr(self, "_model_match_names", None) or self.available_models
+        # A geographic alias is not model identity evidence. Keep explicit full
+        # catalogue labels and labelled model mentions; mask geographic words
+        # when they occur as an ordinary location in a sentence.
+        full_label = any(re.search(
+            r"(?<![\w-])" + re.escape(str(name)) + r"(?![\w-])",
+            str(query_or_model), re.IGNORECASE,
+        ) for name in match_names if len(str(name).split()) > 1 or "_" in str(name) or "-" in str(name))
+        if not full_label and not re.search(r"\b(?:model|using)\b", str(query_or_model), re.IGNORECASE):
+            for mention in region_mentions_from_query(
+                str(query_or_model), self.region_dict, self.available_regions,
+            ):
+                query_or_model = re.sub(
+                    r"(?<!\w)" + re.escape(str(mention)) + r"(?!\w)", " ",
+                    str(query_or_model), flags=re.IGNORECASE,
+                )
         direct = match_model_name(query_or_model, match_names)
         if direct:
             return direct
@@ -202,8 +220,14 @@ class QueryEntityExtractor:
         # Find which priority vars exist in data
         available_priority = [v for v in priority_vars if v in self.available_variables]
         
-        # Sample variables for the prompt (priority first, then others)
-        other_vars = [v for v in self.available_variables if v not in available_priority][:40]
+        # Sample variables for the prompt: priority first, then the variables
+        # with the most records. An alphabetical head ("Agricultural Demand|…")
+        # says little about what users usually ask for.
+        records_per_variable = records_by_field(list(self.ts_data or []), "variable")
+        other_vars = sorted(
+            (v for v in self.available_variables if v not in available_priority),
+            key=lambda v: (-len(records_per_variable.get(v, [])), v),
+        )[:40]
         var_samples = available_priority + other_vars
         var_list = "\n".join(f"- {v}" for v in var_samples)
         if len(self.available_variables) > len(var_samples):
@@ -346,6 +370,9 @@ Return ONLY valid JSON, no other text."""
             # Parse JSON response
             content = response.content.strip()
             
+            # Reasoning models may still emit a <think> block before the JSON.
+            content = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL).strip()
+
             # Remove markdown code blocks if present
             if content.startswith("```"):
                 content = re.sub(r'^```(?:json)?\s*', '', content)
@@ -474,6 +501,8 @@ Return ONLY valid JSON, no other text."""
             str(query or ""),
         ):
             candidate = match.group(1).strip()
+            if self._preferred_variable_from_query(candidate):
+                continue
             if candidate.casefold() in {"data", "model", "scenario"}:
                 continue
             if model_match and normalize_model_name(candidate) in normalize_model_name(model_match):
@@ -520,6 +549,19 @@ Return ONLY valid JSON, no other text."""
         result = self._apply_deterministic_year_bounds(result, query)
         entity_confidence = result.get("entity_confidence", entity_confidence)
         deterministic_regions = self._regions_from_query(query)
+        from data_utils import unknown_comparison_region
+        unknown_comparison_place = unknown_comparison_region(
+            query, self.available_regions, self.available_models,
+            self.available_scenarios, self.available_variables,
+        )
+        if unknown_comparison_place:
+            result["unmatched_region"] = unknown_comparison_place
+        renewable_variables = renewable_capacity_variables_from_query(query, self.available_variables)
+        if renewable_variables:
+            result["variable"] = renewable_variables[0]
+            result["variables"] = renewable_variables if len(renewable_variables) > 1 else None
+            result["unmatched_variable_terms"] = []
+            entity_confidence["variable"] = 0.9
         if deterministic_regions:
             result["region"] = deterministic_regions[0]
             entity_confidence["region"] = max(
@@ -563,6 +605,7 @@ Return ONLY valid JSON, no other text."""
                     mapped_query_region,
                     result.get("scenario"),
                     *query_region_mentions,
+                    unknown_comparison_place,
                     *scenario_scope_tokens_in_query(query),
                 ],
             )
@@ -926,7 +969,20 @@ Return ONLY valid JSON, no other text."""
         ignored_scope.extend(self._additional_region_mentions(query, region_match))
         ignored_scope.extend(region_matches)
 
+        from data_utils import unknown_comparison_region
+        unknown_comparison_place = unknown_comparison_region(
+            query, self.available_regions, self.available_models,
+            self.available_scenarios, self.available_variables,
+        )
+        if unknown_comparison_place:
+            ignored_scope.append(unknown_comparison_place)
+            result['unmatched_region'] = unknown_comparison_place
+
         preferred_variable = self._preferred_variable_from_query(query)
+        renewable_variables = renewable_capacity_variables_from_query(query, self.available_variables)
+        if renewable_variables:
+            preferred_variable = renewable_variables[0]
+            result['variables'] = renewable_variables if len(renewable_variables) > 1 else None
         if preferred_variable:
             result['variable'] = preferred_variable
             result['unmatched_variable_terms'] = []

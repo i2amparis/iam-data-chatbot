@@ -1,18 +1,17 @@
 import logging
 import os
+import re
 from typing import List, Tuple, Optional, Dict, Any
 from pathlib import Path
 
 from langchain.schema import Document
 from langchain.chains import ConversationalRetrievalChain
-from langchain.memory import ConversationSummaryBufferMemory
 from langchain.prompts import (
     ChatPromptTemplate,
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate,
 )
 from llm_factory import get_chat_openai as ChatOpenAI
-from langchain_community.chat_message_histories import ChatMessageHistory
 
 from llm_config import QA_MODEL
 from model_aliases import is_presentable_model_label
@@ -36,6 +35,22 @@ def _load_skill_guidance(max_chars: int = 4000) -> str:
     return text
 
 
+HISTORY_ANSWER_MAX_CHARS = 300
+
+
+def _compact_history_answer(answer: object, max_chars: int = HISTORY_ANSWER_MAX_CHARS) -> str:
+    """Past answer reduced to its prose: tables and links dropped, length capped."""
+    lines = [
+        line for line in str(answer or "").splitlines()
+        if line.strip() and not line.lstrip().startswith("|")
+    ]
+    text = re.sub(r"!?\[([^\]]*)\]\([^)]*\)", r"\1", " ".join(lines))
+    text = re.sub(r"\s+", " ", text).strip()
+    if len(text) > max_chars:
+        text = text[:max_chars].rsplit(" ", 1)[0] + " …"
+    return text
+
+
 class BaseAgent:
     def __init__(self, shared_resources: Dict[str, Any], streaming: bool = True):
         self.resources = shared_resources
@@ -51,100 +66,7 @@ class DataQueryAgent(BaseAgent):
     
     def __init__(self, shared_resources: Dict[str, Any], streaming: bool = True):
         super().__init__(shared_resources, streaming)
-        # Prefer deterministic data_utils pipeline over LLM for data queries
-        self.chain = None
-
-    def _create_qa_chain(self) -> ConversationalRetrievalChain:
-        vs = self.resources.get("vector_store")
-        if not vs:
-            raise ValueError("Vector store not found in shared resources")
-        
-        # Get all available data for direct LLM access
-        models = self.resources.get("models", [])
-        ts = self.resources.get("ts", [])
-        
-        model_names = sorted([
-            str(m.get('modelName', '')).strip()
-            for m in models
-            if m and is_presentable_model_label(m.get('modelName'))
-        ])
-        scenarios = sorted({r.get('scenario', '') for r in ts if r and r.get('scenario')})
-        variables = sorted({str(r.get('variable', '')) for r in ts if r and r.get('variable')})
-        regions = sorted({str(r.get('region', '')) for r in ts if r and r.get('region')})
-        
-        # Create concise summaries instead of full lists
-        model_list = ", ".join(model_names[:20]) + (f" ... and {len(model_names)-20} more" if len(model_names) > 20 else "")
-        scenario_list = ", ".join(scenarios[:15]) + (f" ... and {len(scenarios)-15} more" if len(scenarios) > 15 else "")
-        variable_list = ", ".join(variables[:20]) + (f" ... and {len(variables)-20} more" if len(variables) > 20 else "")
-        region_list = ", ".join(regions[:15]) + (f" ... and {len(regions)-15} more" if len(regions) > 15 else "")
-        
-        llm = ChatOpenAI(
-            model_name=QA_MODEL,
-            temperature=0,
-            streaming=self.streaming,
-            timeout=30,
-            max_retries=1,
-            api_key=(self.resources.get("env") or {}).get("OPENAI_API_KEY"),
-        )
-
-        message_history = ChatMessageHistory()
-        memory = ConversationSummaryBufferMemory(
-            llm=llm,
-            max_token_limit=1000,
-            chat_memory=message_history,
-            return_messages=True,
-            memory_key="chat_history"
-        )
-
-        skill_guidance = _load_skill_guidance()
-        system_tpl = f"""You are a data query assistant for IAM PARIS climate data (https://iamparis.eu/).
-
-## Available Data Summary:
-
-- **Models:** {len(model_names)} total - Examples: {model_list}
-- **Scenarios:** {len(scenarios)} total - Examples: {scenario_list}
-- **Variables:** {len(variables)} total - Examples: {variable_list}
-- **Regions:** {len(regions)} total - Examples: {region_list}
-
-## Your Task:
-
-1. Answer questions about what data is available
-2. Use the vector store context to find specific items
-3. Provide counts and examples when asked
-
-## Guidelines:
-
-- For "which/what/list models": Provide count and list from context
-- For "which/what/list scenarios": Provide count and examples
-- For "which/what/list variables": Provide count and relevant examples
-- For "which/what/list regions": Provide count and examples
-- Use Markdown formatting
-- Reference https://iamparis.eu/results for data access
-
-Skill guidance:
-{skill_guidance}
-
-Context from vector store: ```{{context}}```"""
-
-        user_tpl = "Question: ```{question}```"
-
-        prompt = ChatPromptTemplate.from_messages(
-            [
-                SystemMessagePromptTemplate.from_template(system_tpl),
-                HumanMessagePromptTemplate.from_template(user_tpl),
-            ]
-        )
-
-        retriever = vs.as_retriever(search_type="mmr", search_kwargs={"k": 5, "fetch_k": 20, "lambda_mult": 0.5})
-
-        return ConversationalRetrievalChain.from_llm(
-            llm=llm,
-            retriever=retriever,
-            memory=memory,
-            chain_type="stuff",
-            combine_docs_chain_kwargs={"prompt": prompt},
-            verbose=False,
-        )
+        # Data answers come from the deterministic data_utils pipeline.
 
     def handle(self, query: str, history: Optional[List[Tuple[str, str]]] = None) -> str:
         from data_utils import data_query
@@ -177,94 +99,15 @@ Context from vector store: ```{{context}}```"""
 class ModelExplanationAgent(BaseAgent):
     def __init__(self, shared_resources: Dict[str, Any], streaming: bool = True):
         super().__init__(shared_resources, streaming)
-        # Prefer deterministic model metadata over LLM responses
-        self.chain = None
-
-    def _create_qa_chain(self) -> ConversationalRetrievalChain:
-        vs = self.resources.get("vector_store")
-        if not vs:
-            raise ValueError("Vector store not found in shared resources")
-        
-        # Get all model names for the system prompt
-        models = self.resources.get("models", [])
-        model_names = sorted([
-            str(m.get('modelName', '')).strip()
-            for m in models
-            if m and is_presentable_model_label(m.get('modelName'))
-        ])
-        model_list = ", ".join(model_names)
-
-        llm = ChatOpenAI(
-            model_name=QA_MODEL,
-            temperature=0,
-            streaming=self.streaming,
-            timeout=30,
-            max_retries=1
-        )
-
-        message_history = ChatMessageHistory()
-        memory = ConversationSummaryBufferMemory(
-            llm=llm,
-            max_token_limit=2000,
-            chat_memory=message_history,
-            return_messages=True,
-            memory_key="chat_history"
-        )
-
-        skill_guidance = _load_skill_guidance()
-        system_tpl = f"""You are an expert climate policy assistant focused on IAM PARIS data and models (https://iamparis.eu/).
-
-Available models in IAM PARIS database ({len(model_names)} total):
-{model_list}
-
-When users ask about models:
-- List ALL models by name when asked to list models
-- Provide details about specific models using the modelName field
-- Match user queries to the correct modelName
-
-Always:
-- Provide direct answers without restating the question
-- Use Markdown formatting for responses with proper headers (##) and lists (-)
-- Reference specific IAM PARIS data points when available
-- Clearly indicate when information comes from external sources
-- Include relevant IAM PARIS links when referencing specific studies
-- Format numerical values with proper units
-- Keep answers focused and data-driven
-
-Available IAM PARIS resources:
-- Results database: https://iamparis.eu/results
-
-Skill guidance:
-{skill_guidance}
-
-Context: ```{{context}}```"""
-
-        user_tpl = "Question: ```{question}```"
-
-        prompt = ChatPromptTemplate.from_messages(
-            [
-                SystemMessagePromptTemplate.from_template(system_tpl),
-                HumanMessagePromptTemplate.from_template(user_tpl),
-            ]
-        )
-
-        retriever = vs.as_retriever(search_type="similarity", search_kwargs={"k": 5})
-
-        return ConversationalRetrievalChain.from_llm(
-            llm=llm,
-            retriever=retriever,
-            memory=memory,
-            chain_type="stuff",
-            combine_docs_chain_kwargs={"prompt": prompt},
-            verbose=False,
-        )
+        # Model answers come from deterministic model metadata.
 
     def handle(self, query: str, history: Optional[List[Tuple[str, str]]] = None) -> str:
         from data_utils import data_query
         models = self.resources.get("models", [])
         ts = self.resources.get("ts", [])
         metadata = self.resources.get("metadata")
-        return data_query(query, models, ts, history=history, metadata=metadata).strip()
+        # Charts live in the IAM PARIS data explorer; never render one here.
+        return data_query(query, models, ts, history=history, metadata=metadata, allow_plots=False).strip()
 
 
 class DataPlottingAgent(BaseAgent):
@@ -427,8 +270,14 @@ Context: ```{{context}}```"""
                 "General Q&A is unavailable because the knowledge index is not loaded. "
                 "You can still ask data questions like `show CO2 emissions for Europe`."
             )
-        # Keep only the recent turns to bound prompt size.
-        resp = chain.invoke({"question": query, "chat_history": history[-10:]})
+        # Keep only the recent turns, and only the prose of past answers, to
+        # bound the prompt: the question-rewrite step reads the whole history
+        # and data answers can carry multi-kilobyte tables.
+        compact_history = [
+            (question, _compact_history_answer(answer))
+            for question, answer in history[-6:]
+        ]
+        resp = chain.invoke({"question": query, "chat_history": compact_history})
         return resp.get("answer", "").strip()
 
 
@@ -478,7 +327,7 @@ class ModellingSuggestionsAgent(BaseAgent):
         "power and renewables": (
             ("electricity", "power", "renewable", "renewables", "solar", "wind", "grid"),
             [
-                "Investigate the role of renewable energy adoption in achieving climate targets (try `plot solar and wind capacity for Europe`).",
+                "Investigate the role of renewable energy adoption in achieving climate targets (try `compare solar and wind capacity for EU`).",
                 "Compare electricity generation mixes across scenarios and models.",
                 "Study the pace of coal phase-out in power generation under different policies.",
             ],

@@ -40,6 +40,60 @@ class FetchAllResultsTests(unittest.TestCase):
             finally:
                 os.chdir(previous)
 
+    def _aged_cache_bot(self, directory):
+        bot = IAMParisBot.__new__(IAMParisBot)
+        bot.logger = logging.getLogger("FetchAllResultsTests")
+        with patch("main.requests.get", return_value=_Response([{"value": 1}])):
+            bot.fetch_json("https://aged.example/models")
+        cache_file = bot.last_fetch_cache_file
+        two_days_ago = os.path.getmtime(cache_file) - 48 * 3600
+        os.utime(cache_file, (two_days_ago, two_days_ago))
+        return bot
+
+    def test_cache_older_than_max_age_is_refreshed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            previous = os.getcwd()
+            try:
+                os.chdir(directory)
+                bot = self._aged_cache_bot(directory)
+                with patch.dict(os.environ, {"IAM_CACHE_MAX_AGE_HOURS": "24"}), patch(
+                    "main.requests.get", return_value=_Response([{"value": 2}])
+                ) as get:
+                    rows = bot.fetch_json("https://aged.example/models")
+                self.assertEqual(get.call_count, 1)
+                self.assertEqual(rows, [{"value": 2}])
+            finally:
+                os.chdir(previous)
+
+    def test_failed_refresh_of_aged_cache_serves_existing_cache(self):
+        with tempfile.TemporaryDirectory() as directory:
+            previous = os.getcwd()
+            try:
+                os.chdir(directory)
+                bot = self._aged_cache_bot(directory)
+                with patch.dict(os.environ, {"IAM_CACHE_MAX_AGE_HOURS": "24"}), patch(
+                    "main.requests.get", side_effect=RuntimeError("API down")
+                ):
+                    rows = bot.fetch_json("https://aged.example/models", max_retries=1)
+                self.assertEqual(rows, [{"value": 1}])
+            finally:
+                os.chdir(previous)
+
+    def test_cache_without_max_age_is_never_refreshed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            previous = os.getcwd()
+            try:
+                os.chdir(directory)
+                bot = self._aged_cache_bot(directory)
+                with patch.dict(os.environ, {"IAM_CACHE_MAX_AGE_HOURS": "0"}), patch(
+                    "main.requests.get"
+                ) as get:
+                    rows = bot.fetch_json("https://aged.example/models")
+                get.assert_not_called()
+                self.assertEqual(rows, [{"value": 1}])
+            finally:
+                os.chdir(previous)
+
     def test_force_refresh_replaces_the_normal_request_cache(self):
         bot = IAMParisBot.__new__(IAMParisBot)
         bot.logger = logging.getLogger("FetchAllResultsTests")

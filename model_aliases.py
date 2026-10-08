@@ -21,6 +21,7 @@ CURATED_MODEL_ALIASES: dict[str, set[str]] = {
 
 
 UNLABELLED_MODEL_LABEL = "Unlabelled source model"
+_NUMERIC_ID_RE = re.compile(r"[+-]?\d+(?:[.,]\d+)*")
 
 
 def normalize_model_name(text: str) -> str:
@@ -37,7 +38,39 @@ def is_presentable_model_label(value: object) -> bool:
     as ``GCAM 7.0`` or ``GEM-E3``) are unaffected.
     """
     label = str(value or "").strip()
-    return bool(label) and not bool(re.fullmatch(r"[+-]?\d+(?:[.,]\d+)*", label))
+    return bool(label) and not _NUMERIC_ID_RE.fullmatch(label)
+
+
+_VERSION_SUFFIX_RE = re.compile(
+    r"(?:\s+v?|[._-]+v)\d+(?:[._-]\d+)*(?:[a-z])?\s*$", re.IGNORECASE,
+)
+
+# Normalized family key -> catalogue spelling of the family name (no version).
+# Filled once from the model catalogue by ``register_model_display_names``.
+_CATALOGUE_FAMILY_DISPLAY: dict[str, str] = {}
+
+
+def register_model_display_names(catalogue_names) -> None:
+    """Learn the catalogue spelling of each model family.
+
+    Result records often carry raw lowercase aliases (``gcam``, ``gemini_e3``)
+    while the catalogue spells the same family ``GCAM 7.0`` / ``GEMINI-E3 7.0``.
+    Only the family name is borrowed, never a version the record did not state,
+    and families whose catalogue spellings disagree are left unmapped.
+    """
+    spellings: dict[str, set[str]] = {}
+    for raw in catalogue_names or []:
+        name = str(raw or "").strip()
+        if not is_presentable_model_label(name):
+            continue
+        base = _VERSION_SUFFIX_RE.sub("", name).strip() or name
+        key = normalize_model_name(base)
+        if key:
+            spellings.setdefault(key, set()).add(base)
+    _CATALOGUE_FAMILY_DISPLAY.clear()
+    _CATALOGUE_FAMILY_DISPLAY.update({
+        key: next(iter(values)) for key, values in spellings.items() if len(values) == 1
+    })
 
 
 def display_model_label(value: object) -> str:
@@ -45,6 +78,11 @@ def display_model_label(value: object) -> str:
     label = str(value or "").strip()
     if label and not is_presentable_model_label(label):
         return UNLABELLED_MODEL_LABEL
+    if label and label == label.lower() and _CATALOGUE_FAMILY_DISPLAY:
+        # A raw all-lowercase result alias of a catalogue family.
+        mapped = _CATALOGUE_FAMILY_DISPLAY.get(normalize_model_name(label))
+        if mapped:
+            return mapped
     return label
 
 

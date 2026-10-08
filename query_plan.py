@@ -15,7 +15,7 @@ from year_filters import YearFilter, extract_year_filter
 
 
 _WORDS = {
-    "region": ("region", "regions", "geography", "geographies", "country", "countries"),
+    "region": ("region", "regions", "geography", "geographies", "geographic", "regional", "location", "locations", "country", "countries"),
     "scenario": ("scenario", "scenarios", "pathway", "pathways"),
     "model": ("model", "models"),
     "variable": ("variable", "variables", "metric", "metrics", "indicator", "indicators"),
@@ -132,6 +132,15 @@ def build_query_plan(
             lower,
         )
     )
+    catalogue_prefix = re.split(r"\b(?:for|in|from|with|under)\b", lower, maxsplit=1)[0]
+    explicit_discovery = bool(
+        re.match(r"^\s*(?:list|enumerate|identify|retrieve|display)\b", lower)
+        and _contains_word(catalogue_prefix, (
+            "models", "variables", "indicators", "metrics", "regions", "countries",
+            "geographies", "geographic", "regional", "locations", "scenarios", "pathways",
+        ))
+    )
+    availability_language = availability_language or explicit_discovery
     mentioned_dimensions = tuple(
         key for key, words in _WORDS.items() if _contains_word(lower, words)
     )
@@ -164,7 +173,7 @@ def build_query_plan(
     followup_markers = bool(
         re.search(
             r"\b(?:same|keep|switch|change|instead|only|now|everything\s+else|"
-            r"that|this|it|there|them|these|those|comparison)\b",
+            r"that|this|it|there|them|these|those|comparison|set)\b",
             lower,
         )
     )
@@ -181,7 +190,10 @@ def build_query_plan(
             flags=re.IGNORECASE,
         )
     )
-    followup_markers = followup_markers or year_only_followup
+    compound_year_followup = bool(re.search(
+        r"^\s*(?:what|how)\s+about\s+\d{4}\s+\S", lower,
+    ))
+    followup_markers = followup_markers or year_only_followup or compound_year_followup
     replacement_dimension = None
     replacement_value = None
     switch = re.search(

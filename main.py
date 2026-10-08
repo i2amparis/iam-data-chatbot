@@ -377,7 +377,8 @@ class IAMParisBot:
         )
         return not (embeddings_local and roles_local)
 
-    def fetch_json(self, url: str, params=None, payload=None, cache=True, max_retries=3) -> list:
+    def fetch_json(self, url: str, params=None, payload=None, cache=True, max_retries=3,
+                   force_refresh: bool = False) -> list:
         os.makedirs("cache", exist_ok=True)
         def _strip_internal(d: dict) -> dict:
             return {k: v for k, v in d.items() if not str(k).startswith("_")}
@@ -454,10 +455,32 @@ class IAMParisBot:
                     return pd.read_json(f).to_dict('records')
             return []
 
-        if cache and payload and payload.get("_force_refresh"):
+        if force_refresh or (cache and payload and payload.get("_force_refresh")):
             # Skip cache lookup when explicitly forced
             pass
         elif cache and os.path.exists(cache_file):
+            # IAM_CACHE_MAX_AGE_HOURS > 0 refreshes an old cache at startup;
+            # 0 (default) keeps the cache until --refresh-data. A failed
+            # refresh never blocks startup: the existing cache is served.
+            try:
+                max_age_hours = float(os.getenv("IAM_CACHE_MAX_AGE_HOURS", "0") or 0)
+            except ValueError:
+                max_age_hours = 0.0
+            age_hours = (time.time() - os.path.getmtime(cache_file)) / 3600
+            if max_age_hours > 0 and age_hours > max_age_hours:
+                self.logger.info(
+                    "Cache %s is %.1f h old (max %.1f h); refreshing.",
+                    cache_file, age_hours, max_age_hours,
+                )
+                try:
+                    return self.fetch_json(
+                        url, params=params, payload=payload, cache=cache,
+                        max_retries=max_retries, force_refresh=True,
+                    )
+                except Exception:
+                    self.logger.warning(
+                        "Refreshing %s failed; serving the existing cache.", cache_file, exc_info=True,
+                    )
             with open(cache_file, 'r') as f:
                 return pd.read_json(f).to_dict('records')
         # Use POST if payload is provided, otherwise GET

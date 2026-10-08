@@ -408,7 +408,9 @@ class FastAPISmokeTests(unittest.TestCase):
             "region combination unavailable",
         )
         self.assertIn("Show available regions", body["suggested_next_questions"])
-        self.assertIn("Help me choose a region", body["suggested_next_questions"])
+        # "Help me choose a region" had no deterministic handler and fell
+        # through to general QA; the variable is offered for a valid region.
+        self.assertIn("Show Emissions|CO2 for World", body["suggested_next_questions"])
         self.assertNotIn("Plot it", body["suggested_next_questions"])
         self.assertFalse(any(
             suggestion.startswith("Compare with")

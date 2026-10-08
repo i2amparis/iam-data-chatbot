@@ -433,7 +433,7 @@ class OpenEndedYearRegressions(unittest.TestCase):
 
         self.assertEqual(extract_year_range("population until 2080"), (None, 2080))
         self.assertEqual(extract_year_range("carbon price after 2040"), (2041, None))
-        self.assertEqual(extract_year_range("emissions before 2050"), (None, 2050))
+        self.assertEqual(extract_year_range("emissions before 2050"), (None, 2049))
 
     def test_select_years_treats_none_as_unbounded(self):
         from year_filters import select_years

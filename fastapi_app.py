@@ -41,6 +41,7 @@ from model_aliases import (
     resolve_model_family_members,
 )
 from year_filters import YearFilter, is_finite_numeric_value, is_latest_year_filter
+from record_cache import cached_on_records, records_by_field
 from resolved_scope import consume_resolved_scope, has_numeric_result_table
 
 # Configuration
@@ -217,6 +218,33 @@ def _check_timeout(operation: str):
         raise TimeoutError(f"Initialization exceeded {INITIALIZATION_TIMEOUT}s during {operation}")
 
 
+def _warm_runtime_caches(resources: Any) -> None:
+    """Build per-process lookups at startup instead of on the first request.
+
+    The entity extractor, LLM clients and record indexes are shared by every
+    session; building them lazily made the first questions take seconds.
+    Failures only cost that latency later, so they never block startup.
+    """
+    from data_utils import _workspace_entries
+    from record_cache import distinct_values
+
+    started = time.time()
+    try:
+        records = resources.get("ts") or []
+        _workspace_entries(records)
+        for field in ("variable", "region", "scenario", "modelName"):
+            distinct_values(records, field)
+        for field in ("variable", "region", "modelName", "workspace_code"):
+            records_by_field(records, field)
+        cached_on_records(records, "runtime_model_names", _build_runtime_model_names)
+        cached_on_records(records, "records_by_variable", _build_records_by_variable)
+        cached_on_records(records, "scenarios_by_workspace", _build_scenarios_by_workspace)
+        MultiAgentManager(resources, streaming=False)
+        logger.info("Runtime caches warmed in %.1f seconds", time.time() - started)
+    except Exception:
+        logger.warning("Could not warm runtime caches; they will build on demand", exc_info=True)
+
+
 def initialize_resources():
     """Initialize all resources once at startup with timeout protection."""
     global _cached_resources, _initialization_status, _initialization_error, _initialization_start_time
@@ -292,6 +320,8 @@ def initialize_resources():
             results_timestamp=results_timestamp,
         )
         
+        _warm_runtime_caches(_cached_resources)
+
         _initialization_status = "ready"
         elapsed = time.time() - _initialization_start_time
         logger.info("=" * 50)
@@ -459,7 +489,36 @@ _NO_DATA_ANSWER_MARKERS = (
     "could not identify variable",
     "could not identify a variable",
     "not found in loaded data",
+    "could not match model",
 )
+
+
+def _build_runtime_model_names(records: list) -> List[str]:
+    return sorted({
+        str(record.get("modelName") or record.get("model") or "").strip()
+        for record in records
+        if isinstance(record, dict)
+        and str(record.get("modelName") or record.get("model") or "").strip()
+    }, key=lambda value: (value.casefold(), value))
+
+
+def _build_records_by_variable(records: list) -> Dict[str, list]:
+    index: Dict[str, list] = {}
+    for record in records:
+        if isinstance(record, dict):
+            index.setdefault(str(record.get("variable", "")).strip(), []).append(record)
+    return index
+
+
+def _build_scenarios_by_workspace(records: list) -> Dict[str, List[str]]:
+    scenarios: Dict[str, set] = {}
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        scenario = str(record.get("scenario") or "").strip()
+        if scenario:
+            scenarios.setdefault(str(record.get("workspace_code") or "").strip(), set()).add(scenario)
+    return {code: sorted(values) for code, values in scenarios.items()}
 
 
 def _runtime_model_scope_override(
@@ -473,12 +532,9 @@ def _runtime_model_scope_override(
     are more precise for counting provenance than a display alias such as
     ``PROMETHEUS``, which may not exist verbatim on any row.
     """
-    runtime_models = sorted({
-        str(record.get("modelName") or record.get("model") or "").strip()
-        for record in (resources.get("ts") or [])
-        if isinstance(record, dict)
-        and str(record.get("modelName") or record.get("model") or "").strip()
-    }, key=lambda value: (value.casefold(), value))
+    runtime_models = cached_on_records(
+        resources.get("ts") or [], "runtime_model_names", _build_runtime_model_names,
+    )
     if not runtime_models:
         return []
 
@@ -503,6 +559,9 @@ def _runtime_model_scope_override(
         else [raw_values]
     )
     exact_by_key = {name.casefold(): name for name in runtime_models}
+    raw_by_display: Dict[str, set] = {}
+    for name in runtime_models:
+        raw_by_display.setdefault(display_model_label(name).casefold(), set()).add(name)
     resolved: set[str] = set()
     for value in values:
         requested = str(value or "").strip()
@@ -514,6 +573,12 @@ def _runtime_model_scope_override(
         exact = exact_by_key.get(requested.casefold())
         if exact:
             resolved.add(exact)
+            continue
+        # A display label ("GEMINI-E3") names exactly the raw labels shown
+        # under it ("gemini_e3"), not every versioned family member.
+        displayed = raw_by_display.get(requested.casefold())
+        if displayed:
+            resolved.update(displayed)
             continue
         resolved.update(resolve_model_family_members(requested, runtime_models))
     return sorted(resolved, key=lambda value: (value.casefold(), value))
@@ -560,7 +625,12 @@ def _build_query_trace(
     if unmatched_region:
         count_scope["region"] = unmatched_region
         count_scope.pop("regions", None)
-    matched_records = _count_matching_records(resources, count_scope)
+    # Record counts describe data answers; model/general answers have none.
+    matched_records = (
+        _count_matching_records(resources, count_scope)
+        if route.get("agent") in {"data_query", "data_plotting"}
+        else None
+    )
     no_data_reason = ""
     if no_data:
         # Prefer the structured diagnosis over guessing from answer text.
@@ -800,6 +870,11 @@ def _provenance_display_fields(provenance: Dict[str, Any]) -> Dict[str, Any]:
         "model", "models", "years", "unit",
     ):
         value = selected_filters.get(key)
+        if value and key in ("model", "models"):
+            # Counting uses raw record labels; show the same names as the table.
+            values = value if isinstance(value, list) else [value]
+            value = list(dict.fromkeys(display_model_label(item) for item in values))
+            value = value if key == "models" else value[0]
         if value:
             rendered = ", ".join(str(item) for item in value) if isinstance(value, list) else str(value)
             rows.append({"label": labels[key], "value": rendered})
@@ -1102,13 +1177,10 @@ def _suggested_next_questions(
     # scenario that has no records in the user's current study.
     workspace_code = str(entities.get("workspace_code") or "").strip()
     if workspace_code:
-        records = list((getattr(manager, "shared_resources", {}) or {}).get("ts") or [])
-        available_scenarios = sorted({
-            str(record.get("scenario") or "").strip()
-            for record in records
-            if str(record.get("workspace_code") or "").strip() == workspace_code
-            and str(record.get("scenario") or "").strip()
-        })
+        records = (getattr(manager, "shared_resources", {}) or {}).get("ts") or []
+        available_scenarios = list(cached_on_records(
+            records, "scenarios_by_workspace", _build_scenarios_by_workspace,
+        ).get(workspace_code, []))
     baseline_scenario = next(
         (scen for scen in available_scenarios if "baseline" in str(scen).lower()),
         "",
@@ -1116,10 +1188,25 @@ def _suggested_next_questions(
     current_scenario = str(entities.get("scenario") or "").lower()
     unmatched_region = str(entities.get("unmatched_region") or "").strip()
 
+    # While a numbered choice is pending, the next useful message answers it;
+    # data-answer suggestions would be resolved against the pending choice.
+    pending_clarification = dict(getattr(manager, "clarification_context", None) or {})
+    if pending_clarification.get("suggested_options"):
+        add("Use the first option")
+        add("Show available variables")
+        return suggestions[:4]
+
+    # Every suggestion below is a phrase the router handles deterministically;
+    # test_response_fixes sends each one back as the next message.
     if agent in {"data_query", "data_plotting"}:
-        if unmatched_region:
+        if text.casefold().startswith("please choose a study"):
+            add("What studies are available?")
+            add("Show available variables")
+        elif unmatched_region:
             add("Show available regions")
-            add("Help me choose a region")
+            variable = str(entities.get("variable") or "").strip()
+            if variable:
+                add(f"Show {variable} for World")
         elif _is_no_data_answer(text, has_plot=has_plot):
             add("Show available scenarios")
             add("Show available regions")
@@ -1127,7 +1214,11 @@ def _suggested_next_questions(
         else:
             if entities.get("variable") or entities.get("region"):
                 add("Open the data explorer")
-                if baseline_scenario and "baseline" not in current_scenario:
+                if (
+                    baseline_scenario
+                    and "baseline" not in current_scenario
+                    and "baseline" not in str(query or "").casefold()
+                ):
                     add(f"Compare with {baseline_scenario}")
                 add("By 2050")
             else:
@@ -1136,21 +1227,29 @@ def _suggested_next_questions(
                 add("Help me find data")
     elif agent == "model_explanation":
         model = str(entities.get("model") or "").strip()
-        add(f"Show data using {model}" if model else "Show data using this model")
-        add("Compare this model with another model")
-        add("Show related IAM PARIS model links")
+        if model:
+            add(f"Which variables does {model} report?")
+            add(f"Which scenarios does {model} have?")
+        else:
+            add("Which models are available?")
+        add("Where can I find the IAM PARIS model documentation?")
     elif agent == "general_qa":
-        add("Show relevant IAM PARIS links")
+        add("Where can I find IAM PARIS results?")
         add("Help me find data")
         add("Open the related Application Library page")
 
-    # Only offer option selection when a numbered choice is actually pending;
-    # otherwise the phrase has no handler and would confuse the router.
-    pending_clarification = dict(getattr(manager, "clarification_context", None) or {})
-    if pending_clarification.get("suggested_options"):
-        add("Use the first option")
-
     return suggestions[:4]
+
+
+def _same_model_label(record_model: str, wanted: str) -> bool:
+    """Match a record's raw model label against a raw or display label.
+
+    Response entities carry display labels (``GCAM``) while records may hold
+    the raw alias (``gcam``); both name the same series.
+    """
+    if record_model == wanted:
+        return True
+    return display_model_label(record_model).casefold() == str(wanted or "").casefold()
 
 
 def _count_matching_records(
@@ -1293,7 +1392,7 @@ def _count_matching_records(
             if is_unlabelled_model_display(scope["model"]):
                 if is_presentable_model_label(model):
                     return False
-            elif model != scope["model"]:
+            elif not _same_model_label(model, scope["model"]):
                 return False
         if plural_values["model"]:
             model = str(record.get("modelName") or record.get("model") or "").strip()
@@ -1302,7 +1401,7 @@ def _count_matching_records(
                     is_unlabelled_model_display(wanted)
                     and not is_presentable_model_label(model)
                 )
-                or model == wanted
+                or _same_model_label(model, wanted)
                 for wanted in plural_values["model"]
             )
             if not matches_model:
@@ -1314,7 +1413,51 @@ def _count_matching_records(
             return False
         return True
 
-    matching = [record for record in records if isinstance(record, dict) and _matches(record)]
+    # Only records of the requested variable(s) can match; the per-variable
+    # index avoids scanning every loaded record on each request.
+    wanted_variables = set(plural_values["variable"])
+    if scope["variable"]:
+        wanted_variables.add(scope["variable"])
+    wanted_models = set(plural_values["model"])
+    if scope["model"]:
+        wanted_models.add(scope["model"])
+    if wanted_variables:
+        by_variable = cached_on_records(records, "records_by_variable", _build_records_by_variable)
+        candidates = [
+            record
+            for variable in sorted(wanted_variables)
+            for record in by_variable.get(variable, [])
+        ]
+    elif (
+        wanted_models
+        and not any(is_unlabelled_model_display(value) for value in wanted_models)
+        and "" not in records_by_field(records, "modelName")
+    ):
+        # Narrow by the raw record labels that match the requested models
+        # (only when every record carries modelName, which _matches reads).
+        by_model = records_by_field(records, "modelName")
+        raw_names = [
+            raw for raw in by_model
+            if any(_same_model_label(raw, wanted) for wanted in wanted_models)
+        ]
+        candidates = [record for raw in raw_names for record in by_model[raw]]
+    elif scope["region"] or plural_values["region"]:
+        # Test each distinct region label once instead of every record.
+        wanted_regions = set(plural_values["region"])
+        if scope["region"]:
+            wanted_regions.add(scope["region"])
+        by_region = records_by_field(records, "region")
+        candidates = [
+            record
+            for label, region_records in by_region.items()
+            if any(regions_equivalent(label, wanted) for wanted in wanted_regions)
+            for record in region_records
+        ]
+    elif scope["workspace_code"]:
+        candidates = records_by_field(records, "workspace_code").get(scope["workspace_code"], [])
+    else:
+        candidates = records
+    matching = [record for record in candidates if isinstance(record, dict) and _matches(record)]
     if latest_requested:
         for record in matching:
             years = _year_values(record)

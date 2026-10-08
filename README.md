@@ -49,6 +49,10 @@ IAM_TRUST_PROXY=0
 
 The app loads this file with `python-dotenv`.
 
+Cached API data is reused until `--refresh-data`. Set
+`IAM_CACHE_MAX_AGE_HOURS` (e.g. `168`) to refresh a cache older than that at
+startup; if the refresh fails the existing cache is served.
+
 ### Local models (Qwen + Ollama) alongside OpenAI
 
 Model selection is configuration-only, so the OpenAI path is never removed. With
@@ -75,6 +79,14 @@ LOCAL_LLM_BASE_URL=http://localhost:11434
   inference is much slower than the OpenAI endpoints the call sites were tuned
   for, so a long prompt can exceed the default 30s; set e.g. `120`-`240` together
   with a matching `IAM_API_REQUEST_TIMEOUT`.
+- `LOCAL_LLM_NUM_CTX` (default `8192`) sets the Ollama context window. Ollama
+  silently truncates prompts longer than the server default, and the general
+  Q&A prompt (model list, guidance, retrieved chunks, history) can exceed it.
+- Model size: `qwen3:0.6b` is adequate for routing, but weak for free-form
+  answers and JSON entity extraction. Prefer a larger model for those roles,
+  e.g. `IAM_QA_MODEL=qwen3:4b` (or `gpt-4o-mini`) and
+  `IAM_EXTRACTOR_MODEL=qwen3:4b`, keeping `IAM_ROUTER_MODEL` small. Extraction
+  requests JSON output mode on both providers.
 - On the server, run Ollama and pull the models:
 
   ```bash

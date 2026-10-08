@@ -154,9 +154,37 @@ class DataMetadataTests(unittest.TestCase):
                     "What are global CO2 emissions for Baseline in 2050?",
                     [], ordered_records, forced_entities=entities,
                 )
-                self.assertIn("Please choose a study", response)
+                # Equal coverage: the tie is broken by public title, never by
+                # record order, and the two studies are never mixed.
+                self.assertIn("Showing results from the study **AFOLU transformation**", response)
+                self.assertIn("Also available in: Where is the world headed?", response)
+                self.assertIn("999.00", response)
                 self.assertNotIn("100.00", response)
-                self.assertNotIn("999.00", response)
+
+    def test_numeric_query_defaults_to_study_with_most_data_in_requested_years(self):
+        def record(workspace, scenario, years):
+            return {
+                "workspace_code": workspace, "variable": "Emissions|CO2",
+                "region": "World", "scenario": scenario, "modelName": "Model",
+                "unit": "Mt CO2/yr", "years": years,
+            }
+
+        records = [
+            record("afolu", "Baseline", {"2020": 1}),
+            record("afolu", "Policy", {"2020": 2}),
+            record("world-headed", "Baseline", {"2050": 100}),
+        ]
+        response = data_query(
+            "CO2 emissions for World in 2050", [], records,
+            forced_entities={
+                "variable": "Emissions|CO2", "region": "World",
+                "start_year": 2050, "end_year": 2050,
+            },
+        )
+
+        self.assertIn("**Where is the world headed?**", response)
+        self.assertIn("100.00", response)
+        self.assertNotIn("Please choose a study", response)
 
     def test_region_availability_uses_only_selected_study_records(self):
         records = [

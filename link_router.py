@@ -1,5 +1,6 @@
 import re
 from dataclasses import dataclass, asdict
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -59,6 +60,7 @@ _NAVIGATION_FILLER_STEMS = {
     "on", "open", "page", "read", "route", "send", "show", "site",
     "specifically", "take", "the", "this", "to", "url", "use", "user",
     "valid", "view", "visit", "want", "website", "where", "which", "with", "paris",
+    "please", "directly", "need", "its", "get", "share", "provide", "clickable", "address",
 }
 
 # These words describe catalogue/result plumbing rather than subject matter.
@@ -90,6 +92,7 @@ def _tokens(text: str) -> set[str]:
     return {token for token in re.findall(r"[a-z0-9]+", _normalize(text)) if len(token) >= 2}
 
 
+@lru_cache(maxsize=65536)
 def _stem_token(token: str) -> str:
     """Small language-agnostic-enough normalizer for ranking, not retrieval.
 
@@ -232,6 +235,7 @@ def infer_navigation_category(
     _is_nav, has_surface = _navigation_syntax(query)
 
     ranked: list[tuple[float, str]] = []
+    root_ranked: list[tuple[float, str]] = []
     categories = sorted({
         str(item.get("category", "")).strip()
         for item in catalog
@@ -253,6 +257,9 @@ def infer_navigation_category(
         # A user can name a detail destination without saying its parent
         # category (for example a named explorer). Derive the category from a
         # strong live item-identity match instead of requiring root vocabulary.
+        root_evidence = _catalog_navigation_evidence(query, root, has_surface=has_surface)
+        if _is_nav and root_evidence >= 4.0:
+            root_ranked.append((root_evidence, category))
         detail_evidence = max(
             (
                 _catalog_navigation_evidence(query, item, has_surface=has_surface)
@@ -267,6 +274,12 @@ def infer_navigation_category(
         if detail_evidence >= 12.0:
             ranked.append((detail_evidence, category))
 
+    if not ranked:
+        if root_ranked:
+            best_root_score = max(score for score, _category in root_ranked)
+            if sum(score == best_root_score for score, _category in root_ranked) != 1:
+                return ""
+        ranked = root_ranked
     if not ranked:
         return ""
     ranked.sort(key=lambda row: (-row[0], row[1]))
@@ -285,7 +298,7 @@ def _navigation_syntax(query: str) -> tuple[bool, bool]:
         return False, False
 
     has_action = bool(re.search(
-        r"\b(?:access|browse|find|give|go|link|navigate|open|read|send|show|take|view|visit)\b",
+        r"\b(?:access|browse|find|give|go|link|navigate|open|read|send|share|provide|show|take|view|visit)\b",
         q,
     ))
     has_unambiguous_navigation_action = bool(re.search(
@@ -294,7 +307,7 @@ def _navigation_syntax(query: str) -> tuple[bool, bool]:
         q,
     ))
     has_surface = bool(re.search(
-        r"\b(?:application|catalog(?:ue)?|directory|docs?|documentation|library|link|page|portal|route|site|url|website|workspace)\b",
+        r"\b(?:application|catalog(?:ue)?|directory|docs?|documentation|library|link|page|portal|route|site|url|website|workspaces?|explorer|browser|address)\b",
         q,
     ))
     indirect_request = bool(re.search(
@@ -327,8 +340,28 @@ def _catalog_navigation_evidence(
     """Score destination identity evidence for one live catalogue entry."""
     query_norm = _normalize(query)
     query_stems = _meaningful_stems(query, _NAVIGATION_FILLER_STEMS)
+    # Root descriptions are identity metadata too. Match explicit navigation
+    # against their vocabulary, including documentation nouns that are generic
+    # filler for detail-page ranking.
+    if (has_surface and item.get("item_type") == "route"
+            and _category_tokens(str(item.get("category", ""))) == _category_tokens(str(item.get("title", "")))):
+        root_text = re.sub(r"\bstud(?:y|ies)\b", "project", query, flags=re.IGNORECASE)
+        root_text = re.sub(r"\bmethodolog(?:y|ies)\b", "documentation", root_text, flags=re.IGNORECASE)
+        root_query = _stemmed_tokens(root_text) - _stemmed_tokens(" ".join(
+            _NAVIGATION_FILLER_STEMS - {"doc", "documentation"}
+        ))
+        root_keywords = _stemmed_tokens(" ".join(str(v) for v in item.get("keywords", [])))
+        overlap = root_query & root_keywords
+        title_tokens = _category_tokens(str(item.get("title", "")))
+        documentation_tokens = _stemmed_tokens("doc documentation")
+        if overlap and (len(overlap) >= 2 or overlap <= title_tokens or overlap & documentation_tokens):
+            root_evidence = 4.0 + len(overlap)
+        else:
+            root_evidence = 0.0
+    else:
+        root_evidence = 0.0
     if not query_stems:
-        return 0.0
+        return root_evidence
 
     title = str(item.get("title", ""))
     title_norm = _normalize(title)
@@ -359,7 +392,7 @@ def _catalog_navigation_evidence(
         # enough to beat a generic root that shares only "analysis".
         return 10.0 + len(title_overlap)
 
-    best = 0.0
+    best = root_evidence
     identity_fields = [
         title,
         str(item.get("project", "")),

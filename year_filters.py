@@ -118,6 +118,8 @@ class YearFilter:
             return "at the latest available year"
         if self.operator == "after" and self.start_year is not None:
             return f"after {self.start_year - 1}"
+        if self.operator == "before" and self.end_year is not None:
+            return f"before {self.end_year + 1}"
         if self.start_year is None and self.end_year is not None:
             return f"until {self.end_year}"
         if self.start_year is not None and self.end_year is None:
@@ -141,6 +143,21 @@ def extract_year_filter(text: str) -> YearFilter:
             operator="latest",
         )
 
+    # A year assignment is a point selection; "to" here names the new
+    # value, rather than the upper bound of an open-ended window.
+    assignment = re.search(
+        rf"\b(?:set|change|switch|use|select)\b[^.?!]*?\b(?:reporting\s+)?year"
+        rf"\s+(?:to\s+)?({_YEAR})\b",
+        value,
+    )
+    if assignment:
+        year = int(assignment.group(1))
+        return YearFilter(year, year, True, "point")
+    replacement = re.search(rf"\buse\s+({_YEAR})\s+instead\s+of\s+{_YEAR}\b", value)
+    if replacement:
+        year = int(replacement.group(1))
+        return YearFilter(year, year, True, "point")
+
     match = re.search(
         rf"\b(?:from\s+|between\s+)?({_YEAR})\s*"
         rf"(?:-|–|—|to|through|until|and|&|,)\s*({_YEAR})\b",
@@ -151,7 +168,11 @@ def extract_year_filter(text: str) -> YearFilter:
         second = int(match.group(2))
         return YearFilter(min(first, second), max(first, second), True, "range")
 
-    match = re.search(rf"\b(?:by|to|until|up to|through|before)\s+({_YEAR})\b", value)
+    match = re.search(rf"\bbefore\s+({_YEAR})\b", value)
+    if match:
+        return YearFilter(None, int(match.group(1)) - 1, True, "before")
+
+    match = re.search(rf"\b(?:by|to|until|up to|through)\s+({_YEAR})\b", value)
     if match:
         return YearFilter(None, int(match.group(1)), True, "until")
 

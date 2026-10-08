@@ -12,6 +12,15 @@ from year_filters import (
 
 
 class YearFilterTests(unittest.TestCase):
+    def test_before_excludes_boundary_and_round_trips(self):
+        before = extract_year_filter("CO2 emissions for World before 2050")
+        self.assertEqual((before.start_year, before.end_year), (None, 2049))
+        self.assertEqual(select_years(["2030", "2049", "2050"], before.start_year, before.end_year), ["2030", "2049"])
+        self.assertEqual(extract_year_filter(before.render()), before)
+        self.assertEqual(before.apply({"start_year": 2050, "end_year": 2100}), {"end_year": 2049})
+        for phrase in ("by 2050", "until 2050", "through 2050"):
+            self.assertEqual(extract_year_range(phrase), (None, 2050))
+
     def test_extract_year_range_handles_required_phrases(self):
         self.assertEqual(extract_year_range("show values in 2030"), (2030, 2030))
         self.assertEqual(extract_year_range("show values from 2030 to 2050"), (2030, 2050))
@@ -206,22 +215,33 @@ class YearFilterTests(unittest.TestCase):
         )
 
         self.assertIn("Summary: 4 series across 3 models and 3 scenarios.", response)
-        self.assertIn("Showing series 1-3 of 4", response)
+        self.assertIn(
+            "Showing 3 of 4 series (every model and the highest and lowest values included)",
+            response,
+        )
         self.assertIn("Narrow by model or scenario", response)
         self.assertIn("| Model | Scenario | 2030 | 2050 | Unit |", response)
         self.assertEqual(response.count("| Model | Scenario | 2030 | 2050 | Unit |"), 1)
         self.assertNotIn("| Year | Value | Unit |", response)
 
+        # The cap keeps the 2050 extremes (Zulu high, Alpha/Path A low) and one
+        # series per model, instead of an alphabetical cut-off that hid Zulu.
         alpha_a = "| Alpha | Path A | 1.00 | 10.00 | EJ/yr |"
-        alpha_b = "| Alpha | Path B | 2.00 | 20.00 | EJ/yr |"
         beta_a = "| Beta | Path A | 3.00 | 30.00 | EJ/yr |"
+        zulu_z = "| Zulu | Path Z | 99.00 | 999.00 | EJ/yr |"
         self.assertIn(alpha_a, response)
-        self.assertIn(alpha_b, response)
         self.assertIn(beta_a, response)
-        self.assertLess(response.index(alpha_a), response.index(alpha_b))
-        self.assertLess(response.index(alpha_b), response.index(beta_a))
-        self.assertNotIn("| Zulu | Path Z |", response)
+        self.assertIn(zulu_z, response)
+        self.assertNotIn("| Alpha | Path B |", response)
+        self.assertLess(response.index(alpha_a), response.index(beta_a))
+        self.assertLess(response.index(beta_a), response.index(zulu_z))
+        # Values are never averaged into a synthetic row.
         self.assertNotIn("11.00", response)
+        self.assertIn(
+            "In 2050, Synthetic Metric in Synthetic Region ranges from 10.00 "
+            "(Alpha, Path A) to 999.00 EJ/yr (Zulu, Path Z) across 4 series; median 25.00.",
+            response,
+        )
 
         scope = consume_resolved_scope()
         self.assertEqual(scope["result_models"], ["Alpha", "Beta", "Zulu"])

@@ -11,6 +11,7 @@ This helps validate queries and provide helpful suggestions.
 """
 
 import os
+import glob
 import pickle
 import hashlib
 import re
@@ -828,8 +829,28 @@ def _metadata_signature(ts_data: List[dict], models: List[dict] = None) -> str:
     return digest.hexdigest()
 
 
+DEFAULT_METADATA_CACHE_FILE = 'cache/data_metadata.pkl'
+MIN_PERSISTED_RECORDS = 10000
+KEEP_METADATA_CACHE_FILES = 3
+
+
+def _signature_cache_file(signature: str) -> str:
+    base, ext = os.path.splitext(DEFAULT_METADATA_CACHE_FILE)
+    return f"{base}_{signature[:16]}{ext}"
+
+
+def _prune_signature_cache_files(keep: int) -> None:
+    base, ext = os.path.splitext(DEFAULT_METADATA_CACHE_FILE)
+    files = sorted(glob.glob(f"{base}_*{ext}"), key=os.path.getmtime, reverse=True)
+    for stale in files[keep:]:
+        try:
+            os.remove(stale)
+        except OSError:
+            pass
+
+
 def build_metadata_with_cache(ts_data: List[dict], models: List[dict] = None,
-                               cache_file: str = 'cache/data_metadata.pkl') -> DataMetadata:
+                               cache_file: str = DEFAULT_METADATA_CACHE_FILE) -> DataMetadata:
     """
     Build or load DataMetadata with caching.
     
@@ -841,7 +862,18 @@ def build_metadata_with_cache(ts_data: List[dict], models: List[dict] = None,
     Returns:
         DataMetadata instance
     """
+    uses_default_file = os.path.normpath(cache_file) == os.path.normpath(DEFAULT_METADATA_CACHE_FILE)
+    # Small datasets (test fixtures, filtered slices) are cheap to build and
+    # are never persisted to the shared default location.
+    if uses_default_file and len(ts_data or []) < MIN_PERSISTED_RECORDS:
+        return DataMetadata(ts_data, models)
+
     signature = _metadata_signature(ts_data, models)
+    if uses_default_file:
+        # One file per dataset: the server, CLI and tests load different
+        # result sets, and a single shared file made each overwrite the other,
+        # forcing a full rebuild on the next start.
+        cache_file = _signature_cache_file(signature)
 
     # Check cache. A corrupt/incompatible cache must not crash; fall through
     # to rebuilding from source instead.
@@ -870,5 +902,7 @@ def build_metadata_with_cache(ts_data: List[dict], models: List[dict] = None,
     with open(cache_file, 'wb') as f:
         pickle.dump({"signature": signature, "metadata": metadata}, f)
     logger.info(f"Metadata cached to: {cache_file}")
+    if uses_default_file:
+        _prune_signature_cache_files(keep=KEEP_METADATA_CACHE_FILES)
     
     return metadata

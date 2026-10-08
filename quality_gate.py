@@ -1,7 +1,10 @@
 import argparse
+import os
 import subprocess
 import sys
+import tempfile
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Sequence
 
 
@@ -35,6 +38,8 @@ UNIT_TEST_MODULES = [
     "test_operational_safety.py",
     "test_partial_latest_results.py",
     "test_quality_gate.py",
+    "test_response_fixes.py",
+    "test_golden_real_data.py",
 ]
 
 
@@ -50,7 +55,14 @@ def build_commands(
     live_url: str = "",
     include_link_validation: bool = False,
     include_static_eval: bool = True,
+    report_dir: str | None = None,
 ) -> list[GateCommand]:
+    """Gate commands. ``report_dir`` redirects the static eval reports, which
+    otherwise overwrite the tracked reports in ``docs/``."""
+
+    def report(name: str) -> list[str]:
+        return ["--output", str(Path(report_dir) / name)] if report_dir else []
+
     commands = [
         GateCommand(
             "unit tests",
@@ -60,10 +72,10 @@ def build_commands(
     if include_static_eval:
         commands.extend(
             [
-                GateCommand("main eval report", [sys.executable, "run_eval.py"]),
-                GateCommand("holdout eval report", [sys.executable, "run_eval.py", "--holdout"]),
-                GateCommand("feedback eval report", [sys.executable, "run_eval.py", "--feedback"]),
-                GateCommand("conversation eval report", [sys.executable, "run_eval.py", "--conversation-eval"]),
+                GateCommand("main eval report", [sys.executable, "run_eval.py", *report("evaluation_results.md")]),
+                GateCommand("holdout eval report", [sys.executable, "run_eval.py", "--holdout", *report("evaluation_holdout_results.md")]),
+                GateCommand("feedback eval report", [sys.executable, "run_eval.py", "--feedback", *report("evaluation_feedback_results.md")]),
+                GateCommand("conversation eval report", [sys.executable, "run_eval.py", "--conversation-eval", *report("evaluation_conversation_results.md")]),
             ]
         )
     if live_url:
@@ -113,13 +125,28 @@ def main() -> int:
     parser.add_argument("--live-url", default="", help="Optional local FastAPI /query URL for live eval gates.")
     parser.add_argument("--skip-static-eval", action="store_true", help="Skip static Markdown eval report generation.")
     parser.add_argument("--validate-links", action="store_true", help="Validate iamparis.eu links from the generated catalog.")
+    parser.add_argument(
+        "--write-reports",
+        action="store_true",
+        help="Write static eval reports to docs/ (default: a temporary directory).",
+    )
     args = parser.parse_args()
+
+    # A gate run must not change tracked reports or the runtime's feedback log
+    # and monitoring counters; send them to a scratch directory unless asked.
+    scratch = tempfile.mkdtemp(prefix="iam-quality-gate-")
+    os.environ.setdefault("IAM_EVAL_FEEDBACK_LOG", str(Path(scratch) / "eval_feedback_candidates.jsonl"))
+    os.environ.setdefault("IAM_MONITORING_STATE", str(Path(scratch) / "monitoring_counters.json"))
+    report_dir = None if args.write_reports else scratch
+    if report_dir:
+        print(f"Static eval reports: {report_dir} (use --write-reports to update docs/)")
 
     return run_commands(
         build_commands(
             live_url=args.live_url,
             include_link_validation=args.validate_links,
             include_static_eval=not args.skip_static_eval,
+            report_dir=report_dir,
         )
     )
 
