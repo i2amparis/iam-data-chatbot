@@ -10,6 +10,15 @@ class _Completed:
 
 
 class QualityGateTests(unittest.TestCase):
+    def test_real_data_tests_run_only_with_integration_option(self):
+        default = build_commands(include_static_eval=False)
+        with_real_data = build_commands(include_static_eval=False, include_real_data=True)
+
+        self.assertNotIn("test_golden_real_data.py", default[0].args)
+        self.assertEqual([command.name for command in default], ["unit tests"])
+        self.assertEqual(with_real_data[1].name, "real data integration tests")
+        self.assertIn("test_golden_real_data.py", with_real_data[1].args)
+
     def test_build_commands_includes_live_gates_when_live_url_is_set(self):
         commands = build_commands(live_url="http://127.0.0.1:8000/query")
         names = [command.name for command in commands]

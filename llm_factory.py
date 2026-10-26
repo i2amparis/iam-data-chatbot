@@ -22,6 +22,20 @@ LOCAL_LLM_BASE_URL = os.getenv("LOCAL_LLM_BASE_URL", "http://localhost:11434")
 _ROLE_MODEL_VARS = ("IAM_ROUTER_MODEL", "IAM_EXTRACTOR_MODEL", "IAM_QA_MODEL")
 
 
+def _configured_provider(model_name: str) -> str:
+    """Read an explicit provider for whichever configured role uses this model."""
+    wanted = str(model_name).strip().lower()
+    providers = {
+        os.getenv(model_var.replace("_MODEL", "_PROVIDER"), "").strip().lower()
+        for model_var in _ROLE_MODEL_VARS
+        if os.getenv(model_var, "").strip().lower() == wanted
+    }
+    providers.discard("")
+    if len(providers) > 1:
+        raise ValueError(f"Conflicting provider settings for model {model_name!r}")
+    return next(iter(providers), "")
+
+
 def _split_names(value: str) -> set:
     return {name.strip().lower() for name in (value or "").split(",") if name.strip()}
 
@@ -67,11 +81,11 @@ def _local_timeout(default):
     """Local CPU inference can be much slower than the OpenAI defaults, so allow
     LOCAL_LLM_TIMEOUT (seconds) to override the timeout from the call sites."""
     value = (os.getenv("LOCAL_LLM_TIMEOUT") or "").strip()
-    if not value:
-        return default
     try:
-        return float(value)
-    except ValueError:
+        timeout = float(value) if value else default
+        api_deadline = max(float(os.getenv("IAM_API_REQUEST_TIMEOUT", "120")), 0.1)
+        return min(timeout, api_deadline) if timeout is not None else api_deadline
+    except (TypeError, ValueError):
         return default
 
 
@@ -92,6 +106,9 @@ def _build_local(model_name: str, json_output: bool = False, **kwargs):
     # Translate OpenAI-client kwargs into ChatOllama equivalents.
     timeout = _local_timeout(kwargs.pop("timeout", None))
     streaming = kwargs.pop("streaming", None)
+    max_tokens = kwargs.pop("max_tokens", None)
+    if max_tokens is not None:
+        kwargs.setdefault("num_predict", int(max_tokens))
     for key in ("max_retries", "openai_api_key", "api_key", "openai_api_base", "base_url"):
         kwargs.pop(key, None)
 
@@ -119,7 +136,17 @@ def get_chat_openai(model_name: str, json_output: bool = False, **kwargs):
     ``format="json"``, OpenAI ``response_format=json_object``) so small models
     cannot wrap extraction output in prose or code fences.
     """
-    if is_local_model(model_name):
+    provider = str(kwargs.pop("provider", "") or _configured_provider(model_name)).strip().lower()
+    if provider not in {"", "openai", "ollama", "local"}:
+        raise ValueError("provider must be one of: openai, ollama, local")
+    use_local = provider in {"ollama", "local"} if provider else is_local_model(model_name)
+    if kwargs.get("timeout") is not None:
+        try:
+            api_deadline = max(float(os.getenv("IAM_API_REQUEST_TIMEOUT", "120")), 0.1)
+            kwargs["timeout"] = min(float(kwargs["timeout"]), api_deadline)
+        except (TypeError, ValueError):
+            pass
+    if use_local:
         return _build_local(model_name, json_output=json_output, **kwargs)
     if json_output:
         model_kwargs = dict(kwargs.pop("model_kwargs", None) or {})

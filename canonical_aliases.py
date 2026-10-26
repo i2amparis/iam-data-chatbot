@@ -70,6 +70,45 @@ VARIABLE_ALIASES: tuple[tuple[tuple[str, ...], tuple[str, ...]], ...] = (
     (("cropland area", "cropland", "crop land"), ("Land Cover|Cropland",)),
     (("forest area", "forest land area"), ("Land Cover|Forest",)),
     (("primary energy from coal", "coal primary energy"), ("Primary Energy|Coal",)),
+    # "energy mix" asks about the energy supply as a whole; the catalogue's
+    # nearest single series is total primary energy (not, e.g., Population).
+    (("energy mix", "fuel mix", "primary energy mix", "energy supply mix"), ("Primary Energy",)),
+    (("electricity mix", "power mix", "generation mix", "electricity generation mix"),
+     ("Secondary Energy|Electricity",)),
+    # Physical hydrogen output is `Secondary Energy|Hydrogen` (EJ/yr);
+    # `Production|Hydrogen` is the hydrogen industry's economic output in US$.
+    (("hydrogen production", "production of hydrogen", "hydrogen output", "hydrogen supply"),
+     ("Secondary Energy|Hydrogen",)),
+    # Electricity *demand* is consumption by end users (Final Energy), not
+    # generation; the generic ranker tied the two and asked the user to pick.
+    (("electricity demand", "demand for electricity", "electricity consumption",
+      "consumption of electricity", "electricity use", "power demand", "power consumption"),
+     ("Final Energy|Electricity",)),
+    # Use / phase-out of a fossil fuel concerns the fuel's primary energy, not
+    # its price or trade (bare "coal" otherwise ranked `Price|Coal` first).
+    (("coal phased out", "coal phase out", "coal phaseout", "phase out coal", "phasing out coal",
+      "phase out of coal", "coal use", "use of coal", "coal consumption", "coal demand"),
+     ("Primary Energy|Coal",)),
+    (("oil phased out", "oil phase out", "phase out oil", "phasing out oil", "oil use", "use of oil",
+      "oil consumption"),
+     ("Primary Energy|Oil",)),
+    (("gas phased out", "gas phase out", "phase out gas", "phasing out gas", "gas use", "use of gas",
+      "gas consumption"),
+     ("Primary Energy|Gas",)),
+    # Coal/gas *power* is electricity generated from the fuel; without these
+    # the question asked to pick between generic electricity variables.
+    (("coal power", "coal-fired power", "coal fired power", "coal electricity", "electricity from coal",
+      "coal generation", "coal-fired generation", "coal power plants"),
+     ("Secondary Energy|Electricity|Coal",)),
+    (("gas power", "gas-fired power", "gas fired power", "gas electricity", "electricity from gas",
+      "gas generation", "gas-fired generation", "gas power plants"),
+     ("Secondary Energy|Electricity|Gas",)),
+    # A carrier "in transport" is the transport sector's final energy of it
+    # (bare "transport" otherwise matched trade variables such as Exports|Air transport).
+    (("hydrogen in transport", "hydrogen for transport", "hydrogen use in transport", "transport hydrogen"),
+     ("Final Energy|Transportation|Hydrogen",)),
+    (("electricity in transport", "electricity for transport", "transport electricity"),
+     ("Final Energy|Transportation|Electricity",)),
     # "<carrier> share" asks for that carrier's slice of the energy mix. The
     # catalogue has no share variable for it (the only "* Share" entries are
     # investment shares), so resolve to the carrier quantity the share is taken
@@ -108,7 +147,10 @@ VARIABLE_ALIASES: tuple[tuple[tuple[str, ...], tuple[str, ...]], ...] = (
       "industrial final energy", "final energy in industry"),
      ("Final Energy|Industry",)),
     (("residential and commercial final energy", "residential commercial final energy",
-      "buildings final energy"),
+      "buildings final energy", "residential and commercial energy demand",
+      "residential and commercial energy", "residential & commercial energy",
+      "buildings energy demand", "building energy demand", "energy demand in buildings",
+      "energy use in buildings", "buildings energy use"),
      ("Final Energy|Residential & Commercial", "Final Energy|Residential and Commercial")),
     (("carbon capture and storage", "carbon capture storage", "ccs deployment"),
      ("Carbon Capture", "Carbon Sequestration|CCS")),
@@ -116,6 +158,16 @@ VARIABLE_ALIASES: tuple[tuple[tuple[str, ...], tuple[str, ...]], ...] = (
       "biomass with ccs", "beccs"),
      ("Carbon Sequestration|CCS|Biomass",)),
     (("carbon price", "carbon prices", "price of carbon"), ("Price|Carbon",)),
+    # A fuel price is its primary-energy (wholesale) price; the generic ranker
+    # tied it with sector prices and secondary-energy prices and asked to pick.
+    (("oil price", "oil prices", "price of oil", "crude oil price"),
+     ("Price|Primary Energy|Oil", "Price|Secondary Energy|Liquids|Oil")),
+    (("gas price", "gas prices", "price of gas", "natural gas price", "natural gas prices",
+      "price of natural gas", "prices of natural gas"),
+     ("Price|Primary Energy|Gas", "Price|Secondary Energy|Gases|Natural Gas", "Price|Natural Gas")),
+    (("coal price", "coal prices", "price of coal"),
+     ("Price|Primary Energy|Coal", "Price|Secondary Energy|Solids|Coal", "Price|Coal")),
+    (("biomass price", "biomass prices", "price of biomass"), ("Price|Primary Energy|Biomass",)),
     (("oil demand", "demand for oil"),
      ("Final Energy|Liquids", "Final Energy|Liquids|Fossil")),
     # In ordinary climate-data questions a bare "emissions" request means CO2
@@ -196,7 +248,7 @@ COUNTRY_REGION_EQUIVALENCE: tuple[tuple[str, ...], ...] = (
     ("Iraq", "IRQ", "IQ"),
     ("Italy", "ITA", "IT"),
     ("Japan", "JPN", "JP"),
-    ("South Korea", "KOR", "KR"),
+    ("South Korea", "KOR", "KR", "Korea", "Republic of Korea"),
     ("Mexico", "MEX", "MX"),
     ("Nigeria", "NGA", "NG"),
     ("Netherlands", "NLD", "NL"),
@@ -446,7 +498,24 @@ _VARIABLE_QUERY_FILLER = {
     "after", "before", "until", "around", "during", "since", "over", "till", "get", "find", "against", "instead", "about", "case", "switch", "this", "that", "result", "results",
     "recorded", "record", "figure", "figures", "set", "keep", "use", "now",
     "i", "you", "want", "could", "would",
+    # Analytical and question grammar ("will it grow", "is coal phased out",
+    # "which scenario has the lowest ...") asks for an operation on the
+    # values, not for a variable. Words that are real catalogue tokens
+    # (average, mean, increase, max, min) are deliberately not listed.
+    "will", "grow", "grows", "growing", "rise", "rises", "rising", "increases",
+    "increasing", "decrease", "decreases", "decreasing", "decline", "declines",
+    "declining", "fall", "falls", "falling", "drop", "drops", "phase", "phased",
+    "phasing", "out", "phaseout", "highest", "lowest", "maximum", "minimum",
+    "peak", "peaks", "most", "least", "largest", "smallest", "biggest",
+    "change", "changes", "s", "has", "have", "are", "be", "there", "it", "its",
+    "happen", "happens",
 }
+# Explanation grammar ("why is CO2 so high", "what role does solar play")
+# matched leaves such as "High value chemicals".
+_EXPLANATION_WORDS = frozenset({
+    "why", "so", "too", "very", "high", "low", "higher", "lower", "role", "play", "plays",
+})
+_VARIABLE_QUERY_FILLER |= _EXPLANATION_WORDS
 
 # A spelling-similarity hit is useful recovery evidence, but it must not outrank
 # a literal catalogue-token match merely because the similar token happens to
@@ -722,7 +791,7 @@ def preferred_variable_from_query(query: str, available_variables: Iterable[str]
     # "Intra-EU" leaf of a transport-aviation emissions variable). Region words
     # are scope, not variable qualifiers, so strip them from the tokens used to
     # justify narrowing to a more specific descendant.
-    variable_tokens = query_tokens - _REGION_ALIAS_TOKENS
+    variable_tokens = query_tokens - _REGION_ALIAS_TOKENS - _EXPLANATION_WORDS
 
     def _refine(candidate: str) -> str:
         """Prefer a descendant only when its extra path segments are explicitly

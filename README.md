@@ -69,6 +69,10 @@ LOCAL_LLM_BASE_URL=http://localhost:11434
 - `LOCAL_LLM_MODEL` makes every role (router, extractor, QA) default to that model.
   Override a single role with `IAM_ROUTER_MODEL`, `IAM_EXTRACTOR_MODEL` or
   `IAM_QA_MODEL`, e.g. keep `IAM_QA_MODEL=gpt-4o` while routing locally.
+- Set the matching `IAM_ROUTER_PROVIDER`, `IAM_EXTRACTOR_PROVIDER` or
+  `IAM_QA_PROVIDER` to `ollama` or `openai` when overriding a role model whose
+  provider cannot be inferred from `IAM_LOCAL_MODELS` / `LOCAL_LLM_MODEL`.
+  For example, use `IAM_QA_MODEL=qwen3:4b` with `IAM_QA_PROVIDER=ollama`.
 - `IAM_EMBEDDING_MODEL` switches embeddings to Ollama. Because the dimensions
   differ (768 vs 1536), the FAISS index is rebuilt automatically the first time.
   While it is unset, embeddings use OpenAI; override that OpenAI model with
@@ -82,11 +86,15 @@ LOCAL_LLM_BASE_URL=http://localhost:11434
 - `LOCAL_LLM_NUM_CTX` (default `8192`) sets the Ollama context window. Ollama
   silently truncates prompts longer than the server default, and the general
   Q&A prompt (model list, guidance, retrieved chunks, history) can exceed it.
-- Model size: `qwen3:0.6b` is adequate for routing, but weak for free-form
-  answers and JSON entity extraction. Prefer a larger model for those roles,
-  e.g. `IAM_QA_MODEL=qwen3:4b` (or `gpt-4o-mini`) and
-  `IAM_EXTRACTOR_MODEL=qwen3:4b`, keeping `IAM_ROUTER_MODEL` small. Extraction
-  requests JSON output mode on both providers.
+- The project runs on `qwen3:0.6b`. Because a model this small is unreliable
+  from its own memory, most answers do not depend on it: data, model profiles,
+  glossary terms (`config/glossary.json`) and variable definitions (expanded
+  from `definitions/variable`) are answered deterministically, and free-form
+  general Q&A uses a short grounded prompt over the knowledge index. Entity
+  extraction requests JSON output mode.
+- `python scripts/benchmark_local_model.py` measures the configured model on
+  the eval questions (route accuracy, LLM calls, latency) and saves its
+  general-Q&A answers for review. It writes to a temporary directory only.
 - On the server, run Ollama and pull the models:
 
   ```bash
@@ -100,6 +108,23 @@ LOCAL_LLM_BASE_URL=http://localhost:11434
   bind Ollama to that gateway only, e.g. `OLLAMA_HOST=172.17.0.1:11434`. Never
   expose port 11434 publicly: Ollama has no authentication, so restrict it with
   the host firewall to the container network.
+
+## Deployment notes (for the server operator)
+
+- **First start after an update rebuilds the knowledge index** (about 700
+  chunks embedded with `IAM_EMBEDDING_MODEL`; ~12 s on a laptop, longer on a
+  CPU server). It is cached in `cache/faiss_index` and reused while its content
+  is unchanged, so keep `cache/` on persistent storage.
+- **If the index cannot be built** (embedding server down, startup budget
+  exceeded) the API still starts: data, model and definition answers work,
+  free-form general Q&A replies that it is unavailable, and `/status` shows
+  `knowledge_index_error`. Startup logs the duration of each step.
+- **Labels are normalized at load**: whitespace and case-only variants of
+  variable, region, model and unit names are merged (scenario names keep their
+  published spelling), so the parsed-metadata cache is rebuilt once.
+- Optional settings: `LOCAL_LLM_NUM_CTX` (default 8192), `LOCAL_LLM_TIMEOUT`,
+  `IAM_CACHE_MAX_AGE_HOURS` (default 0 = never refresh cached API data
+  automatically).
 
 ## CLI Usage
 
@@ -396,6 +421,14 @@ Run the full local quality gate:
 ```bash
 MPLCONFIGDIR=/tmp/mplcache python quality_gate.py
 ```
+
+The unit tests use small synthetic records and run without `cache/`, as in GitHub Actions. To add the separate real-data integration check when local IAM PARIS caches are present:
+
+```bash
+MPLCONFIGDIR=/tmp/mplcache python quality_gate.py --skip-static-eval --include-real-data
+```
+
+The real-data option requires cached model and result files; `cache/` stays excluded from Git.
 
 Run the quality gate against a running local API:
 

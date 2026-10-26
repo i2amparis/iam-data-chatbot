@@ -82,61 +82,44 @@ class QueryEntityExtractor:
             if m and is_presentable_model_label(m.get('modelName'))
         })
         
-        self.available_scenarios = sorted({
-            str(r.get('scenario', '')) 
-            for r in self.ts_data 
-            if r and r.get('scenario')
-        })
-        
-        self.available_variables = sorted({
-            str(r.get('variable', '')) 
-            for r in self.ts_data 
-            if r and r.get('variable')
-        })
-        
-        self.available_regions = sorted({
-            str(r.get('region', '')) 
-            for r in self.ts_data 
-            if r and r.get('region')
-        })
+        scenarios: Set[str] = set()
+        variables: Set[str] = set()
+        regions: Set[str] = set()
         self.variable_dict = load_all_yaml_files('definitions/variable')
         self.region_dict = load_all_yaml_files('definitions/region')
         
         # Extract years from data
-        self.available_years = set()
-        for r in self.ts_data:
-            if r and 'years' in r:
-                self.available_years.update(r['years'].keys())
-        self.available_years = sorted(self.available_years)
-        
-        # Build variable -> unit mapping
+        self.available_years: Set[str] = set()
         self.variable_units = {}
-        for r in self.ts_data:
-            if r and r.get('variable') and r.get('unit'):
-                var = r['variable']
-                unit = r['unit']
-                if var not in self.variable_units:
-                    self.variable_units[var] = unit
-        
-        # Build variable -> regions mapping
         self.variable_regions = {}
-        for r in self.ts_data:
-            if r and r.get('variable') and r.get('region'):
-                var = r['variable']
-                reg = r['region']
-                if var not in self.variable_regions:
-                    self.variable_regions[var] = set()
-                self.variable_regions[var].add(reg)
-        
-        # Build variable -> scenarios mapping
         self.variable_scenarios = {}
         for r in self.ts_data:
-            if r and r.get('variable') and r.get('scenario'):
-                var = r['variable']
-                scen = r['scenario']
-                if var not in self.variable_scenarios:
-                    self.variable_scenarios[var] = set()
-                self.variable_scenarios[var].add(scen)
+            if not isinstance(r, dict):
+                continue
+            var = str(r.get('variable') or '').strip()
+            scenario = str(r.get('scenario') or '').strip()
+            region = str(r.get('region') or '').strip()
+            if var:
+                variables.add(var)
+                if scenario:
+                    scenarios.add(scenario)
+                    self.variable_scenarios.setdefault(var, set()).add(scenario)
+                if region:
+                    regions.add(region)
+                    self.variable_regions.setdefault(var, set()).add(region)
+                unit = r.get('unit')
+                if unit:
+                    self.variable_units.setdefault(var, unit)
+            years = r.get('years')
+            if isinstance(years, dict):
+                self.available_years.update(str(year) for year in years)
+            self.available_years.update(
+                str(key) for key in r if str(key).isdigit() and len(str(key)) == 4
+            )
+        self.available_scenarios = sorted(scenarios)
+        self.available_variables = sorted(variables)
+        self.available_regions = sorted(regions)
+        self.available_years = sorted(self.available_years)
         
         self.logger.debug(f"Built lookups: {len(self.available_models)} models, "
                         f"{len(self.available_scenarios)} scenarios, "
@@ -223,7 +206,7 @@ class QueryEntityExtractor:
         # Sample variables for the prompt: priority first, then the variables
         # with the most records. An alphabetical head ("Agricultural Demand|…")
         # says little about what users usually ask for.
-        records_per_variable = records_by_field(list(self.ts_data or []), "variable")
+        records_per_variable = records_by_field(self.ts_data or [], "variable")
         other_vars = sorted(
             (v for v in self.available_variables if v not in available_priority),
             key=lambda v: (-len(records_per_variable.get(v, [])), v),

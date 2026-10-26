@@ -1,0 +1,307 @@
+{
+  "_comment": "Curated definitions for conceptual questions. Indexed for general Q&A retrieval and used verbatim for direct definition questions (manager._glossary_answer). Keep entries short, sourced and model-independent.",
+  "terms": [
+    {
+      "term": "IAM PARIS",
+      "aliases": [
+        "iam paris",
+        "iamparis",
+        "i2am paris",
+        "iamparis.eu"
+      ],
+      "definition": "IAM PARIS (https://iamparis.eu) is an open platform that documents integrated assessment and energy-system models and publishes their results. It offers a model catalogue, study results with interactive data explorers and policy questions, data stories and an application library. Its studies come from EU research projects such as PARIS REINFORCE, IAM COMPACT, NDC ASPECTS, ENCLUDE and DECIPHER. In this chat you can ask for model descriptions, study results (for example `CO2 emissions for World in 2050`) and links to IAM PARIS pages.",
+      "source": "iamparis.eu"
+    },
+    {
+      "term": "Paris Agreement",
+      "aliases": [
+        "paris agreement",
+        "paris accord"
+      ],
+      "definition": "The Paris Agreement is an international treaty adopted in 2015 under the United Nations Framework Convention on Climate Change (UNFCCC). It aims to hold the increase in global average temperature to well below 2°C above pre-industrial levels and to pursue efforts to limit it to 1.5°C. Each party sets its own targets in a Nationally Determined Contribution (NDC), updated every five years, and progress is reviewed collectively in a global stocktake.",
+      "source": "UNFCCC, Paris Agreement (2015)"
+    },
+    {
+      "term": "Nationally Determined Contribution (NDC)",
+      "aliases": [
+        "ndc",
+        "ndcs",
+        "nationally determined contribution",
+        "nationally determined contributions",
+        "ndc scenario",
+        "ndc scenarios"
+      ],
+      "definition": "A Nationally Determined Contribution (NDC) is a country's climate pledge under the Paris Agreement, setting out its emission-reduction targets and actions. In IAM studies, an NDC scenario models the emission pathway implied by these pledges, usually extended beyond the pledge year with assumptions about later effort.",
+      "source": "UNFCCC; IPCC AR6 WGIII"
+    },
+    {
+      "term": "Current policies scenario",
+      "aliases": [
+        "current policies",
+        "current policy",
+        "current policies scenario",
+        "current policy scenario",
+        "curpol",
+        "cp scenario"
+      ],
+      "definition": "A current policies scenario assumes that only climate policies already implemented are in place and that no further policies are added. It differs from an NDC scenario, which also includes pledged but not yet implemented targets, and from a baseline, which assumes no (or no new) climate policy.",
+      "source": "IPCC AR6 WGIII scenario categories"
+    },
+    {
+      "term": "Baseline scenario",
+      "aliases": [
+        "baseline",
+        "baseline scenario",
+        "reference scenario",
+        "reference case",
+        "bau",
+        "business as usual"
+      ],
+      "definition": "A baseline (or reference) scenario describes a future without additional climate policy beyond a base year. It is the point of comparison for policy scenarios: the difference between a policy scenario and the baseline shows the effect of the policy. Definitions vary between studies, so check whether a study's baseline includes policies already in force.",
+      "source": "IPCC AR6 glossary (baseline/reference scenario)"
+    },
+    {
+      "term": "Carbon budget",
+      "aliases": [
+        "carbon budget",
+        "remaining carbon budget",
+        "co2 budget"
+      ],
+      "definition": "A carbon budget is the maximum cumulative net amount of CO2 that can be emitted globally while limiting warming to a given level (for example 1.5°C or 2°C) with a stated probability. The remaining carbon budget counts from a recent reference date.",
+      "source": "IPCC AR6 glossary"
+    },
+    {
+      "term": "Net zero emissions",
+      "aliases": [
+        "net zero",
+        "net-zero",
+        "net zero emissions",
+        "net zero co2",
+        "carbon neutrality",
+        "climate neutrality"
+      ],
+      "definition": "Net zero CO2 emissions are reached when remaining anthropogenic CO2 emissions are balanced by anthropogenic CO2 removals over a specified period. Net zero greenhouse gas emissions apply the same balance to all greenhouse gases, weighted by a metric such as GWP100.",
+      "source": "IPCC AR6 glossary"
+    },
+    {
+      "term": "Integrated assessment model (IAM)",
+      "aliases": [
+        "integrated assessment model",
+        "integrated assessment models",
+        "iam",
+        "iams"
+      ],
+      "definition": "An integrated assessment model combines knowledge from several domains, typically the economy, energy system, land use, emissions and climate, in one consistent framework. IAMs produce scenarios that are conditional on their assumptions, not predictions.",
+      "source": "IPCC SR1.5 glossary"
+    },
+    {
+      "term": "Scenario",
+      "aliases": [
+        "scenario",
+        "a scenario",
+        "pathway",
+        "emission pathway"
+      ],
+      "definition": "A scenario is a plausible, internally consistent description of how the future may develop, based on assumptions about drivers such as population, economic growth, technology and policy. In IAM PARIS each result belongs to a model, a scenario and a study; values from different scenarios answer different 'what if' questions.",
+      "source": "IPCC AR6 glossary"
+    },
+    {
+      "term": "Shared Socioeconomic Pathways (SSPs)",
+      "aliases": [
+        "ssp",
+        "ssps",
+        "shared socioeconomic pathways",
+        "shared socioeconomic pathway",
+        "ssp1",
+        "ssp2",
+        "ssp3",
+        "ssp4",
+        "ssp5",
+        "middle of the road"
+      ],
+      "definition": "The Shared Socioeconomic Pathways (SSP1 to SSP5) are five narratives of future societal development (population, economic growth, inequality, technology, lifestyles) used as common starting points for climate scenarios. They are combined with climate-policy assumptions to build mitigation scenarios. SSP1 is sustainability (taking the green road), SSP2 middle of the road, SSP3 regional rivalry, SSP4 inequality, and SSP5 fossil-fuelled development.",
+      "source": "IPCC AR6 glossary"
+    },
+    {
+      "term": "Carbon price",
+      "aliases": [
+        "carbon price",
+        "carbon pricing",
+        "carbon tax",
+        "price on carbon"
+      ],
+      "definition": "A carbon price is the price paid per tonne of CO2 (or CO2-equivalent) emitted, set by a tax or by an emissions trading system. In IAMs the carbon price is often the policy signal that drives mitigation; in many models it is the shadow price needed to reach a given emission target.",
+      "source": "IPCC AR6 glossary"
+    },
+    {
+      "term": "Emissions trading system (ETS)",
+      "aliases": [
+        "ets",
+        "emissions trading",
+        "emissions trading system",
+        "eu ets",
+        "cap and trade",
+        "cap-and-trade"
+      ],
+      "definition": "An emissions trading system caps total emissions from covered sectors and lets participants trade emission allowances, so a market price for emissions emerges. The EU Emissions Trading System (EU ETS) is the largest example.",
+      "source": "IPCC AR6 glossary"
+    },
+    {
+      "term": "Primary energy",
+      "aliases": [
+        "primary energy"
+      ],
+      "definition": "Primary energy is energy embodied in natural resources (coal, oil, gas, uranium, biomass, renewable flows) before any conversion. In IAM PARIS it is reported as the variable family `Primary Energy`, usually in EJ/yr.",
+      "source": "IPCC AR6 glossary; IAMC nomenclature"
+    },
+    {
+      "term": "Secondary energy",
+      "aliases": [
+        "secondary energy"
+      ],
+      "definition": "Secondary energy is energy produced by converting primary energy, such as electricity, refined fuels, hydrogen or district heat. In IAM PARIS, `Secondary Energy|Electricity` is electricity generation, usually in EJ/yr.",
+      "source": "IPCC AR6 glossary; IAMC nomenclature"
+    },
+    {
+      "term": "Final energy",
+      "aliases": [
+        "final energy"
+      ],
+      "definition": "Final energy is the energy delivered to end users in industry, transport and buildings (for example electricity, fuels and heat), after conversion and transmission losses. In IAM PARIS it is reported as the variable family `Final Energy`, usually in EJ/yr.",
+      "source": "IPCC AR6 glossary; IAMC nomenclature"
+    },
+    {
+      "term": "Carbon dioxide removal (CDR)",
+      "aliases": [
+        "carbon dioxide removal",
+        "cdr",
+        "negative emissions",
+        "carbon removal"
+      ],
+      "definition": "Carbon dioxide removal covers human activities that take CO2 out of the atmosphere and store it durably, for example afforestation, bioenergy with carbon capture and storage (BECCS) and direct air carbon capture and storage (DACCS).",
+      "source": "IPCC AR6 glossary"
+    },
+    {
+      "term": "Carbon capture and storage (CCS)",
+      "aliases": [
+        "ccs",
+        "carbon capture and storage",
+        "carbon capture",
+        "ccus"
+      ],
+      "definition": "Carbon capture and storage separates CO2 from industrial or energy-related sources, transports it and stores it long-term, usually in geological formations. Combined with bioenergy (BECCS) or direct air capture (DACCS) it can remove CO2 from the atmosphere.",
+      "source": "IPCC AR6 glossary"
+    },
+    {
+      "term": "AFOLU",
+      "aliases": [
+        "afolu",
+        "agriculture forestry and other land use",
+        "land use emissions",
+        "lulucf"
+      ],
+      "definition": "AFOLU (agriculture, forestry and other land use) covers emissions and removals from farming, forests and land-use change. In IAM PARIS it appears in variables such as `Emissions|CO2|AFOLU`.",
+      "source": "IPCC AR6 glossary"
+    },
+    {
+      "term": "Harmonisation",
+      "aliases": [
+        "harmonized",
+        "harmonised",
+        "harmonization",
+        "harmonisation",
+        "harmonized scenario",
+        "unharmonised"
+      ],
+      "definition": "Harmonisation adjusts model results so that they match common historical data in a base year, making results from different models easier to compare. In IAM PARIS, scenario names ending in `|Harmonized` denote harmonised versions; unharmonised results keep each model's own base-year values.",
+      "source": "IAM community practice (e.g. IPCC AR6 scenario database)"
+    },
+    {
+      "term": "Long-term strategy (LTS)",
+      "aliases": [
+        "lts",
+        "long-term strategy",
+        "long term strategy",
+        "long-term strategies",
+        "ltt",
+        "long-term target",
+        "long term targets"
+      ],
+      "definition": "Long-term strategies are countries' mid-century low-emission development plans under the Paris Agreement, often including net-zero targets. Scenarios labelled LTS or LTT in IAM PARIS model pathways consistent with these long-term targets, in contrast to the nearer-term NDC pledges.",
+      "source": "UNFCCC (Paris Agreement Art. 4.19)"
+    },
+    {
+      "term": "Uncertainty in IAM projections",
+      "aliases": [
+        "uncertainty",
+        "uncertainties",
+        "iam uncertainty",
+        "model uncertainty"
+      ],
+      "definition": "IAM projections are uncertain because they depend on assumptions about socioeconomic development, technology costs and availability, policy, behaviour and resources, and on model structure. Studies explore this by comparing scenarios and by running several models on the same scenario (model intercomparison); the spread across models is one indication of structural uncertainty.",
+      "source": "IPCC AR6 WGIII Ch. 3"
+    },
+    {
+      "term": "Electrification",
+      "aliases": [
+        "electrification",
+        "electrification of end uses",
+        "electrifying transport",
+        "electrifying buildings"
+      ],
+      "definition": "Electrification means replacing the direct use of fossil fuels in transport, buildings and industry with electricity, for example electric vehicles and heat pumps. Net-zero pathways usually raise the electricity share of final energy because low-carbon electricity can decarbonise these end uses, so total electricity demand typically rises even when total final energy falls.",
+      "source": "IPCC AR6 WGIII, Chapter 6 (energy systems)"
+    },
+    {
+      "term": "Model intercomparison",
+      "aliases": [
+        "model intercomparison",
+        "model comparison",
+        "why models differ",
+        "why models disagree",
+        "model differences"
+      ],
+      "definition": "Integrated assessment models represent the economy, technologies and behaviour in different ways (for example optimisation versus simulation, level of technology detail, cost and resource assumptions), so the same scenario can produce different results. Running several models on harmonised scenarios (model intercomparison) shows which results are robust across models and which depend on a model's structure.",
+      "source": "IPCC AR6 WGIII, Chapter 3 (mitigation pathways)"
+    },
+    {
+      "term": "Renewable expansion constraints",
+      "aliases": [
+        "renewable growth limits",
+        "limits to renewable growth",
+        "renewable expansion",
+        "renewable deployment rates"
+      ],
+      "definition": "How fast renewables grow in scenarios is limited by assumptions about investment and supply-chain build-out rates, grid integration and storage needs for variable wind and solar, land and resource availability, and policy. Models usually represent these as maximum expansion rates or as integration costs that rise with the share of variable renewables.",
+      "source": "IPCC AR6 WGIII, Chapter 6 (energy systems)"
+    },
+    {
+      "term": "Comparing results across studies",
+      "aliases": [
+        "comparing studies",
+        "compare studies",
+        "comparing results across studies",
+        "cross-study comparison"
+      ],
+      "definition": "To compare results from different studies, compare like with like: the same variable, region, unit and year, and scenarios with comparable definitions. Check whether results are harmonised, which model versions were used and how each study defines its scenarios; differences between studies often reflect scenario design rather than model behaviour.",
+      "source": "IAM community practice (e.g. IPCC AR6 scenario database)"
+    },
+    {
+      "term": "Projections, not forecasts",
+      "aliases": [
+        "prediction",
+        "predictions",
+        "results forecasts",
+        "results predictions",
+        "projections forecasts",
+        "projections predictions",
+        "scenarios forecasts",
+        "scenarios predictions",
+        "forecast vs scenario",
+        "scenario vs forecast"
+      ],
+      "definition": "IAM results are scenario projections, not forecasts. Each scenario shows what would happen if its assumptions held (policies, technology costs, population, economic growth); it does not say how likely that future is. Comparing scenarios shows the effect of different policy choices, and comparing models on the same scenario shows how much the answer depends on model structure.",
+      "source": "IPCC AR6 WGIII Ch. 3"
+    }
+  ]
+}

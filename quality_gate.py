@@ -39,8 +39,10 @@ UNIT_TEST_MODULES = [
     "test_partial_latest_results.py",
     "test_quality_gate.py",
     "test_response_fixes.py",
-    "test_golden_real_data.py",
+    "test_question_handling.py",
 ]
+
+REAL_DATA_TEST_MODULES = ["test_golden_real_data.py"]
 
 
 @dataclass
@@ -55,6 +57,7 @@ def build_commands(
     live_url: str = "",
     include_link_validation: bool = False,
     include_static_eval: bool = True,
+    include_real_data: bool = False,
     report_dir: str | None = None,
 ) -> list[GateCommand]:
     """Gate commands. ``report_dir`` redirects the static eval reports, which
@@ -69,6 +72,11 @@ def build_commands(
             [sys.executable, "-m", "unittest", *UNIT_TEST_MODULES],
         )
     ]
+    if include_real_data:
+        commands.append(GateCommand(
+            "real data integration tests",
+            [sys.executable, "-m", "unittest", *REAL_DATA_TEST_MODULES],
+        ))
     if include_static_eval:
         commands.extend(
             [
@@ -124,6 +132,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Run IAM PARIS chatbot quality gates.")
     parser.add_argument("--live-url", default="", help="Optional local FastAPI /query URL for live eval gates.")
     parser.add_argument("--skip-static-eval", action="store_true", help="Skip static Markdown eval report generation.")
+    parser.add_argument("--include-real-data", action="store_true", help="Run the separate integration tests against cached IAM PARIS data.")
     parser.add_argument("--validate-links", action="store_true", help="Validate iamparis.eu links from the generated catalog.")
     parser.add_argument(
         "--write-reports",
@@ -131,6 +140,16 @@ def main() -> int:
         help="Write static eval reports to docs/ (default: a temporary directory).",
     )
     args = parser.parse_args()
+
+    if args.include_real_data:
+        cache_dir = Path("cache")
+        has_models = any(cache_dir.glob("models*.json"))
+        has_results = any(
+            path for path in cache_dir.glob("*.json")
+            if not path.name.startswith(("models", "monitoring"))
+        )
+        if not (has_models and has_results):
+            parser.error("--include-real-data requires cached models and results in cache/")
 
     # A gate run must not change tracked reports or the runtime's feedback log
     # and monitoring counters; send them to a scratch directory unless asked.
@@ -146,6 +165,7 @@ def main() -> int:
             live_url=args.live_url,
             include_link_validation=args.validate_links,
             include_static_eval=not args.skip_static_eval,
+            include_real_data=args.include_real_data,
             report_dir=report_dir,
         )
     )

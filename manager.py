@@ -9,6 +9,9 @@ from llm_factory import get_chat_openai as ChatOpenAI
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from pathlib import Path
 from data_utils import (
+    TURN_ANALYSIS_INTENT,
+    _VAGUE_REQUEST_HELP,
+    analysis_intent,
     _broad_electricity_candidates,
     _choice_prompt,
     _infer_variable_intent,
@@ -27,6 +30,7 @@ from data_utils import (
     sanitize_variable_for_query,
 )
 from canonical_aliases import (
+    regions_equivalent,
     canonical_region_from_query,
     canonical_scenario_from_query,
     canonical_scenario_family_from_query,
@@ -51,7 +55,7 @@ from model_profiles import (
     format_model_profile_answer,
 )
 from query_plan import ScopePatch, build_query_plan, render_scope_query
-from record_cache import distinct_values
+from record_cache import distinct_values, records_by_field
 from model_aliases import (
     display_model_label,
     is_presentable_model_label,
@@ -357,19 +361,7 @@ def _scenario_assumptions_concept_answer() -> str:
     )
 
 
-def _load_skill_guidance(max_chars: int = 2000) -> str:
-    skill_path = Path("skills/iam-timeseries-qa/SKILL.md")
-    if not skill_path.exists():
-        return ""
-    text = skill_path.read_text()
-    if text.lstrip().startswith("---"):
-        parts = text.split("---", 2)
-        if len(parts) == 3:
-            text = parts[2]
-    text = text.strip()
-    if len(text) > max_chars:
-        text = text[:max_chars].rstrip() + "\n\n[Skill guidance truncated]"
-    return text
+from glossary import definition_answer, definition_terms
 from query_extractor import QueryEntityExtractor
 
 
@@ -478,7 +470,9 @@ class MultiAgentManager:
             shared_resources["router_llm"] = self.router_llm
         
         # Routing prompt
-        skill_guidance = _load_skill_guidance()
+        # No skill guidance here: it is developer documentation, and after the
+        # instruction "respond with ONLY the category name" it buried that
+        # instruction for small models.
         self.routing_prompt = ChatPromptTemplate.from_messages([
             SystemMessagePromptTemplate.from_template(f"""You are a query classifier for an IAM PARIS climate data chatbot.
 
@@ -506,10 +500,7 @@ class MultiAgentManager:
     - "climate change" "paris agreement" "policy"
     - General knowledge questions
 
-    Respond with ONLY the category name, nothing else.
-
-    Skill guidance (for routing context):
-    {skill_guidance}"""),
+    Respond with ONLY the category name, nothing else."""),
                 HumanMessagePromptTemplate.from_template("Query: {query}")
             ])
 
@@ -536,6 +527,7 @@ class MultiAgentManager:
             "Please clarify",
             "matched multiple",
             "I need one more detail",
+            "I need a little more to go on",
             "I don't have an active numbered choice",
             "Reply with a number",
         )
@@ -597,7 +589,7 @@ class MultiAgentManager:
         # overlap in the link scorer can otherwise prefer a different study
         # ("Where is the EU headed?" → the Fit-for-55 comparison).
         named_study = _matched_workspace(
-            query, _workspace_entries(list(self.shared_resources.get("ts") or [])),
+            query, _workspace_entries(self.shared_resources.get("ts") or []),
         )
         if named_study and (named_study.get("explorer_url") or named_study.get("explainer_url")):
             title = str(named_study.get("title") or named_study.get("code"))
@@ -775,6 +767,15 @@ class MultiAgentManager:
         )
         if has_year_filter or "latest" in q:
             return response
+        # A capped table already says how to narrow it ("Narrow by model or
+        # scenario to view the N remaining series").
+        if "Narrow by model or scenario" in text:
+            return response
+        # Once per conversation is enough: repeated on every follow-up it
+        # became boilerplate at the end of most answers.
+        if getattr(self, "_followup_guidance_shown", False):
+            return response
+        self._followup_guidance_shown = True
 
         return (
             f"{text}\n\n"
@@ -797,6 +798,7 @@ class MultiAgentManager:
         if not (
             not text
             or "i need one more detail" in text.lower()
+            or "i need a little more to go on" in text.lower()
             or "please specify the variable, region, or scenario" in text.lower()
         ):
             return response
@@ -813,6 +815,7 @@ class MultiAgentManager:
         if not (
             not text
             or "i need one more detail" in text.lower()
+            or "i need a little more to go on" in text.lower()
             or "please specify the variable, region, or scenario" in text.lower()
         ):
             return response
@@ -926,6 +929,14 @@ class MultiAgentManager:
         )
         for profile in find_model_profiles(identity_query):
             name = str(profile.get("name") or "").strip()
+            # Only a profile whose name or alias is written as a whole word
+            # counts: "REMIND" inside "REMIND-MFA" names a different model.
+            if not any(
+                re.search(r"(?<![\w-])" + re.escape(str(alias)) + r"(?![\w-])", identity_query, re.IGNORECASE)
+                for alias in [name, *(profile.get("aliases") or [])]
+                if str(alias).strip()
+            ):
+                continue
             mentioned_families = {model_family_key(value) for value in mentioned}
             if name and model_family_key(name) not in mentioned_families:
                 mentioned.append(name)
@@ -940,6 +951,10 @@ class MultiAgentManager:
 
         for requested in mentioned:
             curated = find_model_profile(requested)
+            if curated and model_family_key(str(curated.get("name") or "")) != model_family_key(str(requested)):
+                # A curated profile of another model (REMIND for "REMIND-MFA")
+                # must not supply this model's description.
+                curated = None
             candidates = resolve_model_candidates(requested, runtime_names) or [requested]
             candidate_keys = {str(value).casefold() for value in candidates}
             if curated:
@@ -1944,7 +1959,7 @@ class MultiAgentManager:
         """Whether the user asks for dataset-wide temporal coverage."""
         text = str(query or "").casefold()
         return bool(
-            re.search(
+            (re.search(
                 r"\b(?:(?:latest|last|maximum|max|earliest|first)\s+(?:available\s+)?year|"
                 r"(?:how\s+many|number\s+of)\s+(?:distinct\s+|available\s+)?years|"
                 r"year\s+range|years\s+available|(?:list|enumerate|display|identify|retrieve)\b[^.?!]*\byears)\b", text,
@@ -1952,28 +1967,58 @@ class MultiAgentManager:
             and re.search(
                 r"\b(?:projection|projections|results?|dataset|database|catalog(?:ue)?|cache|data|available)\b",
                 text,
+            ))
+            or re.fullmatch(
+                r"(?:what|which)\s+(?:years?|time\s+(?:period|horizon|span|range))\s+"
+                r"(?:are|is|does\s+(?:the\s+)?(?:data|dataset|database)|do\s+(?:the\s+)?(?:results|projections))\s+"
+                r"(?:covered|included|available|cover|span)\s*\??",
+                text.strip(),
             )
         )
 
     def _is_conceptual_climate_question(self, query: str) -> bool:
         """Recognize causal explanations without hijacking numeric data requests."""
         text = str(query or "").strip().casefold()
-        if not re.match(r"(?:why|how|what\s+(?:are|is|causes|drives|influences|should|tradeoffs)|explain|describe)\b", text):
-            return False
-        if re.match(r"how\s+(?:much|many)\b", text):
-            return False
-        if re.search(
-            r"\b(?:show|list|plot|chart|graph|table|values?|numbers?|data|"
-            r"available|availability|report|reports|compare|(?:19|20|21|22)\d{2})\b",
+        if not re.match(
+            r"(?:why|how|what\s+(?:are|is|causes|drives|influences|should|tradeoffs|"
+            r"limits|determines|affects|explains|shapes|role|happens)|explain|describe)\b",
             text,
         ):
+            return False
+        # Explanation-seeking phrasing: words such as "show", "compare" or
+        # "data" in it are part of the explanation asked for ("why do
+        # baseline scenarios still show emissions growth?", "how should I
+        # compare results from two studies?"), not a data request.
+        explanation_phrasing = bool(re.match(
+            r"(?:why\b|what\s+role\b|what\s+(?:is|are)\s+the\s+(?:role|trade[-\s]?offs?)\b|"
+            r"what\s+are\s+the\s+(?:pros|benefits|drawbacks|risks)\b|"
+            r"how\s+(?:should|can|do)\s+i\s+compare\b)",
+            text,
+        ))
+        if re.match(r"how\s+(?:much|many)\b", text):
+            return False
+        # "what are the scenarios for the EU" lists catalogue items.
+        if re.match(r"(?:what|which)\s+(?:are\s+)?(?:the\s+)?(?:scenarios|models|variables|regions|studies)\b", text):
+            return False
+        if re.search(r"\b(?:19|20|21|22)\d{2}\b", text) or (not explanation_phrasing and re.search(
+            r"\b(?:show|list|plot|chart|graph|table|values?|numbers?|data|"
+            r"available|availability|report|reports|compare)\b",
+            text,
+        )):
             return False
         if (self._mentions_known_model(query) or self._runtime_model_mentions(query)
                 or self._extract_model_like_subject(query)):
             return False
+        # "why do models disagree?" names no climate topic but is conceptual.
+        if re.match(r"why\b", text) and re.search(r"\bmodels?\b", text):
+            return True
         return bool(re.search(
             r"\b(?:iams?|integrated\s+assessment|climate|energy|emissions?|carbon|polic(?:y|ies)|"
-            r"policymakers?|scenarios?|transitions?|pathways?|net[-\s]+zero|warming|mitigation)\b",
+            r"policymakers?|scenarios?|transitions?|pathways?|net[-\s]+zero|warming|mitigation|"
+            r"renewables?|uncertaint(?:y|ies)|technolog(?:y|ies)|costs?|growth|grow|"
+            r"electrification|decarboni[sz]\w*|reliab(?:le|ility)|forecasts?|predictions?|"
+            r"ccs|carbon\s+capture|removals?|bioenergy|biomass|beccs|hydrogen|nuclear|coal|"
+            r"transport|power\s+sector|efficiency|demand|stud(?:y|ies)|results)\b",
             text,
         ))
 
@@ -2076,6 +2121,7 @@ class MultiAgentManager:
             entities,
             variable_candidates,
         )
+        variable_candidates = self._candidates_with_data_for_region(variable_candidates, entities)
         if not entities.get("variable") and variable_candidates:
             unmatched = [
                 str(value).strip()
@@ -2101,11 +2147,46 @@ class MultiAgentManager:
             value = entities.get(field)
             score = confidence.get(field)
             if value and isinstance(score, (int, float)) and score < 0.5:
+                if field == "model" and not resolve_model_candidates(
+                    str(value), getattr(self.entity_extractor, "available_models", []) or [],
+                ):
+                    return (
+                        f"I couldn't find a model called `{value}` in the IAM PARIS catalogue. "
+                        "Ask `list models` to see the available models."
+                    )
                 return (
                     f"I matched `{value}` as the {label}, but confidence is low. "
                     f"Which {label} should I use?"
                 )
         return ""
+
+    def _candidates_with_data_for_region(
+        self,
+        candidates: List[str],
+        entities: Dict[str, Any],
+    ) -> List[str]:
+        """Drop clarification options that have no data for the requested region.
+
+        Offering a variable the region does not report leads straight to a
+        "no data" answer. If no option has data, the list is kept unchanged so
+        the user still sees the closest matches.
+        """
+        regions = [
+            str(value) for value in (entities.get("regions") or [entities.get("region")])
+            if str(value or "").strip()
+        ]
+        if not candidates or not regions:
+            return candidates
+        by_variable = records_by_field(self.shared_resources.get("ts") or [], "variable")
+        with_data = [
+            candidate for candidate in candidates
+            if any(
+                regions_equivalent(record.get("region"), region)
+                for record in by_variable.get(candidate, [])
+                for region in regions
+            )
+        ]
+        return with_data or candidates
 
     def _record_route_decision(
         self,
@@ -2190,6 +2271,47 @@ class MultiAgentManager:
         labelled_model = bool(re.search(r"\bmodel\b", subject, re.IGNORECASE))
         return subject if acronym and (version or labelled_model or _looks_like_model_info_request(text)) else ""
 
+    def _bare_model_name(self, query: str) -> str:
+        """The model when *query* is only a model name and nothing is pending."""
+        text = str(query or "").strip().rstrip("?.! ").strip()
+        if not text or len(text.split()) > 3 or self.clarification_context:
+            return ""
+        if (self.last_entities or {}).get("variable") or (self.last_entities or {}).get("variables"):
+            return ""
+        target = normalize_model_name(text)
+        if len(target) < 3:
+            return ""
+        for name in self._runtime_model_mentions(text):
+            if normalize_model_name(name) == target:
+                return name
+        for profile in find_model_profiles(text):
+            names = [profile.get("name"), *(profile.get("aliases") or [])]
+            if any(normalize_model_name(str(value or "")) == target for value in names):
+                return text
+        return ""
+
+    def _unknown_named_subject(self, query: str) -> str:
+        """The name in "what is PRIMES?" when nothing in IAM PARIS knows it.
+
+        Only name-shaped subjects count (an acronym, CamelCase, or a version
+        number), so ordinary concept questions still reach general Q&A.
+        """
+        match = re.fullmatch(
+            r"\s*(?:what\s+is|what['’]s|tell\s+me\s+about|describe|who\s+(?:developed|built|made))\s+"
+            r"(?:the\s+)?(?P<name>[\w.+\-]+(?:\s+v?\d+(?:\.\d+)*)?)(?:\s+model)?\s*\??\s*",
+            str(query or ""),
+            flags=re.IGNORECASE,
+        )
+        if not match:
+            return ""
+        name = match.group("name").strip()
+        if not re.search(r"^[A-Z][A-Z0-9_\-]{2,}$|[a-z][A-Z]|\d+\.\d+", name):
+            return ""
+        if (self._mentions_known_model(name) or self._runtime_model_mentions(name)
+                or find_model_profiles(name) or definition_terms(f"what is {name}")):
+            return ""
+        return name if self._is_unrecognized_text(name) else ""
+
     def _unqualified_model_family_candidates(self, query: str) -> Tuple[str, List[str]]:
         """Resolve a bare family definition request without silently picking a variant."""
         subject = self._extract_model_like_subject(query)
@@ -2206,10 +2328,25 @@ class MultiAgentManager:
             normalize_model_name(name) == subject_norm for name in runtime_names
         ):
             return "", []
+        # A family is the same model in other versions ("GCAM" / "GCAM 7.0")
+        # or its slash-named variants ("AIM" / "AIM/CGE Global 2.0").
+        # "REMIND-MFA" is a different model that merely starts with "REMIND",
+        # and must not be presented as REMIND.
+        subject_family = model_family_key(subject)
+
+        def _in_family(value: str) -> bool:
+            if model_family_key(value) == subject_family:
+                return True
+            remainder = value.strip()[len(subject.strip()):] if value.strip().casefold().startswith(
+                subject.strip().casefold()
+            ) else ""
+            return remainder.startswith("/")
+
         candidates = [
             str(value).strip()
             for value in resolve_model_candidates(subject, runtime_names)
             if normalize_model_name(value).startswith(subject_norm)
+            and _in_family(str(value))
         ]
         candidates = list(dict.fromkeys(value for value in candidates if value))
         return (subject, candidates) if candidates else ("", [])
@@ -2514,7 +2651,8 @@ class MultiAgentManager:
         intent_markers = [
             "list", "show", "plot", "graph", "chart", "visualize", "compare",
             "tell me about", "explain", "describe", "what models", "what variables",
-            "what scenarios", "available models", "available variables", "available scenarios"
+            "what scenarios", "available models", "available variables", "available scenarios",
+            "what is", "what does", "define",
         ]
         intent_hits = sum(1 for m in intent_markers if m in lower)
         if intent_hits < 2:
@@ -2968,7 +3106,18 @@ class MultiAgentManager:
         _append_if_missing("variable", "variable")
         _append_if_missing("region", "region")
         _append_if_missing("scenario", "scenario")
-        _append_if_missing("model", "model")
+        # A question naming its own model(s) ("... from TIAM_Grantham",
+        # "compare GCAM and MUSE") or a different variable is not filtered by
+        # the model of an earlier turn.
+        if not (
+            self._runtime_model_mentions(query)
+            or self._mentions_known_model(query)
+            or self._names_new_variable(query, carried)
+            or (not carried.get("variable") and preferred_variable_from_query(
+                query, getattr(self.entity_extractor, "available_variables", []) or [],
+            ))
+        ):
+            _append_if_missing("model", "model")
 
         if not additions:
             return query
@@ -3128,6 +3277,22 @@ class MultiAgentManager:
             ):
                 merged.pop(plural, None)
 
+        # A single scenario/model can come from the answer itself (the only
+        # series shown) rather than from the user. Mark those so follow-ups
+        # such as "now for Germany" do not treat them as hard filters.
+        requested_dimensions = {
+            key for key in ("scenario", "model")
+            if supplied_entities.get(key) not in (None, "", [])
+        }
+        observed_dimensions = [
+            key for key in ("scenario", "model")
+            if merged.get(key) not in (None, "", []) and key not in requested_dimensions
+        ]
+        if observed_dimensions:
+            merged["observed_dimensions"] = observed_dimensions
+        else:
+            merged.pop("observed_dimensions", None)
+
         if merged:
             state = getattr(self, "__dict__", {}).get("conversation_state")
             if isinstance(state, ConversationState):
@@ -3169,6 +3334,7 @@ class MultiAgentManager:
 
     _UNSUCCESSFUL_RESPONSE_MARKERS = (
         "i need one more detail",
+        "i need a little more to go on",
         "please specify the variable",
         "i couldn't find",
         "i could not find",
@@ -3560,8 +3726,36 @@ class MultiAgentManager:
         "solar", "wind", "hydro", "nuclear", "coal", "gas", "oil", "biomass",
         "bioenergy", "hydrogen", "geothermal", "heat", "electricity",
         "transport", "transportation", "industry", "buildings", "residential",
-        "commercial",
+        "commercial", "gases", "liquids", "solids",
     })
+
+    _CARRIERS = frozenset({
+        "solar", "wind", "hydro", "nuclear", "coal", "gas", "gases", "oil", "liquids", "solids",
+        "biomass", "bioenergy", "hydrogen", "geothermal", "heat", "electricity",
+    })
+    _ELECTRICITY_SOURCES = frozenset({
+        "solar", "wind", "hydro", "nuclear", "coal", "gas", "oil", "biomass", "geothermal",
+    })
+
+    def _only_carrier_swap(self, query: str, variable: str) -> str:
+        """"only wind" after `Capacity|Electricity|Solar` -> `...|Wind`.
+
+        When the carried variable already ends in a carrier, "only <carrier>"
+        names a sibling, not a child (`...|Gases|Electricity` is no answer to
+        "only electricity" after a gas result). Electricity followed by a
+        generation source ("only solar" after electricity generation) and
+        sectors ("only electricity" after industry) keep the child path.
+        """
+        match = re.fullmatch(r"\s*(?:only|just)\s+([a-z]+)\s*[?.!]?\s*", str(query or ""), re.IGNORECASE)
+        if not match or "|" not in str(variable or ""):
+            return ""
+        token = match.group(1).casefold()
+        leaf = str(variable).split("|")[-1].casefold()
+        if token not in self._CARRIERS or leaf not in self._CARRIERS or token == leaf:
+            return ""
+        if leaf == "electricity" and token in self._ELECTRICITY_SOURCES:
+            return ""
+        return self._carrier_switch_variable(variable, token)
 
     def _carrier_switch_variable(self, variable: str, replacement: str) -> str:
         """Swap the carrier/sector segment of the carried variable.
@@ -3627,6 +3821,44 @@ class MultiAgentManager:
         except Exception:
             pass
         return None
+
+    _DATA_SOURCE_QUESTION = re.compile(
+        r"\b(?:source|origin)\s+of\s+(?:the\s+|this\s+|your\s+)?(?:data|results|numbers|values)\b"
+        r"|\bwhere\s+(?:does|do)\s+(?:the\s+|this\s+|your\s+)?(?:data|results|numbers|values)\s+come\s+from\b"
+        r"|\bwhen\s+(?:was|were|is|are)\s+(?:the\s+|this\s+|your\s+)?(?:data|results|database|dataset)\b"
+        r"[^?]*\b(?:updated|refreshed|loaded|published|last\s+changed)\b"
+        r"|\bhow\s+(?:recent|up[\s-]to[\s-]date|current)\s+(?:is|are)\s+(?:the\s+|this\s+|your\s+)?(?:data|results)\b",
+        re.IGNORECASE,
+    )
+
+    def _data_source_answer(self, query: str) -> str:
+        """Where the numbers come from and when this copy was loaded."""
+        if not self._DATA_SOURCE_QUESTION.search(str(query or "")):
+            return ""
+        records = self.shared_resources.get("ts") or []
+        models = {str(r.get("modelName") or r.get("model") or "") for r in records if isinstance(r, dict)}
+        scenarios = {str(r.get("scenario") or "") for r in records if isinstance(r, dict)}
+        models.discard("")
+        scenarios.discard("")
+        lines = [
+            "The numbers come from the IAM PARIS results database: scenario results that the "
+            "modelling teams submitted for the IAM PARIS studies, the same data shown in the "
+            "website's data explorer.",
+        ]
+        if records:
+            lines.append(
+                f"This chatbot has loaded {len(records):,} time series from {len(models)} models "
+                f"and {len(scenarios)} scenarios."
+            )
+        timestamp = str(self.shared_resources.get("results_timestamp") or "").strip()
+        if timestamp:
+            lines.append(f"Its copy of the results was last refreshed on {timestamp}.")
+        lines.append(
+            "Model descriptions come from the IAM PARIS model catalogue, and variable definitions "
+            "from the IAMC variable nomenclature. Ask \"which model is this from?\" after a data "
+            "answer to see which models produced it."
+        )
+        return " ".join(lines[:-1]) + "\n\n" + lines[-1]
 
     def _is_result_provenance_question(self, query: str) -> bool:
         """A follow-up asking which model the previous result came from, e.g.
@@ -3780,7 +4012,7 @@ class MultiAgentManager:
         if not str(carried.get("variable") or "").strip():
             return None
         workspace = _matched_workspace(
-            query, _workspace_entries(list(self.shared_resources.get("ts") or [])),
+            query, _workspace_entries(self.shared_resources.get("ts") or []),
         )
         if not workspace or not self._is_study_switch_only(query, workspace):
             return None
@@ -3797,12 +4029,248 @@ class MultiAgentManager:
         switched["workspace_code"] = str(workspace.get("code") or "").strip()
         switched["action"] = "query"
         self.clarification_context = None
+        # The previous question has no data in the named study: describe the
+        # study instead of offering unrelated variables from it.
+        region = str(switched.get("region") or "").strip()
+        if not any(
+            str(record.get("workspace_code") or "").strip() == switched["workspace_code"]
+            and (not region or regions_equivalent(record.get("region"), region))
+            for record in records_by_field(self.shared_resources.get("ts") or [], "variable").get(
+                switched["variable"], [],
+            )
+        ):
+            self._record_route_decision("general_qa", 0.95, "deterministic", "study summary")
+            self._conversation().response_scope_override = {}
+            where = f" for `{region}`" if region else ""
+            return (
+                f"`{switched['variable']}`{where} is not reported in this study, so here is what it contains.\n\n"
+                + self._grounded_site_navigation_answer(query, {})
+            )
         self._record_route_decision(
             "data_query", 0.95, "conversation_state", "study switch for previous question",
         )
         response = agent.handle_with_entities(query, switched, history)
         self._persist_last_entities(switched, response)
         return self._append_relevant_links(response, query, switched, "data_query")
+
+    @staticmethod
+    def _without_observed_dimensions(scope: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """Carried scope minus dimensions only observed in the last answer."""
+        scope = dict(scope or {})
+        for key in scope.pop("observed_dimensions", None) or []:
+            scope.pop(key, None)
+            scope.pop(f"{key}s", None)
+        return scope
+
+    _COMMON_WORDS = frozenset("""
+        help hello hi hey thanks thank ok okay why how what which who where when
+        data result results model models scenario scenarios variable variables
+        region regions study studies more info information example examples
+    """.split())
+
+    def _is_unrecognized_text(self, query: str) -> bool:
+        """One or two words, none of which the catalogues or glossary know."""
+        words = [word.casefold() for word in re.findall(r"[^\W\d_]+", str(query or ""))]
+        if not words or len(words) > 2:
+            return False
+        vocabulary = getattr(self, "_known_vocabulary", None)
+        if vocabulary is None:
+            from glossary import load_glossary
+
+            vocabulary = set(self._COMMON_WORDS)
+            for attribute in ("available_variables", "available_regions", "available_scenarios", "available_models"):
+                for value in getattr(self.entity_extractor, attribute, []) or []:
+                    vocabulary.update(re.findall(r"[a-z]+", str(value).casefold()))
+            for entry in load_glossary():
+                for alias in [entry["term"], *entry.get("aliases", [])]:
+                    vocabulary.update(re.findall(r"[a-z]+", alias.casefold()))
+            self._known_vocabulary = vocabulary
+        return not any(word in vocabulary for word in words)
+
+    _VARIABLE_PAIR_SPLIT = re.compile(r"\s+(?:and|vs\.?|versus)\s+|\s*,\s*", re.IGNORECASE)
+
+    def _split_named_variable_pair(self, query: str, entities: Dict[str, Any]) -> Dict[str, Any]:
+        """Keep both variables of "methane and CO2 for World".
+
+        The extractor returns one variable, so the second one was silently
+        dropped. Each side of the conjunction must resolve on its own to a
+        different catalogue variable; region/scenario/model comparisons
+        ("solar capacity for Greece and Germany") are left untouched.
+        """
+        entities = dict(entities or {})
+        if entities.get("variables") or any(
+            len(entities.get(key) or []) > 1 for key in ("regions", "scenarios", "models")
+        ):
+            return entities
+        parts = [part for part in self._VARIABLE_PAIR_SPLIT.split(str(query or "")) if part.strip()]
+        if len(parts) < 2:
+            return entities
+        catalogue = getattr(self.entity_extractor, "available_variables", []) or []
+        resolved = []
+        for part in parts:
+            variable = self._match_catalog_value_from_text(part, catalogue) or preferred_variable_from_query(
+                part, catalogue,
+            )
+            if not variable:
+                return entities
+            if variable not in resolved:
+                resolved.append(variable)
+        if len(resolved) < 2:
+            return entities
+        entities["variables"] = resolved
+        entities.pop("variable", None)
+        entities["comparison"] = "variable"
+        confidence = dict(entities.get("entity_confidence") or {})
+        confidence["variable"] = max(float(confidence.get("variable", 0) or 0), 0.9)
+        entities["entity_confidence"] = confidence
+        return entities
+
+    _UNRECORDED_MODEL_ATTRIBUTE = re.compile(
+        r"\b(?:open[\s-]?source|licen[cs](?:e|es|ed|ing)?|proprietary|source\s+code|github|"
+        r"(?:freely|publicly)\s+available|free\s+to\s+use|download(?:able)?)\b",
+        re.IGNORECASE,
+    )
+
+    def _asks_unrecorded_model_attribute(self, query: str) -> bool:
+        """A licence/code-availability question about models."""
+        text = str(query or "")
+        if not self._UNRECORDED_MODEL_ATTRIBUTE.search(text):
+            return False
+        return bool(re.search(r"\bmodels?\b", text, re.IGNORECASE) or self._mentions_known_model(text))
+
+    _YEAR_ONLY_WORDS = frozenset("""
+        by in for from to until till through after before since between and the year years
+        only please instead now then just of up around
+    """.split())
+
+    def _is_year_only_reply(self, query: str) -> bool:
+        """A short reply whose only content is a year or year range."""
+        text = str(query or "").casefold()
+        if not re.search(r"\b(?:19|20|21)\d{2}\b", text):
+            return False
+        words = re.findall(r"[a-z]+", re.sub(r"\b(?:19|20|21)\d{2}\b", " ", text))
+        return all(word in self._YEAR_ONLY_WORDS for word in words)
+
+    _VARIABLE_DEFINITION_WORDS = frozenset("""
+        variable variables include includes including cover covers measure measures
+        contain contains represent represents unit units indicator
+    """.split())
+
+    def _variable_definition_answer(self, query: str) -> str:
+        """Definition of a catalogue variable named in a pure definition question."""
+        from glossary import _DEFINITION_CUE, _DEFINITION_FILLER
+        from variable_definitions import definition_answer as variable_definition
+
+        text = str(query or "")
+        if not _DEFINITION_CUE.search(text):
+            return ""
+        variables = getattr(self.entity_extractor, "available_variables", []) or []
+        variable = self._match_catalog_value_from_text(text, variables)
+        if not variable:
+            return ""
+        residual = re.sub(re.escape(variable), " ", text, flags=re.IGNORECASE).casefold()
+        residual = residual.replace("'", "").replace("’", "")
+        leftover = [
+            word for word in re.findall(r"[a-z0-9]+", residual)
+            if word not in _DEFINITION_FILLER and word not in self._VARIABLE_DEFINITION_WORDS
+        ]
+        return "" if leftover else variable_definition(variable)
+
+    @staticmethod
+    def _one_edit_apart(left: str, right: str) -> bool:
+        """True when one insertion, deletion, substitution or swap turns left into right."""
+        if left == right or abs(len(left) - len(right)) > 1:
+            return False
+        if len(left) == len(right):
+            diffs = [i for i, (a, b) in enumerate(zip(left, right)) if a != b]
+            return len(diffs) == 1 or (
+                len(diffs) == 2 and diffs[1] == diffs[0] + 1
+                and left[diffs[0]] == right[diffs[1]] and left[diffs[1]] == right[diffs[0]]
+            )
+        shorter, longer = (left, right) if len(left) < len(right) else (right, left)
+        return any(longer[:i] + longer[i + 1:] == shorter for i in range(len(longer)))
+
+    def _correct_typos(self, query: str) -> Tuple[str, List[Tuple[str, str]]]:
+        """Correct single-edit typos of catalogue words in *query*.
+
+        Only words of 5+ letters that the catalogues do not know are touched,
+        and only when exactly one known word is one edit away, so ordinary
+        English words are left alone.
+        """
+        vocabulary = getattr(self, "_typo_vocabulary", None)
+        if vocabulary is None:
+            vocabulary = set()
+            for attribute in ("available_variables", "available_regions", "available_scenarios", "available_models"):
+                for value in getattr(self.entity_extractor, attribute, []) or []:
+                    vocabulary.update(word for word in re.findall(r"[a-z]+", str(value).casefold()) if len(word) >= 4)
+            self._typo_vocabulary = vocabulary
+        corrections: List[Tuple[str, str]] = []
+
+        def replace(match: "re.Match") -> str:
+            word = match.group(0)
+            lowered = word.casefold()
+            if len(lowered) < 5 or lowered in vocabulary:
+                return word
+            candidates = [known for known in vocabulary if self._one_edit_apart(lowered, known)]
+            if len(candidates) != 1:
+                return word
+            corrections.append((word, candidates[0]))
+            return candidates[0]
+
+        corrected = re.sub(r"[A-Za-z]+", replace, str(query or ""))
+        return corrected, corrections
+
+    def _states_new_topic(self, query: str, carried: Optional[Dict[str, Any]]) -> bool:
+        """Whether *query* describes a different variable than the carried one.
+
+        "energy in buildings for EU" after a wind-capacity answer names two
+        variable words absent from the carried variable; keeping the old
+        variable would answer a question that was not asked. A single word
+        ("only coal") stays a refinement of the carried variable.
+        """
+        carried_variable = str((carried or {}).get("variable") or "").strip()
+        if not carried_variable:
+            return False
+        vocabulary = getattr(self, "_variable_word_vocabulary", None)
+        if vocabulary is None:
+            vocabulary = set()
+            for value in getattr(self.entity_extractor, "available_variables", []) or []:
+                vocabulary.update(word for word in re.findall(r"[a-z]+", str(value).casefold()) if len(word) >= 4)
+            self._variable_word_vocabulary = vocabulary
+        carried_words = set(re.findall(r"[a-z]+", carried_variable.casefold()))
+        query_words = {word.rstrip("s") for word in re.findall(r"[a-z]+", str(query or "").casefold())}
+        carried_stems = {word.rstrip("s") for word in carried_words}
+        new_words = {
+            word for word in query_words
+            if (word in vocabulary or word + "s" in vocabulary) and word not in carried_stems
+        }
+        if len(new_words) >= 2:
+            return True
+        # "energy in buildings for EU" after an electricity-price answer: one
+        # new sector word is enough unless the message is phrased as a
+        # refinement ("only transport", "same for industry").
+        return bool(new_words & self._NEW_TOPIC_SECTORS) and not re.match(
+            r"\s*(?:only|just|same|what\s+about|how\s+about|and|now|also)\b",
+            str(query or ""),
+            re.IGNORECASE,
+        )
+
+    _NEW_TOPIC_SECTORS = frozenset({
+        "building", "transport", "transportation", "industry", "residential", "commercial",
+        "agriculture", "aviation", "shipping",
+    })
+
+    def _names_new_variable(self, query: str, carried: Optional[Dict[str, Any]]) -> bool:
+        """Whether *query* names a variable other than the carried one."""
+        carried_variable = str((carried or {}).get("variable") or "").strip()
+        if not carried_variable:
+            return False
+        variables = getattr(self.entity_extractor, "available_variables", []) or []
+        named = (
+            self._match_catalog_value_from_text(query, variables)
+            or preferred_variable_from_query(query, variables)
+        )
+        return bool(named) and str(named).casefold() != carried_variable.casefold()
 
     _STUDY_SWITCH_FILLER = frozenset({
         "use", "switch", "change", "to", "the", "study", "workspace", "in", "from",
@@ -3981,11 +4449,15 @@ class MultiAgentManager:
                 if len(token) >= 2 and token not in {"and", "or", "of", "the", "incl", "excl"}
             }
 
-        query_tokens = lexemes(query)
+        # Words of the parent itself (the carried "Residential and Commercial"
+        # in "only gas variable Final Energy|Residential and Commercial") are
+        # no evidence for a child segment of the same name.
+        query_tokens = lexemes(query) - lexemes(parent)
 
         def overlaps(segment_token: str) -> bool:
             return any(
                 segment_token == query_token
+                or segment_token in (query_token + "s", query_token + "es")
                 or (
                     min(len(segment_token), len(query_token)) >= 4
                     and (
@@ -4516,6 +4988,12 @@ class MultiAgentManager:
         if self.clarification_context and self.clarification_context.get("agent_type") == "data_plotting":
             self.clarification_context["agent_type"] = "data_query"
             self.clarification_context.setdefault("entities", {})["action"] = "query"
+        # A bare model name ("GCAM") with no pending choice or data question
+        # to refine asks about the model.
+        bare_model = self._bare_model_name(query)
+        if bare_model:
+            query = original_user_query = f"tell me about {bare_model}"
+            q_lower = query.lower()
         available_models = getattr(self.entity_extractor, "available_models", []) or []
         plan = build_query_plan(query, available_models=available_models)
         if plan.replacement_dimension == "auto" and plan.replacement_value:
@@ -4543,7 +5021,7 @@ class MultiAgentManager:
             self._record_route_decision(
                 "general_qa", 1.0, "deterministic", "charts delegated to data explorer",
             )
-            workspace_entries = _workspace_entries(list(self.shared_resources.get("ts") or []))
+            workspace_entries = _workspace_entries(self.shared_resources.get("ts") or [])
             named_workspace = _matched_workspace(original_user_query, workspace_entries)
             carried_workspace = str((self.last_entities or {}).get("workspace_code") or "").strip()
             workspace_entry = named_workspace or next(
@@ -4578,7 +5056,7 @@ class MultiAgentManager:
         ) and not any(_looks_like_category_list_request(original_user_query, category)
                       for category in ("models", "variables", "regions", "scenarios", "workspaces"))
         and not _matched_workspace(
-            original_user_query, _workspace_entries(list(self.shared_resources.get("ts") or [])),
+            original_user_query, _workspace_entries(self.shared_resources.get("ts") or []),
         )) or re.fullmatch(
             r"\s*(?:please\s+)?(?:open|show(?:\s+me)?|go\s+to|take\s+me\s+to|link\s+to|"
             r"(?:give|send)\s+me\s+(?:the\s+)?link\s+to)\s+"
@@ -4595,7 +5073,7 @@ class MultiAgentManager:
             self._record_route_decision(
                 "general_qa", 1.0, "deterministic", "data explorer link for active study",
             )
-            workspace_entries = _workspace_entries(list(self.shared_resources.get("ts") or []))
+            workspace_entries = _workspace_entries(self.shared_resources.get("ts") or [])
             active_scope = (context or {}).get("last_entities") or self.last_entities or {}
             carried_workspace = str(active_scope.get("workspace_code") or "").strip()
             workspace_entry = next(
@@ -4632,6 +5110,24 @@ class MultiAgentManager:
                 response = agent.handle(query, history)
                 self._persist_last_entities({}, response)
                 return self._append_relevant_links(response, query, {}, "data_query")
+
+        # "which scenarios are in this study?" lists the active study's
+        # scenarios; without a study in the conversation it falls through.
+        study_category = re.search(
+            r"\b(scenarios|variables|regions|models)\b.*\b(?:this|that|the)\s+(?:study|workspace)\b",
+            q_lower,
+        )
+        active_study = str((self.last_entities or {}).get("workspace_code") or "").strip()
+        if study_category and active_study and self.agents.get("data_query"):
+            self.clarification_context = None
+            self._record_route_decision(
+                "data_query", 0.97, "conversation_state", "listing for active study",
+            )
+            scope = {"workspace_code": active_study, "action": "query"}
+            response = self.agents["data_query"].handle_with_entities(
+                f"list {study_category.group(1)}", scope, history,
+            )
+            return self._append_relevant_links(response, query, scope, "data_query")
 
         if (
             _looks_like_category_list_request(query, "workspaces")
@@ -4689,6 +5185,97 @@ class MultiAgentManager:
             )
             return _scenario_assumptions_concept_answer()
 
+        # Licence / code availability is not part of the model catalogue (it has
+        # institute, type, features, references, ... but no licence field).
+        # Say so instead of linking an unrelated page such as the SDG matrix.
+        if self._asks_unrecorded_model_attribute(original_user_query):
+            self.clarification_context = None
+            self._conversation().response_scope_override = {}
+            self._record_route_decision(
+                "model_explanation", 0.95, "deterministic", "model attribute not in catalogue",
+            )
+            # Only a model whose full name is written counts: fuzzy matching
+            # read "open source" as the OPEN-PROM model.
+            named = next(
+                (
+                    str(profile.get("name"))
+                    for profile in self._runtime_model_profiles(original_user_query)
+                    if profile.get("name")
+                    and normalize_model_name(str(profile.get("name"))) in normalize_model_name(original_user_query)
+                ),
+                "",
+            )
+            subject = f"`{named}`" if named else "the models"
+            response = (
+                f"The IAM PARIS model catalogue does not record licensing or code availability, "
+                f"so I can't tell whether {subject} {'is' if named else 'are'} open source or downloadable. "
+                "Each model's IAM PARIS page links to its documentation and references, which usually "
+                "state how the model can be accessed."
+            )
+            return self._append_relevant_links(
+                response, original_user_query, {"model": named} if named else {}, "model_explanation",
+            )
+
+        data_source = self._data_source_answer(original_user_query)
+        if data_source:
+            self.clarification_context = None
+            self.last_links = []
+            self._conversation().response_scope_override = {}
+            self._record_route_decision("general_qa", 1.0, "deterministic", "data source question")
+            return data_source
+
+        # Pure definition questions about a curated glossary term ("what does
+        # net zero mean", "explain the NDC scenario", "difference between NDC
+        # and current policies") are answered from config/glossary.json: exact,
+        # sourced, and independent of the small local model's memory.
+        defined_terms = definition_terms(original_user_query)
+        if defined_terms:
+            self.clarification_context = None
+            self.last_links = []
+            self._conversation().response_scope_override = {}
+            self._record_route_decision(
+                "general_qa", 1.0, "deterministic", "glossary definition",
+            )
+            return definition_answer(defined_terms)
+
+        # "what does Emissions|CO2 include?" names a real variable: answer from
+        # the expanded IAMC nomenclature definition instead of the LLM.
+        variable_definition = self._variable_definition_answer(original_user_query)
+        if variable_definition:
+            self.clarification_context = None
+            self.last_links = []
+            self._conversation().response_scope_override = {}
+            self._record_route_decision(
+                "general_qa", 1.0, "deterministic", "variable definition",
+            )
+            return variable_definition
+
+        unknown_subject = self._unknown_named_subject(original_user_query)
+        if unknown_subject:
+            self.clarification_context = None
+            self.last_links = []
+            self._conversation().response_scope_override = {}
+            self._record_route_decision("model_explanation", 0.9, "deterministic", "unknown named subject")
+            # Results can come from a model the catalogue does not describe
+            # ("PRIMES-Buildings"): point to its data instead of "not found".
+            subject_key = normalize_model_name(unknown_subject)
+            with_results = sorted(
+                str(name) for name in distinct_values(self.shared_resources.get("ts") or [], "modelName")
+                if subject_key and normalize_model_name(str(name)).startswith(subject_key)
+            )
+            if with_results:
+                listed = ", ".join(f"`{name}`" for name in with_results[:3])
+                return (
+                    f"`{unknown_subject}` has no description in the IAM PARIS model catalogue, but the results "
+                    f"include data from {listed}.\n\n"
+                    f"Ask `which variables does {with_results[0]} report?` to see what it covers."
+                )
+            return (
+                f"I couldn't find a model, term or variable called `{unknown_subject}` in IAM PARIS. "
+                "It may be a model that is not part of the IAM PARIS catalogue.\n\n"
+                "Ask `which models are available?` to see the catalogue, or check the spelling."
+            )
+
         # An explicit destination grounded in the live link catalogue is a
         # navigation request even when its text also names multiple models and
         # contains comparison language.  Resolve this before model metadata so
@@ -4710,6 +5297,18 @@ class MultiAgentManager:
         if study_switch is not None:
             return study_switch
 
+        # A message that is only a study name, with no question to re-run
+        # ("Where is the EU headed?"), asks about the study itself. Without
+        # this, the region inside the title ("EU") made it a data request.
+        named_study_only = _matched_workspace(
+            original_user_query, _workspace_entries(self.shared_resources.get("ts") or []),
+        )
+        if named_study_only and self._is_study_switch_only(original_user_query, named_study_only):
+            self.clarification_context = None
+            self._record_route_decision("general_qa", 0.95, "deterministic", "study summary")
+            self._conversation().response_scope_override = {}
+            return self._grounded_site_navigation_answer(original_user_query, {})
+
         if self._is_catalogue_year_request(original_user_query):
             # Temporal catalogue facts need neither entity extraction nor an
             # LLM router. Resolve only explicitly grounded scope dimensions.
@@ -4720,7 +5319,7 @@ class MultiAgentManager:
                 scope["region"] = region
             if len(plan.mentioned_models) == 1:
                 scope["model"] = plan.mentioned_models[0]
-            workspace = _matched_workspace(query, _workspace_entries(list(self.shared_resources.get("ts") or [])))
+            workspace = _matched_workspace(query, _workspace_entries(self.shared_resources.get("ts") or []))
             if workspace:
                 scope["workspace_code"] = workspace["code"]
             self._record_route_decision("data_query", 0.97, "deterministic", "catalogue year coverage request")
@@ -4745,6 +5344,32 @@ class MultiAgentManager:
         )
         if result_edit is not None:
             return result_edit
+
+        # Conceptual questions ("why do models disagree?", "what limits how
+        # fast renewables can grow?") go to general QA before any follow-up
+        # logic can rewrite them into the previous data question.
+        if (
+            self._is_conceptual_climate_question(original_user_query)
+            and not _looks_like_capability_question(original_user_query)
+            and not self._is_catalogue_year_request(original_user_query)
+            and not any(
+                _looks_like_category_list_request(original_user_query, category)
+                for category in ("models", "variables", "regions", "scenarios", "workspaces")
+            )
+        ):
+            agent = self.agents.get("general_qa")
+            if agent:
+                self.clarification_context = None
+                self._conversation().response_scope_override = {}
+                self._record_route_decision(
+                    "general_qa", 0.96, "deterministic", "conceptual climate explanation",
+                )
+                try:
+                    response = agent.handle(original_user_query, history)
+                except Exception as err:  # the normal route below has the provider fallbacks
+                    self.logger.warning("Early conceptual answer failed (%s); using the normal route.", err)
+                else:
+                    return self._append_relevant_links(response, original_user_query, {}, "general_qa")
 
         unresolved_model = str((self.last_entities or {}).get("unresolved_model") or "").strip()
         unresolved_reference = bool(re.search(
@@ -4912,7 +5537,9 @@ class MultiAgentManager:
                 r"\b(?:better|best|more\s+suitable|better\s+suited|prefer(?:able|red)?)\b",
                 q_lower,
             )
-            and re.search(r"\bmodels?\b", q_lower)
+            # "which is better for transport, ALADIN or GCAM?" names the
+            # models without the word "model".
+            and (re.search(r"\bmodels?\b", q_lower) or re.search(r"\bwhich\b[^?]*\bor\b", q_lower))
         )
 
         # Resolve a singular reference in a model comparison from typed
@@ -5031,6 +5658,7 @@ class MultiAgentManager:
             early_carried = context.get("last_entities", {})
         if not early_carried and self.last_entities:
             early_carried = self.last_entities
+        early_carried = self._without_observed_dimensions(early_carried)
 
         scenario_comparison_values = self._scenario_comparison_followup_values(
             original_user_query,
@@ -5059,7 +5687,7 @@ class MultiAgentManager:
                 response = _list_model_category(
                     scoped_category,
                     scoped_model,
-                    list(self.shared_resources.get("ts") or []),
+                    self.shared_resources.get("ts") or [],
                     show_all=bool(re.search(r"\b(?:all|every)\b", original_user_query, re.IGNORECASE)),
                 )
                 scoped_entities = {"model": scoped_model, "action": "query"}
@@ -5331,6 +5959,16 @@ class MultiAgentManager:
                 "model_explanation",
             )
 
+        # "which model is this from?" asks about the previous answer. Resolve it
+        # before availability, whose "which model" grammar would otherwise list
+        # catalogue models instead of the ones behind that answer.
+        if self._is_result_provenance_question(original_user_query) and getattr(self, "last_result_models", None):
+            provenance = self._result_provenance_answer()
+            if provenance is not None:
+                self._record_route_decision("data_query", 0.9, "deterministic", "result provenance follow-up")
+                self.last_links = []
+                return provenance
+
         if plan.intent == "availability" and not self._is_conceptual_climate_question(query) and any(
             target in plan.availability_targets for target in ("variable", "region", "scenario", "model")
         ):
@@ -5513,8 +6151,12 @@ class MultiAgentManager:
                 or len(list(early_carried.get("models") or [])) == 1
             )
         )
+        # A message naming a different variable than the carried one is a new
+        # question ("how much does electricity demand change between 2020 and
+        # 2050" after a coal answer), not a year/region patch of the old one.
+        names_new_variable = self._names_new_variable(original_user_query, early_carried)
         scope_patch = bool(model_scope_followup or (
-            early_carried and plan.followup and (
+            early_carried and plan.followup and not names_new_variable and (
                 plan.replacement_dimension or plan.output_mode or plan.year_filter.explicit
             )
         ))
@@ -5646,6 +6288,71 @@ class MultiAgentManager:
             self._conversation().response_scope_override = {}
             return self._grounded_site_navigation_answer(query, {})
 
+        # "which scenario is lowest?" / "which model is highest?" after a data
+        # answer ranks that data; it is not a request to list the catalogue,
+        # and "lowest" is not a scenario name.
+        ranks_carried_data = bool(
+            analysis_intent(original_user_query) in {"max", "min", "mean"}
+            and (early_carried or {}).get("variable")
+            and not self._names_new_variable(original_user_query, early_carried)
+        )
+        # "between 2030 and 2050" / "by 2040" right after a data answer asks
+        # for the same data over new years (a pending choice is handled by the
+        # clarification flow instead).
+        if (
+            not ranks_carried_data
+            and not getattr(self, "clarification_context", None)
+            and (early_carried or {}).get("variable")
+            and self._is_year_only_reply(original_user_query)
+        ):
+            year_filter = extract_year_filter(original_user_query)
+            if year_filter.explicit:
+                year_scope = {
+                    key: early_carried[key]
+                    for key in (
+                        "variable", "region", "regions", "scenario", "scenarios", "model", "models",
+                        "workspace_code", "unit",
+                    )
+                    if early_carried.get(key) not in (None, "", [])
+                }
+                year_scope = year_filter.apply(year_scope)
+                year_scope["action"] = "query"
+                agent = self.agents.get("data_query")
+                if agent and hasattr(agent, "handle_with_entities"):
+                    self._record_route_decision(
+                        "data_query", 0.95, "conversation_state", "year change for previous question",
+                    )
+                    response = agent.handle_with_entities(original_user_query, year_scope, history)
+                    self._persist_last_entities(year_scope, response)
+                    return self._append_relevant_links(
+                        response, original_user_query, year_scope, "data_query",
+                    )
+
+        if ranks_carried_data:
+            ranked_scope = {
+                key: early_carried[key]
+                for key in (
+                    "variable", "region", "regions", "scenario", "scenarios", "model", "models",
+                    "workspace_code", "start_year", "end_year", "unit",
+                )
+                if early_carried.get(key) not in (None, "", [])
+            }
+            year_filter = extract_year_filter(original_user_query)
+            if year_filter.explicit:
+                ranked_scope = year_filter.apply(ranked_scope)
+            ranked_scope["action"] = "query"
+            agent = self.agents.get("data_query")
+            if agent and hasattr(agent, "handle_with_entities"):
+                self.clarification_context = None
+                self._record_route_decision(
+                    "data_query", 0.95, "conversation_state", "ranking of previous result",
+                )
+                response = agent.handle_with_entities(original_user_query, ranked_scope, history)
+                self._persist_last_entities(ranked_scope, response)
+                return self._append_relevant_links(
+                    response, original_user_query, ranked_scope, "data_query",
+                )
+
         if not scope_patch and _looks_like_category_list_request(query, "variables") and _looks_like_plot_request(query):
             agent = self.agents.get("data_query")
             if not agent:
@@ -5698,6 +6405,15 @@ class MultiAgentManager:
 
         fresh_interrupt = bool(
             self._is_site_navigation_request(query)
+            # "what is X?" / "explain ..." / "who developed ..." while a numbered
+            # choice is pending is a new question, not the choice ("what about
+            # Germany?" stays a follow-up).
+            or re.match(
+                r"^\s*(?:what(?:['’]s|\s+is|\s+are|\s+does|\s+do)\b|who\b|why\b|explain\b|"
+                r"describe\b|define\b|tell\s+me\s+about\b)",
+                original_user_query,
+                re.IGNORECASE,
+            )
             or (
                 _looks_like_model_info_request(query)
                 and (find_model_profile(query) or self._mentions_known_model(query) or re.search(r"\bmodel\b", query, flags=re.IGNORECASE))
@@ -5709,6 +6425,31 @@ class MultiAgentManager:
         # Check for clarification responses first
         if hasattr(self, 'clarification_context') and self.clarification_context:
             clar_ctx = self.clarification_context
+            # A reply that only changes the years ("by 2040", "in 2050 please")
+            # does not answer the pending choice. Keep the years with it and
+            # say so, instead of repeating the same prompt word for word.
+            if plan.year_filter.explicit and self._is_year_only_reply(original_user_query):
+                pending_entities = plan.year_filter.apply(dict(clar_ctx.get("entities") or {}))
+                clar_ctx["entities"] = pending_entities
+                clar_ctx["issued_turn"] = getattr(self, "current_turn", 0)
+                pending_prompt = str(
+                    clar_ctx.get("response")
+                    or clar_ctx.get("ambiguous_response")
+                    or "I still need the pending choice before I can continue."
+                )
+                self._record_route_decision(
+                    str(clar_ctx.get("agent_type") or "data_query"),
+                    0.9,
+                    "conversation_state",
+                    "year noted for pending clarification",
+                )
+                self.last_links = []
+                return (
+                    f"Noted: I'll use years `{plan.year_filter.render()}`. "
+                    "I still need one choice before I can answer.\n\n"
+                    f"{pending_prompt}"
+                )
+
             pending_kind = str(clar_ctx.get("suggested_kind", "") or "").strip().lower()
             pending_catalog = {
                 "variable": getattr(self.entity_extractor, "available_variables", []) or [],
@@ -5771,7 +6512,7 @@ class MultiAgentManager:
                     else:
                         response = agent.handle(followup_query, history)
                     if not str(response or "").strip():
-                        response = "I need one more detail to continue. Please specify the variable, region, or scenario."
+                        response = _VAGUE_REQUEST_HELP
                     self._record_clarification_result_route("data_plotting", response)
                     self._persist_last_entities(merged_entities, response)
                     self._update_clarification_context("data_plotting", followup_query, response, merged_entities, base_query=base_query)
@@ -5785,7 +6526,7 @@ class MultiAgentManager:
                     else:
                         response = agent.handle(followup_query, history)
                     if not str(response or "").strip():
-                        response = "I need one more detail to continue. Please specify the variable, region, or scenario."
+                        response = _VAGUE_REQUEST_HELP
                     self._record_clarification_result_route("data_query", response)
                     self._persist_last_entities(merged_entities, response)
                     self._update_clarification_context("data_query", followup_query, response, merged_entities, base_query=base_query)
@@ -6049,7 +6790,7 @@ class MultiAgentManager:
                 else:
                     response = agent.handle(followup_query, history)
                 if not str(response or "").strip():
-                    response = "I need one more detail to continue. Please specify the variable, region, or scenario."
+                    response = _VAGUE_REQUEST_HELP
                 self._record_clarification_result_route(
                     "data_plotting", response, "clarification detail",
                 )
@@ -6065,7 +6806,7 @@ class MultiAgentManager:
                 else:
                     response = agent.handle(followup_query, history)
                 if not str(response or "").strip():
-                    response = "I need one more detail to continue. Please specify the variable, region, or scenario."
+                    response = _VAGUE_REQUEST_HELP
                 self._record_clarification_result_route(
                     "data_query", response, "clarification detail",
                 )
@@ -6081,6 +6822,18 @@ class MultiAgentManager:
             )
             return self._append_relevant_links(response, query, {}, "data_query")
 
+        # A bare yes/no with nothing pending used to reach the LLM router and
+        # general QA, which answered with invented content.
+        if self._is_affirmation(query) or self._is_rejection(query):
+            self._record_route_decision("general_qa", 0.9, "deterministic", "yes/no without active question")
+            self.last_links = []
+            self._conversation().response_scope_override = {}
+            return (
+                "I don't have an open question for that answer right now. "
+                "Ask about data (for example `CO2 emissions for World in 2050`), "
+                "a model (`what is GCAM?`) or a term (`what does net zero mean?`)."
+            )
+
         if re.fullmatch(r"\s*use\s+the\s+(first|second|third|fourth|fifth)\s+scenario\s*", query, flags=re.IGNORECASE):
             self._record_route_decision("data_query", 0.75, "deterministic", "scenario ordinal without active clarification")
             response = (
@@ -6094,10 +6847,11 @@ class MultiAgentManager:
             carried = context.get("last_entities", {})
         if not carried and self.last_entities:
             carried = self.last_entities
+        carried = self._without_observed_dimensions(carried)
 
         named_workspace = _matched_workspace(
             original_user_query,
-            _workspace_entries(list(self.shared_resources.get("ts") or [])),
+            _workspace_entries(self.shared_resources.get("ts") or []),
         )
         carried_workspace_code = str(carried.get("workspace_code") or "").strip()
 
@@ -6133,8 +6887,26 @@ class MultiAgentManager:
 
         # Carry context into generic follow-ups like "plot it" or "show me data".
         if generic_followup and carried and not was_contextual_followup and not scope_patch:
-            query = self._compose_contextual_query(query, carried)
+            # Append only the carried dimensions the user did not restate: the
+            # data layer re-reads this text, so an appended old variable or
+            # region ("... variable Primary Energy|Coal region World") would
+            # override the one the user just named.
+            compose_scope = dict(carried)
+            if self._names_new_variable(original_user_query, carried) or self._states_new_topic(
+                original_user_query, carried,
+            ):
+                for key in ("variable", "variables", "unit"):
+                    compose_scope.pop(key, None)
+            if self._resolve_region_from_text(original_user_query, carried):
+                for key in ("region", "regions"):
+                    compose_scope.pop(key, None)
+            query = self._compose_contextual_query(query, compose_scope)
             q_lower = query.strip().lower()
+
+        # Set when a new question reuses the previous region implicitly, so the
+        # answer can say so ("highest carbon price in 2050" right after an EU
+        # answer is answered for the EU).
+        carried_region_note = ""
 
         # Extract entities from query using the new extractor
         try:
@@ -6143,6 +6915,15 @@ class MultiAgentManager:
                 else self.entity_extractor.extract(query)
             )
             self.logger.debug(f"Extracted entities: {entities}")
+
+            # "compare GCAM and MUSE for EU CO2": the extractor keeps one
+            # model, so the comparison silently showed only the second.
+            if entities and entities.get("variable") and not entities.get("models"):
+                named_models = self._runtime_model_mentions(query)
+                if len(named_models) >= 2:
+                    entities = dict(entities)
+                    entities["models"] = list(named_models)
+                    entities.pop("model", None)
 
             # A study named in the current message is an explicit scope
             # replacement and must override a workspace carried from history.
@@ -6220,7 +7001,10 @@ class MultiAgentManager:
                 original_scenario = self._match_catalog_value_from_text(
                     original_user_query, original_scenarios
                 ) or canonical_scenario_from_query(original_user_query, original_scenarios)
-                original_models = find_model_profiles(original_user_query)
+                # Catalogue names count too: TIAM_Grantham has no curated
+                # profile, and the carried model replaced it.
+                runtime_mentioned_models = self._runtime_model_mentions(original_user_query)
+                original_models = find_model_profiles(original_user_query) or runtime_mentioned_models
                 # A "from <model>" follow-up ("now the same from POLES") is an
                 # explicit model switch even when the model is not in the profile
                 # catalogue. Without this, the carried model would overwrite the
@@ -6230,11 +7014,22 @@ class MultiAgentManager:
                     .strip().rstrip("?.!").strip()
                 )
                 explicitly_replaced = {
-                    "variable": bool(original_variable) or plan.replacement_dimension == "variable",
+                    "variable": bool(original_variable) or plan.replacement_dimension == "variable"
+                    or self._states_new_topic(original_user_query, carried),
                     "region": bool(original_region) or plan.replacement_dimension == "region",
                     "scenario": bool(original_scenario) or plan.replacement_dimension == "scenario",
                     "model": bool(original_models) or bool(followup_switch_model) or plan.replacement_dimension == "model",
                 }
+                # A complete new question (its own variable and region) is not
+                # filtered by the model an earlier turn happened to use.
+                if original_variable and original_region and not explicitly_replaced["model"]:
+                    explicitly_replaced["model"] = True
+                if (
+                    not explicitly_replaced["region"]
+                    and str(carried.get("region") or "").strip()
+                    and self._names_new_variable(original_user_query, carried)
+                ):
+                    carried_region_note = str(carried.get("region")).strip()
                 for key in ("variable", "region", "scenario", "model"):
                     value = str(carried.get(key, "") or "").strip()
                     if value and not explicitly_replaced[key]:
@@ -6262,6 +7057,11 @@ class MultiAgentManager:
                     entities["variable"] = original_variable
                 if original_region:
                     entities["region"] = original_region
+                if len(runtime_mentioned_models) >= 2:
+                    entities["models"] = list(runtime_mentioned_models)
+                    entities.pop("model", None)
+                elif len(runtime_mentioned_models) == 1:
+                    entities["model"] = runtime_mentioned_models[0]
                 if original_scenario:
                     entities["scenario"] = original_scenario
                 # An unfiltered answer records every scenario it happened to
@@ -6499,8 +7299,19 @@ class MultiAgentManager:
             ql = query.lower()
             if entities.get("variable"):
                 available_variables = getattr(self.entity_extractor, "available_variables", []) or []
+                # A follow-up is rewritten with the carried scope appended
+                # ("... variable Primary Energy|Coal region IND"). Look for an
+                # exact variable name in the user's own words when they named
+                # a new one, or the carried name would override it.
+                user_named_variable = bool(
+                    query != original_user_query
+                    and (
+                        self._match_catalog_value_from_text(original_user_query, available_variables)
+                        or preferred_variable_from_query(original_user_query, available_variables)
+                    )
+                )
                 exact_query_variable = self._match_catalog_value_from_text(
-                    query, available_variables
+                    original_user_query if user_named_variable else query, available_variables
                 )
                 current_variable = str(entities.get("variable") or "").strip()
                 # A literal parent path in natural language must not replace a
@@ -6514,6 +7325,9 @@ class MultiAgentManager:
                         query,
                         available_variables,
                     )
+                    swapped = self._only_carrier_swap(original_user_query, exact_query_variable)
+                    if swapped:
+                        entities["variable"] = swapped
                 elif (
                     workspace_study_followup
                     and current_variable.casefold() in {
@@ -6542,6 +7356,7 @@ class MultiAgentManager:
                 entities.pop("unit", None)
 
             entities = self._repair_comparison_entities(query, entities)
+            entities = self._split_named_variable_pair(original_user_query, entities)
 
             if re.search(r"\b(world|global|globally)\b", ql):
                 existing_region = str(entities.get("region") or "").strip()
@@ -6594,6 +7409,21 @@ class MultiAgentManager:
                 entities,
                 original_user_query,
             )
+            if low_confidence_prompt and not getattr(self, "_spell_retry_active", False):
+                # One-letter typos ("solar capacty greece") made the wording
+                # ambiguous. Retry once with them corrected; answer directly
+                # if the corrected question resolves.
+                corrected, corrections = self._correct_typos(original_user_query)
+                if corrections:
+                    self._spell_retry_active = True
+                    try:
+                        retried = self._route_single(corrected, history, context)
+                    finally:
+                        self._spell_retry_active = False
+                    if not self._looks_like_clarification_response(retried):
+                        note = ", ".join(f"`{wrong}` as `{right}`" for wrong, right in corrections)
+                        return f"Interpreted {note}.\n\n{retried}"
+                    return retried
             if low_confidence_prompt:
                 self._record_route_decision("data_query", 0.45, "deterministic", "low confidence entity clarification")
                 self._update_clarification_context("data_query", query, low_confidence_prompt, entities)
@@ -6610,6 +7440,13 @@ class MultiAgentManager:
                 return self._append_relevant_links(textual_comparison, query, entities, "data_query")
 
             route_decision = self._deterministic_route_decision(query, entities)
+            if not route_decision and self._is_unrecognized_text(original_user_query):
+                # "asdfgh": nothing to route. The LLM fallback answered such
+                # input by inventing a question from the chat history.
+                self._record_route_decision("general_qa", 0.9, "deterministic", "unrecognized input")
+                self.last_links = []
+                self._conversation().response_scope_override = {}
+                return _VAGUE_REQUEST_HELP
             if route_decision:
                 if route_decision.get("clear_entities"):
                     # Capability questions carry no data scope; a scenario-like
@@ -6661,12 +7498,22 @@ class MultiAgentManager:
                 response = agent.handle_with_entities(query, entities, history)
             else:
                 response = agent.handle(query, history)
+            if (
+                carried_region_note
+                and agent_name == "data_query"
+                and has_numeric_result_table(str(response or ""))
+                and regions_equivalent(entities.get("region"), carried_region_note)
+            ):
+                response = (
+                    f"Using `{carried_region_note}` from your previous question; "
+                    "name another region to change it.\n\n" + str(response)
+                )
 
             response = self._workspace_result_answer(query, response)
             if agent_name == "model_explanation":
                 response = self._model_metadata_fallback_answer(query, response, entities)
             if not str(response or "").strip():
-                response = "I need one more detail to continue. Please specify the variable, region, or scenario."
+                response = _VAGUE_REQUEST_HELP
 
             response = self._maybe_add_followup_guidance(response, query, agent_name)
             self._update_clarification_context(agent_name, query, response, entities)
@@ -6734,6 +7581,16 @@ class MultiAgentManager:
             return ""
 
     def route_query(self, query: str, history: Optional[List[Tuple[str, str]]] = None) -> str:
+        """Route one user turn; the analytic intent of the user's wording
+        ("how much does it change ...") stays available to the data layer
+        even when the follow-up is rewritten before reaching it."""
+        token = TURN_ANALYSIS_INTENT.set(analysis_intent(query))
+        try:
+            return self._route_query_turn(query, history)
+        finally:
+            TURN_ANALYSIS_INTENT.reset(token)
+
+    def _route_query_turn(self, query: str, history: Optional[List[Tuple[str, str]]] = None) -> str:
         """Route the query to the appropriate agent using LLM-based classification."""
         self.last_links = []
         self.turn_counter = getattr(self, "turn_counter", 0) + 1
