@@ -5507,6 +5507,12 @@ class MultiAgentManager:
                     response, query, self.last_entities, "model_explanation",
                 )
         model_subject = self._extract_model_like_subject(query)
+        # "tell me about CO2 emissions for China in 2050" names a variable and
+        # a year/region: a data question, not an unknown model called "CO2".
+        if model_subject and preferred_variable_from_query(
+            query, getattr(self.entity_extractor, "available_variables", []) or [],
+        ) and (re.search(r"\b(?:19|20|21)\d{2}\b", query) or self._resolve_region_from_text(query)):
+            model_subject = ""
         if model_subject and not profiles:
             runtime_models = getattr(self.entity_extractor, "available_models", []) or []
             if not resolve_model_candidates(model_subject, runtime_models):

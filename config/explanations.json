@@ -48,7 +48,7 @@
           "differ\\w*|vary|varies|variation|models?|higher|lower|range"
         ]
       ],
-      "text": "In an IAM the carbon price is usually the marginal cost of the last tonne of CO2 that must be avoided to meet the scenario's target. Models reach different prices for the same target because they differ in technology costs and availability, how easily they switch fuels and cut demand, their economic structure (optimisation, general equilibrium or simulation), their baseline emissions, whether other policies already cut emissions, and how the price is applied across regions and sectors. A model with cheap, flexible low-carbon options needs a lower price than one with fewer options.",
+      "text": "In an IAM the carbon price is the cost of cutting the last tonne of CO2 needed to meet the scenario's target. Models reach different prices for the same target because they assume different technology costs, different ways to switch fuels and reduce demand, different economic structures (optimisation, general equilibrium or simulation) and different baseline emissions. A model with more cheap low-carbon options needs a lower carbon price. A model with fewer options needs a higher one.",
       "source": "IPCC AR6 WGIII Ch. 3"
     },
     {

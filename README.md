@@ -203,6 +203,17 @@ curl -s -X POST http://127.0.0.1:8000/query \
   -d '{"session_id":"SESSION_ID_FROM_PREVIOUS_RESPONSE","reset_session":true,"query":"fresh question"}'
 ```
 
+Clients that never send `session_id` (the current iamparis.eu chat sends only
+`{"query"}`) still get follow-ups: the backend recognises the visitor by the
+address the reverse proxy appends to `X-Forwarded-For` plus the browser's
+User-Agent, for 30 minutes of inactivity. An explicit `session_id` always takes
+precedence. Requests without a proxy header always start a new conversation.
+Set `IAM_IMPLICIT_SESSIONS=0` to disable this, or `IAM_IMPLICIT_SESSION_TTL`
+(seconds) to change the window.
+
+Startup (downloading all studies and building the knowledge index) is allowed
+`IAM_INITIALIZATION_TIMEOUT` seconds, 900 by default.
+
 ## API Response Fields
 
 `POST /query` returns:

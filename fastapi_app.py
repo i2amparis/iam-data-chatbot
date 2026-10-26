@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import re
+import hashlib
 import uuid
 import json
 import threading
@@ -48,7 +49,10 @@ from record_cache import cached_on_records, records_by_field
 from resolved_scope import consume_resolved_scope, has_numeric_result_table
 
 # Configuration
-INITIALIZATION_TIMEOUT = max(float(os.getenv("IAM_INITIALIZATION_TIMEOUT", "300")), 0.1)
+# Startup downloads every study from the IAM PARIS API and rebuilds the
+# knowledge index on CPU (293 s on the server in October 2026), so 300 s left
+# no margin for a slow API day.
+INITIALIZATION_TIMEOUT = max(float(os.getenv("IAM_INITIALIZATION_TIMEOUT", "900")), 0.1)
 API_REQUEST_TIMEOUT = max(float(os.getenv("IAM_API_REQUEST_TIMEOUT", "120")), 0.1)
 QUERY_EXECUTOR_WORKERS = max(int(os.getenv("IAM_QUERY_EXECUTOR_WORKERS", "8")), 1)
 _query_executor = ThreadPoolExecutor(
@@ -121,6 +125,43 @@ def _client_ip(request: Request) -> str:
             # First hop is the original client.
             return forwarded.split(",")[0].strip()
     return request.client.host if request.client else "unknown"
+
+
+# The website's chat sends only {"query"}, never the session_id it receives,
+# so every message started a new conversation and no follow-up could work.
+# Without a session_id, a visitor is recognised by the client address the
+# proxy recorded plus the browser, for IMPLICIT_SESSION_TTL_SECONDS of
+# inactivity. An explicit session_id always takes precedence.
+IMPLICIT_SESSIONS_ENABLED = os.getenv("IAM_IMPLICIT_SESSIONS", "1").strip().lower() not in ("0", "false", "no", "")
+IMPLICIT_SESSION_TTL_SECONDS = float(os.getenv("IAM_IMPLICIT_SESSION_TTL", "1800"))
+_implicit_sessions: Dict[str, Tuple[str, float]] = {}
+_implicit_sessions_lock = threading.Lock()
+
+
+def _implicit_session_id(request: Request) -> str:
+    """Session id for a request that sent none, or "" when the visitor cannot
+    be told apart from others.
+
+    Only a proxy-recorded address is used: behind the reverse proxy the socket
+    address is the proxy itself, shared by every visitor. The last
+    X-Forwarded-For entry is the one the proxy appended, so a client cannot
+    choose it.
+    """
+    if not IMPLICIT_SESSIONS_ENABLED:
+        return ""
+    forwarded = [part.strip() for part in str(request.headers.get("x-forwarded-for") or "").split(",") if part.strip()]
+    address = forwarded[-1] if forwarded else str(request.headers.get("x-real-ip") or "").strip()
+    if not address:
+        return ""
+    agent = str(request.headers.get("user-agent") or "")
+    key = hashlib.sha256(f"{address}|{agent}".encode("utf-8")).hexdigest()
+    now = time.time()
+    with _implicit_sessions_lock:
+        for stale in [k for k, (_, seen) in _implicit_sessions.items() if now - seen > IMPLICIT_SESSION_TTL_SECONDS]:
+            _implicit_sessions.pop(stale, None)
+        session_id = _implicit_sessions.get(key, (uuid.uuid4().hex, now))[0]
+        _implicit_sessions[key] = (session_id, now)
+    return session_id
 
 
 def enforce_rate_limit(request: Request) -> None:
@@ -1855,6 +1896,10 @@ def query_chatbot(
     Uses cached resources for fast response.
     """
     enforce_rate_limit(request)
+    if not str(req.session_id or "").strip():
+        implicit = _implicit_session_id(request)
+        if implicit:
+            req = req.model_copy(update={"session_id": implicit}) if hasattr(req, "model_copy") else req.copy(update={"session_id": implicit})
     # Check if resources are ready
     if _initialization_status == "initializing":
         raise HTTPException(

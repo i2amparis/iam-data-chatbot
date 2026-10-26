@@ -1021,6 +1021,12 @@ class RiskyQueryFindingsTests(unittest.TestCase):
             register_model_display_names([])
         self.assertNotIn("| 42 |", fastapi_app._sanitize_model_presentation_text(table))
 
+    def test_tell_me_about_a_variable_is_a_data_question(self):
+        manager = build_manager(SESSION_TS, SESSION_MODELS)
+        answer = manager.route_query("tell me about CO2 emissions for World in 2050")
+        self.assertNotIn("cannot resolve", answer)
+        self.assertIn("Emissions|CO2 in World", answer)
+
     def test_new_explanations_match(self):
         from explanations import matching_explanations
 
@@ -1030,6 +1036,58 @@ class RiskyQueryFindingsTests(unittest.TestCase):
             ("how do IAMs represent behaviour change?", "Behaviour and lifestyle change in IAMs"),
         ):
             self.assertEqual(matching_explanations(question)[0].metadata["topic"], topic)
+
+
+
+class ImplicitSessionTests(unittest.TestCase):
+    """The iamparis.eu chat never sends session_id back (2026-10-26)."""
+
+    @staticmethod
+    def _request(headers):
+        from starlette.requests import Request
+
+        raw = [(key.lower().encode(), value.encode()) for key, value in headers.items()]
+        return Request({"type": "http", "headers": raw, "client": ("10.0.0.2", 1234)})
+
+    def setUp(self):
+        import fastapi_app
+
+        fastapi_app._implicit_sessions.clear()
+
+    def test_same_visitor_keeps_one_conversation(self):
+        import fastapi_app
+
+        visitor = {"x-forwarded-for": "203.0.113.7", "user-agent": "Firefox/140"}
+        first = fastapi_app._implicit_session_id(self._request(visitor))
+        self.assertTrue(first)
+        self.assertEqual(first, fastapi_app._implicit_session_id(self._request(visitor)))
+        other = {"x-forwarded-for": "198.51.100.9", "user-agent": "Firefox/140"}
+        self.assertNotEqual(first, fastapi_app._implicit_session_id(self._request(other)))
+
+    def test_proxy_appended_address_is_used(self):
+        import fastapi_app
+
+        spoofed = {"x-forwarded-for": "1.2.3.4, 203.0.113.7", "user-agent": "Firefox/140"}
+        real = {"x-forwarded-for": "203.0.113.7", "user-agent": "Firefox/140"}
+        self.assertEqual(
+            fastapi_app._implicit_session_id(self._request(spoofed)),
+            fastapi_app._implicit_session_id(self._request(real)),
+        )
+
+    def test_no_proxy_header_means_no_shared_conversation(self):
+        import fastapi_app
+
+        self.assertEqual(fastapi_app._implicit_session_id(self._request({"user-agent": "Firefox/140"})), "")
+
+    def test_conversation_expires_and_can_be_disabled(self):
+        import fastapi_app
+
+        visitor = {"x-forwarded-for": "203.0.113.7", "user-agent": "Firefox/140"}
+        first = fastapi_app._implicit_session_id(self._request(visitor))
+        with patch.object(fastapi_app, "IMPLICIT_SESSION_TTL_SECONDS", -1):
+            self.assertNotEqual(first, fastapi_app._implicit_session_id(self._request(visitor)))
+        with patch.object(fastapi_app, "IMPLICIT_SESSIONS_ENABLED", False):
+            self.assertEqual(fastapi_app._implicit_session_id(self._request(visitor)), "")
 
 
 if __name__ == "__main__":
