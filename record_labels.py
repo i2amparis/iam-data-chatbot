@@ -67,6 +67,9 @@ def normalize_record_labels(records: Iterable[dict]) -> dict[str, int]:
             value = record.get(field)
             if isinstance(value, str):
                 cleaned = _clean(value)
+                if field == "variable":
+                    # "Biodiversity| Conservation Costs" -> "Biodiversity|Conservation Costs"
+                    cleaned = re.sub(r"\s*\|\s*", "|", cleaned)
                 if cleaned != value:
                     record[field] = cleaned
                     changed[field] += 1

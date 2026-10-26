@@ -1090,5 +1090,38 @@ class ImplicitSessionTests(unittest.TestCase):
             self.assertEqual(fastapi_app._implicit_session_id(self._request(visitor)), "")
 
 
+
+class StudySummaryTests(unittest.TestCase):
+    def test_summary_shows_topics_models_regions_years(self):
+        from data_utils import _workspace_summary
+
+        records = [
+            _multi("w", region, "NDC", model, variable, "u", {"2030": 1, "2050": 2})
+            for region in ("World", "EU", "IND")
+            for model in ("GCAM", "MUSE")
+            for variable in ("Emissions|CO2", "Emissions|CH4", "Employment|Total")
+        ]
+        text = _workspace_summary({"title": "Test study", "records": records})
+        self.assertIn("Available in this study:", text)
+        self.assertIn("**Topics (3 variables):** Emissions (2), Employment (1)", text)
+        self.assertIn("**Models (2):** GCAM, MUSE", text)
+        self.assertIn("**Regions (3):** World, EU, IND", text)
+        self.assertIn("**Years:** 2030–2050", text)
+
+    def test_spaces_around_variable_separators_are_removed(self):
+        from record_labels import normalize_record_labels
+
+        records = [{"variable": "Biodiversity| Conservation Costs"}, {"variable": "Emissions | CO2"}]
+        normalize_record_labels(records)
+        self.assertEqual([r["variable"] for r in records], ["Biodiversity|Conservation Costs", "Emissions|CO2"])
+
+    def test_single_year_is_not_a_range(self):
+        from data_utils import _workspace_summary
+
+        text = _workspace_summary({"title": "T", "records": [_multi("w", "USA", "B", "M", "Demand|Road", "u", {"2030": 1})]})
+        self.assertIn("**Years:** 2030\n", text + "\n")
+        self.assertNotIn("2030–2030", text)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -379,8 +379,10 @@ class DataMetadataTests(unittest.TestCase):
         response = data_query("tell me about Where is the world headed?", [], ts)
 
         self.assertIn("### Where is the world headed?", response)
-        self.assertIn("`Variable 10`", response)
-        self.assertNotIn("`Variable 11`", response)
+        # Variables are summarised by topic with at most 5 examples.
+        self.assertIn("**Topics (12 variables):**", response)
+        self.assertIn("`Variable 05`", response)
+        self.assertNotIn("`Variable 06`", response)
         self.assertIn("`Scenario 10`", response)
         self.assertNotIn("`Scenario 11`", response)
         self.assertIn(

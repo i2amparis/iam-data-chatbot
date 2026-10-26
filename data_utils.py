@@ -190,8 +190,38 @@ def _workspace_summary(entry: dict) -> str:
     scenarios = sorted({str(record.get("scenario", "")).strip() for record in records if record.get("scenario")})
     title = str(entry.get("title") or "Workspace")
     lines = [f"### {title}", "", "Available in this study:"]
-    lines.append(f"- **Variables ({len(variables)}):** " + (", ".join(f"`{value}`" for value in variables[:10]) or "none"))
+    # The first variables alphabetically say little about a study's focus;
+    # variable families ("Emissions", "Employment") with their sizes do.
+    families: dict[str, list[str]] = {}
+    for value in variables:
+        families.setdefault(value.split("|")[0].strip(), []).append(value)
+    ranked = sorted(families.items(), key=lambda item: (-len(item[1]), item[0].casefold()))
+    if ranked:
+        topics = ", ".join(f"{family} ({len(members)})" for family, members in ranked[:8])
+        more = f" and {len(ranked) - 8} more" if len(ranked) > 8 else ""
+        lines.append(f"- **Topics ({len(variables)} variables):** {topics}{more}")
+        examples = [min(members, key=lambda value: (value.count("|"), len(value))) for _, members in ranked[:5]]
+        lines.append("- **Example variables:** " + ", ".join(f"`{value}`" for value in examples))
+    else:
+        lines.append("- **Variables (0):** none")
     lines.append(f"- **Scenarios ({len(scenarios)}):** " + (", ".join(f"`{value}`" for value in scenarios[:10]) or "none"))
+    models = sorted(
+        {display_model_label(str(record.get("modelName") or "").strip()) for record in records if record.get("modelName")},
+        key=str.casefold,
+    )
+    if models:
+        shown = ", ".join(models[:8]) + (f" and {len(models) - 8} more" if len(models) > 8 else "")
+        lines.append(f"- **Models ({len(models)}):** {shown}")
+    regions = dedupe_equivalent_regions(sorted({
+        str(record.get("region") or "").strip() for record in records if record.get("region")
+    }))
+    if regions:
+        regions = sorted(regions, key=lambda value: (value != "World", value.casefold()))
+        shown = ", ".join(regions[:6]) + (f" and {len(regions) - 6} more" if len(regions) > 6 else "")
+        lines.append(f"- **Regions ({len(regions)}):** {shown}")
+    years = _collect_record_years(records)
+    if years:
+        lines.append(f"- **Years:** {years[0]}" + (f"–{years[-1]}" if years[-1] != years[0] else ""))
     explorer_url = str(entry.get("explorer_url") or "").strip()
     explainer_url = str(entry.get("explainer_url") or "").strip()
     if explorer_url or explainer_url:
