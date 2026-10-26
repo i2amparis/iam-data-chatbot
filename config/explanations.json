@@ -1,0 +1,287 @@
+{
+  "_comment": "Curated explanations for common 'why/how' questions. Each entry is indexed for general Q&A and, when every pattern in one of its 'match' groups is found in the question, placed first in the context given to the answering model. Keep entries short, sourced and model-independent.",
+  "explanations": [
+    {
+      "topic": "Technology learning in IAMs",
+      "match": [
+        [
+          "learning|learning[- ]by[- ]doing|learning rate|learning curve"
+        ],
+        [
+          "technolog\\w*",
+          "cost\\w* (fall|decline|drop)"
+        ]
+      ],
+      "text": "Technology learning means that the cost of a technology (for example solar PV, wind, batteries or electrolysers) falls as its cumulative deployment grows, often described by a learning rate: the percentage cost reduction for each doubling of installed capacity. Some IAMs make learning endogenous, so deploying a technology in the model lowers its future cost; others use exogenous cost paths assumed by the modellers. Faster learning makes low-carbon options cheaper earlier, which lowers the cost of ambitious mitigation pathways.",
+      "source": "IPCC AR6 WGIII Ch. 3 and Ch. 6"
+    },
+    {
+      "topic": "Carbon capture and storage versus carbon removal",
+      "match": [
+        [
+          "carbon capture|\\bccs\\b"
+        ],
+        [
+          "net[- ]zero|remov\\w*|negative|important|role|why"
+        ]
+      ],
+      "text": "Carbon capture and storage (CCS) captures CO2 at a point source such as a power plant, cement kiln or steel mill and stores it underground. On fossil or industrial sources it reduces emissions but does not remove CO2 from the atmosphere. Only combined with bioenergy (BECCS) or direct air capture (DACCS) does it produce carbon dioxide removal. In net zero pathways CCS limits emissions from industry and power that are hard to avoid otherwise, while removals balance the residual emissions that remain.",
+      "source": "IPCC AR6 WGIII Ch. 3 and Ch. 12"
+    },
+    {
+      "topic": "Why carbon dioxide removal and negative emissions are needed",
+      "match": [
+        [
+          "carbon dioxide removal|\\bcdr\\b|negative emissions?|net[- ]negative|removals?"
+        ]
+      ],
+      "text": "Carbon dioxide removal (CDR), such as afforestation, BECCS and direct air capture, is used in mitigation pathways for two reasons. First, it counterbalances residual emissions from sectors that are hard to abate (aviation, shipping, agriculture, parts of industry) so that net zero can be reached. Second, in pathways that overshoot a temperature or carbon-budget limit, net-negative emissions later in the century bring cumulative emissions back down. The amount of CDR differs widely between models and scenarios, and heavy reliance on it raises concerns about land, water, cost and feasibility.",
+      "source": "IPCC AR6 WGIII SPM C.3 and Ch. 12"
+    },
+    {
+      "topic": "Why carbon prices differ across models",
+      "match": [
+        [
+          "carbon pric\\w*|price of carbon|carbon tax\\w*"
+        ],
+        [
+          "differ\\w*|vary|varies|variation|models?|higher|lower|range"
+        ]
+      ],
+      "text": "In an IAM the carbon price is usually the marginal cost of the last tonne of CO2 that must be avoided to meet the scenario's target. Models reach different prices for the same target because they differ in technology costs and availability, how easily they switch fuels and cut demand, their economic structure (optimisation, general equilibrium or simulation), their baseline emissions, whether other policies already cut emissions, and how the price is applied across regions and sectors. A model with cheap, flexible low-carbon options needs a lower price than one with fewer options.",
+      "source": "IPCC AR6 WGIII Ch. 3"
+    },
+    {
+      "topic": "How carbon pricing affects energy transitions",
+      "match": [
+        [
+          "carbon pric\\w*|carbon tax\\w*|emissions trading"
+        ],
+        [
+          "affect\\w*|effect\\w*|impact\\w*|influence\\w*|transition\\w*|work\\w*|how"
+        ]
+      ],
+      "text": "A carbon price raises the cost of each fuel in proportion to its CO2 emissions. In IAMs this shifts investment towards low-carbon electricity, energy efficiency, fuel switching (for example electrification) and CCS, and it lowers fossil fuel demand. The cheapest abatement, usually in power generation, happens first; deeper cuts in industry, transport and buildings need higher prices or additional policies. The economic effect depends on the model and on how carbon revenues are assumed to be used.",
+      "source": "IPCC AR6 WGIII Ch. 3 and Ch. 13"
+    },
+    {
+      "topic": "Role of nuclear power in decarbonisation",
+      "match": [
+        [
+          "nuclear"
+        ]
+      ],
+      "text": "Nuclear power is a low-carbon, dispatchable source of electricity. Its role in IAM pathways varies widely: some scenarios expand it, others keep it flat or let it decline. The outcome depends on assumed investment costs, construction times, public acceptance and policy limits, and on how it competes with renewables plus storage and with fossil power with CCS.",
+      "source": "IPCC AR6 WGIII Ch. 6"
+    },
+    {
+      "topic": "Why final energy falls in net zero scenarios",
+      "match": [
+        [
+          "final energy|energy demand|energy use|energy consumption"
+        ],
+        [
+          "fall\\w*|declin\\w*|decreas\\w*|lower|drop\\w*|reduc\\w*"
+        ]
+      ],
+      "text": "Final energy usually falls in net zero scenarios because of energy efficiency and electrification. Electric vehicles and heat pumps need much less final energy than combustion engines and boilers for the same service, so total final energy can fall even while electricity demand rises. Efficiency standards, higher energy prices under climate policy and, in some scenarios, lifestyle and demand changes reduce it further.",
+      "source": "IPCC AR6 WGIII Ch. 5 and Ch. 6"
+    },
+    {
+      "topic": "Hydrogen in industry",
+      "match": [
+        [
+          "hydrogen"
+        ]
+      ],
+      "text": "Hydrogen is an energy carrier, not a primary energy source. Low-carbon hydrogen, made by electrolysis with low-carbon electricity or from natural gas with CCS, can replace fossil fuels in industry where direct electrification is difficult: high-temperature heat, as a reducing agent in steelmaking (direct reduction of iron) and as a feedstock for ammonia and refining. Its role in IAM pathways depends on hydrogen production costs and on the cost of low-carbon electricity.",
+      "source": "IPCC AR6 WGIII Ch. 6 and Ch. 11"
+    },
+    {
+      "topic": "Why transport is hard to decarbonise",
+      "match": [
+        [
+          "transport\\w*|aviation|shipping|freight"
+        ],
+        [
+          "hard|difficult|challeng\\w*|why|decarboni[sz]\\w*"
+        ]
+      ],
+      "text": "Cars, vans and buses can be electrified with technology available today, so road passenger transport is not the hard part. The hard parts are aviation, shipping and long-haul freight, which need fuels with high energy density; their low-carbon alternatives (biofuels, hydrogen, ammonia and synthetic fuels) are currently costly or limited in supply. Fleets also change slowly: cars stay in use for around 15 years and aircraft and ships for 25 years or more, and new charging and fuel infrastructure takes time to build.",
+      "source": "IPCC AR6 WGIII Ch. 10"
+    },
+    {
+      "topic": "Trade-offs of bioenergy with CCS (BECCS)",
+      "match": [
+        [
+          "beccs|bioenergy with (ccs|carbon capture)|biomass with (ccs|carbon capture)"
+        ]
+      ],
+      "text": "BECCS provides energy and removes CO2 from the atmosphere, which is why many pathways rely on it. The trade-offs are large land requirements that compete with food production and natural ecosystems, water and fertiliser use, risks to biodiversity, the need for CO2 transport and storage capacity, and uncertainty about the net removal once supply-chain emissions are counted. Some studies run scenarios that limit bioenergy or CCS to test how pathways change without them.",
+      "source": "IPCC AR6 WGIII Ch. 7 and Ch. 12"
+    },
+    {
+      "topic": "Bioenergy in IAMs",
+      "match": [
+        [
+          "bioenergy|biomass|biofuels?"
+        ]
+      ],
+      "text": "IAMs use biomass for electricity, heat and liquid fuels. It is treated as low-carbon because plant regrowth absorbs the CO2 released when it is burned, while emissions from land-use change are counted separately. Combined with CCS (BECCS) it can remove CO2 from the atmosphere. Its supply is limited by land, competition with food production and sustainability constraints, and models differ strongly in how much they allow.",
+      "source": "IPCC AR6 WGIII Ch. 7 and Ch. 12"
+    },
+    {
+      "topic": "Why the power sector is decarbonised first",
+      "match": [
+        [
+          "power sector|electricity sector|power generation|electricity generation|\\bpower\\b"
+        ],
+        [
+          "first|early|earlier|fast\\w*|quick\\w*|why"
+        ]
+      ],
+      "text": "IAM pathways usually cut power-sector emissions earliest and deepest because mature, low-cost low-carbon options exist there (wind, solar, hydro, nuclear and fossil power with CCS), and because a few large plants are easier to replace than millions of vehicles and boilers. Clean electricity then helps decarbonise transport, buildings and industry through electrification.",
+      "source": "IPCC AR6 WGIII Ch. 3 and Ch. 6"
+    },
+    {
+      "topic": "Why baseline scenarios show rising emissions",
+      "match": [
+        [
+          "baseline|reference scenario|no[- ]policy|current polic\\w*"
+        ],
+        [
+          "emission\\w*"
+        ],
+        [
+          "grow\\w*|ris\\w*|increas\\w*|still|why"
+        ]
+      ],
+      "text": "Baseline or reference scenarios assume no new climate policy beyond what is already implemented. Population and economic growth keep raising demand for energy, and fossil fuels remain competitive, so emissions keep rising or level off rather than falling. Efficiency gains and cheaper renewables slow the growth but do not reverse it without additional policy.",
+      "source": "IPCC AR6 WGIII Ch. 3"
+    },
+    {
+      "topic": "Drivers of energy demand and emissions",
+      "match": [
+        [
+          "driv\\w*|population|gdp|income|economic growth"
+        ],
+        [
+          "emission\\w*|energy demand|energy use|energy consumption|demand growth"
+        ]
+      ],
+      "text": "Emissions can be decomposed into population, income per person (GDP per capita), energy used per unit of GDP (energy intensity) and CO2 per unit of energy (carbon intensity), known as the Kaya identity. Population and income growth raise energy demand and emissions; efficiency improvements lower energy intensity, and switching to low-carbon energy lowers carbon intensity. Energy prices, economic structure, behaviour and climate (heating and cooling needs) also shape demand.",
+      "source": "IPCC AR6 WGIII Ch. 2"
+    },
+    {
+      "topic": "Why energy transitions differ between countries",
+      "match": [
+        [
+          "countr\\w*|regions?|nations?"
+        ],
+        [
+          "differ\\w*|vary|varies|why"
+        ]
+      ],
+      "text": "Energy transitions differ between countries because of differences in income and growth, energy resources (coal, gas, sun, wind, hydro), the age and make-up of existing power plants and industry, energy prices, institutions and policy ambition, and access to finance and technology. IAMs represent these differences through regional detail, so the same global target leads to different regional pathways.",
+      "source": "IPCC AR6 WGIII Ch. 4"
+    },
+    {
+      "topic": "Coal in 1.5 °C pathways",
+      "match": [
+        [
+          "coal"
+        ],
+        [
+          "1\\.5|net[- ]zero|paris|phase[- ]?out|pathway\\w*"
+        ]
+      ],
+      "text": "In pathways that limit warming to 1.5 °C, unabated coal use falls steeply and is almost entirely phased out by mid-century, first in power generation, where it is replaced by renewables and other low-carbon sources. The remaining coal use is mostly in industry or combined with CCS. To see how coal develops in IAM PARIS results, ask for example `Primary Energy|Coal for World in 2050`.",
+      "source": "IPCC AR6 WGIII SPM C.3"
+    },
+    {
+      "topic": "How to compare results from different studies or models",
+      "match": [
+        [
+          "compar\\w*"
+        ],
+        [
+          "stud(y|ies)|models|projects?"
+        ],
+        [
+          "how|should|can i|best way"
+        ]
+      ],
+      "text": "Compare results from different studies or models only for the same variable, region, unit and year, and check that the scenarios mean the same thing: a 'current policies' or 'NDC' scenario can be defined differently in each study, and base-year data or harmonisation may differ. Differences between models on the same scenario show model uncertainty, not errors. In IAM PARIS, ask for a variable and region, then name another study or model to switch.",
+      "source": "IAM PARIS; IPCC AR6 WGIII Ch. 3"
+    },
+    {
+      "topic": "Why emissions differ between scenarios",
+      "match": [
+        [
+          "emission\\w*"
+        ],
+        [
+          "differ\\w*|vary|varies|different"
+        ],
+        [
+          "scenarios?"
+        ]
+      ],
+      "text": "Scenarios differ in their assumptions, so their emissions differ. The main assumption is climate policy: a baseline assumes no new policy, a current policies scenario keeps only implemented policies, an NDC scenario assumes countries meet their pledges, and net zero or 1.5 °C scenarios impose much deeper cuts. Scenarios can also differ in population and economic growth (for example the SSPs) and in technology costs and availability. For the same scenario, different models also give different emissions because their structure and assumptions differ.",
+      "source": "IPCC AR6 WGIII Ch. 3"
+    },
+    {
+      "topic": "How renewables affect electricity prices",
+      "match": [
+        [
+          "renewables?|wind|solar"
+        ],
+        [
+          "electricity pric\\w*|power pric\\w*|prices?"
+        ]
+      ],
+      "text": "Wind and solar have almost no running costs, so when they generate a lot they push down wholesale electricity prices. At high shares, however, the system needs more grids, storage and flexible back-up capacity, which adds costs. In IAMs the overall effect on electricity prices depends on assumed technology and integration costs and on the carbon price applied to fossil power; many mitigation scenarios show electricity prices staying similar or rising moderately, not falling sharply.",
+      "source": "IPCC AR6 WGIII Ch. 6"
+    },
+    {
+      "topic": "How land-use change affects emissions",
+      "match": [
+        [
+          "land[- ]use|land use|deforestation|afforestation|forest\\w*|agricultur\\w*|afolu"
+        ]
+      ],
+      "text": "Clearing forests and converting land to farming release the carbon stored in vegetation and soils as CO2, so deforestation is a major emission source. Agriculture also emits methane (livestock, rice) and nitrous oxide (fertilisers). In the other direction, afforestation, reforestation and better soil management take CO2 out of the atmosphere. IAMs report these flows under AFOLU (agriculture, forestry and other land use), for example `Emissions|CO2|AFOLU`.",
+      "source": "IPCC AR6 WGIII Ch. 7"
+    },
+    {
+      "topic": "Methane and near-term warming",
+      "match": [
+        [
+          "methane|\\bch4\\b"
+        ]
+      ],
+      "text": "Methane is a much stronger greenhouse gas than CO2 per tonne, about 80 times stronger over 20 years and about 28 times over 100 years, but it stays in the atmosphere for only around 12 years. Cutting methane therefore slows warming within decades, while CO2 cuts mainly limit long-term warming. The main sources are fossil fuel production (leaks from oil, gas and coal), agriculture (livestock and rice) and waste. IAMs report it as `Emissions|CH4`.",
+      "source": "IPCC AR6 WGI Ch. 7; WGIII Ch. 3"
+    },
+    {
+      "topic": "Air pollution in IAMs",
+      "match": [
+        [
+          "air pollut\\w*|air quality|pm2\\.?5|particulate|sulph\\w*|sulf\\w*|\\bso2\\b|\\bnox\\b|black carbon"
+        ]
+      ],
+      "text": "Many IAMs also calculate air pollutant emissions, such as sulphur dioxide, nitrogen oxides, black carbon and fine particles (PM2.5), from the same fuel use that drives CO2, combined with assumptions about pollution-control policies. Because cutting fossil fuel use also cuts these pollutants, climate policy brings air-quality and health co-benefits; some models go further and estimate the resulting health effects.",
+      "source": "IPCC AR6 WGIII Ch. 3 and Ch. 17"
+    },
+    {
+      "topic": "Behaviour and lifestyle change in IAMs",
+      "match": [
+        [
+          "behaviou?r\\w*|lifestyle\\w*|demand[- ]side|diet\\w*|sufficiency|consumer"
+        ]
+      ],
+      "text": "IAMs mostly represent behaviour change through scenario assumptions rather than by modelling individual decisions: for example lower demand for energy services (less travel or smaller homes), a shift to public transport, cycling and walking, or diets with less meat. Scenarios with such low-demand or lifestyle assumptions reach climate targets with less reliance on carbon removal and supply-side technologies. Some IAM PARIS studies include lifestyle or low-energy-demand scenarios.",
+      "source": "IPCC AR6 WGIII Ch. 5"
+    }
+  ]
+}

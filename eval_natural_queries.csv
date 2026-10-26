@@ -1,0 +1,31 @@
+id,query,expected_route,expected_variable,expected_region,expected_scenario,expected_model,useful_clarification,useful_link,no_hallucinated_data
+n01,how much CO2 will the world emit in 2050?,data_query,,,,,,,yes
+n02,global emissions 2050,data_query,,,,,,,yes
+n03,co2 emisions world 2040,data_query,,,,,,,yes
+n04,What's the projected solar capacity in Greece by 2040?,data_query,,,,,,,yes
+n05,Will Germany's electricity demand grow?,data_query,,,,,,,yes
+n06,show me renewables share EU,data_query,,,,,,,yes
+n07,how does GCAM compare to REMIND on emissions in 2050,data_query,,,,,,,yes
+n08,which scenario has the lowest emissions in 2050 for the world?,data_query,,,,,,,yes
+n09,what is the highest carbon price in 2050?,data_query,,,,,,,yes
+n10,by how much do emissions fall between 2020 and 2050 in the EU?,data_query,,,,,,,yes
+n11,is coal phased out in India by 2050?,data_query,,,,,,,yes
+n12,tell me something interesting about the data,general_qa,,,,,,,yes
+n13,which studies cover transport?,data_query,,,,,,,yes
+n14,what scenarios exist for the EU?,data_query,,,,,,,yes
+n15,I want hydrogen data for Europe,data_query,,,,,,,yes
+n16,Greece,data_query,,,,,,,yes
+n17,methane,data_query,,,,,,,yes
+n18,thanks!,general_qa,,,,,,,yes
+n19,what can you do?,general_qa,,,,,,,yes
+n20,explain the NDC scenario,general_qa,,,,,,,yes
+n21,what's the difference between NDC and current policies?,general_qa,,,,,,,yes
+n22,CO2 for the US in 2030,data_query,,,,,,,yes
+n23,emissions in the UK,data_query,,,,,,,yes
+n24,energy mix of China in 2050,data_query,,,,,,,yes
+n25,how many models are there?,data_query,,,,,,,yes
+n26,who developed PROMETHEUS?,model_explanation,,,,,,,yes
+n27,which models are open source?,model_explanation,,,,,,,yes
+n28,give me final energy for transport in EU in 2030 under net zero,data_query,,,,,,,yes
+n29,average CO2 across models for World 2050,data_query,,,,,,,yes
+n30,what are the main uncertainties in IAM projections?,general_qa,,,,,,,yes

@@ -475,6 +475,19 @@ def format_model_comparison_answer(
             )
     if "coverage" in requested:
         sector_sets = [set(str(value) for value in profile.get("sectors", []) if value) for profile in profiles]
+        missing = [
+            str(profile.get("name", "Model"))
+            for profile, sectors in zip(profiles, sector_sets) if not sectors
+        ]
+        if missing:
+            # Without sector data for one side, "shared" and "distinctive" would
+            # be artefacts of missing metadata, not real differences.
+            lines.append(
+                "Sector coverage is not described in the loaded metadata for "
+                + ", ".join(f"**{name}**" for name in missing)
+                + ", so coverage cannot be compared."
+            )
+            sector_sets = []
         shared = set.intersection(*sector_sets) if sector_sets else set()
         if shared:
             lines.append("Shared coverage: " + ", ".join(sorted(shared)) + ".")
@@ -537,6 +550,8 @@ def has_strong_model_metadata(record: dict[str, Any] | None) -> bool:
 
 def _focused_profile_dimension(query: str) -> str:
     q = str(query or "").casefold()
+    if re.search(r"\b(?:limitations?|caveats?|weakness(?:es)?|shortcomings?|drawbacks?)\b", q):
+        return "limitations"
     if re.search(
         r"\b(?:developers?|develop(?:ed|s|ing)?|institution|organisation|organization|"
         r"maintainers?|created|built)\b",
@@ -623,10 +638,25 @@ def _focused_model_profile_answer(
         return ""
 
     lines = [f"### {name}", ""]
-    if dimension == "developer":
+    if dimension == "limitations":
+        limitations = [
+            str(value).strip()
+            for value in (profile.get("limitations", []) or [])
+            if str(value or "").strip()
+        ]
+        lines.append("Interpretation notes:")
+        if limitations:
+            lines.extend(f"- {value}" for value in limitations)
+        else:
+            lines.append(
+                f"- The loaded IAM PARIS profile does not list specific limitations for `{name}`. "
+                "Results depend on the scenario assumptions and input data, so check the model "
+                "documentation and the study's experiment metadata before interpreting a result."
+            )
+    elif dimension == "developer":
         developer = clean_metadata_text(profile.get("developer"))
         if developer:
-            lines.append(f"`{name}` is developed by the {developer}.")
+            lines.append(f"`{name}` is developed by {developer}.")
         else:
             lines.append(
                 f"The developer or maintaining organization for `{name}` is not described "

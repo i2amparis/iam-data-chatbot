@@ -25,7 +25,9 @@ from main import (
     build_faiss_index,
     cache_file_timestamp,
     docs_from_records,
+    knowledge_documents,
     load_best_cached_results,
+    load_workspace_codes,
     load_definitions as load_cached_definitions,
 )
 from llm_factory import get_embeddings
@@ -35,6 +37,7 @@ from runtime_context import build_runtime_context
 from canonical_aliases import regions_equivalent, scenario_in_family
 from model_aliases import (
     UNLABELLED_MODEL_LABEL,
+    is_catalogue_numeric_name,
     display_model_label,
     is_presentable_model_label,
     is_unlabelled_model_display,
@@ -45,7 +48,7 @@ from record_cache import cached_on_records, records_by_field
 from resolved_scope import consume_resolved_scope, has_numeric_result_table
 
 # Configuration
-INITIALIZATION_TIMEOUT = 300  # 5 minutes timeout for cache building
+INITIALIZATION_TIMEOUT = max(float(os.getenv("IAM_INITIALIZATION_TIMEOUT", "300")), 0.1)
 API_REQUEST_TIMEOUT = max(float(os.getenv("IAM_API_REQUEST_TIMEOUT", "120")), 0.1)
 QUERY_EXECUTOR_WORKERS = max(int(os.getenv("IAM_QUERY_EXECUTOR_WORKERS", "8")), 1)
 _query_executor = ThreadPoolExecutor(
@@ -53,6 +56,7 @@ _query_executor = ThreadPoolExecutor(
     thread_name_prefix="iam-query",
 )
 _query_slots = threading.BoundedSemaphore(QUERY_EXECUTOR_WORKERS)
+_telemetry_executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="iam-telemetry")
 
 # Global variables for cached data
 _cached_resources = None
@@ -148,6 +152,8 @@ _monitoring_counters = {
 # Set IAM_MONITORING_STATE="" to disable (e.g. read-only filesystems).
 _MONITORING_STATE_PATH = os.getenv("IAM_MONITORING_STATE", "cache/monitoring_counters.json")
 _monitoring_lock = threading.Lock()
+_monitoring_flush_seconds = max(float(os.getenv("IAM_MONITORING_FLUSH_SECONDS", "1")), 0.1)
+_last_monitoring_save = 0.0
 
 
 def _load_monitoring_counters() -> None:
@@ -165,14 +171,30 @@ def _load_monitoring_counters() -> None:
 
 
 def _save_monitoring_counters() -> None:
+    """Queue a rate-limited snapshot write so disk I/O never holds query workers."""
+    global _last_monitoring_save
     if not _MONITORING_STATE_PATH:
         return
+    now = time.monotonic()
+    if now - _last_monitoring_save < _monitoring_flush_seconds:
+        return
+    _last_monitoring_save = now
+    snapshot = dict(_monitoring_counters)
+
+    def write_snapshot() -> None:
+        try:
+            path = Path(_MONITORING_STATE_PATH)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            temporary = path.with_name(path.name + ".tmp")
+            temporary.write_text(json.dumps(snapshot))
+            os.replace(temporary, path)
+        except OSError:
+            logger.debug("Could not persist monitoring counters", exc_info=True)
+
     try:
-        path = Path(_MONITORING_STATE_PATH)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(_monitoring_counters))
-    except OSError:
-        pass
+        _telemetry_executor.submit(write_snapshot)
+    except RuntimeError:
+        logger.debug("Monitoring persistence executor is unavailable")
 
 
 _load_monitoring_counters()
@@ -183,25 +205,9 @@ MONITORING_THRESHOLDS = {
     "low_confidence_entity_rate": float(os.getenv("IAM_MONITOR_LOW_ENTITY_RATE_THRESHOLD", "0.15")),
 }
 
-_DEFAULT_WORKSPACES = [
-    "afolu", "buildings-transf", "covid-rec", "decarb-potentials", "decipher",
-    "energy-systems", "eu-headed", "index-decomp", "industrial-transf", "ndcs-impacts",
-    "net-zero", "post-glasgow", "power-people", "study-1", "study-2", "study-3",
-    "study-4", "study-6", "study-7", "transp-transf", "world-headed",
-]
-
-
 def _load_workspaces() -> List[str]:
-    """Workspace codes come from config/workspaces.json so adding a workspace
-    is a config edit, not a code change. Falls back to the built-in list."""
-    try:
-        data = json.loads(Path("config/workspaces.json").read_text())
-        workspaces = [str(w).strip() for w in data.get("workspaces", []) if str(w).strip()]
-        if workspaces:
-            return workspaces
-    except (OSError, ValueError):
-        pass
-    return list(_DEFAULT_WORKSPACES)
+    """Use the shared workspace catalog as the sole source of truth."""
+    return load_workspace_codes()
 
 
 def load_definitions():
@@ -237,12 +243,48 @@ def _warm_runtime_caches(resources: Any) -> None:
         for field in ("variable", "region", "modelName", "workspace_code"):
             records_by_field(records, field)
         cached_on_records(records, "runtime_model_names", _build_runtime_model_names)
-        cached_on_records(records, "records_by_variable", _build_records_by_variable)
         cached_on_records(records, "scenarios_by_workspace", _build_scenarios_by_workspace)
+        from data_utils import _collect_record_years
+        cached_on_records(records, "years_in_records", _collect_record_years)
         MultiAgentManager(resources, streaming=False)
         logger.info("Runtime caches warmed in %.1f seconds", time.time() - started)
     except Exception:
         logger.warning("Could not warm runtime caches; they will build on demand", exc_info=True)
+
+
+_knowledge_index_error: Optional[str] = None
+
+
+def _build_knowledge_index(models, region_docs, variable_docs, api_key):
+    """Build the general-QA retrieval index, or return None if that fails.
+
+    Data, model and glossary answers do not need this index. A failure here
+    (embedding server down, slow CPU running past the startup budget) must not
+    take the whole API down: the service starts without free-form general Q&A
+    and /status reports why.
+    """
+    global _knowledge_index_error
+    _knowledge_index_error = None
+    started = time.time()
+    try:
+        if _initialization_start_time is not None and time.time() - _initialization_start_time > INITIALIZATION_TIMEOUT:
+            raise TimeoutError(f"startup already exceeded {INITIALIZATION_TIMEOUT}s before the knowledge index")
+        documents = knowledge_documents(models, region_docs, variable_docs)
+        chunks = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=80).split_documents(documents)
+        logger.info("Building knowledge index from %d chunks...", len(chunks))
+        embeddings = get_embeddings(model='text-embedding-3-small', api_key=api_key, timeout=30, max_retries=1)
+        index = build_faiss_index(chunks, embeddings)
+        logger.info("Knowledge index ready in %.1fs (%d chunks)", time.time() - started, len(chunks))
+        return index
+    except Exception as err:
+        _knowledge_index_error = f"{type(err).__name__}: {err}"
+        logger.warning(
+            "Knowledge index unavailable after %.1fs; starting without general Q&A: %s",
+            time.time() - started,
+            _knowledge_index_error,
+            exc_info=True,
+        )
+        return None
 
 
 def initialize_resources():
@@ -272,8 +314,9 @@ def initialize_resources():
         # Load data with caching and timeout check
         logger.info("Fetching models data...")
         _check_timeout("models fetch")
+        step_started = time.time()
         models = bot.fetch_json(bot.env['REST_MODELS_URL'], params={'limit': -1}, cache=True)
-        logger.info(f"Loaded {len(models)} models")
+        logger.info("Loaded %d models in %.1fs", len(models), time.time() - step_started)
         
         logger.info("Fetching timeseries data (this may take a minute)...")
         _check_timeout("timeseries fetch")
@@ -283,11 +326,14 @@ def initialize_resources():
             'workspace_code': all_workspaces,
             'limit': -1,
         }
+        step_started = time.time()
         ts = bot.fetch_json(bot.env['REST_API_FULL'], payload=ts_payload, cache=True)
         ts, ts_source = load_best_cached_results(ts)
         results_source_path = str(getattr(bot, "last_fetch_cache_file", "") or "")
         results_timestamp = cache_file_timestamp(results_source_path)
-        logger.info(f"Loaded {len(ts)} timeseries records ({ts_source})")
+        logger.info(
+            "Loaded %d timeseries records (%s) in %.1fs", len(ts), ts_source, time.time() - step_started,
+        )
         
         # Build FAISS index
         logger.info("Loading YAML definitions...")
@@ -295,21 +341,12 @@ def initialize_resources():
         region_docs, variable_docs = load_definitions()
         logger.info(f"Loaded {len(region_docs)} region docs, {len(variable_docs)} variable docs")
         
-        logger.info("Building document chunks...")
-        _check_timeout("document chunking")
-        # NOTE: timeseries (ts) data is NOT embedded - it's numeric data, not semantic text
-        # ts is still available in _cached_resources for querying but not in vector store
-        all_docs = docs_from_records(models) + region_docs + variable_docs
-        chunks = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=80).split_documents(all_docs)
-        logger.info(f"Created {len(chunks)} document chunks")
-        
-        logger.info("Building FAISS vector index...")
-        _check_timeout("FAISS index building")
-        embeddings = get_embeddings(model='text-embedding-3-small', api_key=bot.env['OPENAI_API_KEY'], timeout=30, max_retries=1)
-        faiss_index = build_faiss_index(chunks, embeddings)
-        logger.info("FAISS index built successfully")
+        faiss_index = _build_knowledge_index(
+            models, region_docs, variable_docs, bot.env.get('OPENAI_API_KEY'),
+        )
         
         # Cache shared runtime resources
+        step_started = time.time()
         _cached_resources = build_runtime_context(
             models=models,
             ts=ts,
@@ -320,6 +357,7 @@ def initialize_resources():
             results_timestamp=results_timestamp,
         )
         
+        logger.info("Built runtime context in %.1fs", time.time() - step_started)
         _warm_runtime_caches(_cached_resources)
 
         _initialization_status = "ready"
@@ -421,6 +459,13 @@ def _sanitize_response_model_scope(value: Any, key: str = "") -> Any:
 
 
 def _manager_response_entities(manager: Any) -> Dict[str, Any]:
+    """Return turn-visible scope without internal bookkeeping keys."""
+    entities = _manager_response_entities_with_internal(manager)
+    entities.pop("observed_dimensions", None)
+    return entities
+
+
+def _manager_response_entities_with_internal(manager: Any) -> Dict[str, Any]:
     """Return turn-visible scope while preserving legacy manager support."""
     resolver = getattr(manager, "response_entities", None)
     if callable(resolver):
@@ -500,14 +545,6 @@ def _build_runtime_model_names(records: list) -> List[str]:
         if isinstance(record, dict)
         and str(record.get("modelName") or record.get("model") or "").strip()
     }, key=lambda value: (value.casefold(), value))
-
-
-def _build_records_by_variable(records: list) -> Dict[str, list]:
-    index: Dict[str, list] = {}
-    for record in records:
-        if isinstance(record, dict):
-            index.setdefault(str(record.get("variable", "")).strip(), []).append(record)
-    return index
 
 
 def _build_scenarios_by_workspace(records: list) -> Dict[str, List[str]]:
@@ -725,6 +762,8 @@ def _build_data_provenance(
     route: Dict[str, Any],
     *,
     has_plot: bool = False,
+    prior_count_scope: Dict[str, Any] | None = None,
+    prior_matched_count: int | None = None,
 ) -> Dict[str, Any]:
     entities = dict(_sanitize_response_model_scope(dict(entities or {})) or {})
     agent = str((route or {}).get("agent") or "")
@@ -812,7 +851,35 @@ def _build_data_provenance(
     # A rendered table may omit empty or incompatible model groups. The
     # manager persists the models that were actually displayed, so provenance
     # should count that visible scope rather than the broader pre-format match.
-    matched_record_count = _count_matching_records(resources, count_scope)
+    prior_scope = dict(prior_count_scope or {})
+    if prior_scope.get("result_models"):
+        # The rendered rows can narrow or expand a display model family.
+        # Without the same concrete labels, retain the provenance-specific scan.
+        prior_scope = {}
+    prior_unmatched_region = str(prior_scope.get("unmatched_region") or "").strip()
+    if prior_unmatched_region:
+        prior_scope["region"] = prior_unmatched_region
+        prior_scope.pop("regions", None)
+    comparable_fields = (
+        "workspace_code", "variable", "variables", "region", "regions",
+        "scenario", "scenarios", "model", "models", "years",
+        "start_year", "end_year", "unit",
+    )
+    prior_scope = {
+        key: prior_scope.get(key)
+        for key in comparable_fields
+        if prior_scope.get(key) not in (None, "", [])
+    }
+    comparable_count_scope = {
+        key: count_scope.get(key)
+        for key in comparable_fields
+        if count_scope.get(key) not in (None, "", [])
+    }
+    matched_record_count = (
+        prior_matched_count
+        if prior_count_scope is not None and comparable_count_scope == prior_scope
+        else _count_matching_records(resources, count_scope)
+    )
     no_data = bool(unmatched_region) or _is_no_data_answer(
         answer,
         has_plot=has_plot,
@@ -846,6 +913,14 @@ def _build_data_provenance(
         provenance["no_data_reason"] = _resolve_no_data_reason(
             resources, selected_filters, answer,
         )
+    # Counting above needs the raw record labels; the response shows the
+    # same model names as the answer table ("gcam" -> "GCAM").
+    shown_filters = dict(selected_filters)
+    if shown_filters.get("models"):
+        shown_filters["models"] = list(dict.fromkeys(display_model_label(m) for m in shown_filters["models"]))
+    if shown_filters.get("model"):
+        shown_filters["model"] = display_model_label(shown_filters["model"])
+    provenance["selected_filters"] = shown_filters
     provenance.update(_provenance_display_fields(provenance))
     return provenance
 
@@ -1017,11 +1092,13 @@ def _feedback_log_summary(
 
 
 def _monitoring_snapshot(*, include_sensitive: bool = False) -> Dict[str, Any]:
-    total = int(_monitoring_counters.get("total_queries", 0))
-    failed = int(_monitoring_counters.get("failed_queries", 0))
-    no_data = int(_monitoring_counters.get("no_data_queries", 0))
-    low_route = int(_monitoring_counters.get("low_confidence_route_queries", 0))
-    low_entity = int(_monitoring_counters.get("low_confidence_entity_queries", 0))
+    with _monitoring_lock:
+        counters = dict(_monitoring_counters)
+    total = int(counters.get("total_queries", 0))
+    failed = int(counters.get("failed_queries", 0))
+    no_data = int(counters.get("no_data_queries", 0))
+    low_route = int(counters.get("low_confidence_route_queries", 0))
+    low_entity = int(counters.get("low_confidence_entity_queries", 0))
     rates = {
         "failed_route_rate": _rate(failed, total),
         "no_data_rate": _rate(no_data, total),
@@ -1220,7 +1297,11 @@ def _suggested_next_questions(
                     and "baseline" not in str(query or "").casefold()
                 ):
                     add(f"Compare with {baseline_scenario}")
-                add("By 2050")
+                # Only offered when the answer is not already about 2050.
+                if 2050 not in (entities.get("start_year"), entities.get("end_year")) and not re.search(
+                    r"\b2050\b", str(query or ""),
+                ):
+                    add("By 2050")
             else:
                 add("Show available variables")
                 add("Show available regions")
@@ -1413,22 +1494,20 @@ def _count_matching_records(
             return False
         return True
 
-    # Only records of the requested variable(s) can match; the per-variable
-    # index avoids scanning every loaded record on each request.
+    # Gather the available narrowing indexes, then start with the smallest
+    # candidate set before applying the remaining filters.
     wanted_variables = set(plural_values["variable"])
     if scope["variable"]:
         wanted_variables.add(scope["variable"])
     wanted_models = set(plural_values["model"])
     if scope["model"]:
         wanted_models.add(scope["model"])
+    candidate_options = []
     if wanted_variables:
-        by_variable = cached_on_records(records, "records_by_variable", _build_records_by_variable)
-        candidates = [
-            record
-            for variable in sorted(wanted_variables)
-            for record in by_variable.get(variable, [])
-        ]
-    elif (
+        by_variable = records_by_field(records, "variable")
+        groups = [by_variable.get(variable, []) for variable in sorted(wanted_variables)]
+        candidate_options.append((sum(map(len, groups)), groups))
+    if (
         wanted_models
         and not any(is_unlabelled_model_display(value) for value in wanted_models)
         and "" not in records_by_field(records, "modelName")
@@ -1440,21 +1519,28 @@ def _count_matching_records(
             raw for raw in by_model
             if any(_same_model_label(raw, wanted) for wanted in wanted_models)
         ]
-        candidates = [record for raw in raw_names for record in by_model[raw]]
-    elif scope["region"] or plural_values["region"]:
+        groups = [by_model[raw] for raw in raw_names]
+        candidate_options.append((sum(map(len, groups)), groups))
+    if scope["region"] or plural_values["region"]:
         # Test each distinct region label once instead of every record.
         wanted_regions = set(plural_values["region"])
         if scope["region"]:
             wanted_regions.add(scope["region"])
         by_region = records_by_field(records, "region")
-        candidates = [
-            record
+        groups = [
+            region_records
             for label, region_records in by_region.items()
             if any(regions_equivalent(label, wanted) for wanted in wanted_regions)
-            for record in region_records
         ]
-    elif scope["workspace_code"]:
-        candidates = records_by_field(records, "workspace_code").get(scope["workspace_code"], [])
+        candidate_options.append((sum(map(len, groups)), groups))
+    if scope["workspace_code"]:
+        workspace_records = records_by_field(records, "workspace_code").get(
+            scope["workspace_code"], []
+        )
+        candidate_options.append((len(workspace_records), [workspace_records]))
+    if candidate_options:
+        smallest_groups = min(candidate_options, key=lambda option: option[0])[1]
+        candidates = [record for group in smallest_groups for record in group]
     else:
         candidates = records
     matching = [record for record in candidates if isinstance(record, dict) and _matches(record)]
@@ -1493,23 +1579,17 @@ def _sanitize_model_presentation_text(value: object) -> str:
     """Defensively sanitize model-labelled Markdown emitted by legacy paths."""
     text = str(value or "")
     numeric = r"[+-]?\d+(?:[.,]\d+)*"
-    text = re.sub(
-        rf"(\bmodel(?:s)?\s+`)({numeric})(`)",
-        rf"\1{UNLABELLED_MODEL_LABEL}\3",
-        text,
-        flags=re.IGNORECASE,
-    )
-    text = re.sub(
-        rf"(\*\*)({numeric})(\s+-\s+[^*]+\*\*)",
-        rf"\1{UNLABELLED_MODEL_LABEL}\3",
-        text,
-    )
+
+    def _label(match: "re.Match") -> str:
+        # A numeric name the model catalogue lists ("42") is a real model.
+        if is_catalogue_numeric_name(match.group(2)):
+            return match.group(0)
+        return f"{match.group(1)}{UNLABELLED_MODEL_LABEL}{match.group(3)}"
+
+    text = re.sub(rf"(\bmodel(?:s)?\s+`)({numeric})(`)", _label, text, flags=re.IGNORECASE)
+    text = re.sub(rf"(\*\*)({numeric})(\s+-\s+[^*]+\*\*)", _label, text)
     if re.search(r"(?im)^\|\s*Model\s*\|", text):
-        text = re.sub(
-            rf"(?m)^(\|\s*)({numeric})(\s*\|)",
-            rf"\1{UNLABELLED_MODEL_LABEL}\3",
-            text,
-        )
+        text = re.sub(rf"(?m)^(\|\s*)({numeric})(\s*\|)", _label, text)
     return text
 
 
@@ -1679,7 +1759,16 @@ def _process_session_query(req: QueryRequest, deadline: float) -> QueryResponse:
         )
         logger.info("query_trace %s", json.dumps(trace, sort_keys=True, default=str))
         _update_monitoring(trace)
-        _write_eval_feedback_candidate(trace, answer_text)
+        # Feedback is best-effort; queue its append so it cannot add file I/O
+        # latency to an otherwise completed request.
+        try:
+            _telemetry_executor.submit(
+                _write_eval_feedback_candidate,
+                copy.deepcopy(trace),
+                answer_text,
+            )
+        except RuntimeError:
+            logger.debug("Feedback persistence executor is unavailable")
         relevant_links = _prepare_relevant_links(getattr(manager, "last_links", []))
         next_questions = _suggested_next_questions(
             req.query,
@@ -1696,6 +1785,8 @@ def _process_session_query(req: QueryRequest, deadline: float) -> QueryResponse:
             answer_text,
             route,
             has_plot=bool(plot_base64),
+            prior_count_scope=trace.get("entities"),
+            prior_matched_count=trace.get("matched_records"),
         )
 
         result = QueryResponse(
@@ -1786,7 +1877,8 @@ def query_chatbot(
     
     try:
         deadline = time.monotonic() + API_REQUEST_TIMEOUT
-        if not _query_slots.acquire(timeout=API_REQUEST_TIMEOUT):
+        remaining = max(deadline - time.monotonic(), 0.0)
+        if not _query_slots.acquire(timeout=remaining):
             _update_monitoring(failed=True)
             raise HTTPException(
                 status_code=504,
@@ -1802,6 +1894,7 @@ def query_chatbot(
             remaining = max(deadline - time.monotonic(), 0.0)
             return future.result(timeout=remaining)
         except (FutureTimeoutError, _QueryDeadlineExceeded):
+            future.cancel()
             _update_monitoring(failed=True)
             logger.warning(
                 "Query exceeded the %.3g second request deadline",
@@ -1862,6 +1955,7 @@ def status_check(_auth: None = Depends(require_api_key)):
         "models_count": len(_cached_resources.get('models', [])) if _cached_resources else 0,
         "timeseries_count": len(_cached_resources.get('ts', [])) if _cached_resources else 0,
         "vector_store_ready": _cached_resources.get('vector_store') is not None if _cached_resources else False,
+        "knowledge_index_error": _knowledge_index_error,
         "link_catalog_count": len(_cached_resources.get('link_catalog', [])) if _cached_resources else 0,
         "metadata": metadata_summary,
     }

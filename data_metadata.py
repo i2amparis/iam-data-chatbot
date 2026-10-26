@@ -819,6 +819,20 @@ def _metadata_signature(ts_data: List[dict], models: List[dict] = None) -> str:
         )
         digest.update("|".join(str(part) for part in parts).encode())
         digest.update(b"\n")
+        # Available-year queries are derived from these keys, so a cache
+        # signature must change when year coverage changes even if the record's
+        # descriptive dimensions stay the same.
+        years = record.get("years")
+        if isinstance(years, dict):
+            year_keys = sorted(str(year) for year in years if str(year).isdigit())
+            digest.update(",".join(year_keys).encode())
+        digest.update(b"|")
+        year_columns = sorted(
+            str(key) for key in record
+            if str(key).isdigit() and len(str(key)) == 4
+        )
+        digest.update(",".join(year_columns).encode())
+        digest.update(b"\n")
 
     for model in models or []:
         if not model:

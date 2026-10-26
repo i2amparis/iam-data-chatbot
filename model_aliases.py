@@ -48,6 +48,9 @@ _VERSION_SUFFIX_RE = re.compile(
 # Normalized family key -> catalogue spelling of the family name (no version).
 # Filled once from the model catalogue by ``register_model_display_names``.
 _CATALOGUE_FAMILY_DISPLAY: dict[str, str] = {}
+# Numeric names the model catalogue itself lists as models (the IEF-RAS
+# model is called "42"); only these are shown instead of the neutral label.
+_CATALOGUE_NUMERIC_NAMES: set[str] = set()
 
 
 def register_model_display_names(catalogue_names) -> None:
@@ -59,9 +62,12 @@ def register_model_display_names(catalogue_names) -> None:
     and families whose catalogue spellings disagree are left unmapped.
     """
     spellings: dict[str, set[str]] = {}
+    numeric: set[str] = set()
     for raw in catalogue_names or []:
         name = str(raw or "").strip()
         if not is_presentable_model_label(name):
+            if name:
+                numeric.add(name)
             continue
         base = _VERSION_SUFFIX_RE.sub("", name).strip() or name
         key = normalize_model_name(base)
@@ -71,17 +77,47 @@ def register_model_display_names(catalogue_names) -> None:
     _CATALOGUE_FAMILY_DISPLAY.update({
         key: next(iter(values)) for key, values in spellings.items() if len(values) == 1
     })
+    _CATALOGUE_NUMERIC_NAMES.clear()
+    _CATALOGUE_NUMERIC_NAMES.update(numeric)
+
+
+def _catalogue_family_for_alias(label: str) -> str:
+    """Catalogue family spelling for a raw lowercase alias.
+
+    ``gcam`` -> ``GCAM`` by exact family key; ``ices`` -> ``ICES-XPS`` and
+    ``tiam`` -> ``TIAM_Grantham`` when exactly one catalogue family starts
+    with the alias.
+    """
+    key = normalize_model_name(label)
+    if not key:
+        return ""
+    if key in _CATALOGUE_FAMILY_DISPLAY:
+        return _CATALOGUE_FAMILY_DISPLAY[key]
+    if len(key) < 4:
+        return ""
+    prefixed = [value for family, value in _CATALOGUE_FAMILY_DISPLAY.items() if family.startswith(key)]
+    return prefixed[0] if len(prefixed) == 1 else ""
+
+
+def is_catalogue_numeric_name(value: object) -> bool:
+    """Whether *value* is a numeric name the model catalogue itself lists ("42")."""
+    return str(value or "").strip() in _CATALOGUE_NUMERIC_NAMES
 
 
 def display_model_label(value: object) -> str:
     """Return a safe user-facing label without exposing numeric source IDs."""
     label = str(value or "").strip()
     if label and not is_presentable_model_label(label):
-        return UNLABELLED_MODEL_LABEL
+        return label if label in _CATALOGUE_NUMERIC_NAMES else UNLABELLED_MODEL_LABEL
     if label and label == label.lower() and _CATALOGUE_FAMILY_DISPLAY:
         # A raw all-lowercase result alias of a catalogue family.
-        mapped = _CATALOGUE_FAMILY_DISPLAY.get(normalize_model_name(label))
+        mapped = _catalogue_family_for_alias(label)
         if mapped:
+            return mapped
+    if label and _CATALOGUE_FAMILY_DISPLAY:
+        # A case-only variant of the catalogue name ("Gemini-E3").
+        mapped = _CATALOGUE_FAMILY_DISPLAY.get(normalize_model_name(label), "")
+        if mapped and mapped != label and mapped.casefold() == label.casefold():
             return mapped
     return label
 
@@ -129,6 +165,15 @@ def _allow_direct_full_name_match(name: str, query: str) -> bool:
     return bool(re.search(r"[^a-z0-9]", low))
 
 
+def _hint_prefix(query: str, hint: str) -> str:
+    """The preposition that introduced *hint* in *query* (model/using/with/from/for)."""
+    ql = (query or "").lower()
+    for prefix in ("model", "using", "with", "from", "for"):
+        if re.search(r"\b" + prefix + r"\s+" + re.escape(hint), ql):
+            return prefix
+    return ""
+
+
 def extract_model_hint(query: str) -> str:
     ql = (query or "").lower()
     # Model-specific prepositions come first. "for" is ambiguous (usually a
@@ -146,6 +191,11 @@ def extract_model_hint(query: str) -> str:
     return ""
 
 
+_GENERIC_FIRST_WORDS = frozenset({
+    "eu", "europe", "euro", "world", "global", "china", "india", "open", "model",
+})
+
+
 def build_model_alias_map(model_names: list[str]) -> dict[str, set[str]]:
     alias_map: dict[str, set[str]] = {}
     for name in model_names:
@@ -158,13 +208,18 @@ def build_model_alias_map(model_names: list[str]) -> dict[str, set[str]]:
         aliases = {low, norm}
 
         if words:
-            if not (words[0] == "gcam" and norm.startswith("gcampr")):
+            # "EU MFA", "China-MORE", "OPEN-PROM": a first word that is a
+            # region or common word must not name the model on its own, or
+            # "CO2 for EU" / "CO2 for China" would select it.
+            if not (words[0] == "gcam" and norm.startswith("gcampr")) and not (
+                len(words) >= 2 and words[0] in _GENERIC_FIRST_WORDS
+            ):
                 aliases.add(words[0])
             if len(words) >= 2:
                 aliases.add(" ".join(words[:2]))
                 aliases.add("".join(words[:2]))
             alpha_prefix = re.match(r"[a-z]+", words[0] or "")
-            if alpha_prefix and len(alpha_prefix.group(0)) >= 4:
+            if alpha_prefix and len(alpha_prefix.group(0)) >= 4 and alpha_prefix.group(0) not in _GENERIC_FIRST_WORDS:
                 aliases.add(alpha_prefix.group(0))
 
         for family, family_aliases in CURATED_MODEL_ALIASES.items():
@@ -285,6 +340,14 @@ def match_model_name(query: str, model_names: list[str]) -> str:
 
     hint = extract_model_hint(query)
     candidates = resolve_model_candidates(hint, names) if hint else []
+    if hint and candidates and _hint_prefix(query, hint) == "for":
+        # "for" usually introduces a region ("for EU"): accept only a model
+        # whose whole name was written, never a partial match such as the
+        # region word "EU" selecting the model "EU MFA".
+        candidates = [
+            name for name in candidates
+            if model_family_key(name) == model_family_key(hint)
+        ]
     if not candidates and len(query_lower.split()) <= 3:
         # No preposition-anchored hint resolved and the input is a bare model
         # mention (e.g. the LLM's "IMAGE"). Try alias/family matching so it
@@ -344,7 +407,10 @@ def resolve_model_family_members(query_or_name: str, model_names: list[str]) -> 
         if not target_family:
             return []
 
+    # Raw result codes shown under a catalogue name ("tiam" as TIAM_Grantham)
+    # belong to that family too, so filtering matches what tables display.
     return [
         name for name in names
         if curated_model_family_key(name) == target_family
+        or curated_model_family_key(display_model_label(name)) == target_family
     ]

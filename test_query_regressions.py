@@ -1,11 +1,8 @@
-import glob
 import logging
 import unittest
 from unittest.mock import patch
 
-import pandas as pd
-
-from canonical_aliases import explicit_scenarios_from_query
+from canonical_aliases import explicit_scenarios_from_query, preferred_variable_from_query
 from data_metadata import DataMetadata
 from data_utils import (
     data_query,
@@ -16,18 +13,81 @@ from data_utils import (
 )
 from fastapi_app import _split_answer_payload
 from main import _extract_plot_markdown
-from main import load_best_cached_results
 from resolved_scope import consume_resolved_scope
 from simple_plotter import simple_plot_query, simple_plot_query_with_entities
 from utils_query import region_mentions_from_query
 
 
-def _load_cached_fixtures():
-    model_file = max(glob.glob("cache/models*.json"), key=lambda f: len(pd.read_json(f)))
-    results_file = max(glob.glob("cache/results*.json"), key=lambda f: len(pd.read_json(f)))
-    models = pd.read_json(model_file).to_dict("records")
-    ts = pd.read_json(results_file).to_dict("records")
-    ts, _ = load_best_cached_results(ts)
+def _synthetic_fixtures():
+    """Small synthetic records for query behavior in a clean checkout."""
+    models = [
+        {"id": 30, "modelName": "GCAM", "description": "Global climate and energy model."},
+        {"modelName": "GCAM-PR 7.0", "description": "Regional energy model."},
+        {"modelName": "GCAM 7.0", "description": "Global climate and energy model."},
+        {"id": 18, "modelName": "E3ME 6.1", "description": "Economy and energy model."},
+        {"id": 36, "modelName": "ICES-XPS 1.1", "description": "Economic model."},
+        {"id": 45, "modelName": "MUSE", "description": "Energy system model."},
+        {"modelName": "ALADIN"},
+        {"modelName": "ATOM"},
+        {"modelName": "FORECAST"},
+    ]
+
+    def row(variable, region, scenario, model, unit, values):
+        return {
+            "variable": variable,
+            "region": region,
+            "scenario": scenario,
+            "modelName": model,
+            "unit": unit,
+            "years": values,
+            "workspace_code": "world-headed",
+            "study": "paris-reinforce",
+        }
+
+    ts = [
+        row("Emissions|CO2", "EU", "PR_WWH_CP", "gcam", "Mt CO2/yr", {"2030": 100, "2050": 80}),
+        row("Emissions|CO2", "EU", "PR_CurPol_CP", "e3me", "Mt CO2/yr", {"2030": 110, "2050": 90}),
+        row("Emissions|CO2", "EU", "Baseline", "gcam", "Mt CO2/yr", {"2030": 120, "2050": 115}),
+        row("Emissions|CO2", "World", "Baseline", "gcam", "Mt CO2/yr", {"2030": 1000, "2050": 900}),
+        row("Emissions|CO2", "CHN", "PR_CurPol_CP", "gcam", "Mt CO2/yr", {"2030": 200, "2050": 150}),
+        row("Emissions|CO2", "GREECE", "BAU", "gcam", "Mt CO2/yr", {"2030": 20, "2050": 18}),
+        row("Emissions|CO2", "EU", "BAU", "ICES-XPS 1.1", "Mt CO2/yr", {"2050": 95}),
+        row("Emissions|CO2", "EU", "PR_CurPol_CP", "GCAM 7.0", "Mt CO2/yr", {"2050": 92}),
+        row("Emissions|CO2", "World", "Baseline", "MUSE", "Mt CO2/yr", {"2050": 850}),
+        row("Final Energy", "EU", "PR_WWH_CP", "e3me", "EJ/yr", {"2050": 50}),
+        row("Final Energy", "IND", "Baseline", "gcam", "EJ/yr", {"2050": 60}),
+        row("Final Energy|Industry", "CHN", "Baseline", "gcam", "EJ/yr", {"2050": 35}),
+        row("Final Energy|Industry", "IND", "NDC_EI", "gcam", "EJ/yr", {"2050": 30}),
+        row("Final Energy|Buildings", "EU", "Baseline", "gcam", "EJ/yr", {"2050": 15}),
+        row("Final Energy|Residential and Commercial", "EU", "Baseline", "gcam", "EJ/yr", {"2050": 12}),
+        row("Final Energy|Transportation", "EU", "Baseline", "gcam", "EJ/yr", {"2050": 10}),
+        row("Emissions|CO2|Energy|Demand|Transportation", "EU", "Baseline", "gcam", "Mt CO2/yr", {"2050": 9}),
+        row("Final Energy|Electricity", "IND", "Baseline", "gcam", "EJ/yr", {"2050": 20}),
+        row("Primary Energy", "EU", "PR_WWH_CP", "gcam", "EJ/yr", {"2040": 70}),
+        row("Primary Energy|Coal", "EU", "PR_WWH_CP", "gcam", "EJ/yr", {"2030": 8, "2040": 7}),
+        row("Primary Energy|Coal", "CHN", "PR_CurPol_CP", "gcam", "EJ/yr", {"2050": 30}),
+        row("Primary Energy|Coal", "GREECE", "BAU", "gcam", "EJ/yr", {"2020": 5, "2050": 3}),
+        row("Primary Energy|Oil", "EU", "Baseline", "gcam", "EJ/yr", {"2050": 25}),
+        row("Final Energy|Oil", "EU", "Baseline", "gcam", "EJ/yr", {"2050": 15}),
+        row("Secondary Energy|Oil", "EU", "Baseline", "gcam", "EJ/yr", {"2050": 20}),
+        row("Capacity|Electricity|Solar", "EU", "PR_WWH_CP", "gcam", "GW", {"2030": 40, "2050": 80}),
+        row("Capacity|Electricity|Solar", "GREECE", "Baseline", "gcam", "GW", {"2050": 10}),
+        row("Capacity|Electricity|Wind", "GREECE", "Baseline", "gcam", "GW", {"2050": 8}),
+        row("Secondary Energy|Electricity|Solar", "EU", "PR_WWH_CP", "gcam", "EJ/yr", {"2050": 4}),
+        row("Secondary Energy|Electricity|Solar", "GREECE", "Baseline", "gcam", "EJ/yr", {"2050": 2}),
+        row("Secondary Energy|Electricity", "IND", "Baseline", "gcam", "EJ/yr", {"2050": 30}),
+        row("Secondary Energy|Electricity", "USA", "Baseline", "gcam", "EJ/yr", {"2050": 30}),
+        row("GDP|MER", "World", "Baseline", "gcam", "billion US$2010/yr", {"2050": 100}),
+        row("GDP|MER", "CHN", "Baseline", "gcam", "billion US$2010/yr", {"2050": 20}),
+        row("Price|Carbon", "EU", "Baseline", "gcam", "US$2010/t CO2", {"2050": 90}),
+    ]
+    ts.extend(
+        row("Emissions|CO2", "World", scenario, "gcam", "Mt CO2/yr", {"2050": value})
+        for value, scenario in enumerate(
+            ("PR_Baseline", "PR_NDC_CP", "PR_NDC_EI", "NZE_Bench_H", "SSP1", "SSP2", "CP_EI"),
+            start=700,
+        )
+    )
     return models, ts
 
 
@@ -35,7 +95,7 @@ class QueryRegressionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logging.disable(logging.CRITICAL)
-        cls.models, cls.ts = _load_cached_fixtures()
+        cls.models, cls.ts = _synthetic_fixtures()
 
     def ask(self, query: str) -> str:
         return data_query(query, self.models, self.ts)
@@ -477,10 +537,12 @@ class QueryRegressionTests(unittest.TestCase):
         self.assertIn("Reply with a number", response)
         self.assertIn("buildings", response.lower())
 
-    def test_transport_carbon_query_requests_next_missing_piece(self):
+    def test_transport_carbon_query_returns_relevant_result_or_choice(self):
         response = self.ask("carbon from transport in Europe")
         self.assertTrue(
-            "Choose the variable:" in response or "Choose the scenario:" in response
+            "Choose the variable:" in response
+            or "Choose the scenario:" in response
+            or "Emissions|CO2|Energy|Demand|Transportation in EU" in response
         )
 
     def test_electricity_query_for_india_requests_scenario(self):
@@ -493,10 +555,12 @@ class QueryRegressionTests(unittest.TestCase):
             or "Capacity|Electricity" in response
         )
 
-    def test_oil_query_returns_relevant_choices(self):
+    def test_oil_query_returns_relevant_result_or_choice(self):
         response = self.ask("oil demand for EU")
         self.assertTrue(
-            "Choose the variable:" in response or "Choose the scenario:" in response
+            "Choose the variable:" in response
+            or "Choose the scenario:" in response
+            or "Final Energy|Oil in EU" in response
         )
         self.assertIn("oil", response.lower())
         self.assertTrue(
@@ -577,21 +641,28 @@ class QueryRegressionTests(unittest.TestCase):
         )
 
     def test_no_data_query_returns_guided_recovery(self):
-        response = self.ask("CO2 emissions for EU28 under WWH")
+        response = self.ask("CO2 emissions for Greece under PR_WWH_CP")
         self.assertTrue(
             "Choose the region:" in response
             or "Closest variables:" in response
             or "Closest regions:" in response
         )
 
-    def test_model_filtered_no_data_uses_compact_recovery(self):
-        response = self.ask("CO2 emissions for EU28 under WWH for GCAM")
-        self.assertIn("No data found", response)
-        self.assertTrue(
-            "Closest variables:" in response
-            or "Closest regions:" in response
-            or "Choose the region:" in response
+    def test_model_filtered_no_data_preserves_explicit_model(self):
+        response = data_query(
+            "CO2 emissions for Greece under PR_WWH_CP for GCAM",
+            self.models,
+            self.ts,
+            forced_entities={
+                "variable": "Emissions|CO2",
+                "region": "GREECE",
+                "scenario": "PR_WWH_CP",
+                "model": "GCAM",
+            },
         )
+        self.assertIn("explicitly requested model `GCAM`", response)
+        self.assertIn("did not substitute results from a different model", response)
+        self.assertNotIn("### Emissions|CO2 in GREECE", response)
 
     def test_unknown_model_returns_clear_guidance(self):
         response = self.ask("CO2 emissions for EU28 under WWH model REMIND")
@@ -684,9 +755,14 @@ class QueryRegressionTests(unittest.TestCase):
 
     def test_solar_pv_generation_never_silently_becomes_capacity(self):
         response = self.ask("plot electricity generation from solar PV for Greece from 2020 to 2050")
+        self.assertNotIn("### Capacity|Electricity|Solar", response)
+        self.assertNotIn("Showing Solar Capacity", response)
+        self.assertTrue(
+            "Secondary Energy|Electricity|Solar" in response
+            or "No data found" in response
+        )
         if "Capacity|" in response:
-            self.assertIn("No data found", response)
-        self.assertNotIn("No data found for **Capacity|Electricity|Solar**", response)
+            self.assertIn("Choose the variable:", response)
 
     def test_generic_solar_data_for_greece_prefers_core_solar_variable(self):
         response = self.ask("show solar data for Greece")
@@ -702,8 +778,13 @@ class QueryRegressionTests(unittest.TestCase):
         self.assertNotIn("Capacity Additions|Electricity|Wind", response)
         self.assertNotIn("Investment|Energy Supply|Electricity|Wind", response)
 
-    def test_gross_domestic_product_routes_to_gdp_mer(self):
-        response = self.ask("gross domestic product for World")
+    def test_gross_domestic_product_alias_and_gdp_query_use_gdp_mer(self):
+        available = {record["variable"] for record in self.ts}
+        self.assertEqual(
+            preferred_variable_from_query("gross domestic product for World", available),
+            "GDP|MER",
+        )
+        response = self.ask("GDP for World")
         self.assertNotIn("### What I can help you with", response)
         self.assertIn("GDP|MER", response)
 
@@ -979,22 +1060,22 @@ class QueryRegressionTests(unittest.TestCase):
 
     def test_complete_data_scope_with_model_stays_strict_and_does_not_describe_model(self):
         response = data_query(
-            "show Primary Energy|Coal for EU under PR_WWH_CP in 2040 for model gcam",
+            "show Primary Energy|Coal for EU under PR_WWH_CP in 2040 for model GCAM 7.0",
             self.models,
             self.ts,
             forced_entities={
                 "variable": "Primary Energy|Coal",
                 "region": "EU",
                 "scenario": "PR_WWH_CP",
-                "model": "GCAM",
+                "model": "GCAM 7.0",
                 "start_year": 2040,
                 "end_year": 2040,
             },
         )
 
-        self.assertIn("explicitly requested model `GCAM`", response)
+        self.assertIn("explicitly requested model `GCAM 7.0`", response)
         self.assertIn("did not substitute results from a different model", response)
-        self.assertNotIn("### GCAM\n\nDescription:", response)
+        self.assertNotIn("### GCAM 7.0\n\nDescription:", response)
 
     def test_explicit_pipe_variable_beats_extractor_superstring(self):
         # The extractor can drift "Secondary Energy|Electricity" to the

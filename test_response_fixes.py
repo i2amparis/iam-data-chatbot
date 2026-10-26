@@ -463,7 +463,10 @@ class ModelDisplayNameTests(unittest.TestCase):
 
         self.assertEqual(display_model_label("gcam"), "GCAM")
         self.assertEqual(display_model_label("gemini_e3"), "GEMINI-E3")
+        # The only catalogue family starting with the alias.
+        self.assertEqual(display_model_label("tiam"), "TIAM_Grantham")
         # No unique catalogue family: unchanged rather than guessed.
+        register_model_display_names(["TIAM_Grantham 3.2", "TIAM-ECN"])
         self.assertEqual(display_model_label("tiam"), "tiam")
         # Already-cased and versioned labels are never rewritten.
         self.assertEqual(display_model_label("GCAM 7.0"), "GCAM 7.0")
@@ -523,18 +526,17 @@ class LatencyCacheTests(unittest.TestCase):
             with self.subTest(scope=scope):
                 self.assertEqual(fastapi_app._count_matching_records(resources, scope), expected)
 
-    def test_record_cache_invalidates_when_records_change(self):
+    def test_record_cache_uses_exact_list_identity_for_cache_hits(self):
         import record_cache
 
         records = [{"variable": f"V{i % 3}"} for i in range(record_cache.MIN_CACHED_RECORDS)]
         self.assertEqual(record_cache.distinct_values(records, "variable"), {"V0", "V1", "V2"})
-        changed = records + [{"variable": "V9"}]
+        changed = list(records)
+        changed[len(changed) // 2] = {"variable": "V9"}
         self.assertIn("V9", record_cache.distinct_values(changed, "variable"))
-        # A copy of the same records reuses the cached result.
-        self.assertIs(
-            record_cache.distinct_values(list(records), "variable"),
-            record_cache.distinct_values(records, "variable"),
-        )
+        # A shallow copy is a distinct dataset view and must be indexed on its
+        # own; the original list still returns its original lookup.
+        self.assertNotIn("V9", record_cache.distinct_values(records, "variable"))
 
 
 class LlmSetupTests(unittest.TestCase):

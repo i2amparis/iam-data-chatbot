@@ -5,6 +5,7 @@ from typing import List, Tuple, Optional, Dict, Any
 from pathlib import Path
 
 from langchain.schema import Document
+from langchain_core.retrievers import BaseRetriever
 from langchain.chains import ConversationalRetrievalChain
 from langchain.prompts import (
     ChatPromptTemplate,
@@ -17,25 +18,13 @@ from llm_config import QA_MODEL
 from model_aliases import is_presentable_model_label
 
 
-def _load_skill_guidance(max_chars: int = 4000) -> str:
-    """
-    Load skill guidance to inject into system prompts.
-    """
-    skill_path = Path("skills/iam-timeseries-qa/SKILL.md")
-    if not skill_path.exists():
-        return ""
-    text = skill_path.read_text()
-    if text.lstrip().startswith("---"):
-        parts = text.split("---", 2)
-        if len(parts) == 3:
-            text = parts[2]
-    text = text.strip()
-    if len(text) > max_chars:
-        text = text[:max_chars].rstrip() + "\n\n[Skill guidance truncated]"
-    return text
-
-
 HISTORY_ANSWER_MAX_CHARS = 300
+
+_REFERS_BACK = re.compile(
+    r"\b(?:it|its|this|that|these|those|they|them|their|there|above|previous|"
+    r"same|also|else|more|what\s+about|how\s+about|and\s+for)\b",
+    re.IGNORECASE,
+)
 
 
 def _compact_history_answer(answer: object, max_chars: int = HISTORY_ANSWER_MAX_CHARS) -> str:
@@ -182,6 +171,46 @@ class DataPlottingAgent(BaseAgent):
             )
 
 
+QA_MAX_OUTPUT_TOKENS = 350
+
+# Short and grounded on purpose. The previous prompt injected ~4,000 chars of
+# developer-facing skill notes and asked for links; a small local model copied
+# that structure into answers and invented URLs.
+GENERAL_QA_SYSTEM_PROMPT = """You are the IAM PARIS assistant (https://iamparis.eu), helping people explore integrated assessment model (IAM) results on climate and energy.
+
+Answer the question in 2-5 plain sentences.
+Rules:
+- Base the answer on the context below whenever it covers the question; prefer its wording for definitions.
+- Never invent numbers, model names, study names or web links. The only link you may give is https://iamparis.eu/results.
+- For IAM PARIS data values, tell the user to ask for a variable and region, for example "CO2 emissions for World in 2050".
+- If the context does not cover the question and you are not sure, say so briefly.
+- Do not name specific models, studies or variable codes unless the question asks about them.
+- When the context starts with an "Explanation", build the answer on it and do not contradict it.
+
+Context:
+{context}"""
+
+
+class _CuratedFirstRetriever(BaseRetriever):
+    """Matching curated explanations, or similarity retrieval without one.
+
+    A matched explanation is given on its own: any retrieved document next to
+    it (removal text beside CCS, carbon pricing beside electricity prices)
+    was blended into the small model's answer and made it wrong.
+    """
+
+    base: Any
+    k: int = 4
+
+    def _get_relevant_documents(self, query: str, *, run_manager: Any = None) -> List[Document]:
+        from explanations import matching_explanations
+
+        curated = matching_explanations(query)
+        if curated:
+            return curated
+        return self.base.invoke(query)[:self.k]
+
+
 class GeneralQAAgent(BaseAgent):
     def __init__(self, shared_resources: Dict[str, Any], streaming: bool = True):
         super().__init__(shared_resources, streaming)
@@ -199,56 +228,27 @@ class GeneralQAAgent(BaseAgent):
         if not vs:
             raise ValueError("Vector store not found in shared resources")
 
-        # Get all model names for the system prompt
-        models = self.resources.get("models", [])
-        model_names = sorted([
-            str(m.get('modelName', '')).strip()
-            for m in models
-            if m and is_presentable_model_label(m.get('modelName'))
-        ])
-        model_list = ", ".join(model_names)
-
         llm = ChatOpenAI(
             model_name=QA_MODEL,
             temperature=0,
             streaming=self.streaming,
             timeout=30,
-            max_retries=1
+            max_retries=1,
+            # Bounded answers: long generations are slow on CPU and small
+            # models drift into unsupported detail.
+            max_tokens=QA_MAX_OUTPUT_TOKENS,
         )
-
-        skill_guidance = _load_skill_guidance()
-        system_tpl = f"""You are an expert climate policy assistant focused on IAM PARIS data and models (https://iamparis.eu/).
-
-Available models in IAM PARIS database ({len(model_names)} total):
-{model_list}
-
-When users ask about models:
-- List ALL models by name when asked to list models
-- Provide details about specific models using the modelName field
-
-Always:
-- Provide direct answers without restating the question
-- Use Markdown formatting with headers and lists
-- Reference IAM PARIS data when available
-- Include IAM PARIS links
-- Format numbers with units
-- Promote https://iamparis.eu/results for detailed data access
-
-Skill guidance:
-{skill_guidance}
-
-Context: ```{{context}}```"""
-
-        user_tpl = "Question: ```{question}```"
 
         prompt = ChatPromptTemplate.from_messages(
             [
-                SystemMessagePromptTemplate.from_template(system_tpl),
-                HumanMessagePromptTemplate.from_template(user_tpl),
+                SystemMessagePromptTemplate.from_template(GENERAL_QA_SYSTEM_PROMPT),
+                HumanMessagePromptTemplate.from_template("{question}"),
             ]
         )
 
-        retriever = vs.as_retriever(search_type="similarity", search_kwargs={"k": 5})
+        retriever = _CuratedFirstRetriever(
+            base=vs.as_retriever(search_type="similarity", search_kwargs={"k": 4}),
+        )
 
         # No internal memory: the session's chat_history (passed to handle) is
         # the single source of conversation state, so the two never diverge.
@@ -273,10 +273,14 @@ Context: ```{{context}}```"""
         # Keep only the recent turns, and only the prose of past answers, to
         # bound the prompt: the question-rewrite step reads the whole history
         # and data answers can carry multi-kilobyte tables.
+        # A self-contained question gets no history: the chain then skips its
+        # question-rewrite LLM call, which made a small model turn unrelated
+        # input into a question about the previous turn (and cost a call).
+        refers_back = bool(_REFERS_BACK.search(str(query or "")))
         compact_history = [
             (question, _compact_history_answer(answer))
             for question, answer in history[-6:]
-        ]
+        ] if refers_back else []
         resp = chain.invoke({"question": query, "chat_history": compact_history})
         return resp.get("answer", "").strip()
 

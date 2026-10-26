@@ -3,7 +3,7 @@
 The runtime holds ~600k records and several request paths rebuilt the same
 derived structures (workspace groups, model-name sets, per-variable indexes)
 from scratch on every query, costing seconds per request. Results are cached
-per record list and invalidated when the list changes.
+by source-list identity; source records must remain immutable after indexing.
 
 Only large lists are cached: request-scoped filtered lists are small and
 short-lived, and are cheap to recompute.
@@ -20,15 +20,13 @@ MIN_CACHED_RECORDS = 5000
 # used study-filtered lists, without letting them evict each other.
 ENTRIES_PER_NAME = 8
 
-_cache: dict[str, "OrderedDict[tuple, Any]"] = {}
+_cache: dict[str, "OrderedDict[int, tuple[list, Any]]"] = {}
 _lock = threading.Lock()
 
 
-def _fingerprint(records: list) -> tuple:
-    """Identify a record list cheaply; copies of the same list share it."""
-    size = len(records)
-    probes = (records[0], records[size // 2], records[-1]) if size else ()
-    return (size, *(id(record) for record in probes))
+def _fingerprint(records: list) -> int:
+    """Use list identity; sampled elements can miss changes in the middle."""
+    return id(records)
 
 
 def cached_on_records(records: list, name: str, builder: Callable[[list], Any]) -> Any:
@@ -43,11 +41,15 @@ def cached_on_records(records: list, name: str, builder: Callable[[list], Any]) 
         entries = _cache.get(name)
         if entries is not None and fingerprint in entries:
             entries.move_to_end(fingerprint)
-            return entries[fingerprint]
+            source, value = entries[fingerprint]
+            if source is records:
+                return value
     value = builder(records)
     with _lock:
         entries = _cache.setdefault(name, OrderedDict())
-        entries[fingerprint] = value
+        # Retain the source object alongside the result. This prevents Python
+        # from reusing its id while the entry exists and verifies exact identity.
+        entries[fingerprint] = (records, value)
         while len(entries) > ENTRIES_PER_NAME:
             entries.popitem(last=False)
     return value

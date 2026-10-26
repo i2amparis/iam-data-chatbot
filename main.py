@@ -40,6 +40,7 @@ from langchain.prompts import (
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 
 from data_utils import data_query
+from utils.yaml_loader import DOCUMENTS_VERSION as YAML_DOCUMENTS_VERSION
 from utils.yaml_loader import load_all_yaml_files, yaml_to_documents
 from manager import MultiAgentManager
 from model_aliases import is_presentable_model_label
@@ -73,8 +74,14 @@ def cache_file_timestamp(path: str | Path | None) -> str:
 
 
 def _definition_source_signature() -> str:
-    """Fingerprint definition contents so their parsed cache cannot go stale."""
+    """Fingerprint definition contents so their parsed cache cannot go stale.
+
+    Includes the document-conversion version: a fix to how YAML entries become
+    documents must invalidate the cache even when the YAML files are unchanged.
+    """
     digest = hashlib.sha256()
+    digest.update(f"documents-v{YAML_DOCUMENTS_VERSION}".encode("utf-8"))
+    digest.update(b"\0")
     definition_root = Path("definitions")
     files = sorted(
         path for path in definition_root.rglob("*")
@@ -161,6 +168,12 @@ def docs_from_records(records: list) -> List[Document]:
         if not desc and not asum:
             continue
         content = desc + (f"\n\nAssumptions: {asum}" if asum else "")
+        model_name = str(rec.get("modelName") or "").strip()
+        if model_name and not content.casefold().startswith(model_name.casefold()):
+            # Name the model in the indexed text: descriptions often omit it,
+            # so neither retrieval nor the answering model knew which model
+            # a passage described.
+            content = f"Model {model_name}: {content}"
         doc = Document(
             page_content=content,
             metadata={
@@ -242,6 +255,20 @@ def _faiss_cache_signature(docs: list, embeddings: Any) -> str:
         digest.update(b"\0")
     return digest.hexdigest()
 
+EMBEDDING_BATCH_SIZE = 32
+
+
+def knowledge_documents(models: list, region_docs: list, variable_docs: list) -> list:
+    """Documents for general-QA retrieval: models, definitions, glossary and explanations."""
+    from explanations import explanation_documents
+    from glossary import glossary_documents
+
+    return (
+        docs_from_records(models) + region_docs + variable_docs
+        + glossary_documents() + explanation_documents()
+    )
+
+
 def build_faiss_index(docs:list, embeddings) ->FAISS:
     # Load only when the indexed content and embedding configuration match.
     index_dir = 'cache/faiss_index'
@@ -265,9 +292,12 @@ def build_faiss_index(docs:list, embeddings) ->FAISS:
     elif os.path.exists(index_file):
         logger.info('Legacy FAISS cache has no source signature; rebuilding index.')
 
-    # Create FAISS index if cache doesn't exist
-    logger.info('Creating FAISS index...')
-    faiss_index = FAISS.from_documents(docs, embeddings)
+    # Create FAISS index if cache doesn't exist. Embed in batches: a single
+    # request with hundreds of texts crashed the local Ollama embedding runner.
+    logger.info('Creating FAISS index from %d chunks...', len(docs))
+    faiss_index = FAISS.from_documents(docs[:EMBEDDING_BATCH_SIZE], embeddings)
+    for start in range(EMBEDDING_BATCH_SIZE, len(docs), EMBEDDING_BATCH_SIZE):
+        faiss_index.add_documents(docs[start:start + EMBEDDING_BATCH_SIZE])
     
     # Save to cache using FAISS native save method
     os.makedirs(index_dir, exist_ok=True)
@@ -687,7 +717,7 @@ def main():
     # Always derive the source signature; build_faiss_index reuses the cache
     # only when the model metadata and YAML-derived chunks still match it.
     region_docs, variable_docs = load_definitions()
-    all_docs = docs_from_records(models) + region_docs + variable_docs
+    all_docs = knowledge_documents(models, region_docs, variable_docs)
     chunks = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=80).split_documents(all_docs)
     embeddings = get_embeddings(model="text-embedding-3-small", api_key=bot.env["OPENAI_API_KEY"], timeout=30, max_retries=1)
     faiss_index = build_faiss_index(chunks, embeddings)

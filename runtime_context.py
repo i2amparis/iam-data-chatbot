@@ -1,4 +1,5 @@
 import json
+import logging
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -6,6 +7,7 @@ from typing import Any
 from data_metadata import DataMetadata, build_metadata_with_cache
 from link_catalog import DEFAULT_OUTPUT as DEFAULT_LINK_CATALOG
 from model_aliases import register_model_display_names
+from record_labels import normalize_record_labels
 
 
 @dataclass
@@ -89,9 +91,19 @@ def build_runtime_context(
     results_source_path: str = "",
     results_timestamp: str = "",
 ) -> RuntimeContext:
+    # Untrimmed catalogue names ("WILIAM ") never match the question, so a
+    # follow-up kept the previous model.
+    for model in models or []:
+        if isinstance(model, dict) and isinstance(model.get("modelName"), str):
+            model["modelName"] = " ".join(model["modelName"].split())
     register_model_display_names(
         record.get("modelName") for record in (models or []) if isinstance(record, dict)
     )
+    # Before anything indexes the records: merge whitespace/case variants of
+    # labels so each variable, region, model and unit has one spelling.
+    label_changes = normalize_record_labels(ts)
+    if label_changes:
+        logging.getLogger(__name__).info("Normalized record labels: %s", label_changes)
     metadata = build_metadata_with_cache(ts, models, cache_file=metadata_cache_file)
     link_catalog = load_link_catalog(link_catalog_path)
     return RuntimeContext(

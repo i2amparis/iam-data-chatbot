@@ -38,7 +38,8 @@ class ClarificationPromptTests(unittest.TestCase):
         self.assertIn("Closest valid options:", response)
         self.assertIn("1. region `EU` (EU (European Union))", response)
         self.assertIn("2. scenario `Baseline` (baseline)", response)
-        self.assertIn("Reply with `1`, `2`, or `3`", response)
+        # Two options are offered, so the reply hint lists exactly two.
+        self.assertIn("Reply with `1` or `2`", response)
 
 
 if __name__ == "__main__":

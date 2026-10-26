@@ -304,9 +304,16 @@ def build_query_plan(
     # the user explicitly asked to plot/chart/graph the data.  Let extraction
     # and the plotter handle (or safely clarify) that scope instead of returning
     # an unrelated availability table.
+    # "which scenario has the lowest emissions in 2050" asks for values ranked
+    # by size, not for the list of scenarios that report emissions.
+    ranking_language = bool(re.search(
+        r"\b(?:highest|lowest|maximum|minimum|most|least|largest|smallest|biggest|peak)\b",
+        lower,
+    ))
     intent = "model_comparison" if model_comparison else (
         "availability"
         if availability_language and targets and output_mode != "plot"
+        and not (ranking_language and not explicit_discovery)
         else "answer"
     )
     scope_patch = ScopePatch(

@@ -518,6 +518,8 @@ def extract_region_from_query(query: str, region_dict: dict, region_candidates: 
             "united kingdom": "GBR",
             "uk": "GBR",
             "russia": "RUS",
+            "korea": "KOR",
+            "republic of korea": "KOR",
             # Country adjectives are common in chart requests ("French
             # nuclear", "Indian solar capacity").  Resolve only explicit,
             # unambiguous demonyms to the same country-family codes used for
@@ -529,7 +531,9 @@ def extract_region_from_query(query: str, region_dict: dict, region_candidates: 
             "greek": "GREECE",
         }
         for name in sorted(name_to_code.keys(), key=len, reverse=True):
-            if re.search(r"\b" + re.escape(name) + r"\b", query_alias_text):
+            # "North Korea" / "West Africa" are not "Korea" / "Africa"; the
+            # full names ("south korea", "south africa") are tried first.
+            if re.search(r"(?<!north )(?<!south )(?<!east )(?<!west )\b" + re.escape(name) + r"\b", query_alias_text):
                 code = name_to_code[name]
                 code_key = code.lower()
                 if code_key in candidate_set:
