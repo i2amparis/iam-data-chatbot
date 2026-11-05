@@ -1,0 +1,6005 @@
+{
+  "model": "qwen3:0.6b-q4_K_M",
+  "questions": [
+    {
+      "id": "q0001",
+      "category": "numeric data and comparison",
+      "query": "Give World CO2 emissions in 2030.",
+      "conversation": null
+    },
+    {
+      "id": "q0002",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for population in Spain in 2045?",
+      "conversation": null
+    },
+    {
+      "id": "q0003",
+      "category": "numeric data and comparison",
+      "query": "Show the range of primary energy from coal estimates for Nigeria in 2070.",
+      "conversation": null
+    },
+    {
+      "id": "q0004",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest installed solar capacity for EU in 2035?",
+      "conversation": null
+    },
+    {
+      "id": "q0005",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for solar electricity generation in Italy in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0006",
+      "category": "numeric data and comparison",
+      "query": "How does hydrogen production in South Africa change from 2030 to 2100?",
+      "conversation": null
+    },
+    {
+      "id": "q0007",
+      "category": "numeric data and comparison",
+      "query": "Show nuclear electricity generation for China under PR_NDC_EI in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0008",
+      "category": "numeric data and comparison",
+      "query": "Give the median residential energy use across models for Greece in 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0009",
+      "category": "numeric data and comparison",
+      "query": "Give Mexico final energy for industry in 2035.",
+      "conversation": null
+    },
+    {
+      "id": "q0010",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for bioenergy use in India in 2050?",
+      "conversation": null
+    },
+    {
+      "id": "q0011",
+      "category": "numeric data and comparison",
+      "query": "Show the range of GDP estimates for United States in 2100.",
+      "conversation": null
+    },
+    {
+      "id": "q0012",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest methane emissions for Indonesia in 2040?",
+      "conversation": null
+    },
+    {
+      "id": "q0013",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for electricity demand in Brazil in 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0014",
+      "category": "numeric data and comparison",
+      "query": "How does primary energy from gas in Canada change from 2030 to 2030?",
+      "conversation": null
+    },
+    {
+      "id": "q0015",
+      "category": "numeric data and comparison",
+      "query": "Show installed wind capacity for Australia under PR_NDC_EI in 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q0016",
+      "category": "numeric data and comparison",
+      "query": "Give the median wind electricity generation across models for Germany in 2070.",
+      "conversation": null
+    },
+    {
+      "id": "q0017",
+      "category": "numeric data and comparison",
+      "query": "Give Japan land-use CO2 emissions in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0018",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for final energy for transport in Africa in 2060?",
+      "conversation": null
+    },
+    {
+      "id": "q0019",
+      "category": "numeric data and comparison",
+      "query": "Show the range of industrial CO2 emissions estimates for France in 2030.",
+      "conversation": null
+    },
+    {
+      "id": "q0020",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest carbon price for South Korea in 2045?",
+      "conversation": null
+    },
+    {
+      "id": "q0021",
+      "category": "numeric data and comparison",
+      "query": "How does methane emissions in World change from 2030 to 2070?",
+      "conversation": null
+    },
+    {
+      "id": "q0022",
+      "category": "numeric data and comparison",
+      "query": "Show electricity demand for Spain under PR_NDC_EI in 2035.",
+      "conversation": null
+    },
+    {
+      "id": "q0023",
+      "category": "numeric data and comparison",
+      "query": "Give the median primary energy from gas across models for Nigeria in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0024",
+      "category": "numeric data and comparison",
+      "query": "Give EU installed wind capacity in 2100.",
+      "conversation": null
+    },
+    {
+      "id": "q0025",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for wind electricity generation in Italy in 2045?",
+      "conversation": null
+    },
+    {
+      "id": "q0026",
+      "category": "numeric data and comparison",
+      "query": "Show the range of land-use CO2 emissions estimates for South Africa in 2070.",
+      "conversation": null
+    },
+    {
+      "id": "q0027",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest final energy for transport for China in 2035?",
+      "conversation": null
+    },
+    {
+      "id": "q0028",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for industrial CO2 emissions in Greece in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0029",
+      "category": "numeric data and comparison",
+      "query": "How does carbon price in Mexico change from 2030 to 2100?",
+      "conversation": null
+    },
+    {
+      "id": "q0030",
+      "category": "numeric data and comparison",
+      "query": "Show CO2 emissions for India under PR_NDC_EI in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0031",
+      "category": "numeric data and comparison",
+      "query": "Give the median population across models for United States in 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0032",
+      "category": "numeric data and comparison",
+      "query": "Give Indonesia primary energy from coal in 2030.",
+      "conversation": null
+    },
+    {
+      "id": "q0033",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for installed solar capacity in Brazil in 2050?",
+      "conversation": null
+    },
+    {
+      "id": "q0034",
+      "category": "numeric data and comparison",
+      "query": "Show the range of solar electricity generation estimates for Canada in 2100.",
+      "conversation": null
+    },
+    {
+      "id": "q0035",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest hydrogen production for Australia in 2040?",
+      "conversation": null
+    },
+    {
+      "id": "q0036",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for nuclear electricity generation in Germany in 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0037",
+      "category": "numeric data and comparison",
+      "query": "How does residential energy use in Japan change from 2030 to 2030?",
+      "conversation": null
+    },
+    {
+      "id": "q0038",
+      "category": "numeric data and comparison",
+      "query": "Show final energy for industry for Africa under PR_NDC_EI in 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q0039",
+      "category": "numeric data and comparison",
+      "query": "Give the median bioenergy use across models for France in 2070.",
+      "conversation": null
+    },
+    {
+      "id": "q0040",
+      "category": "numeric data and comparison",
+      "query": "Give South Korea GDP in 2035.",
+      "conversation": null
+    },
+    {
+      "id": "q0041",
+      "category": "numeric data and comparison",
+      "query": "Show the range of primary energy from coal estimates for World in 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0042",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest installed solar capacity for Spain in 2030?",
+      "conversation": null
+    },
+    {
+      "id": "q0043",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for solar electricity generation in Nigeria in 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q0044",
+      "category": "numeric data and comparison",
+      "query": "How does hydrogen production in EU change from 2030 to 2070?",
+      "conversation": null
+    },
+    {
+      "id": "q0045",
+      "category": "numeric data and comparison",
+      "query": "Show nuclear electricity generation for Italy under PR_NDC_EI in 2035.",
+      "conversation": null
+    },
+    {
+      "id": "q0046",
+      "category": "numeric data and comparison",
+      "query": "Give the median residential energy use across models for South Africa in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0047",
+      "category": "numeric data and comparison",
+      "query": "Give China final energy for industry in 2100.",
+      "conversation": null
+    },
+    {
+      "id": "q0048",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for bioenergy use in Greece in 2040?",
+      "conversation": null
+    },
+    {
+      "id": "q0049",
+      "category": "numeric data and comparison",
+      "query": "Show the range of GDP estimates for Mexico in 2070.",
+      "conversation": null
+    },
+    {
+      "id": "q0050",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest methane emissions for India in 2035?",
+      "conversation": null
+    },
+    {
+      "id": "q0051",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for electricity demand in United States in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0052",
+      "category": "numeric data and comparison",
+      "query": "How does primary energy from gas in Indonesia change from 2030 to 2100?",
+      "conversation": null
+    },
+    {
+      "id": "q0053",
+      "category": "numeric data and comparison",
+      "query": "Show installed wind capacity for Brazil under PR_NDC_EI in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0054",
+      "category": "numeric data and comparison",
+      "query": "Give the median wind electricity generation across models for Canada in 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0055",
+      "category": "numeric data and comparison",
+      "query": "Give Australia land-use CO2 emissions in 2030.",
+      "conversation": null
+    },
+    {
+      "id": "q0056",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for final energy for transport in Germany in 2045?",
+      "conversation": null
+    },
+    {
+      "id": "q0057",
+      "category": "numeric data and comparison",
+      "query": "Show the range of industrial CO2 emissions estimates for Japan in 2100.",
+      "conversation": null
+    },
+    {
+      "id": "q0058",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest carbon price for Africa in 2040?",
+      "conversation": null
+    },
+    {
+      "id": "q0059",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for CO2 emissions in France in 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0060",
+      "category": "numeric data and comparison",
+      "query": "How does population in South Korea change from 2030 to 2030?",
+      "conversation": null
+    },
+    {
+      "id": "q0061",
+      "category": "numeric data and comparison",
+      "query": "Give the median primary energy from gas across models for World in 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q0062",
+      "category": "numeric data and comparison",
+      "query": "Give Spain installed wind capacity in 2070.",
+      "conversation": null
+    },
+    {
+      "id": "q0063",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for wind electricity generation in Nigeria in 2035?",
+      "conversation": null
+    },
+    {
+      "id": "q0064",
+      "category": "numeric data and comparison",
+      "query": "Show the range of land-use CO2 emissions estimates for EU in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0065",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest final energy for transport for Italy in 2030?",
+      "conversation": null
+    },
+    {
+      "id": "q0066",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for industrial CO2 emissions in South Africa in 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q0067",
+      "category": "numeric data and comparison",
+      "query": "How does carbon price in China change from 2030 to 2070?",
+      "conversation": null
+    },
+    {
+      "id": "q0068",
+      "category": "numeric data and comparison",
+      "query": "Show CO2 emissions for Greece under PR_NDC_EI in 2035.",
+      "conversation": null
+    },
+    {
+      "id": "q0069",
+      "category": "numeric data and comparison",
+      "query": "Give the median population across models for Mexico in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0070",
+      "category": "numeric data and comparison",
+      "query": "Give India primary energy from coal in 2100.",
+      "conversation": null
+    },
+    {
+      "id": "q0071",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for installed solar capacity in United States in 2040?",
+      "conversation": null
+    },
+    {
+      "id": "q0072",
+      "category": "numeric data and comparison",
+      "query": "Show the range of solar electricity generation estimates for Indonesia in 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0073",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest hydrogen production for Brazil in 2035?",
+      "conversation": null
+    },
+    {
+      "id": "q0074",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for nuclear electricity generation in Canada in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0075",
+      "category": "numeric data and comparison",
+      "query": "How does residential energy use in Australia change from 2030 to 2100?",
+      "conversation": null
+    },
+    {
+      "id": "q0076",
+      "category": "numeric data and comparison",
+      "query": "Show final energy for industry for Germany under PR_NDC_EI in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0077",
+      "category": "numeric data and comparison",
+      "query": "Give the median bioenergy use across models for Japan in 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0078",
+      "category": "numeric data and comparison",
+      "query": "Give Africa GDP in 2030.",
+      "conversation": null
+    },
+    {
+      "id": "q0079",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for methane emissions in France in 2045?",
+      "conversation": null
+    },
+    {
+      "id": "q0080",
+      "category": "numeric data and comparison",
+      "query": "Show the range of electricity demand estimates for South Korea in 2070.",
+      "conversation": null
+    },
+    {
+      "id": "q0081",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for solar electricity generation in World in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0082",
+      "category": "numeric data and comparison",
+      "query": "How does hydrogen production in Spain change from 2030 to 2060?",
+      "conversation": null
+    },
+    {
+      "id": "q0083",
+      "category": "numeric data and comparison",
+      "query": "Show nuclear electricity generation for Nigeria under PR_NDC_EI in 2030.",
+      "conversation": null
+    },
+    {
+      "id": "q0084",
+      "category": "numeric data and comparison",
+      "query": "Give the median residential energy use across models for EU in 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q0085",
+      "category": "numeric data and comparison",
+      "query": "Give Italy final energy for industry in 2070.",
+      "conversation": null
+    },
+    {
+      "id": "q0086",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for bioenergy use in South Africa in 2035?",
+      "conversation": null
+    },
+    {
+      "id": "q0087",
+      "category": "numeric data and comparison",
+      "query": "Show the range of GDP estimates for China in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0088",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest methane emissions for Greece in 2100?",
+      "conversation": null
+    },
+    {
+      "id": "q0089",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for electricity demand in Mexico in 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q0090",
+      "category": "numeric data and comparison",
+      "query": "How does primary energy from gas in India change from 2030 to 2070?",
+      "conversation": null
+    },
+    {
+      "id": "q0091",
+      "category": "numeric data and comparison",
+      "query": "Show installed wind capacity for United States under PR_NDC_EI in 2035.",
+      "conversation": null
+    },
+    {
+      "id": "q0092",
+      "category": "numeric data and comparison",
+      "query": "Give the median wind electricity generation across models for Indonesia in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0093",
+      "category": "numeric data and comparison",
+      "query": "Give Brazil land-use CO2 emissions in 2100.",
+      "conversation": null
+    },
+    {
+      "id": "q0094",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for final energy for transport in Canada in 2040?",
+      "conversation": null
+    },
+    {
+      "id": "q0095",
+      "category": "numeric data and comparison",
+      "query": "Show the range of industrial CO2 emissions estimates for Australia in 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0096",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest carbon price for Germany in 2030?",
+      "conversation": null
+    },
+    {
+      "id": "q0097",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for CO2 emissions in Japan in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0098",
+      "category": "numeric data and comparison",
+      "query": "How does population in Africa change from 2030 to 2100?",
+      "conversation": null
+    },
+    {
+      "id": "q0099",
+      "category": "numeric data and comparison",
+      "query": "Show primary energy from coal for France under PR_NDC_EI in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0100",
+      "category": "numeric data and comparison",
+      "query": "Give the median installed solar capacity across models for South Korea in 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0101",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for wind electricity generation in World in 2030?",
+      "conversation": null
+    },
+    {
+      "id": "q0102",
+      "category": "numeric data and comparison",
+      "query": "Show the range of land-use CO2 emissions estimates for Spain in 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q0103",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest final energy for transport for Nigeria in 2070?",
+      "conversation": null
+    },
+    {
+      "id": "q0104",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for industrial CO2 emissions in EU in 2035.",
+      "conversation": null
+    },
+    {
+      "id": "q0105",
+      "category": "numeric data and comparison",
+      "query": "How does carbon price in Italy change from 2030 to 2060?",
+      "conversation": null
+    },
+    {
+      "id": "q0106",
+      "category": "numeric data and comparison",
+      "query": "Show CO2 emissions for South Africa under PR_NDC_EI in 2030.",
+      "conversation": null
+    },
+    {
+      "id": "q0107",
+      "category": "numeric data and comparison",
+      "query": "Give the median population across models for China in 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q0108",
+      "category": "numeric data and comparison",
+      "query": "Give Greece primary energy from coal in 2070.",
+      "conversation": null
+    },
+    {
+      "id": "q0109",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for installed solar capacity in Mexico in 2035?",
+      "conversation": null
+    },
+    {
+      "id": "q0110",
+      "category": "numeric data and comparison",
+      "query": "Show the range of solar electricity generation estimates for India in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0111",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest hydrogen production for United States in 2100?",
+      "conversation": null
+    },
+    {
+      "id": "q0112",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for nuclear electricity generation in Indonesia in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0113",
+      "category": "numeric data and comparison",
+      "query": "How does residential energy use in Brazil change from 2030 to 2070?",
+      "conversation": null
+    },
+    {
+      "id": "q0114",
+      "category": "numeric data and comparison",
+      "query": "Show final energy for industry for Canada under PR_NDC_EI in 2035.",
+      "conversation": null
+    },
+    {
+      "id": "q0115",
+      "category": "numeric data and comparison",
+      "query": "Give the median bioenergy use across models for Australia in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0116",
+      "category": "numeric data and comparison",
+      "query": "Give Germany GDP in 2100.",
+      "conversation": null
+    },
+    {
+      "id": "q0117",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for methane emissions in Japan in 2040?",
+      "conversation": null
+    },
+    {
+      "id": "q0118",
+      "category": "numeric data and comparison",
+      "query": "Show the range of electricity demand estimates for Africa in 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0119",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest primary energy from gas for France in 2030?",
+      "conversation": null
+    },
+    {
+      "id": "q0120",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for installed wind capacity in South Korea in 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q0121",
+      "category": "numeric data and comparison",
+      "query": "Show nuclear electricity generation for World under PR_NDC_EI in 2100.",
+      "conversation": null
+    },
+    {
+      "id": "q0122",
+      "category": "numeric data and comparison",
+      "query": "Give the median residential energy use across models for Spain in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0123",
+      "category": "numeric data and comparison",
+      "query": "Give Nigeria final energy for industry in 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0124",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for bioenergy use in EU in 2030?",
+      "conversation": null
+    },
+    {
+      "id": "q0125",
+      "category": "numeric data and comparison",
+      "query": "Show the range of GDP estimates for Italy in 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q0126",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest methane emissions for South Africa in 2070?",
+      "conversation": null
+    },
+    {
+      "id": "q0127",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for electricity demand in China in 2035.",
+      "conversation": null
+    },
+    {
+      "id": "q0128",
+      "category": "numeric data and comparison",
+      "query": "How does primary energy from gas in Greece change from 2030 to 2050?",
+      "conversation": null
+    },
+    {
+      "id": "q0129",
+      "category": "numeric data and comparison",
+      "query": "Show installed wind capacity for Mexico under PR_NDC_EI in 2030.",
+      "conversation": null
+    },
+    {
+      "id": "q0130",
+      "category": "numeric data and comparison",
+      "query": "Give the median wind electricity generation across models for India in 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q0131",
+      "category": "numeric data and comparison",
+      "query": "Give United States land-use CO2 emissions in 2070.",
+      "conversation": null
+    },
+    {
+      "id": "q0132",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for final energy for transport in Indonesia in 2035?",
+      "conversation": null
+    },
+    {
+      "id": "q0133",
+      "category": "numeric data and comparison",
+      "query": "Show the range of industrial CO2 emissions estimates for Brazil in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0134",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest carbon price for Canada in 2100?",
+      "conversation": null
+    },
+    {
+      "id": "q0135",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for CO2 emissions in Australia in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0136",
+      "category": "numeric data and comparison",
+      "query": "How does population in Germany change from 2030 to 2060?",
+      "conversation": null
+    },
+    {
+      "id": "q0137",
+      "category": "numeric data and comparison",
+      "query": "Show primary energy from coal for Japan under PR_NDC_EI in 2035.",
+      "conversation": null
+    },
+    {
+      "id": "q0138",
+      "category": "numeric data and comparison",
+      "query": "Give the median installed solar capacity across models for Africa in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0139",
+      "category": "numeric data and comparison",
+      "query": "Give France solar electricity generation in 2100.",
+      "conversation": null
+    },
+    {
+      "id": "q0140",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for hydrogen production in South Korea in 2040?",
+      "conversation": null
+    },
+    {
+      "id": "q0141",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest final energy for transport for World in 2060?",
+      "conversation": null
+    },
+    {
+      "id": "q0142",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for industrial CO2 emissions in Spain in 2030.",
+      "conversation": null
+    },
+    {
+      "id": "q0143",
+      "category": "numeric data and comparison",
+      "query": "How does carbon price in Nigeria change from 2030 to 2045?",
+      "conversation": null
+    },
+    {
+      "id": "q0144",
+      "category": "numeric data and comparison",
+      "query": "Show CO2 emissions for EU under PR_NDC_EI in 2070.",
+      "conversation": null
+    },
+    {
+      "id": "q0145",
+      "category": "numeric data and comparison",
+      "query": "Give the median population across models for Italy in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0146",
+      "category": "numeric data and comparison",
+      "query": "Give South Africa primary energy from coal in 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0147",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for installed solar capacity in China in 2030?",
+      "conversation": null
+    },
+    {
+      "id": "q0148",
+      "category": "numeric data and comparison",
+      "query": "Show the range of solar electricity generation estimates for Greece in 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q0149",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest hydrogen production for Mexico in 2070?",
+      "conversation": null
+    },
+    {
+      "id": "q0150",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for nuclear electricity generation in India in 2035.",
+      "conversation": null
+    },
+    {
+      "id": "q0151",
+      "category": "numeric data and comparison",
+      "query": "How does residential energy use in United States change from 2030 to 2050?",
+      "conversation": null
+    },
+    {
+      "id": "q0152",
+      "category": "numeric data and comparison",
+      "query": "Show final energy for industry for Indonesia under PR_NDC_EI in 2100.",
+      "conversation": null
+    },
+    {
+      "id": "q0153",
+      "category": "numeric data and comparison",
+      "query": "Give the median bioenergy use across models for Brazil in 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q0154",
+      "category": "numeric data and comparison",
+      "query": "Give Canada GDP in 2070.",
+      "conversation": null
+    },
+    {
+      "id": "q0155",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for methane emissions in Australia in 2035?",
+      "conversation": null
+    },
+    {
+      "id": "q0156",
+      "category": "numeric data and comparison",
+      "query": "Show the range of electricity demand estimates for Germany in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0157",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest primary energy from gas for Japan in 2100?",
+      "conversation": null
+    },
+    {
+      "id": "q0158",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for installed wind capacity in Africa in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0159",
+      "category": "numeric data and comparison",
+      "query": "How does wind electricity generation in France change from 2030 to 2060?",
+      "conversation": null
+    },
+    {
+      "id": "q0160",
+      "category": "numeric data and comparison",
+      "query": "Show land-use CO2 emissions for South Korea under PR_NDC_EI in 2030.",
+      "conversation": null
+    },
+    {
+      "id": "q0161",
+      "category": "numeric data and comparison",
+      "query": "Give World final energy for industry in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0162",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for bioenergy use in Spain in 2100?",
+      "conversation": null
+    },
+    {
+      "id": "q0163",
+      "category": "numeric data and comparison",
+      "query": "Show the range of GDP estimates for Nigeria in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0164",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest methane emissions for EU in 2060?",
+      "conversation": null
+    },
+    {
+      "id": "q0165",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for electricity demand in Italy in 2030.",
+      "conversation": null
+    },
+    {
+      "id": "q0166",
+      "category": "numeric data and comparison",
+      "query": "How does primary energy from gas in South Africa change from 2030 to 2045?",
+      "conversation": null
+    },
+    {
+      "id": "q0167",
+      "category": "numeric data and comparison",
+      "query": "Show installed wind capacity for China under PR_NDC_EI in 2070.",
+      "conversation": null
+    },
+    {
+      "id": "q0168",
+      "category": "numeric data and comparison",
+      "query": "Give the median wind electricity generation across models for Greece in 2035.",
+      "conversation": null
+    },
+    {
+      "id": "q0169",
+      "category": "numeric data and comparison",
+      "query": "Give Mexico land-use CO2 emissions in 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0170",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for final energy for transport in India in 2030?",
+      "conversation": null
+    },
+    {
+      "id": "q0171",
+      "category": "numeric data and comparison",
+      "query": "Show the range of industrial CO2 emissions estimates for United States in 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q0172",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest carbon price for Indonesia in 2070?",
+      "conversation": null
+    },
+    {
+      "id": "q0173",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for CO2 emissions in Brazil in 2035.",
+      "conversation": null
+    },
+    {
+      "id": "q0174",
+      "category": "numeric data and comparison",
+      "query": "How does population in Canada change from 2030 to 2050?",
+      "conversation": null
+    },
+    {
+      "id": "q0175",
+      "category": "numeric data and comparison",
+      "query": "Show primary energy from coal for Australia under PR_NDC_EI in 2100.",
+      "conversation": null
+    },
+    {
+      "id": "q0176",
+      "category": "numeric data and comparison",
+      "query": "Give the median installed solar capacity across models for Germany in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0177",
+      "category": "numeric data and comparison",
+      "query": "Give Japan solar electricity generation in 2070.",
+      "conversation": null
+    },
+    {
+      "id": "q0178",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for hydrogen production in Africa in 2035?",
+      "conversation": null
+    },
+    {
+      "id": "q0179",
+      "category": "numeric data and comparison",
+      "query": "Show the range of nuclear electricity generation estimates for France in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0180",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest residential energy use for South Korea in 2100?",
+      "conversation": null
+    },
+    {
+      "id": "q0181",
+      "category": "numeric data and comparison",
+      "query": "How does carbon price in World change from 2030 to 2040?",
+      "conversation": null
+    },
+    {
+      "id": "q0182",
+      "category": "numeric data and comparison",
+      "query": "Show CO2 emissions for Spain under PR_NDC_EI in 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0183",
+      "category": "numeric data and comparison",
+      "query": "Give the median population across models for Nigeria in 2030.",
+      "conversation": null
+    },
+    {
+      "id": "q0184",
+      "category": "numeric data and comparison",
+      "query": "Give EU primary energy from coal in 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q0185",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for installed solar capacity in Italy in 2100?",
+      "conversation": null
+    },
+    {
+      "id": "q0186",
+      "category": "numeric data and comparison",
+      "query": "Show the range of solar electricity generation estimates for South Africa in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0187",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest hydrogen production for China in 2060?",
+      "conversation": null
+    },
+    {
+      "id": "q0188",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for nuclear electricity generation in Greece in 2030.",
+      "conversation": null
+    },
+    {
+      "id": "q0189",
+      "category": "numeric data and comparison",
+      "query": "How does residential energy use in Mexico change from 2030 to 2045?",
+      "conversation": null
+    },
+    {
+      "id": "q0190",
+      "category": "numeric data and comparison",
+      "query": "Show final energy for industry for India under PR_NDC_EI in 2070.",
+      "conversation": null
+    },
+    {
+      "id": "q0191",
+      "category": "numeric data and comparison",
+      "query": "Give the median bioenergy use across models for United States in 2035.",
+      "conversation": null
+    },
+    {
+      "id": "q0192",
+      "category": "numeric data and comparison",
+      "query": "Give Indonesia GDP in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0193",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for methane emissions in Brazil in 2030?",
+      "conversation": null
+    },
+    {
+      "id": "q0194",
+      "category": "numeric data and comparison",
+      "query": "Show the range of electricity demand estimates for Canada in 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q0195",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest primary energy from gas for Australia in 2070?",
+      "conversation": null
+    },
+    {
+      "id": "q0196",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for installed wind capacity in Germany in 2035.",
+      "conversation": null
+    },
+    {
+      "id": "q0197",
+      "category": "numeric data and comparison",
+      "query": "How does wind electricity generation in Japan change from 2030 to 2050?",
+      "conversation": null
+    },
+    {
+      "id": "q0198",
+      "category": "numeric data and comparison",
+      "query": "Show land-use CO2 emissions for Africa under PR_NDC_EI in 2100.",
+      "conversation": null
+    },
+    {
+      "id": "q0199",
+      "category": "numeric data and comparison",
+      "query": "Give the median final energy for transport across models for France in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0200",
+      "category": "numeric data and comparison",
+      "query": "Give South Korea industrial CO2 emissions in 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0201",
+      "category": "numeric data and comparison",
+      "query": "Show the range of GDP estimates for World in 2035.",
+      "conversation": null
+    },
+    {
+      "id": "q0202",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest methane emissions for Spain in 2050?",
+      "conversation": null
+    },
+    {
+      "id": "q0203",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for electricity demand in Nigeria in 2100.",
+      "conversation": null
+    },
+    {
+      "id": "q0204",
+      "category": "numeric data and comparison",
+      "query": "How does primary energy from gas in EU change from 2030 to 2040?",
+      "conversation": null
+    },
+    {
+      "id": "q0205",
+      "category": "numeric data and comparison",
+      "query": "Show installed wind capacity for Italy under PR_NDC_EI in 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0206",
+      "category": "numeric data and comparison",
+      "query": "Give the median wind electricity generation across models for South Africa in 2030.",
+      "conversation": null
+    },
+    {
+      "id": "q0207",
+      "category": "numeric data and comparison",
+      "query": "Give China land-use CO2 emissions in 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q0208",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for final energy for transport in Greece in 2070?",
+      "conversation": null
+    },
+    {
+      "id": "q0209",
+      "category": "numeric data and comparison",
+      "query": "Show the range of industrial CO2 emissions estimates for Mexico in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0210",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest carbon price for India in 2060?",
+      "conversation": null
+    },
+    {
+      "id": "q0211",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for CO2 emissions in United States in 2030.",
+      "conversation": null
+    },
+    {
+      "id": "q0212",
+      "category": "numeric data and comparison",
+      "query": "How does population in Indonesia change from 2030 to 2045?",
+      "conversation": null
+    },
+    {
+      "id": "q0213",
+      "category": "numeric data and comparison",
+      "query": "Show primary energy from coal for Brazil under PR_NDC_EI in 2070.",
+      "conversation": null
+    },
+    {
+      "id": "q0214",
+      "category": "numeric data and comparison",
+      "query": "Give the median installed solar capacity across models for Canada in 2035.",
+      "conversation": null
+    },
+    {
+      "id": "q0215",
+      "category": "numeric data and comparison",
+      "query": "Give Australia solar electricity generation in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0216",
+      "category": "numeric data and comparison",
+      "query": "What value is reported for hydrogen production in Germany in 2100?",
+      "conversation": null
+    },
+    {
+      "id": "q0217",
+      "category": "numeric data and comparison",
+      "query": "Show the range of nuclear electricity generation estimates for Japan in 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q0218",
+      "category": "numeric data and comparison",
+      "query": "Which model reports the highest residential energy use for Africa in 2070?",
+      "conversation": null
+    },
+    {
+      "id": "q0219",
+      "category": "numeric data and comparison",
+      "query": "Compare baseline and policy scenarios for final energy for industry in France in 2035.",
+      "conversation": null
+    },
+    {
+      "id": "q0220",
+      "category": "numeric data and comparison",
+      "query": "How does bioenergy use in South Korea change from 2030 to 2050?",
+      "conversation": null
+    },
+    {
+      "id": "q0221",
+      "category": "model descriptions and methods",
+      "query": "Describe GCAM and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0222",
+      "category": "model descriptions and methods",
+      "query": "Who develops GCAM, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0223",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does GCAM cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0224",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of GCAM?",
+      "conversation": null
+    },
+    {
+      "id": "q0225",
+      "category": "model descriptions and methods",
+      "query": "Describe GCAM 7.0 and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0226",
+      "category": "model descriptions and methods",
+      "query": "Who develops GCAM 7.0, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0227",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does GCAM 7.0 cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0228",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of GCAM 7.0?",
+      "conversation": null
+    },
+    {
+      "id": "q0229",
+      "category": "model descriptions and methods",
+      "query": "Describe GCAM-PR 5.3 and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0230",
+      "category": "model descriptions and methods",
+      "query": "Who develops GCAM-PR 5.3, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0231",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does GCAM-PR 5.3 cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0232",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of GCAM-PR 5.3?",
+      "conversation": null
+    },
+    {
+      "id": "q0233",
+      "category": "model descriptions and methods",
+      "query": "Describe WITCH and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0234",
+      "category": "model descriptions and methods",
+      "query": "Who develops WITCH, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0235",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does WITCH cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0236",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of WITCH?",
+      "conversation": null
+    },
+    {
+      "id": "q0237",
+      "category": "model descriptions and methods",
+      "query": "Describe REMIND and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0238",
+      "category": "model descriptions and methods",
+      "query": "Who develops REMIND, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0239",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does REMIND cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0240",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of REMIND?",
+      "conversation": null
+    },
+    {
+      "id": "q0241",
+      "category": "model descriptions and methods",
+      "query": "Describe REMIND-MFA and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0242",
+      "category": "model descriptions and methods",
+      "query": "Who develops REMIND-MFA, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0243",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does REMIND-MFA cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0244",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of REMIND-MFA?",
+      "conversation": null
+    },
+    {
+      "id": "q0245",
+      "category": "model descriptions and methods",
+      "query": "Describe IMAGE and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0246",
+      "category": "model descriptions and methods",
+      "query": "Who develops IMAGE, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0247",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does IMAGE cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0248",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of IMAGE?",
+      "conversation": null
+    },
+    {
+      "id": "q0249",
+      "category": "model descriptions and methods",
+      "query": "Describe MESSAGEix-GLOBIOM and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0250",
+      "category": "model descriptions and methods",
+      "query": "Who develops MESSAGEix-GLOBIOM, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0251",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does MESSAGEix-GLOBIOM cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0252",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of MESSAGEix-GLOBIOM?",
+      "conversation": null
+    },
+    {
+      "id": "q0253",
+      "category": "model descriptions and methods",
+      "query": "Describe PROMETHEUS and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0254",
+      "category": "model descriptions and methods",
+      "query": "Who develops PROMETHEUS, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0255",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does PROMETHEUS cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0256",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of PROMETHEUS?",
+      "conversation": null
+    },
+    {
+      "id": "q0257",
+      "category": "model descriptions and methods",
+      "query": "Describe MUSE and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0258",
+      "category": "model descriptions and methods",
+      "query": "Who develops MUSE, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0259",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does MUSE cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0260",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of MUSE?",
+      "conversation": null
+    },
+    {
+      "id": "q0261",
+      "category": "model descriptions and methods",
+      "query": "Describe GEM-E3 and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0262",
+      "category": "model descriptions and methods",
+      "query": "Who develops GEM-E3, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0263",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does GEM-E3 cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0264",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of GEM-E3?",
+      "conversation": null
+    },
+    {
+      "id": "q0265",
+      "category": "model descriptions and methods",
+      "query": "Describe E3ME and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0266",
+      "category": "model descriptions and methods",
+      "query": "Who develops E3ME, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0267",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does E3ME cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0268",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of E3ME?",
+      "conversation": null
+    },
+    {
+      "id": "q0269",
+      "category": "model descriptions and methods",
+      "query": "Describe EnergyPLAN and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0270",
+      "category": "model descriptions and methods",
+      "query": "Who develops EnergyPLAN, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0271",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does EnergyPLAN cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0272",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of EnergyPLAN?",
+      "conversation": null
+    },
+    {
+      "id": "q0273",
+      "category": "model descriptions and methods",
+      "query": "Describe LEAP and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0274",
+      "category": "model descriptions and methods",
+      "query": "Who develops LEAP, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0275",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does LEAP cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0276",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of LEAP?",
+      "conversation": null
+    },
+    {
+      "id": "q0277",
+      "category": "model descriptions and methods",
+      "query": "Describe FORECAST and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0278",
+      "category": "model descriptions and methods",
+      "query": "Who develops FORECAST, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0279",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does FORECAST cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0280",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of FORECAST?",
+      "conversation": null
+    },
+    {
+      "id": "q0281",
+      "category": "model descriptions and methods",
+      "query": "Describe OSeMOSYS and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0282",
+      "category": "model descriptions and methods",
+      "query": "Who develops OSeMOSYS, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0283",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does OSeMOSYS cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0284",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of OSeMOSYS?",
+      "conversation": null
+    },
+    {
+      "id": "q0285",
+      "category": "model descriptions and methods",
+      "query": "Describe TIAM and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0286",
+      "category": "model descriptions and methods",
+      "query": "Who develops TIAM, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0287",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does TIAM cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0288",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of TIAM?",
+      "conversation": null
+    },
+    {
+      "id": "q0289",
+      "category": "model descriptions and methods",
+      "query": "Describe ALADIN and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0290",
+      "category": "model descriptions and methods",
+      "query": "Who develops ALADIN, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0291",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does ALADIN cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0292",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of ALADIN?",
+      "conversation": null
+    },
+    {
+      "id": "q0293",
+      "category": "model descriptions and methods",
+      "query": "Describe ATOM and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0294",
+      "category": "model descriptions and methods",
+      "query": "Who develops ATOM, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0295",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does ATOM cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0296",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of ATOM?",
+      "conversation": null
+    },
+    {
+      "id": "q0297",
+      "category": "model descriptions and methods",
+      "query": "Describe PRIMES-Buildings and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0298",
+      "category": "model descriptions and methods",
+      "query": "Who develops PRIMES-Buildings, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0299",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does PRIMES-Buildings cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0300",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of PRIMES-Buildings?",
+      "conversation": null
+    },
+    {
+      "id": "q0301",
+      "category": "model descriptions and methods",
+      "query": "Describe NEMESIS and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0302",
+      "category": "model descriptions and methods",
+      "query": "Who develops NEMESIS, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0303",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does NEMESIS cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0304",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of NEMESIS?",
+      "conversation": null
+    },
+    {
+      "id": "q0305",
+      "category": "model descriptions and methods",
+      "query": "Describe ICES and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0306",
+      "category": "model descriptions and methods",
+      "query": "Who develops ICES, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0307",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does ICES cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0308",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of ICES?",
+      "conversation": null
+    },
+    {
+      "id": "q0309",
+      "category": "model descriptions and methods",
+      "query": "Describe E4SMA-EU-TIMES and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0310",
+      "category": "model descriptions and methods",
+      "query": "Who develops E4SMA-EU-TIMES, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0311",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does E4SMA-EU-TIMES cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0312",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of E4SMA-EU-TIMES?",
+      "conversation": null
+    },
+    {
+      "id": "q0313",
+      "category": "model descriptions and methods",
+      "query": "Describe AIM/Enduse India and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0314",
+      "category": "model descriptions and methods",
+      "query": "Who develops AIM/Enduse India, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0315",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does AIM/Enduse India cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0316",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of AIM/Enduse India?",
+      "conversation": null
+    },
+    {
+      "id": "q0317",
+      "category": "model descriptions and methods",
+      "query": "Describe DREEM and the system boundaries it uses.",
+      "conversation": null
+    },
+    {
+      "id": "q0318",
+      "category": "model descriptions and methods",
+      "query": "Who develops DREEM, and what is its main purpose?",
+      "conversation": null
+    },
+    {
+      "id": "q0319",
+      "category": "model descriptions and methods",
+      "query": "Which sectors and regions does DREEM cover?",
+      "conversation": null
+    },
+    {
+      "id": "q0320",
+      "category": "model descriptions and methods",
+      "query": "What are the documented assumptions and limitations of DREEM?",
+      "conversation": null
+    },
+    {
+      "id": "q0321",
+      "category": "catalogue and coverage",
+      "query": "Which models report CO2 emissions for World?",
+      "conversation": null
+    },
+    {
+      "id": "q0322",
+      "category": "catalogue and coverage",
+      "query": "What scenarios contain primary energy from gas for Spain?",
+      "conversation": null
+    },
+    {
+      "id": "q0323",
+      "category": "catalogue and coverage",
+      "query": "Which studies contain nuclear electricity generation results for Nigeria?",
+      "conversation": null
+    },
+    {
+      "id": "q0324",
+      "category": "catalogue and coverage",
+      "query": "What is the latest available year for carbon price in EU?",
+      "conversation": null
+    },
+    {
+      "id": "q0325",
+      "category": "catalogue and coverage",
+      "query": "List the model versions that report electricity demand in Italy.",
+      "conversation": null
+    },
+    {
+      "id": "q0326",
+      "category": "catalogue and coverage",
+      "query": "How many models have hydrogen production data for South Africa?",
+      "conversation": null
+    },
+    {
+      "id": "q0327",
+      "category": "catalogue and coverage",
+      "query": "Which models report bioenergy use for China?",
+      "conversation": null
+    },
+    {
+      "id": "q0328",
+      "category": "catalogue and coverage",
+      "query": "What scenarios contain primary energy from coal for Greece?",
+      "conversation": null
+    },
+    {
+      "id": "q0329",
+      "category": "catalogue and coverage",
+      "query": "Which studies contain wind electricity generation results for Mexico?",
+      "conversation": null
+    },
+    {
+      "id": "q0330",
+      "category": "catalogue and coverage",
+      "query": "What is the latest available year for final energy for industry in India?",
+      "conversation": null
+    },
+    {
+      "id": "q0331",
+      "category": "catalogue and coverage",
+      "query": "List the model versions that report population in United States.",
+      "conversation": null
+    },
+    {
+      "id": "q0332",
+      "category": "catalogue and coverage",
+      "query": "How many models have installed wind capacity data for Indonesia?",
+      "conversation": null
+    },
+    {
+      "id": "q0333",
+      "category": "catalogue and coverage",
+      "query": "Which models report industrial CO2 emissions for Brazil?",
+      "conversation": null
+    },
+    {
+      "id": "q0334",
+      "category": "catalogue and coverage",
+      "query": "What scenarios contain methane emissions for Canada?",
+      "conversation": null
+    },
+    {
+      "id": "q0335",
+      "category": "catalogue and coverage",
+      "query": "Which studies contain solar electricity generation results for Australia?",
+      "conversation": null
+    },
+    {
+      "id": "q0336",
+      "category": "catalogue and coverage",
+      "query": "What is the latest available year for final energy for transport in Germany?",
+      "conversation": null
+    },
+    {
+      "id": "q0337",
+      "category": "catalogue and coverage",
+      "query": "List the model versions that report GDP in Japan.",
+      "conversation": null
+    },
+    {
+      "id": "q0338",
+      "category": "catalogue and coverage",
+      "query": "How many models have installed solar capacity data for Africa?",
+      "conversation": null
+    },
+    {
+      "id": "q0339",
+      "category": "catalogue and coverage",
+      "query": "Which models report residential energy use for France?",
+      "conversation": null
+    },
+    {
+      "id": "q0340",
+      "category": "catalogue and coverage",
+      "query": "What scenarios contain CO2 emissions for South Korea?",
+      "conversation": null
+    },
+    {
+      "id": "q0341",
+      "category": "catalogue and coverage",
+      "query": "Which studies contain primary energy from gas results for EU?",
+      "conversation": null
+    },
+    {
+      "id": "q0342",
+      "category": "catalogue and coverage",
+      "query": "What is the latest available year for nuclear electricity generation in Italy?",
+      "conversation": null
+    },
+    {
+      "id": "q0343",
+      "category": "catalogue and coverage",
+      "query": "List the model versions that report carbon price in South Africa.",
+      "conversation": null
+    },
+    {
+      "id": "q0344",
+      "category": "catalogue and coverage",
+      "query": "How many models have electricity demand data for China?",
+      "conversation": null
+    },
+    {
+      "id": "q0345",
+      "category": "catalogue and coverage",
+      "query": "Which models report land-use CO2 emissions for Greece?",
+      "conversation": null
+    },
+    {
+      "id": "q0346",
+      "category": "catalogue and coverage",
+      "query": "What scenarios contain bioenergy use for Mexico?",
+      "conversation": null
+    },
+    {
+      "id": "q0347",
+      "category": "catalogue and coverage",
+      "query": "Which studies contain primary energy from coal results for India?",
+      "conversation": null
+    },
+    {
+      "id": "q0348",
+      "category": "catalogue and coverage",
+      "query": "What is the latest available year for wind electricity generation in United States?",
+      "conversation": null
+    },
+    {
+      "id": "q0349",
+      "category": "catalogue and coverage",
+      "query": "List the model versions that report final energy for industry in Indonesia.",
+      "conversation": null
+    },
+    {
+      "id": "q0350",
+      "category": "catalogue and coverage",
+      "query": "How many models have population data for Brazil?",
+      "conversation": null
+    },
+    {
+      "id": "q0351",
+      "category": "catalogue and coverage",
+      "query": "Which models report hydrogen production for Canada?",
+      "conversation": null
+    },
+    {
+      "id": "q0352",
+      "category": "catalogue and coverage",
+      "query": "What scenarios contain industrial CO2 emissions for Australia?",
+      "conversation": null
+    },
+    {
+      "id": "q0353",
+      "category": "catalogue and coverage",
+      "query": "Which studies contain methane emissions results for Germany?",
+      "conversation": null
+    },
+    {
+      "id": "q0354",
+      "category": "catalogue and coverage",
+      "query": "What is the latest available year for solar electricity generation in Japan?",
+      "conversation": null
+    },
+    {
+      "id": "q0355",
+      "category": "catalogue and coverage",
+      "query": "List the model versions that report final energy for transport in Africa.",
+      "conversation": null
+    },
+    {
+      "id": "q0356",
+      "category": "catalogue and coverage",
+      "query": "How many models have GDP data for France?",
+      "conversation": null
+    },
+    {
+      "id": "q0357",
+      "category": "catalogue and coverage",
+      "query": "Which models report installed wind capacity for South Korea?",
+      "conversation": null
+    },
+    {
+      "id": "q0358",
+      "category": "catalogue and coverage",
+      "query": "What scenarios contain residential energy use for World?",
+      "conversation": null
+    },
+    {
+      "id": "q0359",
+      "category": "catalogue and coverage",
+      "query": "Which studies contain CO2 emissions results for Spain?",
+      "conversation": null
+    },
+    {
+      "id": "q0360",
+      "category": "catalogue and coverage",
+      "query": "What is the latest available year for primary energy from gas in Nigeria?",
+      "conversation": null
+    },
+    {
+      "id": "q0361",
+      "category": "catalogue and coverage",
+      "query": "List the model versions that report nuclear electricity generation in China.",
+      "conversation": null
+    },
+    {
+      "id": "q0362",
+      "category": "catalogue and coverage",
+      "query": "How many models have carbon price data for Greece?",
+      "conversation": null
+    },
+    {
+      "id": "q0363",
+      "category": "catalogue and coverage",
+      "query": "Which models report installed solar capacity for Mexico?",
+      "conversation": null
+    },
+    {
+      "id": "q0364",
+      "category": "catalogue and coverage",
+      "query": "What scenarios contain land-use CO2 emissions for India?",
+      "conversation": null
+    },
+    {
+      "id": "q0365",
+      "category": "catalogue and coverage",
+      "query": "Which studies contain bioenergy use results for United States?",
+      "conversation": null
+    },
+    {
+      "id": "q0366",
+      "category": "catalogue and coverage",
+      "query": "What is the latest available year for primary energy from coal in Indonesia?",
+      "conversation": null
+    },
+    {
+      "id": "q0367",
+      "category": "catalogue and coverage",
+      "query": "List the model versions that report wind electricity generation in Brazil.",
+      "conversation": null
+    },
+    {
+      "id": "q0368",
+      "category": "catalogue and coverage",
+      "query": "How many models have final energy for industry data for Canada?",
+      "conversation": null
+    },
+    {
+      "id": "q0369",
+      "category": "catalogue and coverage",
+      "query": "Which models report electricity demand for Australia?",
+      "conversation": null
+    },
+    {
+      "id": "q0370",
+      "category": "catalogue and coverage",
+      "query": "What scenarios contain hydrogen production for Germany?",
+      "conversation": null
+    },
+    {
+      "id": "q0371",
+      "category": "catalogue and coverage",
+      "query": "Which studies contain industrial CO2 emissions results for Japan?",
+      "conversation": null
+    },
+    {
+      "id": "q0372",
+      "category": "catalogue and coverage",
+      "query": "What is the latest available year for methane emissions in Africa?",
+      "conversation": null
+    },
+    {
+      "id": "q0373",
+      "category": "catalogue and coverage",
+      "query": "List the model versions that report solar electricity generation in France.",
+      "conversation": null
+    },
+    {
+      "id": "q0374",
+      "category": "catalogue and coverage",
+      "query": "How many models have final energy for transport data for South Korea?",
+      "conversation": null
+    },
+    {
+      "id": "q0375",
+      "category": "catalogue and coverage",
+      "query": "Which models report population for World?",
+      "conversation": null
+    },
+    {
+      "id": "q0376",
+      "category": "catalogue and coverage",
+      "query": "What scenarios contain installed wind capacity for Spain?",
+      "conversation": null
+    },
+    {
+      "id": "q0377",
+      "category": "catalogue and coverage",
+      "query": "Which studies contain residential energy use results for Nigeria?",
+      "conversation": null
+    },
+    {
+      "id": "q0378",
+      "category": "catalogue and coverage",
+      "query": "What is the latest available year for CO2 emissions in EU?",
+      "conversation": null
+    },
+    {
+      "id": "q0379",
+      "category": "catalogue and coverage",
+      "query": "List the model versions that report primary energy from gas in Italy.",
+      "conversation": null
+    },
+    {
+      "id": "q0380",
+      "category": "catalogue and coverage",
+      "query": "How many models have nuclear electricity generation data for South Africa?",
+      "conversation": null
+    },
+    {
+      "id": "q0381",
+      "category": "catalogue and coverage",
+      "query": "Which models report GDP for India?",
+      "conversation": null
+    },
+    {
+      "id": "q0382",
+      "category": "catalogue and coverage",
+      "query": "What scenarios contain installed solar capacity for United States?",
+      "conversation": null
+    },
+    {
+      "id": "q0383",
+      "category": "catalogue and coverage",
+      "query": "Which studies contain land-use CO2 emissions results for Indonesia?",
+      "conversation": null
+    },
+    {
+      "id": "q0384",
+      "category": "catalogue and coverage",
+      "query": "What is the latest available year for bioenergy use in Brazil?",
+      "conversation": null
+    },
+    {
+      "id": "q0385",
+      "category": "catalogue and coverage",
+      "query": "List the model versions that report primary energy from coal in Canada.",
+      "conversation": null
+    },
+    {
+      "id": "q0386",
+      "category": "catalogue and coverage",
+      "query": "How many models have wind electricity generation data for Australia?",
+      "conversation": null
+    },
+    {
+      "id": "q0387",
+      "category": "catalogue and coverage",
+      "query": "Which models report carbon price for Germany?",
+      "conversation": null
+    },
+    {
+      "id": "q0388",
+      "category": "catalogue and coverage",
+      "query": "What scenarios contain electricity demand for Japan?",
+      "conversation": null
+    },
+    {
+      "id": "q0389",
+      "category": "catalogue and coverage",
+      "query": "Which studies contain hydrogen production results for Africa?",
+      "conversation": null
+    },
+    {
+      "id": "q0390",
+      "category": "catalogue and coverage",
+      "query": "What is the latest available year for industrial CO2 emissions in France?",
+      "conversation": null
+    },
+    {
+      "id": "q0391",
+      "category": "catalogue and coverage",
+      "query": "List the model versions that report methane emissions in South Korea.",
+      "conversation": null
+    },
+    {
+      "id": "q0392",
+      "category": "catalogue and coverage",
+      "query": "How many models have solar electricity generation data for World?",
+      "conversation": null
+    },
+    {
+      "id": "q0393",
+      "category": "catalogue and coverage",
+      "query": "Which models report final energy for industry for Spain?",
+      "conversation": null
+    },
+    {
+      "id": "q0394",
+      "category": "catalogue and coverage",
+      "query": "What scenarios contain population for Nigeria?",
+      "conversation": null
+    },
+    {
+      "id": "q0395",
+      "category": "catalogue and coverage",
+      "query": "Which studies contain installed wind capacity results for EU?",
+      "conversation": null
+    },
+    {
+      "id": "q0396",
+      "category": "catalogue and coverage",
+      "query": "What is the latest available year for residential energy use in Italy?",
+      "conversation": null
+    },
+    {
+      "id": "q0397",
+      "category": "catalogue and coverage",
+      "query": "List the model versions that report CO2 emissions in South Africa.",
+      "conversation": null
+    },
+    {
+      "id": "q0398",
+      "category": "catalogue and coverage",
+      "query": "How many models have primary energy from gas data for China?",
+      "conversation": null
+    },
+    {
+      "id": "q0399",
+      "category": "catalogue and coverage",
+      "query": "Which models report final energy for transport for Greece?",
+      "conversation": null
+    },
+    {
+      "id": "q0400",
+      "category": "catalogue and coverage",
+      "query": "What scenarios contain GDP for Mexico?",
+      "conversation": null
+    },
+    {
+      "id": "q0401",
+      "category": "catalogue and coverage",
+      "query": "Which studies contain installed solar capacity results for Brazil?",
+      "conversation": null
+    },
+    {
+      "id": "q0402",
+      "category": "catalogue and coverage",
+      "query": "What is the latest available year for land-use CO2 emissions in Canada?",
+      "conversation": null
+    },
+    {
+      "id": "q0403",
+      "category": "catalogue and coverage",
+      "query": "List the model versions that report bioenergy use in Australia.",
+      "conversation": null
+    },
+    {
+      "id": "q0404",
+      "category": "catalogue and coverage",
+      "query": "How many models have primary energy from coal data for Germany?",
+      "conversation": null
+    },
+    {
+      "id": "q0405",
+      "category": "catalogue and coverage",
+      "query": "Which models report nuclear electricity generation for Japan?",
+      "conversation": null
+    },
+    {
+      "id": "q0406",
+      "category": "catalogue and coverage",
+      "query": "What scenarios contain carbon price for Africa?",
+      "conversation": null
+    },
+    {
+      "id": "q0407",
+      "category": "catalogue and coverage",
+      "query": "Which studies contain electricity demand results for France?",
+      "conversation": null
+    },
+    {
+      "id": "q0408",
+      "category": "catalogue and coverage",
+      "query": "What is the latest available year for hydrogen production in South Korea?",
+      "conversation": null
+    },
+    {
+      "id": "q0409",
+      "category": "catalogue and coverage",
+      "query": "List the model versions that report industrial CO2 emissions in World.",
+      "conversation": null
+    },
+    {
+      "id": "q0410",
+      "category": "catalogue and coverage",
+      "query": "How many models have methane emissions data for Spain?",
+      "conversation": null
+    },
+    {
+      "id": "q0411",
+      "category": "catalogue and coverage",
+      "query": "Which models report wind electricity generation for Nigeria?",
+      "conversation": null
+    },
+    {
+      "id": "q0412",
+      "category": "catalogue and coverage",
+      "query": "What scenarios contain final energy for industry for EU?",
+      "conversation": null
+    },
+    {
+      "id": "q0413",
+      "category": "catalogue and coverage",
+      "query": "Which studies contain population results for Italy?",
+      "conversation": null
+    },
+    {
+      "id": "q0414",
+      "category": "catalogue and coverage",
+      "query": "What is the latest available year for installed wind capacity in South Africa?",
+      "conversation": null
+    },
+    {
+      "id": "q0415",
+      "category": "catalogue and coverage",
+      "query": "List the model versions that report residential energy use in China.",
+      "conversation": null
+    },
+    {
+      "id": "q0416",
+      "category": "catalogue and coverage",
+      "query": "How many models have CO2 emissions data for Greece?",
+      "conversation": null
+    },
+    {
+      "id": "q0417",
+      "category": "catalogue and coverage",
+      "query": "Which models report solar electricity generation for Mexico?",
+      "conversation": null
+    },
+    {
+      "id": "q0418",
+      "category": "catalogue and coverage",
+      "query": "What scenarios contain final energy for transport for India?",
+      "conversation": null
+    },
+    {
+      "id": "q0419",
+      "category": "catalogue and coverage",
+      "query": "Which studies contain GDP results for United States?",
+      "conversation": null
+    },
+    {
+      "id": "q0420",
+      "category": "catalogue and coverage",
+      "query": "What is the latest available year for installed solar capacity in Indonesia?",
+      "conversation": null
+    },
+    {
+      "id": "q0421",
+      "category": "catalogue and coverage",
+      "query": "List the model versions that report land-use CO2 emissions in Germany.",
+      "conversation": null
+    },
+    {
+      "id": "q0422",
+      "category": "catalogue and coverage",
+      "query": "How many models have bioenergy use data for Japan?",
+      "conversation": null
+    },
+    {
+      "id": "q0423",
+      "category": "catalogue and coverage",
+      "query": "Which models report primary energy from gas for Africa?",
+      "conversation": null
+    },
+    {
+      "id": "q0424",
+      "category": "catalogue and coverage",
+      "query": "What scenarios contain nuclear electricity generation for France?",
+      "conversation": null
+    },
+    {
+      "id": "q0425",
+      "category": "catalogue and coverage",
+      "query": "Which studies contain carbon price results for South Korea?",
+      "conversation": null
+    },
+    {
+      "id": "q0426",
+      "category": "catalogue and coverage",
+      "query": "What is the latest available year for electricity demand in World?",
+      "conversation": null
+    },
+    {
+      "id": "q0427",
+      "category": "catalogue and coverage",
+      "query": "List the model versions that report hydrogen production in Spain.",
+      "conversation": null
+    },
+    {
+      "id": "q0428",
+      "category": "catalogue and coverage",
+      "query": "How many models have industrial CO2 emissions data for Nigeria?",
+      "conversation": null
+    },
+    {
+      "id": "q0429",
+      "category": "catalogue and coverage",
+      "query": "Which models report primary energy from coal for EU?",
+      "conversation": null
+    },
+    {
+      "id": "q0430",
+      "category": "catalogue and coverage",
+      "query": "What scenarios contain wind electricity generation for Italy?",
+      "conversation": null
+    },
+    {
+      "id": "q0431",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between a carbon budget and an annual CO2 target in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0432",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing a carbon budget and an annual CO2 target when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0433",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between a carbon budget and an annual CO2 target matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0434",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how a carbon budget and an annual CO2 target could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0435",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between gross emissions and net emissions in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0436",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing gross emissions and net emissions when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0437",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between gross emissions and net emissions matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0438",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how gross emissions and net emissions could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0439",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between installed power capacity and generated electricity in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0440",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing installed power capacity and generated electricity when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0441",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between installed power capacity and generated electricity matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0442",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how installed power capacity and generated electricity could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0443",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between primary energy and final energy in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0444",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing primary energy and final energy when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0445",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between primary energy and final energy matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0446",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how primary energy and final energy could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0447",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between a baseline scenario and a forecast in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0448",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing a baseline scenario and a forecast when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0449",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between a baseline scenario and a forecast matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0450",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how a baseline scenario and a forecast could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0451",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between a carbon price and a carbon tax in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0452",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing a carbon price and a carbon tax when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0453",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between a carbon price and a carbon tax matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0454",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how a carbon price and a carbon tax could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0455",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between negative emissions and avoided emissions in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0456",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing negative emissions and avoided emissions when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0457",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between negative emissions and avoided emissions matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0458",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how negative emissions and avoided emissions could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0459",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between a model projection and an observation in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0460",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing a model projection and an observation when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0461",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between a model projection and an observation matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0462",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how a model projection and an observation could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0463",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between land-use emissions and fossil-fuel emissions in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0464",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing land-use emissions and fossil-fuel emissions when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0465",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between land-use emissions and fossil-fuel emissions matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0466",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how land-use emissions and fossil-fuel emissions could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0467",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between a scenario assumption and a model parameter in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0468",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing a scenario assumption and a model parameter when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0469",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between a scenario assumption and a model parameter matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0470",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how a scenario assumption and a model parameter could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0471",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between a model ensemble median and a single-model value in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0472",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing a model ensemble median and a single-model value when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0473",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between a model ensemble median and a single-model value matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0474",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how a model ensemble median and a single-model value could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0475",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between current policies and announced pledges in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0476",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing current policies and announced pledges when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0477",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between current policies and announced pledges matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0478",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how current policies and announced pledges could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0479",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between an NDC pathway and a net-zero pathway in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0480",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing an NDC pathway and a net-zero pathway when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0481",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between an NDC pathway and a net-zero pathway matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0482",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how an NDC pathway and a net-zero pathway could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0483",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between direct air capture and bioenergy with CCS in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0484",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing direct air capture and bioenergy with CCS when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0485",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between direct air capture and bioenergy with CCS matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0486",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how direct air capture and bioenergy with CCS could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0487",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between a regional aggregate and a country result in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0488",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing a regional aggregate and a country result when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0489",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between a regional aggregate and a country result matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0490",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how a regional aggregate and a country result could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0491",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between energy efficiency and energy intensity in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0492",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing energy efficiency and energy intensity when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0493",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between energy efficiency and energy intensity matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0494",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how energy efficiency and energy intensity could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0495",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between fuel switching and demand reduction in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0496",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing fuel switching and demand reduction when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0497",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between fuel switching and demand reduction matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0498",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how fuel switching and demand reduction could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0499",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between climate neutrality and net-zero CO2 in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0500",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing climate neutrality and net-zero CO2 when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0501",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between climate neutrality and net-zero CO2 matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0502",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how climate neutrality and net-zero CO2 could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0503",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between a historical calibration and a future projection in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0504",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing a historical calibration and a future projection when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0505",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between a historical calibration and a future projection matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0506",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how a historical calibration and a future projection could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0507",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between a price in current dollars and constant dollars in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0508",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing a price in current dollars and constant dollars when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0509",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between a price in current dollars and constant dollars matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0510",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how a price in current dollars and constant dollars could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0511",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between renewable generation and renewable capacity in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0512",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing renewable generation and renewable capacity when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0513",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between renewable generation and renewable capacity matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0514",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how renewable generation and renewable capacity could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0515",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between carbon removal and carbon capture in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0516",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing carbon removal and carbon capture when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0517",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between carbon removal and carbon capture matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0518",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how carbon removal and carbon capture could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0519",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between a technology cost and a system cost in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0520",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing a technology cost and a system cost when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0521",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between a technology cost and a system cost matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0522",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how a technology cost and a system cost could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0523",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between uncertainty across scenarios and uncertainty across models in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0524",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing uncertainty across scenarios and uncertainty across models when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0525",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between uncertainty across scenarios and uncertainty across models matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0526",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how uncertainty across scenarios and uncertainty across models could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0527",
+      "category": "conceptual explanation",
+      "query": "Explain the difference between economic output and welfare cost in IAM results.",
+      "conversation": null
+    },
+    {
+      "id": "q0528",
+      "category": "conceptual explanation",
+      "query": "How can I avoid confusing economic output and welfare cost when reading a results table?",
+      "conversation": null
+    },
+    {
+      "id": "q0529",
+      "category": "conceptual explanation",
+      "query": "Why does the distinction between economic output and welfare cost matter for climate-policy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q0530",
+      "category": "conceptual explanation",
+      "query": "Give a short example showing how economic output and welfare cost could lead to different interpretations.",
+      "conversation": null
+    },
+    {
+      "id": "q0531",
+      "category": "navigation and documentation",
+      "query": "Where is the models directory on IAM PARIS?",
+      "conversation": null
+    },
+    {
+      "id": "q0532",
+      "category": "navigation and documentation",
+      "query": "Provide a direct link to the models directory.",
+      "conversation": null
+    },
+    {
+      "id": "q0533",
+      "category": "navigation and documentation",
+      "query": "How do I open the models directory from the site?",
+      "conversation": null
+    },
+    {
+      "id": "q0534",
+      "category": "navigation and documentation",
+      "query": "Can you point me to documentation for the models directory?",
+      "conversation": null
+    },
+    {
+      "id": "q0535",
+      "category": "navigation and documentation",
+      "query": "Where is the model comparison page on IAM PARIS?",
+      "conversation": null
+    },
+    {
+      "id": "q0536",
+      "category": "navigation and documentation",
+      "query": "Provide a direct link to the model comparison page.",
+      "conversation": null
+    },
+    {
+      "id": "q0537",
+      "category": "navigation and documentation",
+      "query": "How do I open the model comparison page from the site?",
+      "conversation": null
+    },
+    {
+      "id": "q0538",
+      "category": "navigation and documentation",
+      "query": "Can you point me to documentation for the model comparison page?",
+      "conversation": null
+    },
+    {
+      "id": "q0539",
+      "category": "navigation and documentation",
+      "query": "Where is the Results home page on IAM PARIS?",
+      "conversation": null
+    },
+    {
+      "id": "q0540",
+      "category": "navigation and documentation",
+      "query": "Provide a direct link to the Results home page.",
+      "conversation": null
+    },
+    {
+      "id": "q0541",
+      "category": "navigation and documentation",
+      "query": "How do I open the Results home page from the site?",
+      "conversation": null
+    },
+    {
+      "id": "q0542",
+      "category": "navigation and documentation",
+      "query": "Can you point me to documentation for the Results home page?",
+      "conversation": null
+    },
+    {
+      "id": "q0543",
+      "category": "navigation and documentation",
+      "query": "Where is the NDC ASPECTS results on IAM PARIS?",
+      "conversation": null
+    },
+    {
+      "id": "q0544",
+      "category": "navigation and documentation",
+      "query": "Provide a direct link to the NDC ASPECTS results.",
+      "conversation": null
+    },
+    {
+      "id": "q0545",
+      "category": "navigation and documentation",
+      "query": "How do I open the NDC ASPECTS results from the site?",
+      "conversation": null
+    },
+    {
+      "id": "q0546",
+      "category": "navigation and documentation",
+      "query": "Can you point me to documentation for the NDC ASPECTS results?",
+      "conversation": null
+    },
+    {
+      "id": "q0547",
+      "category": "navigation and documentation",
+      "query": "Where is the IAM COMPACT results on IAM PARIS?",
+      "conversation": null
+    },
+    {
+      "id": "q0548",
+      "category": "navigation and documentation",
+      "query": "Provide a direct link to the IAM COMPACT results.",
+      "conversation": null
+    },
+    {
+      "id": "q0549",
+      "category": "navigation and documentation",
+      "query": "How do I open the IAM COMPACT results from the site?",
+      "conversation": null
+    },
+    {
+      "id": "q0550",
+      "category": "navigation and documentation",
+      "query": "Can you point me to documentation for the IAM COMPACT results?",
+      "conversation": null
+    },
+    {
+      "id": "q0551",
+      "category": "navigation and documentation",
+      "query": "Where is the data stories index on IAM PARIS?",
+      "conversation": null
+    },
+    {
+      "id": "q0552",
+      "category": "navigation and documentation",
+      "query": "Provide a direct link to the data stories index.",
+      "conversation": null
+    },
+    {
+      "id": "q0553",
+      "category": "navigation and documentation",
+      "query": "How do I open the data stories index from the site?",
+      "conversation": null
+    },
+    {
+      "id": "q0554",
+      "category": "navigation and documentation",
+      "query": "Can you point me to documentation for the data stories index?",
+      "conversation": null
+    },
+    {
+      "id": "q0555",
+      "category": "navigation and documentation",
+      "query": "Where is the application library on IAM PARIS?",
+      "conversation": null
+    },
+    {
+      "id": "q0556",
+      "category": "navigation and documentation",
+      "query": "Provide a direct link to the application library.",
+      "conversation": null
+    },
+    {
+      "id": "q0557",
+      "category": "navigation and documentation",
+      "query": "How do I open the application library from the site?",
+      "conversation": null
+    },
+    {
+      "id": "q0558",
+      "category": "navigation and documentation",
+      "query": "Can you point me to documentation for the application library?",
+      "conversation": null
+    },
+    {
+      "id": "q0559",
+      "category": "navigation and documentation",
+      "query": "Provide a direct link to the policy catalogue.",
+      "conversation": null
+    },
+    {
+      "id": "q0560",
+      "category": "navigation and documentation",
+      "query": "How do I open the policy catalogue from the site?",
+      "conversation": null
+    },
+    {
+      "id": "q0561",
+      "category": "navigation and documentation",
+      "query": "Can you point me to documentation for the policy catalogue?",
+      "conversation": null
+    },
+    {
+      "id": "q0562",
+      "category": "navigation and documentation",
+      "query": "Where is the configurable analysis page on IAM PARIS?",
+      "conversation": null
+    },
+    {
+      "id": "q0563",
+      "category": "navigation and documentation",
+      "query": "Provide a direct link to the configurable analysis page.",
+      "conversation": null
+    },
+    {
+      "id": "q0564",
+      "category": "navigation and documentation",
+      "query": "How do I open the configurable analysis page from the site?",
+      "conversation": null
+    },
+    {
+      "id": "q0565",
+      "category": "navigation and documentation",
+      "query": "Can you point me to documentation for the configurable analysis page?",
+      "conversation": null
+    },
+    {
+      "id": "q0566",
+      "category": "navigation and documentation",
+      "query": "Where is the contact page on IAM PARIS?",
+      "conversation": null
+    },
+    {
+      "id": "q0567",
+      "category": "navigation and documentation",
+      "query": "Provide a direct link to the contact page.",
+      "conversation": null
+    },
+    {
+      "id": "q0568",
+      "category": "navigation and documentation",
+      "query": "How do I open the contact page from the site?",
+      "conversation": null
+    },
+    {
+      "id": "q0569",
+      "category": "navigation and documentation",
+      "query": "Can you point me to documentation for the contact page?",
+      "conversation": null
+    },
+    {
+      "id": "q0570",
+      "category": "navigation and documentation",
+      "query": "Where is the Aqueduct entry on IAM PARIS?",
+      "conversation": null
+    },
+    {
+      "id": "q0571",
+      "category": "navigation and documentation",
+      "query": "Provide a direct link to the Aqueduct entry.",
+      "conversation": null
+    },
+    {
+      "id": "q0572",
+      "category": "navigation and documentation",
+      "query": "How do I open the Aqueduct entry from the site?",
+      "conversation": null
+    },
+    {
+      "id": "q0573",
+      "category": "navigation and documentation",
+      "query": "Can you point me to documentation for the Aqueduct entry?",
+      "conversation": null
+    },
+    {
+      "id": "q0574",
+      "category": "navigation and documentation",
+      "query": "Where is the Climate Watch entry on IAM PARIS?",
+      "conversation": null
+    },
+    {
+      "id": "q0575",
+      "category": "navigation and documentation",
+      "query": "Provide a direct link to the Climate Watch entry.",
+      "conversation": null
+    },
+    {
+      "id": "q0576",
+      "category": "navigation and documentation",
+      "query": "How do I open the Climate Watch entry from the site?",
+      "conversation": null
+    },
+    {
+      "id": "q0577",
+      "category": "navigation and documentation",
+      "query": "Can you point me to documentation for the Climate Watch entry?",
+      "conversation": null
+    },
+    {
+      "id": "q0578",
+      "category": "navigation and documentation",
+      "query": "Where is the EU path to net zero study on IAM PARIS?",
+      "conversation": null
+    },
+    {
+      "id": "q0579",
+      "category": "navigation and documentation",
+      "query": "Provide a direct link to the EU path to net zero study.",
+      "conversation": null
+    },
+    {
+      "id": "q0580",
+      "category": "navigation and documentation",
+      "query": "How do I open the EU path to net zero study from the site?",
+      "conversation": null
+    },
+    {
+      "id": "q0581",
+      "category": "navigation and documentation",
+      "query": "Can you point me to documentation for the EU path to net zero study?",
+      "conversation": null
+    },
+    {
+      "id": "q0582",
+      "category": "navigation and documentation",
+      "query": "Where is the Post-Glasgow targets study on IAM PARIS?",
+      "conversation": null
+    },
+    {
+      "id": "q0583",
+      "category": "navigation and documentation",
+      "query": "Provide a direct link to the Post-Glasgow targets study.",
+      "conversation": null
+    },
+    {
+      "id": "q0584",
+      "category": "navigation and documentation",
+      "query": "How do I open the Post-Glasgow targets study from the site?",
+      "conversation": null
+    },
+    {
+      "id": "q0585",
+      "category": "navigation and documentation",
+      "query": "Can you point me to documentation for the Post-Glasgow targets study?",
+      "conversation": null
+    },
+    {
+      "id": "q0586",
+      "category": "navigation and documentation",
+      "query": "Where is the GCAM model profile on IAM PARIS?",
+      "conversation": null
+    },
+    {
+      "id": "q0587",
+      "category": "navigation and documentation",
+      "query": "Provide a direct link to the GCAM model profile.",
+      "conversation": null
+    },
+    {
+      "id": "q0588",
+      "category": "navigation and documentation",
+      "query": "How do I open the GCAM model profile from the site?",
+      "conversation": null
+    },
+    {
+      "id": "q0589",
+      "category": "navigation and documentation",
+      "query": "Can you point me to documentation for the GCAM model profile?",
+      "conversation": null
+    },
+    {
+      "id": "q0590",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for World without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0591",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for World CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0592",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called World-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0593",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for EU without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0594",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for EU CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0595",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called EU-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0596",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for China without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0597",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for China CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0598",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called China-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0599",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for India without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0600",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for India CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0601",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called India-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0602",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for Brazil without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0603",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for Brazil CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0604",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called Brazil-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0605",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for Germany without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0606",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for Germany CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0607",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called Germany-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0608",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for France without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0609",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for France CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0610",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called France-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0611",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for Spain without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0612",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for Spain CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0613",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called Spain-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0614",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for Italy without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0615",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for Italy CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0616",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called Italy-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0617",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for Greece without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0618",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for Greece CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0619",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called Greece-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0620",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for United States without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0621",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for United States CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0622",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called United States-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0623",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for Canada without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0624",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for Canada CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0625",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called Canada-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0626",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for Japan without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0627",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for Japan CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0628",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called Japan-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0629",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for South Korea without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0630",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for South Korea CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0631",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called South Korea-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0632",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for Nigeria without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0633",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for Nigeria CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0634",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called Nigeria-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0635",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for South Africa without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0636",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for South Africa CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0637",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called South Africa-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0638",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for Mexico without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0639",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for Mexico CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0640",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called Mexico-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0641",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for Indonesia without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0642",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for Indonesia CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0643",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called Indonesia-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0644",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for Australia without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0645",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for Australia CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0646",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called Australia-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0647",
+      "category": "ambiguity and recovery",
+      "query": "Show the latest results for Africa without choosing a variable.",
+      "conversation": null
+    },
+    {
+      "id": "q0648",
+      "category": "ambiguity and recovery",
+      "query": "Use the imaginary scenario Silver Horizon for Africa CO2 in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0649",
+      "category": "ambiguity and recovery",
+      "query": "What data exists for a fictional region called Africa-X?",
+      "conversation": null
+    },
+    {
+      "id": "q0650",
+      "category": "charts and visualization",
+      "query": "Plot CO2 emissions for World from 2030 to 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0651",
+      "category": "charts and visualization",
+      "query": "Compare primary energy from gas between Spain and World in a chart.",
+      "conversation": null
+    },
+    {
+      "id": "q0652",
+      "category": "charts and visualization",
+      "query": "Make a bar chart of nuclear electricity generation for Nigeria in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0653",
+      "category": "charts and visualization",
+      "query": "Where can I visualize carbon price for EU?",
+      "conversation": null
+    },
+    {
+      "id": "q0654",
+      "category": "charts and visualization",
+      "query": "Graph the annual trend of electricity demand for Italy through 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0655",
+      "category": "charts and visualization",
+      "query": "Plot hydrogen production for Mexico from 2030 to 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0656",
+      "category": "charts and visualization",
+      "query": "Compare industrial CO2 emissions between India and World in a chart.",
+      "conversation": null
+    },
+    {
+      "id": "q0657",
+      "category": "charts and visualization",
+      "query": "Make a bar chart of methane emissions for United States in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0658",
+      "category": "charts and visualization",
+      "query": "Where can I visualize solar electricity generation for Indonesia?",
+      "conversation": null
+    },
+    {
+      "id": "q0659",
+      "category": "charts and visualization",
+      "query": "Graph the annual trend of final energy for transport for Brazil through 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0660",
+      "category": "charts and visualization",
+      "query": "Plot GDP for Japan from 2030 to 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0661",
+      "category": "charts and visualization",
+      "query": "Compare installed solar capacity between Africa and World in a chart.",
+      "conversation": null
+    },
+    {
+      "id": "q0662",
+      "category": "charts and visualization",
+      "query": "Make a bar chart of land-use CO2 emissions for France in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0663",
+      "category": "charts and visualization",
+      "query": "Where can I visualize bioenergy use for South Korea?",
+      "conversation": null
+    },
+    {
+      "id": "q0664",
+      "category": "charts and visualization",
+      "query": "Graph the annual trend of primary energy from coal for World through 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0665",
+      "category": "charts and visualization",
+      "query": "Plot wind electricity generation for Italy from 2030 to 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0666",
+      "category": "charts and visualization",
+      "query": "Compare final energy for industry between South Africa and World in a chart.",
+      "conversation": null
+    },
+    {
+      "id": "q0667",
+      "category": "charts and visualization",
+      "query": "Make a bar chart of population for China in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0668",
+      "category": "charts and visualization",
+      "query": "Where can I visualize installed wind capacity for Greece?",
+      "conversation": null
+    },
+    {
+      "id": "q0669",
+      "category": "charts and visualization",
+      "query": "Graph the annual trend of residential energy use for Mexico through 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0670",
+      "category": "charts and visualization",
+      "query": "Plot CO2 emissions for Brazil from 2030 to 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0671",
+      "category": "charts and visualization",
+      "query": "Compare primary energy from gas between Canada and World in a chart.",
+      "conversation": null
+    },
+    {
+      "id": "q0672",
+      "category": "charts and visualization",
+      "query": "Make a bar chart of nuclear electricity generation for Australia in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0673",
+      "category": "charts and visualization",
+      "query": "Where can I visualize carbon price for Germany?",
+      "conversation": null
+    },
+    {
+      "id": "q0674",
+      "category": "charts and visualization",
+      "query": "Graph the annual trend of electricity demand for Japan through 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0675",
+      "category": "charts and visualization",
+      "query": "Plot hydrogen production for World from 2030 to 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0676",
+      "category": "charts and visualization",
+      "query": "Compare industrial CO2 emissions between Spain and World in a chart.",
+      "conversation": null
+    },
+    {
+      "id": "q0677",
+      "category": "charts and visualization",
+      "query": "Make a bar chart of methane emissions for Nigeria in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0678",
+      "category": "charts and visualization",
+      "query": "Where can I visualize solar electricity generation for EU?",
+      "conversation": null
+    },
+    {
+      "id": "q0679",
+      "category": "charts and visualization",
+      "query": "Graph the annual trend of final energy for transport for Italy through 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0680",
+      "category": "charts and visualization",
+      "query": "Plot GDP for Mexico from 2030 to 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0681",
+      "category": "charts and visualization",
+      "query": "Compare installed solar capacity between India and World in a chart.",
+      "conversation": null
+    },
+    {
+      "id": "q0682",
+      "category": "charts and visualization",
+      "query": "Make a bar chart of land-use CO2 emissions for United States in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0683",
+      "category": "charts and visualization",
+      "query": "Where can I visualize bioenergy use for Indonesia?",
+      "conversation": null
+    },
+    {
+      "id": "q0684",
+      "category": "charts and visualization",
+      "query": "Graph the annual trend of primary energy from coal for Brazil through 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0685",
+      "category": "charts and visualization",
+      "query": "Plot wind electricity generation for Japan from 2030 to 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0686",
+      "category": "charts and visualization",
+      "query": "Compare final energy for industry between Africa and World in a chart.",
+      "conversation": null
+    },
+    {
+      "id": "q0687",
+      "category": "charts and visualization",
+      "query": "Make a bar chart of population for France in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0688",
+      "category": "charts and visualization",
+      "query": "Where can I visualize installed wind capacity for South Korea?",
+      "conversation": null
+    },
+    {
+      "id": "q0689",
+      "category": "charts and visualization",
+      "query": "Graph the annual trend of residential energy use for World through 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0690",
+      "category": "charts and visualization",
+      "query": "Plot CO2 emissions for Italy from 2030 to 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0691",
+      "category": "charts and visualization",
+      "query": "Compare primary energy from gas between South Africa and World in a chart.",
+      "conversation": null
+    },
+    {
+      "id": "q0692",
+      "category": "charts and visualization",
+      "query": "Make a bar chart of nuclear electricity generation for China in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0693",
+      "category": "charts and visualization",
+      "query": "Where can I visualize carbon price for Greece?",
+      "conversation": null
+    },
+    {
+      "id": "q0694",
+      "category": "charts and visualization",
+      "query": "Graph the annual trend of electricity demand for Mexico through 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0695",
+      "category": "charts and visualization",
+      "query": "Plot hydrogen production for Brazil from 2030 to 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q0696",
+      "category": "charts and visualization",
+      "query": "Compare industrial CO2 emissions between Canada and World in a chart.",
+      "conversation": null
+    },
+    {
+      "id": "q0697",
+      "category": "charts and visualization",
+      "query": "Make a bar chart of methane emissions for Australia in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q0698",
+      "category": "charts and visualization",
+      "query": "Where can I visualize solar electricity generation for Germany?",
+      "conversation": null
+    },
+    {
+      "id": "q0699",
+      "category": "charts and visualization",
+      "query": "Graph the annual trend of final energy for transport for Japan through 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q0700",
+      "category": "charts and visualization",
+      "query": "Compare the chart for CO2 emissions in World in 2030 with the corresponding baseline.",
+      "conversation": null
+    },
+    {
+      "id": "c01-1",
+      "category": "multi-turn follow-up",
+      "query": "Show CO2 emissions for World in 2030.",
+      "conversation": "c01"
+    },
+    {
+      "id": "c01-2",
+      "category": "multi-turn follow-up",
+      "query": "Keep the metric but switch to India.",
+      "conversation": "c01"
+    },
+    {
+      "id": "c01-3",
+      "category": "multi-turn follow-up",
+      "query": "Use 2045 instead.",
+      "conversation": "c01"
+    },
+    {
+      "id": "c01-4",
+      "category": "multi-turn follow-up",
+      "query": "Filter those numbers to GCAM.",
+      "conversation": "c01"
+    },
+    {
+      "id": "c01-5",
+      "category": "multi-turn follow-up",
+      "query": "Which scenarios contributed to that answer?",
+      "conversation": "c01"
+    },
+    {
+      "id": "c01-6",
+      "category": "multi-turn follow-up",
+      "query": "Explain why those scenario values may differ.",
+      "conversation": "c01"
+    },
+    {
+      "id": "c02-1",
+      "category": "multi-turn follow-up",
+      "query": "Describe the MESSAGEix-GLOBIOM model in two sentences.",
+      "conversation": "c02"
+    },
+    {
+      "id": "c02-2",
+      "category": "multi-turn follow-up",
+      "query": "Who developed that model?",
+      "conversation": "c02"
+    },
+    {
+      "id": "c02-3",
+      "category": "multi-turn follow-up",
+      "query": "What geographic areas does it represent?",
+      "conversation": "c02"
+    },
+    {
+      "id": "c02-4",
+      "category": "multi-turn follow-up",
+      "query": "Does it report carbon price for Spain?",
+      "conversation": "c02"
+    },
+    {
+      "id": "c02-5",
+      "category": "multi-turn follow-up",
+      "query": "Give the 2035 number if available.",
+      "conversation": "c02"
+    },
+    {
+      "id": "c02-6",
+      "category": "multi-turn follow-up",
+      "query": "Where is the documentation for that model?",
+      "conversation": "c02"
+    },
+    {
+      "id": "c03-1",
+      "category": "multi-turn follow-up",
+      "query": "Compare industrial CO2 emissions for Nigeria in 2040 under Baseline and PR_NDC_EI.",
+      "conversation": "c03"
+    },
+    {
+      "id": "c03-2",
+      "category": "multi-turn follow-up",
+      "query": "Which pathway has the lower value?",
+      "conversation": "c03"
+    },
+    {
+      "id": "c03-3",
+      "category": "multi-turn follow-up",
+      "query": "Repeat that comparison for Germany.",
+      "conversation": "c03"
+    },
+    {
+      "id": "c03-4",
+      "category": "multi-turn follow-up",
+      "query": "Now change the year to 2060.",
+      "conversation": "c03"
+    },
+    {
+      "id": "c03-5",
+      "category": "multi-turn follow-up",
+      "query": "Which models contributed to each side?",
+      "conversation": "c03"
+    },
+    {
+      "id": "c03-6",
+      "category": "multi-turn follow-up",
+      "query": "What assumptions could explain the difference?",
+      "conversation": "c03"
+    },
+    {
+      "id": "c04-1",
+      "category": "multi-turn follow-up",
+      "query": "Plot final energy for transport for EU between 2030 and 2050.",
+      "conversation": "c04"
+    },
+    {
+      "id": "c04-2",
+      "category": "multi-turn follow-up",
+      "query": "Change the variable to GDP.",
+      "conversation": "c04"
+    },
+    {
+      "id": "c04-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep EU and show only years through 2045.",
+      "conversation": "c04"
+    },
+    {
+      "id": "c04-4",
+      "category": "multi-turn follow-up",
+      "query": "Give me the numeric table for that selection.",
+      "conversation": "c04"
+    },
+    {
+      "id": "c04-5",
+      "category": "multi-turn follow-up",
+      "query": "Which study supplied those values?",
+      "conversation": "c04"
+    },
+    {
+      "id": "c04-6",
+      "category": "multi-turn follow-up",
+      "query": "Open that study in the data explorer.",
+      "conversation": "c04"
+    },
+    {
+      "id": "c05-1",
+      "category": "multi-turn follow-up",
+      "query": "Give land-use CO2 emissions for the unknown place Atlantis-5 in 2050.",
+      "conversation": "c05"
+    },
+    {
+      "id": "c05-2",
+      "category": "multi-turn follow-up",
+      "query": "Try Italy instead.",
+      "conversation": "c05"
+    },
+    {
+      "id": "c05-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep that region but use bioenergy use.",
+      "conversation": "c05"
+    },
+    {
+      "id": "c05-4",
+      "category": "multi-turn follow-up",
+      "query": "Limit the result to WITCH.",
+      "conversation": "c05"
+    },
+    {
+      "id": "c05-5",
+      "category": "multi-turn follow-up",
+      "query": "Now show 2100 only.",
+      "conversation": "c05"
+    },
+    {
+      "id": "c05-6",
+      "category": "multi-turn follow-up",
+      "query": "Which model and scenario are in the final answer?",
+      "conversation": "c05"
+    },
+    {
+      "id": "c06-1",
+      "category": "multi-turn follow-up",
+      "query": "Show nuclear electricity generation for South Africa in 2060.",
+      "conversation": "c06"
+    },
+    {
+      "id": "c06-2",
+      "category": "multi-turn follow-up",
+      "query": "Keep the metric but switch to Australia.",
+      "conversation": "c06"
+    },
+    {
+      "id": "c06-3",
+      "category": "multi-turn follow-up",
+      "query": "Use 2030 instead.",
+      "conversation": "c06"
+    },
+    {
+      "id": "c06-4",
+      "category": "multi-turn follow-up",
+      "query": "Filter those numbers to GEM-E3.",
+      "conversation": "c06"
+    },
+    {
+      "id": "c06-5",
+      "category": "multi-turn follow-up",
+      "query": "Which scenarios contributed to that answer for the South Africa nuclear electricity generation case?",
+      "conversation": "c06"
+    },
+    {
+      "id": "c06-6",
+      "category": "multi-turn follow-up",
+      "query": "Explain why those scenario values may differ for the South Africa nuclear electricity generation case?",
+      "conversation": "c06"
+    },
+    {
+      "id": "c07-1",
+      "category": "multi-turn follow-up",
+      "query": "Describe the ALADIN model in two sentences.",
+      "conversation": "c07"
+    },
+    {
+      "id": "c07-2",
+      "category": "multi-turn follow-up",
+      "query": "Who developed that model for the China hydrogen production case?",
+      "conversation": "c07"
+    },
+    {
+      "id": "c07-3",
+      "category": "multi-turn follow-up",
+      "query": "What geographic areas does it represent for the China hydrogen production case?",
+      "conversation": "c07"
+    },
+    {
+      "id": "c07-4",
+      "category": "multi-turn follow-up",
+      "query": "Does it report hydrogen production for China?",
+      "conversation": "c07"
+    },
+    {
+      "id": "c07-5",
+      "category": "multi-turn follow-up",
+      "query": "Give the 2070 number if available.",
+      "conversation": "c07"
+    },
+    {
+      "id": "c07-6",
+      "category": "multi-turn follow-up",
+      "query": "Where is the documentation for that model for the China hydrogen production case?",
+      "conversation": "c07"
+    },
+    {
+      "id": "c08-1",
+      "category": "multi-turn follow-up",
+      "query": "Compare solar electricity generation for Greece in 2100 under Baseline and PR_NDC_EI.",
+      "conversation": "c08"
+    },
+    {
+      "id": "c08-2",
+      "category": "multi-turn follow-up",
+      "query": "Which pathway has the lower value for the Greece solar electricity generation case?",
+      "conversation": "c08"
+    },
+    {
+      "id": "c08-3",
+      "category": "multi-turn follow-up",
+      "query": "Repeat that comparison for World.",
+      "conversation": "c08"
+    },
+    {
+      "id": "c08-4",
+      "category": "multi-turn follow-up",
+      "query": "Now change the year to 2040.",
+      "conversation": "c08"
+    },
+    {
+      "id": "c08-5",
+      "category": "multi-turn follow-up",
+      "query": "Which models contributed to each side for the Greece solar electricity generation case?",
+      "conversation": "c08"
+    },
+    {
+      "id": "c08-6",
+      "category": "multi-turn follow-up",
+      "query": "What assumptions could explain the difference for the Greece solar electricity generation case?",
+      "conversation": "c08"
+    },
+    {
+      "id": "c09-1",
+      "category": "multi-turn follow-up",
+      "query": "Plot installed solar capacity for Mexico between 2030 and 2050.",
+      "conversation": "c09"
+    },
+    {
+      "id": "c09-2",
+      "category": "multi-turn follow-up",
+      "query": "Change the variable to land-use CO2 emissions.",
+      "conversation": "c09"
+    },
+    {
+      "id": "c09-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep Mexico and show only years through 2030.",
+      "conversation": "c09"
+    },
+    {
+      "id": "c09-4",
+      "category": "multi-turn follow-up",
+      "query": "Give me the numeric table for that selection for the Mexico installed solar capacity case?",
+      "conversation": "c09"
+    },
+    {
+      "id": "c09-5",
+      "category": "multi-turn follow-up",
+      "query": "Which study supplied those values for the Mexico installed solar capacity case?",
+      "conversation": "c09"
+    },
+    {
+      "id": "c09-6",
+      "category": "multi-turn follow-up",
+      "query": "Open that study in the data explorer for the Mexico installed solar capacity case?",
+      "conversation": "c09"
+    },
+    {
+      "id": "c10-1",
+      "category": "multi-turn follow-up",
+      "query": "Give primary energy from coal for the unknown place Atlantis-10 in 2035.",
+      "conversation": "c10"
+    },
+    {
+      "id": "c10-2",
+      "category": "multi-turn follow-up",
+      "query": "Try India instead.",
+      "conversation": "c10"
+    },
+    {
+      "id": "c10-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep that region but use wind electricity generation.",
+      "conversation": "c10"
+    },
+    {
+      "id": "c10-4",
+      "category": "multi-turn follow-up",
+      "query": "Limit the result to LEAP.",
+      "conversation": "c10"
+    },
+    {
+      "id": "c10-5",
+      "category": "multi-turn follow-up",
+      "query": "Now show 2050 only.",
+      "conversation": "c10"
+    },
+    {
+      "id": "c10-6",
+      "category": "multi-turn follow-up",
+      "query": "Which model and scenario are in the final answer for the India primary energy from coal case?",
+      "conversation": "c10"
+    },
+    {
+      "id": "c11-1",
+      "category": "multi-turn follow-up",
+      "query": "Show electricity demand for Canada in 2040.",
+      "conversation": "c11"
+    },
+    {
+      "id": "c11-2",
+      "category": "multi-turn follow-up",
+      "query": "Keep the metric but switch to South Korea.",
+      "conversation": "c11"
+    },
+    {
+      "id": "c11-3",
+      "category": "multi-turn follow-up",
+      "query": "Use 2060 instead.",
+      "conversation": "c11"
+    },
+    {
+      "id": "c11-4",
+      "category": "multi-turn follow-up",
+      "query": "Filter those numbers to NEMESIS.",
+      "conversation": "c11"
+    },
+    {
+      "id": "c11-5",
+      "category": "multi-turn follow-up",
+      "query": "Which scenarios contributed to that answer for the Canada electricity demand case?",
+      "conversation": "c11"
+    },
+    {
+      "id": "c11-6",
+      "category": "multi-turn follow-up",
+      "query": "Explain why those scenario values may differ for the Canada electricity demand case?",
+      "conversation": "c11"
+    },
+    {
+      "id": "c12-1",
+      "category": "multi-turn follow-up",
+      "query": "Describe the GCAM-PR 5.3 model in two sentences.",
+      "conversation": "c12"
+    },
+    {
+      "id": "c12-2",
+      "category": "multi-turn follow-up",
+      "query": "Who developed that model for the Australia methane emissions case?",
+      "conversation": "c12"
+    },
+    {
+      "id": "c12-3",
+      "category": "multi-turn follow-up",
+      "query": "What geographic areas does it represent for the Australia methane emissions case?",
+      "conversation": "c12"
+    },
+    {
+      "id": "c12-4",
+      "category": "multi-turn follow-up",
+      "query": "Does it report methane emissions for Australia?",
+      "conversation": "c12"
+    },
+    {
+      "id": "c12-5",
+      "category": "multi-turn follow-up",
+      "query": "Give the 2045 number if available.",
+      "conversation": "c12"
+    },
+    {
+      "id": "c12-6",
+      "category": "multi-turn follow-up",
+      "query": "Where is the documentation for that model for the Australia methane emissions case?",
+      "conversation": "c12"
+    },
+    {
+      "id": "c13-1",
+      "category": "multi-turn follow-up",
+      "query": "Compare GDP for Germany in 2050 under Baseline and PR_NDC_EI.",
+      "conversation": "c13"
+    },
+    {
+      "id": "c13-2",
+      "category": "multi-turn follow-up",
+      "query": "Which pathway has the lower value for the Germany GDP case?",
+      "conversation": "c13"
+    },
+    {
+      "id": "c13-3",
+      "category": "multi-turn follow-up",
+      "query": "Repeat that comparison for South Africa.",
+      "conversation": "c13"
+    },
+    {
+      "id": "c13-4",
+      "category": "multi-turn follow-up",
+      "query": "Now change the year to 2100.",
+      "conversation": "c13"
+    },
+    {
+      "id": "c13-5",
+      "category": "multi-turn follow-up",
+      "query": "Which models contributed to each side for the Germany GDP case?",
+      "conversation": "c13"
+    },
+    {
+      "id": "c13-6",
+      "category": "multi-turn follow-up",
+      "query": "What assumptions could explain the difference for the Germany GDP case?",
+      "conversation": "c13"
+    },
+    {
+      "id": "c14-1",
+      "category": "multi-turn follow-up",
+      "query": "Plot bioenergy use for Japan between 2030 and 2050.",
+      "conversation": "c14"
+    },
+    {
+      "id": "c14-2",
+      "category": "multi-turn follow-up",
+      "query": "Change the variable to primary energy from coal.",
+      "conversation": "c14"
+    },
+    {
+      "id": "c14-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep Japan and show only years through 2060.",
+      "conversation": "c14"
+    },
+    {
+      "id": "c14-4",
+      "category": "multi-turn follow-up",
+      "query": "Give me the numeric table for that selection for the Japan bioenergy use case?",
+      "conversation": "c14"
+    },
+    {
+      "id": "c14-5",
+      "category": "multi-turn follow-up",
+      "query": "Which study supplied those values for the Japan bioenergy use case?",
+      "conversation": "c14"
+    },
+    {
+      "id": "c14-6",
+      "category": "multi-turn follow-up",
+      "query": "Open that study in the data explorer for the Japan bioenergy use case?",
+      "conversation": "c14"
+    },
+    {
+      "id": "c15-1",
+      "category": "multi-turn follow-up",
+      "query": "Give final energy for industry for the unknown place Atlantis-15 in 2070.",
+      "conversation": "c15"
+    },
+    {
+      "id": "c15-2",
+      "category": "multi-turn follow-up",
+      "query": "Try Africa instead.",
+      "conversation": "c15"
+    },
+    {
+      "id": "c15-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep that region but use population.",
+      "conversation": "c15"
+    },
+    {
+      "id": "c15-4",
+      "category": "multi-turn follow-up",
+      "query": "Limit the result to AIM/Enduse India.",
+      "conversation": "c15"
+    },
+    {
+      "id": "c15-5",
+      "category": "multi-turn follow-up",
+      "query": "Now show 2035 only.",
+      "conversation": "c15"
+    },
+    {
+      "id": "c15-6",
+      "category": "multi-turn follow-up",
+      "query": "Which model and scenario are in the final answer for the Africa final energy for industry case?",
+      "conversation": "c15"
+    },
+    {
+      "id": "c16-1",
+      "category": "multi-turn follow-up",
+      "query": "Show industrial CO2 emissions for France in 2100.",
+      "conversation": "c16"
+    },
+    {
+      "id": "c16-2",
+      "category": "multi-turn follow-up",
+      "query": "Keep the metric but switch to Italy.",
+      "conversation": "c16"
+    },
+    {
+      "id": "c16-3",
+      "category": "multi-turn follow-up",
+      "query": "Use 2040 instead.",
+      "conversation": "c16"
+    },
+    {
+      "id": "c16-4",
+      "category": "multi-turn follow-up",
+      "query": "Filter those numbers to REMIND-MFA.",
+      "conversation": "c16"
+    },
+    {
+      "id": "c16-5",
+      "category": "multi-turn follow-up",
+      "query": "Which scenarios contributed to that answer for the France industrial CO2 emissions case?",
+      "conversation": "c16"
+    },
+    {
+      "id": "c16-6",
+      "category": "multi-turn follow-up",
+      "query": "Explain why those scenario values may differ for the France industrial CO2 emissions case?",
+      "conversation": "c16"
+    },
+    {
+      "id": "c17-1",
+      "category": "multi-turn follow-up",
+      "query": "Describe the EnergyPLAN model in two sentences.",
+      "conversation": "c17"
+    },
+    {
+      "id": "c17-2",
+      "category": "multi-turn follow-up",
+      "query": "Who developed that model for the South Korea final energy for transport case?",
+      "conversation": "c17"
+    },
+    {
+      "id": "c17-3",
+      "category": "multi-turn follow-up",
+      "query": "What geographic areas does it represent for the South Korea final energy for transport case?",
+      "conversation": "c17"
+    },
+    {
+      "id": "c17-4",
+      "category": "multi-turn follow-up",
+      "query": "Does it report final energy for transport for South Korea?",
+      "conversation": "c17"
+    },
+    {
+      "id": "c17-5",
+      "category": "multi-turn follow-up",
+      "query": "Give the 2030 number if available.",
+      "conversation": "c17"
+    },
+    {
+      "id": "c17-6",
+      "category": "multi-turn follow-up",
+      "query": "Where is the documentation for that model for the South Korea final energy for transport case?",
+      "conversation": "c17"
+    },
+    {
+      "id": "c18-1",
+      "category": "multi-turn follow-up",
+      "query": "Compare land-use CO2 emissions for World in 2035 under Baseline and PR_NDC_EI.",
+      "conversation": "c18"
+    },
+    {
+      "id": "c18-2",
+      "category": "multi-turn follow-up",
+      "query": "Which pathway has the lower value for the World land-use CO2 emissions case?",
+      "conversation": "c18"
+    },
+    {
+      "id": "c18-3",
+      "category": "multi-turn follow-up",
+      "query": "Repeat that comparison for United States.",
+      "conversation": "c18"
+    },
+    {
+      "id": "c18-4",
+      "category": "multi-turn follow-up",
+      "query": "Now change the year to 2050.",
+      "conversation": "c18"
+    },
+    {
+      "id": "c18-5",
+      "category": "multi-turn follow-up",
+      "query": "Which models contributed to each side for the World land-use CO2 emissions case?",
+      "conversation": "c18"
+    },
+    {
+      "id": "c18-6",
+      "category": "multi-turn follow-up",
+      "query": "What assumptions could explain the difference for the World land-use CO2 emissions case?",
+      "conversation": "c18"
+    },
+    {
+      "id": "c19-1",
+      "category": "multi-turn follow-up",
+      "query": "Plot wind electricity generation for Spain between 2030 and 2050.",
+      "conversation": "c19"
+    },
+    {
+      "id": "c19-2",
+      "category": "multi-turn follow-up",
+      "query": "Change the variable to final energy for industry.",
+      "conversation": "c19"
+    },
+    {
+      "id": "c19-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep Spain and show only years through 2040.",
+      "conversation": "c19"
+    },
+    {
+      "id": "c19-4",
+      "category": "multi-turn follow-up",
+      "query": "Give me the numeric table for that selection for the Spain wind electricity generation case?",
+      "conversation": "c19"
+    },
+    {
+      "id": "c19-5",
+      "category": "multi-turn follow-up",
+      "query": "Which study supplied those values for the Spain wind electricity generation case?",
+      "conversation": "c19"
+    },
+    {
+      "id": "c19-6",
+      "category": "multi-turn follow-up",
+      "query": "Open that study in the data explorer for the Spain wind electricity generation case?",
+      "conversation": "c19"
+    },
+    {
+      "id": "c20-1",
+      "category": "multi-turn follow-up",
+      "query": "Give installed wind capacity for the unknown place Atlantis-20 in 2045.",
+      "conversation": "c20"
+    },
+    {
+      "id": "c20-2",
+      "category": "multi-turn follow-up",
+      "query": "Try Nigeria instead.",
+      "conversation": "c20"
+    },
+    {
+      "id": "c20-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep that region but use residential energy use.",
+      "conversation": "c20"
+    },
+    {
+      "id": "c20-4",
+      "category": "multi-turn follow-up",
+      "query": "Limit the result to PROMETHEUS.",
+      "conversation": "c20"
+    },
+    {
+      "id": "c20-5",
+      "category": "multi-turn follow-up",
+      "query": "Now show 2070 only.",
+      "conversation": "c20"
+    },
+    {
+      "id": "c20-6",
+      "category": "multi-turn follow-up",
+      "query": "Which model and scenario are in the final answer for the Nigeria installed wind capacity case?",
+      "conversation": "c20"
+    },
+    {
+      "id": "c21-1",
+      "category": "multi-turn follow-up",
+      "query": "Show solar electricity generation for China in 2050.",
+      "conversation": "c21"
+    },
+    {
+      "id": "c21-2",
+      "category": "multi-turn follow-up",
+      "query": "Keep the metric but switch to India for the China solar electricity generation case?",
+      "conversation": "c21"
+    },
+    {
+      "id": "c21-3",
+      "category": "multi-turn follow-up",
+      "query": "Use 2100 instead.",
+      "conversation": "c21"
+    },
+    {
+      "id": "c21-4",
+      "category": "multi-turn follow-up",
+      "query": "Filter those numbers to OSeMOSYS.",
+      "conversation": "c21"
+    },
+    {
+      "id": "c21-5",
+      "category": "multi-turn follow-up",
+      "query": "Which scenarios contributed to that answer for the China solar electricity generation case?",
+      "conversation": "c21"
+    },
+    {
+      "id": "c21-6",
+      "category": "multi-turn follow-up",
+      "query": "Explain why those scenario values may differ for the China solar electricity generation case?",
+      "conversation": "c21"
+    },
+    {
+      "id": "c22-1",
+      "category": "multi-turn follow-up",
+      "query": "Describe the E4SMA-EU-TIMES model in two sentences.",
+      "conversation": "c22"
+    },
+    {
+      "id": "c22-2",
+      "category": "multi-turn follow-up",
+      "query": "Who developed that model for the Greece installed solar capacity case?",
+      "conversation": "c22"
+    },
+    {
+      "id": "c22-3",
+      "category": "multi-turn follow-up",
+      "query": "What geographic areas does it represent for the Greece installed solar capacity case?",
+      "conversation": "c22"
+    },
+    {
+      "id": "c22-4",
+      "category": "multi-turn follow-up",
+      "query": "Does it report installed solar capacity for Greece?",
+      "conversation": "c22"
+    },
+    {
+      "id": "c22-5",
+      "category": "multi-turn follow-up",
+      "query": "Give the 2060 number if available.",
+      "conversation": "c22"
+    },
+    {
+      "id": "c22-6",
+      "category": "multi-turn follow-up",
+      "query": "Where is the documentation for that model for the Greece installed solar capacity case?",
+      "conversation": "c22"
+    },
+    {
+      "id": "c23-1",
+      "category": "multi-turn follow-up",
+      "query": "Compare primary energy from coal for Mexico in 2070 under Baseline and PR_NDC_EI.",
+      "conversation": "c23"
+    },
+    {
+      "id": "c23-2",
+      "category": "multi-turn follow-up",
+      "query": "Which pathway has the lower value for the Mexico primary energy from coal case?",
+      "conversation": "c23"
+    },
+    {
+      "id": "c23-3",
+      "category": "multi-turn follow-up",
+      "query": "Repeat that comparison for Germany for the Mexico primary energy from coal case?",
+      "conversation": "c23"
+    },
+    {
+      "id": "c23-4",
+      "category": "multi-turn follow-up",
+      "query": "Now change the year to 2035.",
+      "conversation": "c23"
+    },
+    {
+      "id": "c23-5",
+      "category": "multi-turn follow-up",
+      "query": "Which models contributed to each side for the Mexico primary energy from coal case?",
+      "conversation": "c23"
+    },
+    {
+      "id": "c23-6",
+      "category": "multi-turn follow-up",
+      "query": "What assumptions could explain the difference for the Mexico primary energy from coal case?",
+      "conversation": "c23"
+    },
+    {
+      "id": "c24-1",
+      "category": "multi-turn follow-up",
+      "query": "Plot population for India between 2030 and 2050.",
+      "conversation": "c24"
+    },
+    {
+      "id": "c24-2",
+      "category": "multi-turn follow-up",
+      "query": "Change the variable to installed wind capacity.",
+      "conversation": "c24"
+    },
+    {
+      "id": "c24-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep India and show only years through 2100.",
+      "conversation": "c24"
+    },
+    {
+      "id": "c24-4",
+      "category": "multi-turn follow-up",
+      "query": "Give me the numeric table for that selection for the India population case?",
+      "conversation": "c24"
+    },
+    {
+      "id": "c24-5",
+      "category": "multi-turn follow-up",
+      "query": "Which study supplied those values for the India population case?",
+      "conversation": "c24"
+    },
+    {
+      "id": "c24-6",
+      "category": "multi-turn follow-up",
+      "query": "Open that study in the data explorer for the India population case?",
+      "conversation": "c24"
+    },
+    {
+      "id": "c25-1",
+      "category": "multi-turn follow-up",
+      "query": "Give CO2 emissions for the unknown place Atlantis-25 in 2030.",
+      "conversation": "c25"
+    },
+    {
+      "id": "c25-2",
+      "category": "multi-turn follow-up",
+      "query": "Try United States instead.",
+      "conversation": "c25"
+    },
+    {
+      "id": "c25-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep that region but use primary energy from gas.",
+      "conversation": "c25"
+    },
+    {
+      "id": "c25-4",
+      "category": "multi-turn follow-up",
+      "query": "Limit the result to ATOM.",
+      "conversation": "c25"
+    },
+    {
+      "id": "c25-5",
+      "category": "multi-turn follow-up",
+      "query": "Now show 2045 only.",
+      "conversation": "c25"
+    },
+    {
+      "id": "c25-6",
+      "category": "multi-turn follow-up",
+      "query": "Which model and scenario are in the final answer for the United States CO2 emissions case?",
+      "conversation": "c25"
+    },
+    {
+      "id": "c26-1",
+      "category": "multi-turn follow-up",
+      "query": "Show GDP for Indonesia in 2035.",
+      "conversation": "c26"
+    },
+    {
+      "id": "c26-2",
+      "category": "multi-turn follow-up",
+      "query": "Keep the metric but switch to Australia for the Indonesia GDP case?",
+      "conversation": "c26"
+    },
+    {
+      "id": "c26-3",
+      "category": "multi-turn follow-up",
+      "query": "Use 2050 instead.",
+      "conversation": "c26"
+    },
+    {
+      "id": "c26-4",
+      "category": "multi-turn follow-up",
+      "query": "Filter those numbers to GCAM for the Indonesia GDP case?",
+      "conversation": "c26"
+    },
+    {
+      "id": "c26-5",
+      "category": "multi-turn follow-up",
+      "query": "Which scenarios contributed to that answer for the Indonesia GDP case?",
+      "conversation": "c26"
+    },
+    {
+      "id": "c26-6",
+      "category": "multi-turn follow-up",
+      "query": "Explain why those scenario values may differ for the Indonesia GDP case?",
+      "conversation": "c26"
+    },
+    {
+      "id": "c27-1",
+      "category": "multi-turn follow-up",
+      "query": "Describe the MESSAGEix-GLOBIOM model in two sentences for the Brazil bioenergy use case?",
+      "conversation": "c27"
+    },
+    {
+      "id": "c27-2",
+      "category": "multi-turn follow-up",
+      "query": "Who developed that model for the Brazil bioenergy use case?",
+      "conversation": "c27"
+    },
+    {
+      "id": "c27-3",
+      "category": "multi-turn follow-up",
+      "query": "What geographic areas does it represent for the Brazil bioenergy use case?",
+      "conversation": "c27"
+    },
+    {
+      "id": "c27-4",
+      "category": "multi-turn follow-up",
+      "query": "Does it report bioenergy use for Brazil?",
+      "conversation": "c27"
+    },
+    {
+      "id": "c27-5",
+      "category": "multi-turn follow-up",
+      "query": "Give the 2040 number if available.",
+      "conversation": "c27"
+    },
+    {
+      "id": "c27-6",
+      "category": "multi-turn follow-up",
+      "query": "Where is the documentation for that model for the Brazil bioenergy use case?",
+      "conversation": "c27"
+    },
+    {
+      "id": "c28-1",
+      "category": "multi-turn follow-up",
+      "query": "Compare final energy for industry for Canada in 2045 under Baseline and PR_NDC_EI.",
+      "conversation": "c28"
+    },
+    {
+      "id": "c28-2",
+      "category": "multi-turn follow-up",
+      "query": "Which pathway has the lower value for the Canada final energy for industry case?",
+      "conversation": "c28"
+    },
+    {
+      "id": "c28-3",
+      "category": "multi-turn follow-up",
+      "query": "Repeat that comparison for World for the Canada final energy for industry case?",
+      "conversation": "c28"
+    },
+    {
+      "id": "c28-4",
+      "category": "multi-turn follow-up",
+      "query": "Now change the year to 2070.",
+      "conversation": "c28"
+    },
+    {
+      "id": "c28-5",
+      "category": "multi-turn follow-up",
+      "query": "Which models contributed to each side for the Canada final energy for industry case?",
+      "conversation": "c28"
+    },
+    {
+      "id": "c28-6",
+      "category": "multi-turn follow-up",
+      "query": "What assumptions could explain the difference for the Canada final energy for industry case?",
+      "conversation": "c28"
+    },
+    {
+      "id": "c29-1",
+      "category": "multi-turn follow-up",
+      "query": "Plot residential energy use for Australia between 2030 and 2050.",
+      "conversation": "c29"
+    },
+    {
+      "id": "c29-2",
+      "category": "multi-turn follow-up",
+      "query": "Change the variable to CO2 emissions.",
+      "conversation": "c29"
+    },
+    {
+      "id": "c29-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep Australia and show only years through 2050.",
+      "conversation": "c29"
+    },
+    {
+      "id": "c29-4",
+      "category": "multi-turn follow-up",
+      "query": "Give me the numeric table for that selection for the Australia residential energy use case?",
+      "conversation": "c29"
+    },
+    {
+      "id": "c29-5",
+      "category": "multi-turn follow-up",
+      "query": "Which study supplied those values for the Australia residential energy use case?",
+      "conversation": "c29"
+    },
+    {
+      "id": "c29-6",
+      "category": "multi-turn follow-up",
+      "query": "Open that study in the data explorer for the Australia residential energy use case?",
+      "conversation": "c29"
+    },
+    {
+      "id": "c30-1",
+      "category": "multi-turn follow-up",
+      "query": "Give nuclear electricity generation for the unknown place Atlantis-30 in 2060.",
+      "conversation": "c30"
+    },
+    {
+      "id": "c30-2",
+      "category": "multi-turn follow-up",
+      "query": "Try Germany instead.",
+      "conversation": "c30"
+    },
+    {
+      "id": "c30-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep that region but use carbon price.",
+      "conversation": "c30"
+    },
+    {
+      "id": "c30-4",
+      "category": "multi-turn follow-up",
+      "query": "Limit the result to WITCH for the Germany nuclear electricity generation case?",
+      "conversation": "c30"
+    },
+    {
+      "id": "c30-5",
+      "category": "multi-turn follow-up",
+      "query": "Now show 2030 only.",
+      "conversation": "c30"
+    },
+    {
+      "id": "c30-6",
+      "category": "multi-turn follow-up",
+      "query": "Which model and scenario are in the final answer for the Germany nuclear electricity generation case?",
+      "conversation": "c30"
+    },
+    {
+      "id": "c31-1",
+      "category": "multi-turn follow-up",
+      "query": "Show land-use CO2 emissions for South Korea in 2070.",
+      "conversation": "c31"
+    },
+    {
+      "id": "c31-2",
+      "category": "multi-turn follow-up",
+      "query": "Keep the metric but switch to South Korea for the South Korea land-use CO2 emissions case?",
+      "conversation": "c31"
+    },
+    {
+      "id": "c31-3",
+      "category": "multi-turn follow-up",
+      "query": "Use 2035 instead.",
+      "conversation": "c31"
+    },
+    {
+      "id": "c31-4",
+      "category": "multi-turn follow-up",
+      "query": "Filter those numbers to GEM-E3 for the South Korea land-use CO2 emissions case?",
+      "conversation": "c31"
+    },
+    {
+      "id": "c31-5",
+      "category": "multi-turn follow-up",
+      "query": "Which scenarios contributed to that answer for the South Korea land-use CO2 emissions case?",
+      "conversation": "c31"
+    },
+    {
+      "id": "c31-6",
+      "category": "multi-turn follow-up",
+      "query": "Explain why those scenario values may differ for the South Korea land-use CO2 emissions case?",
+      "conversation": "c31"
+    },
+    {
+      "id": "c32-1",
+      "category": "multi-turn follow-up",
+      "query": "Describe the ALADIN model in two sentences for the World wind electricity generation case?",
+      "conversation": "c32"
+    },
+    {
+      "id": "c32-2",
+      "category": "multi-turn follow-up",
+      "query": "Who developed that model for the World wind electricity generation case?",
+      "conversation": "c32"
+    },
+    {
+      "id": "c32-3",
+      "category": "multi-turn follow-up",
+      "query": "What geographic areas does it represent for the World wind electricity generation case?",
+      "conversation": "c32"
+    },
+    {
+      "id": "c32-4",
+      "category": "multi-turn follow-up",
+      "query": "Does it report wind electricity generation for World?",
+      "conversation": "c32"
+    },
+    {
+      "id": "c32-5",
+      "category": "multi-turn follow-up",
+      "query": "Give the 2100 number if available.",
+      "conversation": "c32"
+    },
+    {
+      "id": "c32-6",
+      "category": "multi-turn follow-up",
+      "query": "Where is the documentation for that model for the World wind electricity generation case?",
+      "conversation": "c32"
+    },
+    {
+      "id": "c33-1",
+      "category": "multi-turn follow-up",
+      "query": "Compare installed wind capacity for Spain in 2030 under Baseline and PR_NDC_EI.",
+      "conversation": "c33"
+    },
+    {
+      "id": "c33-2",
+      "category": "multi-turn follow-up",
+      "query": "Which pathway has the lower value for the Spain installed wind capacity case?",
+      "conversation": "c33"
+    },
+    {
+      "id": "c33-3",
+      "category": "multi-turn follow-up",
+      "query": "Repeat that comparison for South Africa for the Spain installed wind capacity case?",
+      "conversation": "c33"
+    },
+    {
+      "id": "c33-4",
+      "category": "multi-turn follow-up",
+      "query": "Now change the year to 2045.",
+      "conversation": "c33"
+    },
+    {
+      "id": "c33-5",
+      "category": "multi-turn follow-up",
+      "query": "Which models contributed to each side for the Spain installed wind capacity case?",
+      "conversation": "c33"
+    },
+    {
+      "id": "c33-6",
+      "category": "multi-turn follow-up",
+      "query": "What assumptions could explain the difference for the Spain installed wind capacity case?",
+      "conversation": "c33"
+    },
+    {
+      "id": "c34-1",
+      "category": "multi-turn follow-up",
+      "query": "Plot primary energy from gas for Nigeria between 2030 and 2050.",
+      "conversation": "c34"
+    },
+    {
+      "id": "c34-2",
+      "category": "multi-turn follow-up",
+      "query": "Change the variable to nuclear electricity generation.",
+      "conversation": "c34"
+    },
+    {
+      "id": "c34-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep Nigeria and show only years through 2035.",
+      "conversation": "c34"
+    },
+    {
+      "id": "c34-4",
+      "category": "multi-turn follow-up",
+      "query": "Give me the numeric table for that selection for the Nigeria primary energy from gas case?",
+      "conversation": "c34"
+    },
+    {
+      "id": "c34-5",
+      "category": "multi-turn follow-up",
+      "query": "Which study supplied those values for the Nigeria primary energy from gas case?",
+      "conversation": "c34"
+    },
+    {
+      "id": "c34-6",
+      "category": "multi-turn follow-up",
+      "query": "Open that study in the data explorer for the Nigeria primary energy from gas case?",
+      "conversation": "c34"
+    },
+    {
+      "id": "c35-1",
+      "category": "multi-turn follow-up",
+      "query": "Give electricity demand for the unknown place Atlantis-35 in 2040.",
+      "conversation": "c35"
+    },
+    {
+      "id": "c35-2",
+      "category": "multi-turn follow-up",
+      "query": "Try EU instead.",
+      "conversation": "c35"
+    },
+    {
+      "id": "c35-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep that region but use hydrogen production.",
+      "conversation": "c35"
+    },
+    {
+      "id": "c35-4",
+      "category": "multi-turn follow-up",
+      "query": "Limit the result to LEAP for the EU electricity demand case?",
+      "conversation": "c35"
+    },
+    {
+      "id": "c35-5",
+      "category": "multi-turn follow-up",
+      "query": "Now show 2060 only.",
+      "conversation": "c35"
+    },
+    {
+      "id": "c35-6",
+      "category": "multi-turn follow-up",
+      "query": "Which model and scenario are in the final answer for the EU electricity demand case?",
+      "conversation": "c35"
+    },
+    {
+      "id": "c36-1",
+      "category": "multi-turn follow-up",
+      "query": "Show primary energy from coal for Italy in 2045.",
+      "conversation": "c36"
+    },
+    {
+      "id": "c36-2",
+      "category": "multi-turn follow-up",
+      "query": "Keep the metric but switch to Italy for the Italy primary energy from coal case?",
+      "conversation": "c36"
+    },
+    {
+      "id": "c36-3",
+      "category": "multi-turn follow-up",
+      "query": "Use 2070 instead.",
+      "conversation": "c36"
+    },
+    {
+      "id": "c36-4",
+      "category": "multi-turn follow-up",
+      "query": "Filter those numbers to NEMESIS for the Italy primary energy from coal case?",
+      "conversation": "c36"
+    },
+    {
+      "id": "c36-5",
+      "category": "multi-turn follow-up",
+      "query": "Which scenarios contributed to that answer for the Italy primary energy from coal case?",
+      "conversation": "c36"
+    },
+    {
+      "id": "c36-6",
+      "category": "multi-turn follow-up",
+      "query": "Explain why those scenario values may differ for the Italy primary energy from coal case?",
+      "conversation": "c36"
+    },
+    {
+      "id": "c37-1",
+      "category": "multi-turn follow-up",
+      "query": "Describe the GCAM-PR 5.3 model in two sentences for the South Africa population case?",
+      "conversation": "c37"
+    },
+    {
+      "id": "c37-2",
+      "category": "multi-turn follow-up",
+      "query": "Who developed that model for the South Africa population case?",
+      "conversation": "c37"
+    },
+    {
+      "id": "c37-3",
+      "category": "multi-turn follow-up",
+      "query": "What geographic areas does it represent for the South Africa population case?",
+      "conversation": "c37"
+    },
+    {
+      "id": "c37-4",
+      "category": "multi-turn follow-up",
+      "query": "Does it report population for South Africa?",
+      "conversation": "c37"
+    },
+    {
+      "id": "c37-5",
+      "category": "multi-turn follow-up",
+      "query": "Give the 2050 number if available.",
+      "conversation": "c37"
+    },
+    {
+      "id": "c37-6",
+      "category": "multi-turn follow-up",
+      "query": "Where is the documentation for that model for the South Africa population case?",
+      "conversation": "c37"
+    },
+    {
+      "id": "c38-1",
+      "category": "multi-turn follow-up",
+      "query": "Compare CO2 emissions for China in 2060 under Baseline and PR_NDC_EI.",
+      "conversation": "c38"
+    },
+    {
+      "id": "c38-2",
+      "category": "multi-turn follow-up",
+      "query": "Which pathway has the lower value for the China CO2 emissions case?",
+      "conversation": "c38"
+    },
+    {
+      "id": "c38-3",
+      "category": "multi-turn follow-up",
+      "query": "Repeat that comparison for United States for the China CO2 emissions case?",
+      "conversation": "c38"
+    },
+    {
+      "id": "c38-4",
+      "category": "multi-turn follow-up",
+      "query": "Now change the year to 2030.",
+      "conversation": "c38"
+    },
+    {
+      "id": "c38-5",
+      "category": "multi-turn follow-up",
+      "query": "Which models contributed to each side for the China CO2 emissions case?",
+      "conversation": "c38"
+    },
+    {
+      "id": "c38-6",
+      "category": "multi-turn follow-up",
+      "query": "What assumptions could explain the difference for the China CO2 emissions case?",
+      "conversation": "c38"
+    },
+    {
+      "id": "c39-1",
+      "category": "multi-turn follow-up",
+      "query": "Plot carbon price for Greece between 2030 and 2050.",
+      "conversation": "c39"
+    },
+    {
+      "id": "c39-2",
+      "category": "multi-turn follow-up",
+      "query": "Change the variable to electricity demand.",
+      "conversation": "c39"
+    },
+    {
+      "id": "c39-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep Greece and show only years through 2070.",
+      "conversation": "c39"
+    },
+    {
+      "id": "c39-4",
+      "category": "multi-turn follow-up",
+      "query": "Give me the numeric table for that selection for the Greece carbon price case?",
+      "conversation": "c39"
+    },
+    {
+      "id": "c39-5",
+      "category": "multi-turn follow-up",
+      "query": "Which study supplied those values for the Greece carbon price case?",
+      "conversation": "c39"
+    },
+    {
+      "id": "c39-6",
+      "category": "multi-turn follow-up",
+      "query": "Open that study in the data explorer for the Greece carbon price case?",
+      "conversation": "c39"
+    },
+    {
+      "id": "c40-1",
+      "category": "multi-turn follow-up",
+      "query": "Give industrial CO2 emissions for the unknown place Atlantis-40 in 2100.",
+      "conversation": "c40"
+    },
+    {
+      "id": "c40-2",
+      "category": "multi-turn follow-up",
+      "query": "Try Mexico instead.",
+      "conversation": "c40"
+    },
+    {
+      "id": "c40-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep that region but use methane emissions.",
+      "conversation": "c40"
+    },
+    {
+      "id": "c40-4",
+      "category": "multi-turn follow-up",
+      "query": "Limit the result to AIM/Enduse India for the Mexico industrial CO2 emissions case?",
+      "conversation": "c40"
+    },
+    {
+      "id": "c40-5",
+      "category": "multi-turn follow-up",
+      "query": "Now show 2040 only.",
+      "conversation": "c40"
+    },
+    {
+      "id": "c40-6",
+      "category": "multi-turn follow-up",
+      "query": "Which model and scenario are in the final answer for the Mexico industrial CO2 emissions case?",
+      "conversation": "c40"
+    },
+    {
+      "id": "c41-1",
+      "category": "multi-turn follow-up",
+      "query": "Show final energy for industry for Brazil in 2030.",
+      "conversation": "c41"
+    },
+    {
+      "id": "c41-2",
+      "category": "multi-turn follow-up",
+      "query": "Keep the metric but switch to India for the Brazil final energy for industry case?",
+      "conversation": "c41"
+    },
+    {
+      "id": "c41-3",
+      "category": "multi-turn follow-up",
+      "query": "Use 2045 instead for the Brazil final energy for industry case?",
+      "conversation": "c41"
+    },
+    {
+      "id": "c41-4",
+      "category": "multi-turn follow-up",
+      "query": "Filter those numbers to REMIND-MFA for the Brazil final energy for industry case?",
+      "conversation": "c41"
+    },
+    {
+      "id": "c41-5",
+      "category": "multi-turn follow-up",
+      "query": "Which scenarios contributed to that answer for the Brazil final energy for industry case?",
+      "conversation": "c41"
+    },
+    {
+      "id": "c41-6",
+      "category": "multi-turn follow-up",
+      "query": "Explain why those scenario values may differ for the Brazil final energy for industry case?",
+      "conversation": "c41"
+    },
+    {
+      "id": "c42-1",
+      "category": "multi-turn follow-up",
+      "query": "Describe the EnergyPLAN model in two sentences for the Canada residential energy use case?",
+      "conversation": "c42"
+    },
+    {
+      "id": "c42-2",
+      "category": "multi-turn follow-up",
+      "query": "Who developed that model for the Canada residential energy use case?",
+      "conversation": "c42"
+    },
+    {
+      "id": "c42-3",
+      "category": "multi-turn follow-up",
+      "query": "What geographic areas does it represent for the Canada residential energy use case?",
+      "conversation": "c42"
+    },
+    {
+      "id": "c42-4",
+      "category": "multi-turn follow-up",
+      "query": "Does it report residential energy use for Canada?",
+      "conversation": "c42"
+    },
+    {
+      "id": "c42-5",
+      "category": "multi-turn follow-up",
+      "query": "Give the 2035 number if available for the Canada residential energy use case?",
+      "conversation": "c42"
+    },
+    {
+      "id": "c42-6",
+      "category": "multi-turn follow-up",
+      "query": "Where is the documentation for that model for the Canada residential energy use case?",
+      "conversation": "c42"
+    },
+    {
+      "id": "c43-1",
+      "category": "multi-turn follow-up",
+      "query": "Compare nuclear electricity generation for Australia in 2040 under Baseline and PR_NDC_EI.",
+      "conversation": "c43"
+    },
+    {
+      "id": "c43-2",
+      "category": "multi-turn follow-up",
+      "query": "Which pathway has the lower value for the Australia nuclear electricity generation case?",
+      "conversation": "c43"
+    },
+    {
+      "id": "c43-3",
+      "category": "multi-turn follow-up",
+      "query": "Repeat that comparison for Germany for the Australia nuclear electricity generation case?",
+      "conversation": "c43"
+    },
+    {
+      "id": "c43-4",
+      "category": "multi-turn follow-up",
+      "query": "Now change the year to 2060 for the Australia nuclear electricity generation case?",
+      "conversation": "c43"
+    },
+    {
+      "id": "c43-5",
+      "category": "multi-turn follow-up",
+      "query": "Which models contributed to each side for the Australia nuclear electricity generation case?",
+      "conversation": "c43"
+    },
+    {
+      "id": "c43-6",
+      "category": "multi-turn follow-up",
+      "query": "What assumptions could explain the difference for the Australia nuclear electricity generation case?",
+      "conversation": "c43"
+    },
+    {
+      "id": "c44-1",
+      "category": "multi-turn follow-up",
+      "query": "Plot hydrogen production for Germany between 2030 and 2050.",
+      "conversation": "c44"
+    },
+    {
+      "id": "c44-2",
+      "category": "multi-turn follow-up",
+      "query": "Change the variable to industrial CO2 emissions.",
+      "conversation": "c44"
+    },
+    {
+      "id": "c44-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep Germany and show only years through 2045.",
+      "conversation": "c44"
+    },
+    {
+      "id": "c44-4",
+      "category": "multi-turn follow-up",
+      "query": "Give me the numeric table for that selection for the Germany hydrogen production case?",
+      "conversation": "c44"
+    },
+    {
+      "id": "c44-5",
+      "category": "multi-turn follow-up",
+      "query": "Which study supplied those values for the Germany hydrogen production case?",
+      "conversation": "c44"
+    },
+    {
+      "id": "c44-6",
+      "category": "multi-turn follow-up",
+      "query": "Open that study in the data explorer for the Germany hydrogen production case?",
+      "conversation": "c44"
+    },
+    {
+      "id": "c45-1",
+      "category": "multi-turn follow-up",
+      "query": "Give solar electricity generation for the unknown place Atlantis-45 in 2050.",
+      "conversation": "c45"
+    },
+    {
+      "id": "c45-2",
+      "category": "multi-turn follow-up",
+      "query": "Try Japan instead.",
+      "conversation": "c45"
+    },
+    {
+      "id": "c45-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep that region but use final energy for transport.",
+      "conversation": "c45"
+    },
+    {
+      "id": "c45-4",
+      "category": "multi-turn follow-up",
+      "query": "Limit the result to PROMETHEUS for the Japan solar electricity generation case?",
+      "conversation": "c45"
+    },
+    {
+      "id": "c45-5",
+      "category": "multi-turn follow-up",
+      "query": "Now show 2100 only for the Japan solar electricity generation case?",
+      "conversation": "c45"
+    },
+    {
+      "id": "c45-6",
+      "category": "multi-turn follow-up",
+      "query": "Which model and scenario are in the final answer for the Japan solar electricity generation case?",
+      "conversation": "c45"
+    },
+    {
+      "id": "c46-1",
+      "category": "multi-turn follow-up",
+      "query": "Show installed wind capacity for Africa in 2060.",
+      "conversation": "c46"
+    },
+    {
+      "id": "c46-2",
+      "category": "multi-turn follow-up",
+      "query": "Keep the metric but switch to Australia for the Africa installed wind capacity case?",
+      "conversation": "c46"
+    },
+    {
+      "id": "c46-3",
+      "category": "multi-turn follow-up",
+      "query": "Use 2030 instead for the Africa installed wind capacity case?",
+      "conversation": "c46"
+    },
+    {
+      "id": "c46-4",
+      "category": "multi-turn follow-up",
+      "query": "Filter those numbers to OSeMOSYS for the Africa installed wind capacity case?",
+      "conversation": "c46"
+    },
+    {
+      "id": "c46-5",
+      "category": "multi-turn follow-up",
+      "query": "Which scenarios contributed to that answer for the Africa installed wind capacity case?",
+      "conversation": "c46"
+    },
+    {
+      "id": "c46-6",
+      "category": "multi-turn follow-up",
+      "query": "Explain why those scenario values may differ for the Africa installed wind capacity case?",
+      "conversation": "c46"
+    },
+    {
+      "id": "c47-1",
+      "category": "multi-turn follow-up",
+      "query": "Describe the E4SMA-EU-TIMES model in two sentences for the France primary energy from gas case?",
+      "conversation": "c47"
+    },
+    {
+      "id": "c47-2",
+      "category": "multi-turn follow-up",
+      "query": "Who developed that model for the France primary energy from gas case?",
+      "conversation": "c47"
+    },
+    {
+      "id": "c47-3",
+      "category": "multi-turn follow-up",
+      "query": "What geographic areas does it represent for the France primary energy from gas case?",
+      "conversation": "c47"
+    },
+    {
+      "id": "c47-4",
+      "category": "multi-turn follow-up",
+      "query": "Does it report primary energy from gas for France?",
+      "conversation": "c47"
+    },
+    {
+      "id": "c47-5",
+      "category": "multi-turn follow-up",
+      "query": "Give the 2070 number if available for the France primary energy from gas case?",
+      "conversation": "c47"
+    },
+    {
+      "id": "c47-6",
+      "category": "multi-turn follow-up",
+      "query": "Where is the documentation for that model for the France primary energy from gas case?",
+      "conversation": "c47"
+    },
+    {
+      "id": "c48-1",
+      "category": "multi-turn follow-up",
+      "query": "Compare electricity demand for South Korea in 2100 under Baseline and PR_NDC_EI.",
+      "conversation": "c48"
+    },
+    {
+      "id": "c48-2",
+      "category": "multi-turn follow-up",
+      "query": "Which pathway has the lower value for the South Korea electricity demand case?",
+      "conversation": "c48"
+    },
+    {
+      "id": "c48-3",
+      "category": "multi-turn follow-up",
+      "query": "Repeat that comparison for World for the South Korea electricity demand case?",
+      "conversation": "c48"
+    },
+    {
+      "id": "c48-4",
+      "category": "multi-turn follow-up",
+      "query": "Now change the year to 2040 for the South Korea electricity demand case?",
+      "conversation": "c48"
+    },
+    {
+      "id": "c48-5",
+      "category": "multi-turn follow-up",
+      "query": "Which models contributed to each side for the South Korea electricity demand case?",
+      "conversation": "c48"
+    },
+    {
+      "id": "c48-6",
+      "category": "multi-turn follow-up",
+      "query": "What assumptions could explain the difference for the South Korea electricity demand case?",
+      "conversation": "c48"
+    },
+    {
+      "id": "c49-1",
+      "category": "multi-turn follow-up",
+      "query": "Plot methane emissions for World between 2030 and 2050.",
+      "conversation": "c49"
+    },
+    {
+      "id": "c49-2",
+      "category": "multi-turn follow-up",
+      "query": "Change the variable to solar electricity generation.",
+      "conversation": "c49"
+    },
+    {
+      "id": "c49-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep World and show only years through 2030.",
+      "conversation": "c49"
+    },
+    {
+      "id": "c49-4",
+      "category": "multi-turn follow-up",
+      "query": "Give me the numeric table for that selection for the World methane emissions case?",
+      "conversation": "c49"
+    },
+    {
+      "id": "c49-5",
+      "category": "multi-turn follow-up",
+      "query": "Which study supplied those values for the World methane emissions case?",
+      "conversation": "c49"
+    },
+    {
+      "id": "c49-6",
+      "category": "multi-turn follow-up",
+      "query": "Open that study in the data explorer for the World methane emissions case?",
+      "conversation": "c49"
+    },
+    {
+      "id": "c50-1",
+      "category": "multi-turn follow-up",
+      "query": "Give GDP for the unknown place Atlantis-50 in 2035.",
+      "conversation": "c50"
+    },
+    {
+      "id": "c50-2",
+      "category": "multi-turn follow-up",
+      "query": "Try Spain instead.",
+      "conversation": "c50"
+    },
+    {
+      "id": "c50-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep that region but use installed solar capacity.",
+      "conversation": "c50"
+    },
+    {
+      "id": "c50-4",
+      "category": "multi-turn follow-up",
+      "query": "Limit the result to ATOM for the Spain GDP case?",
+      "conversation": "c50"
+    },
+    {
+      "id": "c50-5",
+      "category": "multi-turn follow-up",
+      "query": "Now show 2050 only for the Spain GDP case?",
+      "conversation": "c50"
+    },
+    {
+      "id": "c50-6",
+      "category": "multi-turn follow-up",
+      "query": "Which model and scenario are in the final answer for the Spain GDP case?",
+      "conversation": "c50"
+    }
+  ]
+}

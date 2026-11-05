@@ -30,6 +30,7 @@ from data_utils import (
     sanitize_variable_for_query,
 )
 from canonical_aliases import (
+    SCENARIO_FAMILY_PATTERNS,
     regions_equivalent,
     canonical_region_from_query,
     canonical_scenario_from_query,
@@ -872,6 +873,30 @@ class MultiAgentManager:
             build_query_plan(identity_query, available_models=runtime_names).mentioned_models
         )
 
+        # If a curated family is named exactly, do not turn it into a longer
+        # catalogue entry merely because that entry has a matching prefix.
+        exact_profiles = [
+            str(profile.get("name") or "").strip()
+            for profile in find_model_profiles(identity_query)
+            if str(profile.get("name") or "").strip()
+            and re.search(
+                r"(?<![\w-])" + re.escape(str(profile.get("name"))) + r"(?![\w-])",
+                identity_query, re.IGNORECASE,
+            )
+        ]
+        if exact_profiles:
+            mentioned = [
+                candidate for candidate in mentioned
+                if not any(
+                    candidate.casefold().startswith(profile.casefold() + suffix)
+                    and not re.search(
+                        r"(?<![\w-])" + re.escape(candidate) + r"(?![\w-])",
+                        identity_query, re.IGNORECASE,
+                    )
+                    for profile in exact_profiles for suffix in ("-", " ")
+                )
+            ]
+
         clauses = re.split(
             r"[,;/]|\b(?:and|with|against|versus|vs\.?|from|to)\b",
             identity_query,
@@ -1078,6 +1103,35 @@ class MultiAgentManager:
         lines.append(f"Ask for a specific model (e.g. `tell me about {shown[0]}`) or a data query "
                      f"(e.g. `{category.lower()} emissions for Europe`) to go deeper.")
         return "\n".join(lines)
+
+    def _models_for_region_answer(self, query: str) -> Optional[str]:
+        """Answer region-wide model coverage without treating a place as a variable."""
+        if not re.search(r"\b(?:which|what)\s+models?\b", query, re.IGNORECASE):
+            return None
+        if not re.search(r"\b(?:for|in)\s+[^?!.]+[?!.]?\s*$", query, re.IGNORECASE):
+            return None
+        metadata = self.shared_resources.get("metadata")
+        regions = getattr(metadata, "all_regions", ()) if metadata else ()
+        region = canonical_region_from_query(query, regions)
+        if not region:
+            return None
+        variables = getattr(metadata, "all_variables", ()) if metadata else ()
+        if preferred_variable_from_query(query, variables):
+            return None
+        indexed = records_by_field(self.shared_resources.get("ts") or [], "region")
+        models = {
+            str(record.get("modelName") or "").strip()
+            for name, records in indexed.items()
+            if regions_equivalent(name, region)
+            for record in records
+            if is_presentable_model_label(record.get("modelName"))
+        }
+        labels = sorted({display_model_label(model) for model in models}, key=str.casefold)
+        if not labels:
+            return f"I found no loaded model results for `{region}`."
+        shown = ", ".join(f"`{model}`" for model in labels[:25])
+        suffix = f" and {len(labels)-25} more" if len(labels) > 25 else ""
+        return f"### Models with data for {region}\n\n{len(labels)} model(s): {shown}{suffix}."
 
     _MODEL_TERM_RE = re.compile(
         r"\bmodels?\s+(?:that\s+|which\s+)?(?:report|reports|cover|covers|include|includes|"
@@ -1979,17 +2033,19 @@ class MultiAgentManager:
     def _is_conceptual_climate_question(self, query: str) -> bool:
         """Recognize causal explanations without hijacking numeric data requests."""
         text = str(query or "").strip().casefold()
+        meaning_question = bool(re.match(r"what\s+does\b.+\bmean\b", text))
+        uncertainty_question = bool(re.match(r"what\s+uncertaint(?:y|ies)\b", text))
         if not re.match(
             r"(?:why|how|what\s+(?:are|is|causes|drives|influences|should|tradeoffs|"
             r"limits|determines|affects|explains|shapes|role|happens)|explain|describe)\b",
             text,
-        ):
+        ) and not (meaning_question or uncertainty_question):
             return False
         # Explanation-seeking phrasing: words such as "show", "compare" or
         # "data" in it are part of the explanation asked for ("why do
         # baseline scenarios still show emissions growth?", "how should I
         # compare results from two studies?"), not a data request.
-        explanation_phrasing = bool(re.match(
+        explanation_phrasing = meaning_question or uncertainty_question or bool(re.match(
             r"(?:why\b|what\s+role\b|what\s+(?:is|are)\s+the\s+(?:role|trade[-\s]?offs?)\b|"
             r"what\s+are\s+the\s+(?:pros|benefits|drawbacks|risks)\b|"
             r"how\s+(?:should|can|do)\s+i\s+compare\b)",
@@ -2740,6 +2796,13 @@ class MultiAgentManager:
         current_values = [
             str(value).strip() for value in current_values if str(value or "").strip()
         ]
+        if len(current_values) > 1:
+            families = [
+                family for family in SCENARIO_FAMILY_PATTERNS
+                if all(scenario_in_family(value, family) for value in current_values)
+            ]
+            if len(families) == 1:
+                current_values = families
         if len(current_values) != 1:
             return []
 
@@ -3883,6 +3946,7 @@ class MultiAgentManager:
         return bool(
             re.fullmatch(r"(?:which|what)\s+models?\s+(?:is|are|was|were)\s+(?:this|that|it|these|those)(?:\s+from)?", ql)
             or re.fullmatch(r"(?:which|what)\s+models?\s+(?:did|does)\s+(?:this|that|it)\s+come\s+from", ql)
+            or re.fullmatch(r"(?:which|what)\s+models?\s+(?:contributed|produced|reported)\s+(?:to\s+)?(?:it|this|that|these|those)(?:\s+(?:result|results|table|data))?", ql)
             or re.fullmatch(r"(?:where|which\s+model)\s+(?:is|are)\s+(?:this|that|these|those|it)\s+from", ql)
         )
 
@@ -4996,6 +5060,40 @@ class MultiAgentManager:
             q_lower = query.lower()
         available_models = getattr(self.entity_extractor, "available_models", []) or []
         plan = build_query_plan(query, available_models=available_models)
+        if re.search(r"\bdownload\b", q_lower) and re.search(
+            r"\b(?:data|dataset|results)\b", q_lower,
+        ):
+            self.clarification_context = None
+            self._conversation().response_scope_override = {}
+            self._record_route_decision(
+                "general_qa", 0.98, "deterministic", "data download navigation",
+            )
+            response = self._grounded_site_navigation_answer(
+                "where can I download the data?", {},
+            )
+            return (
+                response + "\n\nI do not have a verified direct file-download URL. "
+                "Open the Results page and select the study whose data you need."
+            )
+        previous_route = dict(getattr(self, "last_route_decision", {}) or {})
+        navigation_followup = re.fullmatch(
+            r"(?:and\s+)?what\s+about\s+(.+?)[?.!]?", query, re.IGNORECASE,
+        )
+        if (
+            navigation_followup
+            and previous_route.get("reason") == "explicit site navigation request"
+            and self.shared_resources.get("link_catalog")
+        ):
+            navigation_query = f"where can I find {navigation_followup.group(1).strip()}?"
+            if has_catalog_navigation_target(
+                navigation_query, self.shared_resources.get("link_catalog", []),
+            ):
+                self.clarification_context = None
+                self._conversation().response_scope_override = {}
+                self._record_route_decision(
+                    "general_qa", 0.97, "conversation_state", "site navigation follow-up",
+                )
+                return self._grounded_site_navigation_answer(navigation_query, {})
         if plan.replacement_dimension == "auto" and plan.replacement_value:
             replacement = self._resolve_carry_dimension(plan.replacement_value)
             if replacement:
@@ -5018,6 +5116,30 @@ class MultiAgentManager:
             self.clarification_context = None
             self.last_links = []
             self._conversation().response_scope_override = {}
+            # An explicit chart request still establishes the user's intended
+            # variable, geography and interval for a later "change only ..."
+            # or "show it" turn, although chart rendering happens elsewhere.
+            variables = getattr(self.entity_extractor, "available_variables", []) or []
+            regions = getattr(self.entity_extractor, "available_regions", []) or []
+            scenarios = getattr(self.entity_extractor, "available_scenarios", []) or []
+            plot_variable = (
+                self._match_catalog_value_from_text(query, variables)
+                or preferred_variable_from_query(query, variables)
+            )
+            plot_region = canonical_region_from_query(query, regions)
+            if plot_variable and plot_region:
+                plot_scope = {
+                    "action": "query", "variable": plot_variable, "region": plot_region,
+                }
+                plot_scenario = (
+                    self._match_catalog_value_from_text(query, scenarios)
+                    or canonical_scenario_from_query(query, scenarios)
+                )
+                if plot_scenario:
+                    plot_scope["scenario"] = plot_scenario
+                plot_scope = extract_year_filter(query).apply(plot_scope)
+                self._conversation().record_success(plot_scope)
+                self._conversation().response_scope_override = {}
             self._record_route_decision(
                 "general_qa", 1.0, "deterministic", "charts delegated to data explorer",
             )
@@ -5223,6 +5345,23 @@ class MultiAgentManager:
             self._conversation().response_scope_override = {}
             self._record_route_decision("general_qa", 1.0, "deterministic", "data source question")
             return data_source
+
+        if re.search(r"\bnegative\s+emissions?\b", q_lower) and re.search(
+            r"\b(?:value|number)\b[^?!.]*\bmean\b|\bmean\b[^?!.]*\b(?:value|number)\b",
+            q_lower,
+        ):
+            self.clarification_context = None
+            self.last_links = []
+            self._conversation().response_scope_override = {}
+            self._record_route_decision(
+                "general_qa", 1.0, "deterministic", "negative-emissions value explanation",
+            )
+            return (
+                "A negative value in a net-emissions series generally indicates net removal "
+                "of CO2 within that variable's accounting boundary. It does not mean all "
+                "emissions have stopped. Check the variable definition and study's sign "
+                "convention before interpreting a particular number."
+            )
 
         # Pure definition questions about a curated glossary term ("what does
         # net zero mean", "explain the NDC scenario", "difference between NDC
@@ -5533,7 +5672,7 @@ class MultiAgentManager:
         metadata_comparison_language = bool(re.search(
             r"\b(?:systems?|sectors?|cover(?:s|ed|ing|age)?|applications?|use\s+cases?|"
             r"frameworks?|methodology|methodologies|assumptions?|limitations?|"
-            r"technolog(?:y|ies|ical)|treatment|approach|design|purpose|architecture|"
+            r"technolog(?:y|ies|ical)|treatment|represent(?:s|ed|ation)?|approach|design|purpose|architecture|"
             r"differ(?:s|ed|ent|ently|ence|ences)?)\b",
             q_lower,
         ))
@@ -5615,7 +5754,7 @@ class MultiAgentManager:
             r"\b(?:explain|describe|summari[sz]e|profiles?|features?|methods?|overview|framework|methodology|systems?|sectors?|coverage|"
             r"useful\s+for|used\s+(?:for|to)|intended\s+for|designed\s+(?:for|to)|"
             r"use\s+cases?|applications?|policy\s+questions?|problems?|assumptions?|limitations?|analy[sz]e|"
-            r"technolog(?:y|ies|ical)|treatment|approach|design|purpose|architecture|"
+            r"technolog(?:y|ies|ical)|treatment|represent(?:s|ed|ation)?|approach|design|purpose|architecture|"
             r"developers?|develop(?:ed|s|ing)?|institution|organisation|organization|"
             r"integrated\s+assessment\s+model|iam|general[-\s]+equilibrium|partial[-\s]+equilibrium|cge|"
             r"model(?:ling|ing)?\s+types?|what\s+(?:kind|type|sort)\s+of\s+model|"
@@ -5978,6 +6117,16 @@ class MultiAgentManager:
         if plan.intent == "availability" and not self._is_conceptual_climate_question(query) and any(
             target in plan.availability_targets for target in ("variable", "region", "scenario", "model")
         ):
+            if "model" in plan.availability_targets:
+                region_models = self._models_for_region_answer(original_user_query)
+                if region_models is not None:
+                    self._record_route_decision(
+                        "data_query", 0.98, "deterministic", "models with results for region",
+                    )
+                    self._conversation().response_scope_override = {}
+                    return self._append_relevant_links(
+                        region_models, original_user_query, {}, "data_query",
+                    )
             availability_carried = early_carried if plan.followup else {}
             metadata = self.shared_resources.get("metadata")
             available_variables = getattr(metadata, "all_variables", set()) if metadata else set()
@@ -6162,7 +6311,8 @@ class MultiAgentManager:
         # 2050" after a coal answer), not a year/region patch of the old one.
         names_new_variable = self._names_new_variable(original_user_query, early_carried)
         scope_patch = bool(model_scope_followup or (
-            early_carried and plan.followup and not names_new_variable and (
+            early_carried and plan.followup
+            and (not names_new_variable or bool(plan.replacement_dimension)) and (
                 plan.replacement_dimension or plan.output_mode or plan.year_filter.explicit
             )
         ))
@@ -6317,11 +6467,18 @@ class MultiAgentManager:
                     key: early_carried[key]
                     for key in (
                         "variable", "region", "regions", "scenario", "scenarios", "model", "models",
-                        "workspace_code", "unit",
+                        "workspace_code", "unit", "start_year", "end_year",
                     )
                     if early_carried.get(key) not in (None, "", [])
                 }
                 year_scope = year_filter.apply(year_scope)
+                if (
+                    year_filter.operator == "until"
+                    and early_carried.get("start_year") is not None
+                    and year_filter.end_year is not None
+                    and int(early_carried["start_year"]) <= year_filter.end_year
+                ):
+                    year_scope["start_year"] = early_carried["start_year"]
                 year_scope["action"] = "query"
                 agent = self.agents.get("data_query")
                 if agent and hasattr(agent, "handle_with_entities"):

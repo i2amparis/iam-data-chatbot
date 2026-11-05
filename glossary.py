@@ -82,6 +82,7 @@ what whats is are does do mean means meaning of the a an by define definition
 defined explain explanation tell me about term concept difference differences
 between and vs versus how differ differs different from compare comparison
 in iam iams s you please exactly with regard to called stand stands for
+value values
 """.split())
 
 _DEFINITION_CUE = re.compile(

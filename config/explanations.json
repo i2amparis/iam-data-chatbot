@@ -144,6 +144,26 @@
       "source": "IPCC AR6 WGIII Ch. 3 and Ch. 6"
     },
     {
+      "topic": "Why a baseline can show falling emissions",
+      "match": [
+        ["baseline|reference scenario"],
+        ["emission\\w*"],
+        ["fall\\w*|declin\\w*|decreas\\w*|drop\\w*"]
+      ],
+      "text": "A baseline is defined by its policy assumptions, not by an obligation for emissions to rise. Emissions can fall when existing policies continue to have effects, energy efficiency improves, cleaner technologies become cheaper, or population and economic activity change. Check the study's baseline definition and compare the same region, variable and years before attributing a decline to one cause.",
+      "source": "IPCC AR6 WGIII Ch. 3; IAM PARIS scenario interpretation"
+    },
+    {
+      "topic": "Limits of long-term scenario projections",
+      "match": [
+        ["long[- ]term|future"],
+        ["projection\\w*|scenario\\w*|pathway\\w*"],
+        ["limit\\w*|uncertain\\w*|reliab\\w*"]
+      ],
+      "text": "Long-term IAM results are conditional scenarios, not forecasts. Their values depend on assumptions about future policy, population, economic growth, technology costs and availability, behaviour and resources. Different model structures also yield different outcomes. Compare scenarios and models, and avoid treating a single pathway as a prediction or probability statement.",
+      "source": "IPCC AR6 WGIII Ch. 3; IAM PARIS glossary"
+    },
+    {
       "topic": "Why baseline scenarios show rising emissions",
       "match": [
         [
@@ -153,7 +173,7 @@
           "emission\\w*"
         ],
         [
-          "grow\\w*|ris\\w*|increas\\w*|still|why"
+          "grow\\w*|ris\\w*|increas\\w*|still"
         ]
       ],
       "text": "Baseline or reference scenarios assume no new climate policy beyond what is already implemented. Population and economic growth keep raising demand for energy, and fossil fuels remain competitive, so emissions keep rising or level off rather than falling. Efficiency gains and cheaper renewables slow the growth but do not reverse it without additional policy.",
@@ -229,6 +249,24 @@
       ],
       "text": "Scenarios differ in their assumptions, so their emissions differ. The main assumption is climate policy: a baseline assumes no new policy, a current policies scenario keeps only implemented policies, an NDC scenario assumes countries meet their pledges, and net zero or 1.5 °C scenarios impose much deeper cuts. Scenarios can also differ in population and economic growth (for example the SSPs) and in technology costs and availability. For the same scenario, different models also give different emissions because their structure and assumptions differ.",
       "source": "IPCC AR6 WGIII Ch. 3"
+    },
+    {
+      "topic": "Net-zero pathways and electricity prices",
+      "match": [
+        ["net[- ]zero|carbon neutral"],
+        ["electricity pric\\w*|power pric\\w*"]
+      ],
+      "text": "Net zero describes an emissions balance, not a fixed electricity price. In a net-zero scenario, electricity prices depend on the assumed generation mix, carbon prices on fossil power, grid and storage needs, technology costs and demand. The direction and size of the price change must be read from a named study and compared with a specified reference scenario; it cannot be inferred from the phrase 'net zero' alone.",
+      "source": "IAM PARIS scenario and electricity-price interpretation"
+    },
+    {
+      "topic": "Uncertainty in future electricity demand",
+      "match": [
+        ["uncertain\\w*|limit\\w*"],
+        ["electricity demand|power demand"]
+      ],
+      "text": "Projected electricity demand depends on population, economic activity, electrification of transport and heating, industrial production, energy efficiency and prices. These inputs differ across scenarios and models, so a single demand trajectory is conditional on its assumptions. Compare several scenarios for the same region and year range to see how sensitive the projection is.",
+      "source": "IAM PARIS variable and scenario interpretation"
     },
     {
       "topic": "How renewables affect electricity prices",

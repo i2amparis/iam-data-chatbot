@@ -1994,7 +1994,7 @@ class ManagerFallbackTests(unittest.TestCase):
         self.assertEqual(mgr.last_entities["observed_start_year"], 2035)
         self.assertEqual(mgr.last_entities["observed_end_year"], 2100)
 
-    def test_until_year_followup_clears_carried_lower_bound(self):
+    def test_until_year_followup_narrows_carried_interval(self):
         mgr = self._build_manager({
             "action": "query", "variable": "Metric", "region": "R1",
             "start_year": 1900, "end_year": 2050,
@@ -2018,7 +2018,7 @@ class ManagerFallbackTests(unittest.TestCase):
 
         mgr._route_single("until 2050")
 
-        self.assertNotIn("start_year", data_agent.last_entities)
+        self.assertEqual(data_agent.last_entities["start_year"], 2040)
         self.assertEqual(data_agent.last_entities["end_year"], 2050)
 
     def test_plot_it_preserves_structured_region_comparison(self):

@@ -1,0 +1,1205 @@
+{
+  "model": "qwen3:0.6b-q4_K_M",
+  "questions": [
+    {
+      "id": "q001",
+      "category": "numeric data and comparisons",
+      "query": "Give the 2045 CO2 emissions estimate for Brazil under current policies.",
+      "conversation": null
+    },
+    {
+      "id": "q002",
+      "category": "numeric data and comparisons",
+      "query": "How does methane output in India change from 2020 through 2050?",
+      "conversation": null
+    },
+    {
+      "id": "q003",
+      "category": "numeric data and comparisons",
+      "query": "Report EU solar electricity capacity in 2040 under a net-zero pathway.",
+      "conversation": null
+    },
+    {
+      "id": "q004",
+      "category": "numeric data and comparisons",
+      "query": "What is the projected wind generation for Germany in 2035?",
+      "conversation": null
+    },
+    {
+      "id": "q005",
+      "category": "numeric data and comparisons",
+      "query": "Show primary energy from coal for China between 2030 and 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q006",
+      "category": "numeric data and comparisons",
+      "query": "Compare 2050 gas use in Japan and South Korea.",
+      "conversation": null
+    },
+    {
+      "id": "q007",
+      "category": "numeric data and comparisons",
+      "query": "How much final energy does transport use in the EU in 2040?",
+      "conversation": null
+    },
+    {
+      "id": "q008",
+      "category": "numeric data and comparisons",
+      "query": "Show population for Nigeria at the latest reported year.",
+      "conversation": null
+    },
+    {
+      "id": "q009",
+      "category": "numeric data and comparisons",
+      "query": "Find the highest carbon price for World in 2050 across loaded scenarios.",
+      "conversation": null
+    },
+    {
+      "id": "q010",
+      "category": "numeric data and comparisons",
+      "query": "What is the median GDP projection for the EU in 2060?",
+      "conversation": null
+    },
+    {
+      "id": "q011",
+      "category": "numeric data and comparisons",
+      "query": "How far do global CO2 emissions fall between 2030 and 2070?",
+      "conversation": null
+    },
+    {
+      "id": "q012",
+      "category": "numeric data and comparisons",
+      "query": "Compare electricity generation from solar and nuclear in Europe in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q013",
+      "category": "numeric data and comparisons",
+      "query": "Give hydropower capacity for Greece in 2030.",
+      "conversation": null
+    },
+    {
+      "id": "q014",
+      "category": "numeric data and comparisons",
+      "query": "What are the 2050 industrial CO2 emissions for the United States?",
+      "conversation": null
+    },
+    {
+      "id": "q015",
+      "category": "numeric data and comparisons",
+      "query": "Show final electricity demand in France from 2025 to 2045.",
+      "conversation": null
+    },
+    {
+      "id": "q016",
+      "category": "numeric data and comparisons",
+      "query": "Report carbon capture deployment for World by 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q017",
+      "category": "numeric data and comparisons",
+      "query": "How much bioenergy is used globally in 2100?",
+      "conversation": null
+    },
+    {
+      "id": "q018",
+      "category": "numeric data and comparisons",
+      "query": "Compare baseline and NDC CO2 results for India in 2040.",
+      "conversation": null
+    },
+    {
+      "id": "q019",
+      "category": "numeric data and comparisons",
+      "query": "What is the latest methane value for Brazil?",
+      "conversation": null
+    },
+    {
+      "id": "q020",
+      "category": "numeric data and comparisons",
+      "query": "Show power-sector emissions for Europe under current policies.",
+      "conversation": null
+    },
+    {
+      "id": "q021",
+      "category": "numeric data and comparisons",
+      "query": "How much investment in solar electricity is reported for China in 2050?",
+      "conversation": null
+    },
+    {
+      "id": "q022",
+      "category": "numeric data and comparisons",
+      "query": "Give the 2030 coal electricity generation figure for Africa.",
+      "conversation": null
+    },
+    {
+      "id": "q023",
+      "category": "numeric data and comparisons",
+      "query": "Which scenario has the smallest EU carbon price in 2050?",
+      "conversation": null
+    },
+    {
+      "id": "q024",
+      "category": "numeric data and comparisons",
+      "query": "What is the average 2040 global electricity output across models?",
+      "conversation": null
+    },
+    {
+      "id": "q025",
+      "category": "numeric data and comparisons",
+      "query": "Report residential final energy for Italy in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q026",
+      "category": "numeric data and comparisons",
+      "query": "Compare 2035 wind capacity in Spain and Germany.",
+      "conversation": null
+    },
+    {
+      "id": "q027",
+      "category": "numeric data and comparisons",
+      "query": "How does world natural-gas primary energy evolve after 2040?",
+      "conversation": null
+    },
+    {
+      "id": "q028",
+      "category": "numeric data and comparisons",
+      "query": "Give the 2050 CO2 value from GCAM for China under PR_NDC_EI.",
+      "conversation": null
+    },
+    {
+      "id": "q029",
+      "category": "numeric data and comparisons",
+      "query": "Show electricity production from biomass in India through 2060.",
+      "conversation": null
+    },
+    {
+      "id": "q030",
+      "category": "numeric data and comparisons",
+      "query": "How much does EU GDP change between 2020 and 2040?",
+      "conversation": null
+    },
+    {
+      "id": "q031",
+      "category": "numeric data and comparisons",
+      "query": "Report global hydrogen capacity in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q032",
+      "category": "numeric data and comparisons",
+      "query": "Compare two models on 2030 EU solar capacity.",
+      "conversation": null
+    },
+    {
+      "id": "q033",
+      "category": "numeric data and comparisons",
+      "query": "Show 2050 CO2 values in the Post-Glasgow targets study for World.",
+      "conversation": null
+    },
+    {
+      "id": "q034",
+      "category": "numeric data and comparisons",
+      "query": "What is the earliest available global population value?",
+      "conversation": null
+    },
+    {
+      "id": "q035",
+      "category": "numeric data and comparisons",
+      "query": "Give 2050 methane emissions for Canada under a baseline scenario.",
+      "conversation": null
+    },
+    {
+      "id": "q036",
+      "category": "model descriptions and methodology",
+      "query": "Explain the main structure of GCAM 7.0.",
+      "conversation": null
+    },
+    {
+      "id": "q037",
+      "category": "model descriptions and methodology",
+      "query": "What distinguishes WITCH from a simple energy accounting model?",
+      "conversation": null
+    },
+    {
+      "id": "q038",
+      "category": "model descriptions and methodology",
+      "query": "Who maintains the GEM-E3 model?",
+      "conversation": null
+    },
+    {
+      "id": "q039",
+      "category": "model descriptions and methodology",
+      "query": "Describe the geographic scope of E3ME.",
+      "conversation": null
+    },
+    {
+      "id": "q040",
+      "category": "model descriptions and methodology",
+      "query": "How does IMAGE connect land use and climate?",
+      "conversation": null
+    },
+    {
+      "id": "q041",
+      "category": "model descriptions and methodology",
+      "query": "Summarize PROMETHEUS model assumptions.",
+      "conversation": null
+    },
+    {
+      "id": "q042",
+      "category": "model descriptions and methodology",
+      "query": "What does MUSE simulate?",
+      "conversation": null
+    },
+    {
+      "id": "q043",
+      "category": "model descriptions and methodology",
+      "query": "Explain the purpose of ALADIN.",
+      "conversation": null
+    },
+    {
+      "id": "q044",
+      "category": "model descriptions and methodology",
+      "query": "How is ATOM used in energy analysis?",
+      "conversation": null
+    },
+    {
+      "id": "q045",
+      "category": "model descriptions and methodology",
+      "query": "What sectors are represented by FORECAST?",
+      "conversation": null
+    },
+    {
+      "id": "q046",
+      "category": "model descriptions and methodology",
+      "query": "Describe MESSAGEix-GLOBIOM in plain language.",
+      "conversation": null
+    },
+    {
+      "id": "q047",
+      "category": "model descriptions and methodology",
+      "query": "How does REMIND-MFA differ from REMIND?",
+      "conversation": null
+    },
+    {
+      "id": "q048",
+      "category": "model descriptions and methodology",
+      "query": "Who develops the LEAP model?",
+      "conversation": null
+    },
+    {
+      "id": "q049",
+      "category": "model descriptions and methodology",
+      "query": "Is TIAM a bottom-up energy model?",
+      "conversation": null
+    },
+    {
+      "id": "q050",
+      "category": "model descriptions and methodology",
+      "query": "What is the role of OSeMOSYS-GR?",
+      "conversation": null
+    },
+    {
+      "id": "q051",
+      "category": "model descriptions and methodology",
+      "query": "Describe PRIMES-Buildings and its intended uses.",
+      "conversation": null
+    },
+    {
+      "id": "q052",
+      "category": "model descriptions and methodology",
+      "query": "What sort of model is EnergyPLAN?",
+      "conversation": null
+    },
+    {
+      "id": "q053",
+      "category": "model descriptions and methodology",
+      "query": "Compare GCAM and WITCH on methodology.",
+      "conversation": null
+    },
+    {
+      "id": "q054",
+      "category": "model descriptions and methodology",
+      "query": "Contrast IMAGE and GEM-E3 in their sector coverage.",
+      "conversation": null
+    },
+    {
+      "id": "q055",
+      "category": "model descriptions and methodology",
+      "query": "What are the limitations of the MUSE model description?",
+      "conversation": null
+    },
+    {
+      "id": "q056",
+      "category": "model descriptions and methodology",
+      "query": "Does E3ME use general equilibrium?",
+      "conversation": null
+    },
+    {
+      "id": "q057",
+      "category": "model descriptions and methodology",
+      "query": "How does PROMETHEUS treat technology choices?",
+      "conversation": null
+    },
+    {
+      "id": "q058",
+      "category": "model descriptions and methodology",
+      "query": "What documentation is available for GCAM-PR 5.3?",
+      "conversation": null
+    },
+    {
+      "id": "q059",
+      "category": "model descriptions and methodology",
+      "query": "Which institution is responsible for the WITCH model?",
+      "conversation": null
+    },
+    {
+      "id": "q060",
+      "category": "model descriptions and methodology",
+      "query": "Compare REMIND and MESSAGEix-GLOBIOM as energy-system tools.",
+      "conversation": null
+    },
+    {
+      "id": "q061",
+      "category": "coverage and catalogue",
+      "query": "Which models have loaded results for Brazil?",
+      "conversation": null
+    },
+    {
+      "id": "q062",
+      "category": "coverage and catalogue",
+      "query": "What variables does WITCH report for the EU?",
+      "conversation": null
+    },
+    {
+      "id": "q063",
+      "category": "coverage and catalogue",
+      "query": "List the regions covered by MUSE data.",
+      "conversation": null
+    },
+    {
+      "id": "q064",
+      "category": "coverage and catalogue",
+      "query": "Which years have GDP results for World?",
+      "conversation": null
+    },
+    {
+      "id": "q065",
+      "category": "coverage and catalogue",
+      "query": "How many scenarios contain solar-capacity data for Germany?",
+      "conversation": null
+    },
+    {
+      "id": "q066",
+      "category": "coverage and catalogue",
+      "query": "Which studies include methane emissions for India?",
+      "conversation": null
+    },
+    {
+      "id": "q067",
+      "category": "coverage and catalogue",
+      "query": "What models report power-sector CO2 for Europe?",
+      "conversation": null
+    },
+    {
+      "id": "q068",
+      "category": "coverage and catalogue",
+      "query": "Which variables are available for Nigeria?",
+      "conversation": null
+    },
+    {
+      "id": "q069",
+      "category": "coverage and catalogue",
+      "query": "What scenarios are loaded for the Post-Glasgow targets study?",
+      "conversation": null
+    },
+    {
+      "id": "q070",
+      "category": "coverage and catalogue",
+      "query": "Which regions contain carbon-price projections?",
+      "conversation": null
+    },
+    {
+      "id": "q071",
+      "category": "coverage and catalogue",
+      "query": "What is the year span for GCAM-PR 5.3 results?",
+      "conversation": null
+    },
+    {
+      "id": "q072",
+      "category": "coverage and catalogue",
+      "query": "Which models include nuclear electricity output?",
+      "conversation": null
+    },
+    {
+      "id": "q073",
+      "category": "coverage and catalogue",
+      "query": "How many variables are in the EU path to net zero study?",
+      "conversation": null
+    },
+    {
+      "id": "q074",
+      "category": "coverage and catalogue",
+      "query": "Does PROMETHEUS have population results?",
+      "conversation": null
+    },
+    {
+      "id": "q075",
+      "category": "coverage and catalogue",
+      "query": "Which regions have hydrogen-capacity data?",
+      "conversation": null
+    },
+    {
+      "id": "q076",
+      "category": "coverage and catalogue",
+      "query": "What are the available model names for wind generation?",
+      "conversation": null
+    },
+    {
+      "id": "q077",
+      "category": "coverage and catalogue",
+      "query": "Which scenarios report emissions for Canada?",
+      "conversation": null
+    },
+    {
+      "id": "q078",
+      "category": "coverage and catalogue",
+      "query": "What data categories exist for Brazil?",
+      "conversation": null
+    },
+    {
+      "id": "q079",
+      "category": "coverage and catalogue",
+      "query": "Are there any projections beyond 2080?",
+      "conversation": null
+    },
+    {
+      "id": "q080",
+      "category": "coverage and catalogue",
+      "query": "Which models provide coal primary-energy data for China?",
+      "conversation": null
+    },
+    {
+      "id": "q081",
+      "category": "coverage and catalogue",
+      "query": "List the studies that include Africa.",
+      "conversation": null
+    },
+    {
+      "id": "q082",
+      "category": "coverage and catalogue",
+      "query": "What model versions are present in the results cache?",
+      "conversation": null
+    },
+    {
+      "id": "q083",
+      "category": "coverage and catalogue",
+      "query": "Which electricity-price variables are recorded?",
+      "conversation": null
+    },
+    {
+      "id": "q084",
+      "category": "coverage and catalogue",
+      "query": "How many models have results for France?",
+      "conversation": null
+    },
+    {
+      "id": "q085",
+      "category": "coverage and catalogue",
+      "query": "Do the loaded results include land-cover variables?",
+      "conversation": null
+    },
+    {
+      "id": "q086",
+      "category": "conceptual explanations for Qwen",
+      "query": "Why might a model show falling coal use but rising gas use?",
+      "conversation": null
+    },
+    {
+      "id": "q087",
+      "category": "conceptual explanations for Qwen",
+      "query": "How can two net-zero scenarios reach the same target with different technology mixes?",
+      "conversation": null
+    },
+    {
+      "id": "q088",
+      "category": "conceptual explanations for Qwen",
+      "query": "What drives uncertainty in future hydrogen demand?",
+      "conversation": null
+    },
+    {
+      "id": "q089",
+      "category": "conceptual explanations for Qwen",
+      "query": "Why can carbon prices rise while emissions decline?",
+      "conversation": null
+    },
+    {
+      "id": "q090",
+      "category": "conceptual explanations for Qwen",
+      "query": "How should I interpret a negative land-use CO2 value?",
+      "conversation": null
+    },
+    {
+      "id": "q091",
+      "category": "conceptual explanations for Qwen",
+      "query": "What makes electricity-price projections sensitive to storage costs?",
+      "conversation": null
+    },
+    {
+      "id": "q092",
+      "category": "conceptual explanations for Qwen",
+      "query": "Why do IAMs report several regional aggregates for the same country?",
+      "conversation": null
+    },
+    {
+      "id": "q093",
+      "category": "conceptual explanations for Qwen",
+      "query": "How does a carbon budget differ from an annual emissions target?",
+      "conversation": null
+    },
+    {
+      "id": "q094",
+      "category": "conceptual explanations for Qwen",
+      "query": "What assumptions make direct air capture attractive in a scenario?",
+      "conversation": null
+    },
+    {
+      "id": "q095",
+      "category": "conceptual explanations for Qwen",
+      "query": "Why might economic growth and final energy use move in opposite directions?",
+      "conversation": null
+    },
+    {
+      "id": "q096",
+      "category": "conceptual explanations for Qwen",
+      "query": "How do integrated assessment models represent policy uncertainty?",
+      "conversation": null
+    },
+    {
+      "id": "q097",
+      "category": "conceptual explanations for Qwen",
+      "query": "What is the difference between installed capacity and electricity generation?",
+      "conversation": null
+    },
+    {
+      "id": "q098",
+      "category": "conceptual explanations for Qwen",
+      "query": "Why can historical values differ across model submissions?",
+      "conversation": null
+    },
+    {
+      "id": "q099",
+      "category": "conceptual explanations for Qwen",
+      "query": "How should I compare carbon prices reported in different currency-year units?",
+      "conversation": null
+    },
+    {
+      "id": "q100",
+      "category": "conceptual explanations for Qwen",
+      "query": "What does a large spread between model results tell us?",
+      "conversation": null
+    },
+    {
+      "id": "q101",
+      "category": "conceptual explanations for Qwen",
+      "query": "Why is a baseline pathway not necessarily a forecast?",
+      "conversation": null
+    },
+    {
+      "id": "q102",
+      "category": "conceptual explanations for Qwen",
+      "query": "How could faster battery learning change a power-sector pathway?",
+      "conversation": null
+    },
+    {
+      "id": "q103",
+      "category": "conceptual explanations for Qwen",
+      "query": "What causes transport emissions to persist in deep-mitigation scenarios?",
+      "conversation": null
+    },
+    {
+      "id": "q104",
+      "category": "conceptual explanations for Qwen",
+      "query": "Why do some models use more bioenergy than others?",
+      "conversation": null
+    },
+    {
+      "id": "q105",
+      "category": "conceptual explanations for Qwen",
+      "query": "How do scenario assumptions affect projected GDP?",
+      "conversation": null
+    },
+    {
+      "id": "q106",
+      "category": "conceptual explanations for Qwen",
+      "query": "What is the practical meaning of net-negative CO2 after 2050?",
+      "conversation": null
+    },
+    {
+      "id": "q107",
+      "category": "conceptual explanations for Qwen",
+      "query": "Why might a country reach net zero later than the global average?",
+      "conversation": null
+    },
+    {
+      "id": "q108",
+      "category": "conceptual explanations for Qwen",
+      "query": "How can demand-side changes lower mitigation costs?",
+      "conversation": null
+    },
+    {
+      "id": "q109",
+      "category": "conceptual explanations for Qwen",
+      "query": "What should I check before calling one model more optimistic than another?",
+      "conversation": null
+    },
+    {
+      "id": "q110",
+      "category": "conceptual explanations for Qwen",
+      "query": "Why can renewable capacity grow even when electricity demand is flat?",
+      "conversation": null
+    },
+    {
+      "id": "q111",
+      "category": "website and documentation links",
+      "query": "Take me to the page listing IAM PARIS models.",
+      "conversation": null
+    },
+    {
+      "id": "q112",
+      "category": "website and documentation links",
+      "query": "Where is the EU path to net zero explorer?",
+      "conversation": null
+    },
+    {
+      "id": "q113",
+      "category": "website and documentation links",
+      "query": "Find the Aqueduct entry in the application library.",
+      "conversation": null
+    },
+    {
+      "id": "q114",
+      "category": "website and documentation links",
+      "query": "Open the project contact form.",
+      "conversation": null
+    },
+    {
+      "id": "q115",
+      "category": "website and documentation links",
+      "query": "Where are the data stories listed?",
+      "conversation": null
+    },
+    {
+      "id": "q116",
+      "category": "website and documentation links",
+      "query": "Give me the workspace index link.",
+      "conversation": null
+    },
+    {
+      "id": "q117",
+      "category": "website and documentation links",
+      "query": "How can I reach the model comparison tool?",
+      "conversation": null
+    },
+    {
+      "id": "q118",
+      "category": "website and documentation links",
+      "query": "Find documentation for the IMAGE framework.",
+      "conversation": null
+    },
+    {
+      "id": "q119",
+      "category": "website and documentation links",
+      "query": "Where is the policy catalogue on IAM PARIS?",
+      "conversation": null
+    },
+    {
+      "id": "q120",
+      "category": "website and documentation links",
+      "query": "Show the transport transformation study page.",
+      "conversation": null
+    },
+    {
+      "id": "q121",
+      "category": "website and documentation links",
+      "query": "Where can I read about the Fit-for-55 comparison study?",
+      "conversation": null
+    },
+    {
+      "id": "q122",
+      "category": "website and documentation links",
+      "query": "Give me a link to the configurable analysis page.",
+      "conversation": null
+    },
+    {
+      "id": "q123",
+      "category": "website and documentation links",
+      "query": "Find the Climate Watch application listing.",
+      "conversation": null
+    },
+    {
+      "id": "q124",
+      "category": "website and documentation links",
+      "query": "Where can I access NDC ASPECTS results?",
+      "conversation": null
+    },
+    {
+      "id": "q125",
+      "category": "website and documentation links",
+      "query": "Show me the page for the GCAM model.",
+      "conversation": null
+    },
+    {
+      "id": "q126",
+      "category": "ambiguity and recovery",
+      "query": "Show me energy numbers for Europe.",
+      "conversation": null
+    },
+    {
+      "id": "q127",
+      "category": "ambiguity and recovery",
+      "query": "I need electricity data but I do not know which variable.",
+      "conversation": null
+    },
+    {
+      "id": "q128",
+      "category": "ambiguity and recovery",
+      "query": "Give me emissions for an unspecified region.",
+      "conversation": null
+    },
+    {
+      "id": "q129",
+      "category": "ambiguity and recovery",
+      "query": "Show CO2 for El Dorado in 2050.",
+      "conversation": null
+    },
+    {
+      "id": "q130",
+      "category": "ambiguity and recovery",
+      "query": "Is MODEL-X available in the catalogue?",
+      "conversation": null
+    },
+    {
+      "id": "q131",
+      "category": "ambiguity and recovery",
+      "query": "Plot the data I have not selected yet.",
+      "conversation": null
+    },
+    {
+      "id": "q132",
+      "category": "ambiguity and recovery",
+      "query": "Compare solar with the other technology.",
+      "conversation": null
+    },
+    {
+      "id": "q133",
+      "category": "ambiguity and recovery",
+      "query": "What does “Policy” refer to in these results?",
+      "conversation": null
+    },
+    {
+      "id": "q134",
+      "category": "ambiguity and recovery",
+      "query": "I meant solar generation, not solar capacity.",
+      "conversation": null
+    },
+    {
+      "id": "q135",
+      "category": "ambiguity and recovery",
+      "query": "Can you show a value for the year 2300?",
+      "conversation": null
+    },
+    {
+      "id": "q136",
+      "category": "ambiguity and recovery",
+      "query": "Please use an unknown scenario called Blue Pathway.",
+      "conversation": null
+    },
+    {
+      "id": "q137",
+      "category": "ambiguity and recovery",
+      "query": "How many models cover an imaginary sector called moon mining?",
+      "conversation": null
+    },
+    {
+      "id": "q138",
+      "category": "ambiguity and recovery",
+      "query": "Show me results for a country that is not in the dataset.",
+      "conversation": null
+    },
+    {
+      "id": "q139",
+      "category": "ambiguity and recovery",
+      "query": "Can you explain a model called QUASAR-IAM?",
+      "conversation": null
+    },
+    {
+      "id": "q140",
+      "category": "ambiguity and recovery",
+      "query": "Give me everything at once.",
+      "conversation": null
+    },
+    {
+      "id": "co2_region_model-1",
+      "category": "multi-turn follow-up",
+      "query": "Start with CO2 emissions for the EU in 2040.",
+      "conversation": "co2_region_model"
+    },
+    {
+      "id": "co2_region_model-2",
+      "category": "multi-turn follow-up",
+      "query": "Switch the geography to Brazil while keeping the year.",
+      "conversation": "co2_region_model"
+    },
+    {
+      "id": "co2_region_model-3",
+      "category": "multi-turn follow-up",
+      "query": "Now limit that result to GCAM.",
+      "conversation": "co2_region_model"
+    },
+    {
+      "id": "co2_region_model-4",
+      "category": "multi-turn follow-up",
+      "query": "Use 2050 instead of 2040.",
+      "conversation": "co2_region_model"
+    },
+    {
+      "id": "co2_region_model-5",
+      "category": "multi-turn follow-up",
+      "query": "Which scenarios contributed to this table?",
+      "conversation": "co2_region_model"
+    },
+    {
+      "id": "co2_region_model-6",
+      "category": "multi-turn follow-up",
+      "query": "Open the explorer for that study.",
+      "conversation": "co2_region_model"
+    },
+    {
+      "id": "solar_variable_change-1",
+      "category": "multi-turn follow-up",
+      "query": "Show solar electricity capacity for Germany from 2030 to 2050.",
+      "conversation": "solar_variable_change"
+    },
+    {
+      "id": "solar_variable_change-2",
+      "category": "multi-turn follow-up",
+      "query": "Change just the variable to wind electricity capacity.",
+      "conversation": "solar_variable_change"
+    },
+    {
+      "id": "solar_variable_change-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep Germany but stop at 2040.",
+      "conversation": "solar_variable_change"
+    },
+    {
+      "id": "solar_variable_change-4",
+      "category": "multi-turn follow-up",
+      "query": "Which models produced those values?",
+      "conversation": "solar_variable_change"
+    },
+    {
+      "id": "solar_variable_change-5",
+      "category": "multi-turn follow-up",
+      "query": "Explain why model values could differ.",
+      "conversation": "solar_variable_change"
+    },
+    {
+      "id": "solar_variable_change-6",
+      "category": "multi-turn follow-up",
+      "query": "Return to the solar series for 2040.",
+      "conversation": "solar_variable_change"
+    },
+    {
+      "id": "model_pronouns-1",
+      "category": "multi-turn follow-up",
+      "query": "Describe the PROMETHEUS model and its sectors.",
+      "conversation": "model_pronouns"
+    },
+    {
+      "id": "model_pronouns-2",
+      "category": "multi-turn follow-up",
+      "query": "Who built that model?",
+      "conversation": "model_pronouns"
+    },
+    {
+      "id": "model_pronouns-3",
+      "category": "multi-turn follow-up",
+      "query": "What limitations does it have?",
+      "conversation": "model_pronouns"
+    },
+    {
+      "id": "model_pronouns-4",
+      "category": "multi-turn follow-up",
+      "query": "Which regions does it report?",
+      "conversation": "model_pronouns"
+    },
+    {
+      "id": "model_pronouns-5",
+      "category": "multi-turn follow-up",
+      "query": "Does that model have EU carbon-price data?",
+      "conversation": "model_pronouns"
+    },
+    {
+      "id": "model_pronouns-6",
+      "category": "multi-turn follow-up",
+      "query": "Show its documentation link.",
+      "conversation": "model_pronouns"
+    },
+    {
+      "id": "clarify_energy-1",
+      "category": "multi-turn follow-up",
+      "query": "I want energy data for India in 2050.",
+      "conversation": "clarify_energy"
+    },
+    {
+      "id": "clarify_energy-2",
+      "category": "multi-turn follow-up",
+      "query": "Choose option 2 if it is available.",
+      "conversation": "clarify_energy"
+    },
+    {
+      "id": "clarify_energy-3",
+      "category": "multi-turn follow-up",
+      "query": "Actually use electricity output rather than final energy.",
+      "conversation": "clarify_energy"
+    },
+    {
+      "id": "clarify_energy-4",
+      "category": "multi-turn follow-up",
+      "query": "Keep India and show the year 2040.",
+      "conversation": "clarify_energy"
+    },
+    {
+      "id": "clarify_energy-5",
+      "category": "multi-turn follow-up",
+      "query": "Which study supplied these results?",
+      "conversation": "clarify_energy"
+    },
+    {
+      "id": "clarify_energy-6",
+      "category": "multi-turn follow-up",
+      "query": "Can I compare the same metric with China?",
+      "conversation": "clarify_energy"
+    },
+    {
+      "id": "scenario_comparison-1",
+      "category": "multi-turn follow-up",
+      "query": "Give World CO2 emissions under Baseline in 2040.",
+      "conversation": "scenario_comparison"
+    },
+    {
+      "id": "scenario_comparison-2",
+      "category": "multi-turn follow-up",
+      "query": "Compare that with current policies for the same year.",
+      "conversation": "scenario_comparison"
+    },
+    {
+      "id": "scenario_comparison-3",
+      "category": "multi-turn follow-up",
+      "query": "Which of the two scenario families is lower?",
+      "conversation": "scenario_comparison"
+    },
+    {
+      "id": "scenario_comparison-4",
+      "category": "multi-turn follow-up",
+      "query": "Change the region to India for this comparison.",
+      "conversation": "scenario_comparison"
+    },
+    {
+      "id": "scenario_comparison-5",
+      "category": "multi-turn follow-up",
+      "query": "Show only 2050 now.",
+      "conversation": "scenario_comparison"
+    },
+    {
+      "id": "scenario_comparison-6",
+      "category": "multi-turn follow-up",
+      "query": "What assumptions could explain the gap?",
+      "conversation": "scenario_comparison"
+    },
+    {
+      "id": "failed_scope_recovery-1",
+      "category": "multi-turn follow-up",
+      "query": "Show 2050 CO2 emissions for Atlantis.",
+      "conversation": "failed_scope_recovery"
+    },
+    {
+      "id": "failed_scope_recovery-2",
+      "category": "multi-turn follow-up",
+      "query": "Use Greece as the region instead.",
+      "conversation": "failed_scope_recovery"
+    },
+    {
+      "id": "failed_scope_recovery-3",
+      "category": "multi-turn follow-up",
+      "query": "Keep the same metric but use a baseline pathway.",
+      "conversation": "failed_scope_recovery"
+    },
+    {
+      "id": "failed_scope_recovery-4",
+      "category": "multi-turn follow-up",
+      "query": "What model names are in that result?",
+      "conversation": "failed_scope_recovery"
+    },
+    {
+      "id": "failed_scope_recovery-5",
+      "category": "multi-turn follow-up",
+      "query": "Chart this in the data explorer.",
+      "conversation": "failed_scope_recovery"
+    },
+    {
+      "id": "failed_scope_recovery-6",
+      "category": "multi-turn follow-up",
+      "query": "Give the numeric table for 2045 too.",
+      "conversation": "failed_scope_recovery"
+    },
+    {
+      "id": "navigation_context-1",
+      "category": "multi-turn follow-up",
+      "query": "Find the IAM PARIS Application Library.",
+      "conversation": "navigation_context"
+    },
+    {
+      "id": "navigation_context-2",
+      "category": "multi-turn follow-up",
+      "query": "What about Aqueduct there?",
+      "conversation": "navigation_context"
+    },
+    {
+      "id": "navigation_context-3",
+      "category": "multi-turn follow-up",
+      "query": "Where can I find its detail page?",
+      "conversation": "navigation_context"
+    },
+    {
+      "id": "navigation_context-4",
+      "category": "multi-turn follow-up",
+      "query": "Now look for Climate Watch in that library.",
+      "conversation": "navigation_context"
+    },
+    {
+      "id": "navigation_context-5",
+      "category": "multi-turn follow-up",
+      "query": "Return to the main Results page.",
+      "conversation": "navigation_context"
+    },
+    {
+      "id": "navigation_context-6",
+      "category": "multi-turn follow-up",
+      "query": "How do I download a study dataset from there?",
+      "conversation": "navigation_context"
+    },
+    {
+      "id": "plot_context-1",
+      "category": "multi-turn follow-up",
+      "query": "Plot coal primary energy for China from 2030 to 2050.",
+      "conversation": "plot_context"
+    },
+    {
+      "id": "plot_context-2",
+      "category": "multi-turn follow-up",
+      "query": "Change only the variable to gas primary energy.",
+      "conversation": "plot_context"
+    },
+    {
+      "id": "plot_context-3",
+      "category": "multi-turn follow-up",
+      "query": "Add the PR_CurPol_CP scenario.",
+      "conversation": "plot_context"
+    },
+    {
+      "id": "plot_context-4",
+      "category": "multi-turn follow-up",
+      "query": "Narrow the interval to 2035 through 2045.",
+      "conversation": "plot_context"
+    },
+    {
+      "id": "plot_context-5",
+      "category": "multi-turn follow-up",
+      "query": "Show a numeric answer for that scope.",
+      "conversation": "plot_context"
+    },
+    {
+      "id": "plot_context-6",
+      "category": "multi-turn follow-up",
+      "query": "Which models are represented in it?",
+      "conversation": "plot_context"
+    },
+    {
+      "id": "model_compare_followup-1",
+      "category": "multi-turn follow-up",
+      "query": "Compare GCAM with IMAGE as model frameworks.",
+      "conversation": "model_compare_followup"
+    },
+    {
+      "id": "model_compare_followup-2",
+      "category": "multi-turn follow-up",
+      "query": "Which one includes land-use interactions?",
+      "conversation": "model_compare_followup"
+    },
+    {
+      "id": "model_compare_followup-3",
+      "category": "multi-turn follow-up",
+      "query": "How do their methodological approaches differ?",
+      "conversation": "model_compare_followup"
+    },
+    {
+      "id": "model_compare_followup-4",
+      "category": "multi-turn follow-up",
+      "query": "Give documentation for the first model.",
+      "conversation": "model_compare_followup"
+    },
+    {
+      "id": "model_compare_followup-5",
+      "category": "multi-turn follow-up",
+      "query": "Which one has loaded World CO2 data?",
+      "conversation": "model_compare_followup"
+    },
+    {
+      "id": "model_compare_followup-6",
+      "category": "multi-turn follow-up",
+      "query": "Now compare their 2050 emissions if both are available.",
+      "conversation": "model_compare_followup"
+    },
+    {
+      "id": "year_refinement-1",
+      "category": "multi-turn follow-up",
+      "query": "Show China methane emissions from 2020 through 2060.",
+      "conversation": "year_refinement"
+    },
+    {
+      "id": "year_refinement-2",
+      "category": "multi-turn follow-up",
+      "query": "Only retain values through 2045.",
+      "conversation": "year_refinement"
+    },
+    {
+      "id": "year_refinement-3",
+      "category": "multi-turn follow-up",
+      "query": "What is the change from 2020 to 2045?",
+      "conversation": "year_refinement"
+    },
+    {
+      "id": "year_refinement-4",
+      "category": "multi-turn follow-up",
+      "query": "Use Brazil for the same metric and dates.",
+      "conversation": "year_refinement"
+    },
+    {
+      "id": "year_refinement-5",
+      "category": "multi-turn follow-up",
+      "query": "What is the latest available year for that slice?",
+      "conversation": "year_refinement"
+    },
+    {
+      "id": "year_refinement-6",
+      "category": "multi-turn follow-up",
+      "query": "Explain why a projection might end before 2100.",
+      "conversation": "year_refinement"
+    }
+  ]
+}

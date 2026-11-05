@@ -433,7 +433,8 @@ def format_model_comparison_answer(
         # and answers come only from the query and supplied profile metadata.
         choice_filler = {
             "a", "an", "and", "are", "as", "both", "described", "does",
-            "better", "detailed", "either", "for", "focused", "focus", "in",
+            "better", "between", "compare", "detailed", "difference", "differences",
+            "either", "for", "focused", "focus", "in",
             "interaction", "interactions", "is", "model",
             "models", "of", "one", "the", "their", "them", "these", "those",
             "suited", "suitable", "two", "what", "which", "with",
